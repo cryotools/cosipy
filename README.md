@@ -31,22 +31,30 @@ Current status: development
 input_COSIMA-example.mat :: test data from Huintjes et al. (2015)
 
 COSIPY.py :: main model file -- this file has to be executed in your terminal:
-             	 
-			 $ python COSIPY.py
-			 
-			 All  files have to be in the same directory.
 
-             Tip: Have a look inside COSIPY.py, you can easily catch the model
-             structure.
+```
+#!python
+
+python COSIPY.py
+```
+All  files have to be in the same directory. Hint: Have a look inside COSIPY.py, you can easily catch the model structure.
 
 config.py :: This is the only file where you make your individual adaptions:
+
 * path to the input data file (currently .mat; will change to NetCDF)
+
 * time index to start
+
 * time index to stop, default: length of the time series
+
 * length of the time step
+
 * information/debug level, default: 0
+
 * layer merging level, default: 0 (no merging)
+
 * Minimal height of layers, thin layers rise computing time
+
 * more variables ...
 
 inputData.py :: contains the routine to read the model forcing as variables
