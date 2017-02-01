@@ -6,7 +6,7 @@ model' (COSIMA). The model is originally written and developed in
 Matlab code by Huintjes et al. (2015).
 
 The Python translation and model improvement of COSIMA was done by
-Tobias Sauter and Bjoern Sass under the umbrella of the Institute of
+@tsauter and @bjoesa under the umbrella of the Institute of
 Geography, Friedrich-Alexander-University Erlangen-Nuernberg.
 
 The python version of the model is subsequently called >> COSIPY <<.
@@ -92,14 +92,21 @@ results2nc.py
 
 ### Model forcing ###
 
-u2 = Wind speed (magnitude) m/s
-G = Solar radiation at each time step [W m-2]
-T2 = Air temperature (2m over ground) [K]
-rH2 = Relative humidity (2m over ground)[%]
-snowfall = Snowfall per time step [m]
-p = Air Pressure [hPa]
-N = Cloud cover [%/100]
-sh = Initial snow height [m]
+* u2 = Wind speed (magnitude) m/s
+
+* G = Solar radiation at each time step [W m-2]
+
+* T2 = Air temperature (2m over ground) [K]
+
+* rH2 = Relative humidity (2m over ground)[%]
+
+* snowfall = Snowfall per time step [m]
+
+* p = Air Pressure [hPa]
+
+* N = Cloud cover [%/100]
+
+* sh = Initial snow height [m]
 
 ### Contribution guidelines ###
 
