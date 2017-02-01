@@ -29,9 +29,9 @@ Current status: development
 
 ### Structure and setup ###
 
-input_COSIMA-example.mat :: test data from Huintjes et al. (2015)
+**input_COSIMA-example.mat** test data from Huintjes et al. (2015)
 
-COSIPY.py :: main model file -- this file has to be executed in your terminal:
+**COSIPY.py** main model file -- this file has to be executed in your terminal:
 
 ```
 #!python
@@ -40,7 +40,7 @@ python COSIPY.py
 ```
 All  files have to be in the same directory. Hint: Have a look inside COSIPY.py, you can easily catch the model structure.
 
-config.py :: This is the only file where you make your individual adaptions:
+**config.py** This is the only file where you make your individual adaptions:
 
 * path to the input data file (currently .mat; will change to NetCDF)
 
@@ -58,28 +58,28 @@ config.py :: This is the only file where you make your individual adaptions:
 
 * more variables ...
 
-inputData.py :: contains the routine to read the model forcing as variables
+**inputData.py** contains the routine to read the model forcing as variables
 
-Constants.py :: contains all variables which store applied constants
+**Constants.py** contains all variables which store applied constants
 
-Grid.py :: contains the functions to setup, read and modify the data Grid
+**Grid.py** contains the functions to setup, read and modify the data Grid
 
-Node.py :: contains the functions to set, get and modify nodes in the Grid
+**Node.py** contains the functions to set, get and modify nodes in the Grid
 
 ### PHYSICAL MODULES ###
 
-albedo.py :: updates the Albedo
+**albedo.py** updates the Albedo
 
-roughness.py :: updates the Roughness
+**roughness.py** updates the Roughness
 
-heatEquationLagrange.py :: solves the Heat Equation
+**heatEquationLagrange.py** solves the Heat Equation
 
-surfaceTemperature.py :: updates the Surface Temperature
+**surfaceTemperature.py** updates the Surface Temperature
 
-penetratingRadiation.py :: calculates the penetrating radiation into the
+**penetratingRadiation.py** calculates the penetrating radiation into the
                            snowpack
 
-percofreeze.py :: updates the liquid water content of each layer and
+**percofreeze.py** updates the liquid water content of each layer and
                   calculates refreezing and runoff
 
 ### Modules currently in development: ###
