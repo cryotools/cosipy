@@ -3,7 +3,7 @@
 These are basic information about the python version of
 the 'COupled Snowpack and Ice surface energy and MAss balance glacier
 model' (COSIMA). The model is originally written and developed in
-Matlab code by Huintjes et al. (2015).
+Matlab code by @glaciermodel (Huintjes et al., 2015).
 
 The Python translation and model improvement of COSIMA was done by
 @tsauter and @bjoesa under the umbrella of the Institute of
