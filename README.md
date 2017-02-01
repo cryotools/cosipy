@@ -92,7 +92,7 @@ results2nc.py
 
 ### Model forcing ###
 
-* u2 = Wind speed (magnitude) m/s
+* u2 = Wind speed (magnitude) [m/s]
 
 * G = Solar radiation at each time step [W m-2]
 
