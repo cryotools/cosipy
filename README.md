@@ -1,6 +1,6 @@
 # README #
 
-This file contains basic information about the python version of
+These are basic information about the python version of
 the 'COupled Snowpack and Ice surface energy and MAss balance glacier
 model' (COSIMA). The model is originally written and developed in
 Matlab code by Huintjes et al. (2015).
@@ -40,15 +40,14 @@ COSIPY.py :: main model file -- this file has to be executed in your terminal:
              structure.
 
 config.py :: This is the only file where you make your individual adaptions:
-                - path to the input data file (currently .mat; will change
-                to NetCDF)
-                - time index to start
-                - time index to stop, default: length of the time series
-                - length of the time step
-                - information/debug level, default: 0
-                - layer merging level, default: 0 (no merging)
-                - Minimal height of layers, thin layers rise computing time
-                - more variables ...
+* path to the input data file (currently .mat; will change to NetCDF)
+* time index to start
+* time index to stop, default: length of the time series
+* length of the time step
+* information/debug level, default: 0
+* layer merging level, default: 0 (no merging)
+* Minimal height of layers, thin layers rise computing time
+* more variables ...
 
 inputData.py :: contains the routine to read the model forcing as variables
 
@@ -58,7 +57,7 @@ Grid.py :: contains the functions to setup, read and modify the data Grid
 
 Node.py :: contains the functions to set, get and modify nodes in the Grid
 
-# PHYSICAL MODULES:
+### PHYSICAL MODULES ###
 
 albedo.py :: updates the Albedo
 
