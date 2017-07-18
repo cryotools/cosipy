@@ -273,6 +273,13 @@ class Grid:
         
         return self.grid[idx].set_LWC(LWCnew)
 
+    def set_LWC(self, LWCnew):
+        """ Returns the temperature profile """
+
+        for idx in range(self.nnodes):
+            self.grid[idx].set_LWC(LWCnew[idx])
+
+
     def get_T(self):
         """ Returns the temperature profile """
         T = []

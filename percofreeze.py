@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-from jackedCodeTimerPY import JackedTiming
+# from jackedCodeTimerPY import JackedTiming
 import numpy as np
 from Constants import *
 
-JTimer = JackedTiming()
+# JTimer = JackedTiming()
 
 
 def percolation(GRID, water, t):
@@ -32,37 +32,50 @@ def percolation(GRID, water, t):
     # upwind scheme to adapt liquid water content of entire GRID
     while curr_t < t:
 
-        # Get a copy of the GRID liquid water content profile
-        LWCtmp = np.copy(GRID.get_LWC())
-
         # Select appropriate time step
         dt_use = min(dt_stab, t - curr_t)
 
         # set liquid water content of top layer (idx, LWCnew)
         GRID.set_LWC_node(0, (float(water) / t) * dt_use)
 
+        # Get a copy of the GRID liquid water content profile
+        LWCtmp = np.copy(GRID.get_LWC())
+
         # Loop over all internal grid points
-        for idxNode in range(1, GRID.nnodes - 1, 1):
-            # Grid spacing
-            hk = ((hlayers[idxNode] / 2.0) + (hlayers[idxNode - 1] / 2.0))
-            hk1 = ((hlayers[idxNode + 1] / 2.0) + (hlayers[idxNode] / 2.0))
+        for idxNode in range(1, GRID.nnodes-1, 1):
+            # Percolation
+            if (GRID.get_LWC_node(idxNode - 1) - GRID.get_LWC_node(idxNode)) != 0:
+                ux = (GRID.get_LWC_node(idxNode-1) - GRID.get_LWC_node(idxNode)) / \
+                     np.abs((GRID.get_hlayer_node(idxNode-1) / 2.0) + (GRID.get_hlayer_node(idxNode) / 2.0))
 
-            # Lagrange coefficients
-            ak = hk1 / (hk * (hk + hk1))
-            bk = (hk1 - hk) / (hk * hk1)
-            ck = hk / (hk1 * (hk + hk1))
+                uy = (GRID.get_LWC_node(idxNode+1) - GRID.get_LWC_node(idxNode)) / \
+                     np.abs((GRID.get_hlayer_node(idxNode+1) / 2.0) + (GRID.get_hlayer_node(idxNode) / 2.0))
 
-            # Calculate new liquid water content
-            LWCnew = LWCtmp[idxNode] - (Vp * dt_use) * \
-                                       (ak * LWCtmp[idxNode - 1] + bk
-                                        * LWCtmp[idxNode] + ck
-                                        * LWCtmp[idxNode + 1])
-            # todo RuntimeWarning: overflow encountered in double_scalars
-            # todo RuntimeWarning: invalid value encountered in double_scalars
+                # Calculate new liquid water content
+                LWCtmp[idxNode] = GRID.get_LWC_node(idxNode) + dt_use * (ux * Vp + uy * Vp)
 
-            # Update GRID with new liquid water content
-            GRID.set_LWC_node(idxNode, LWCnew)
+            if idxNode == GRID.nnodes-2:
+                runoff = uy*Vp*dt_use
 
+
+        # Refreezing
+        for idxNode in range(1, GRID.nnodes, 1):
+
+            # Cold Content
+            cc = -c_pi * rhoH2O * GRID.get_hlayer_node(idxNode) * (GRID.get_rho_node(idxNode) / 1000.0) \
+                 * (GRID.get_T_node(idxNode) - 273.16)
+
+            energy_water = L_m * GRID.get_LWC_node(idxNode)
+
+            print("CC ", cc, "energy water: ", energy_water, "LWC: ", GRID.get_LWC_node(idxNode))
+            #print(GRID.get_T_node(idxNode))
+
+
+        # Update GRID with new liquid water content
+
+        print("Runoff", runoff)
+        print(GRID.get_LWC())
+        GRID.set_LWC(LWCtmp)
 
         # Add the time step to current time
         curr_t = curr_t + dt_use

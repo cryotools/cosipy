@@ -22,7 +22,7 @@
     Correspondence: bjoern.sass@fau.de.
 """
 
-from jackedCodeTimerPY import JackedTiming
+# from jackedCodeTimerPY import JackedTiming
 import numpy as np
 import matplotlib.pylab as plt
 from config import *
@@ -41,13 +41,13 @@ from percofreeze import percolation
 
 def main():
 
-    JTime = JackedTiming()
+    # JTime = JackedTiming()
 
     evdiff = 0  # Auxiliary Variables - hours since last snowfall
 
     ' Initialization '
 
-    nlay = 100
+    nlay = 10
 
     # Init layers
     hlayers = 0.1*np.ones(nlay)
@@ -95,9 +95,9 @@ def main():
 
     ' Time Loop '
 
-    JTime.start('while')
+    # JTime.start('while')
     for t in range(tstart, tend, 1):
-        
+
         # Add snowfall
         Hsnow = Hsnow + snowfall[t]
 
@@ -127,7 +127,7 @@ def main():
 
         # Solve the heat equation
         solveHeatEquation(GRID, dt)    
-        
+
         # Find new surface temperature
         fun, T0, Li, Lo, H, L, B, SWnet = updateSurfaceTemperature(GRID, alpha, z0, t)
 
@@ -171,11 +171,11 @@ def main():
         Alphaall.append(alpha)  # albedo
         snowHeightall.append(np.sum((GRID.get_hlayer())))
 
-    JTime.stop('while')
+    # JTime.stop('while')
 
     GRID.info()
 
-    print(JTime.report())
+    # print(JTime.report())
 
 ''' model execution '''
 

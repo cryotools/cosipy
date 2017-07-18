@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-from jackedCodeTimerPY import JackedTiming
+# from jackedCodeTimerPY import JackedTiming
 import numpy as np
 import Node as node
 from Constants import *
 import math
 
-JTimer = JackedTiming()
+# JTimer = JackedTiming()
 
 def solveHeatEquation(GRID, t):
     """ Solves the heat equation on a non-uniform grid using

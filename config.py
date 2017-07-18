@@ -13,9 +13,9 @@ mat_path = 'input_COSIMA-example.mat'   # PATH and filename of model forcing/inp
 
 nc_path = 'input_COSIMA-example.nc'
 
-tstart = 0                      # time index to start
-tend = 10                       # len(T2) usually the length of the time series
-dt = 3600                       # 3600, 7200, 10800 [s] length of time step per iteration in seconds
+tstart = 499                      # time index to start
+tend = 500                     # len(T2) usually the length of the time series
+dt = 3600                     # 3600, 7200, 10800 [s] length of time step per iteration in seconds
 
 debug_level = 0                 # DEBUG levels: 0, 10, 20, 30
 

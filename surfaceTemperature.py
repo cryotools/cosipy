@@ -55,6 +55,8 @@ def updateSurfaceTemperature(GRID, alpha, z0, t):
     G = DATA['G'][t]
     u2 = DATA['u2'][t]
 
+    T2 = 275.5
+
     # Saturation vapour pressure
     Ew = 6.107 * np.exp((9.5*(T2-273.16)) / (265.5 + (T2-273.16)))
 
