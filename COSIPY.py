@@ -16,10 +16,12 @@
 
     The code is available on bitbucket. For more information read the README.
 
-    The model is written in Python 2.7 and is tested on Anaconda2-4.3.0 64-bit
+    The model is written in Python 3.6 and is tested on Anaconda2-4.4.0 64-bit
     distribution with additional packages.
 
-    Correspondence: bjoern.sass@fau.de.
+    Last change: 22.07.2017
+
+    Correspondence: anselm.arndt@geo.hu-berlin.de
 """
 
 # from jackedCodeTimerPY import JackedTiming
@@ -34,7 +36,7 @@ from albedo import updateAlbedo
 from roughness import updateRoughness
 from surfaceTemperature import updateSurfaceTemperature
 from penetratingRadiation import penetratingRadiation
-from percofreeze import percolation
+from percolation import percolation
 
 
 ' model function '
