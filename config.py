@@ -13,7 +13,7 @@ mat_path = 'input_COSIMA-example.mat'   # PATH and filename of model forcing/inp
 
 nc_path = 'input_COSIMA-example.nc'
 
-tstart = 499                      # time index to start
+tstart = 0                      # time index to start
 tend = 500                     # len(T2) usually the length of the time series
 dt = 3600                     # 3600, 7200, 10800 [s] length of time step per iteration in seconds
 
@@ -33,3 +33,4 @@ mergeNewSnowThreshold = 0.02    # Minimal height of layer [m]:
 Tb = 268                        # bottom temperature [K]
 rho_new = 250.                  # density of freshly fallen snow [kg m-3]
 
+c_stab = 0.3                    # cfl criteria

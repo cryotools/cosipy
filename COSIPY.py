@@ -72,7 +72,7 @@ def main():
         print('Merge in action!')
 
     # Initialize grid, the grid class contains all relevant grid information
-    GRID = grd.Grid(hlayers, rho, Ts, LWC, params, debug_level)
+    GRID = grd.Grid(hlayers, rho, Ts, LWC, debug_level)
     # todo params handling?
 
     # Get some information on the grid setup

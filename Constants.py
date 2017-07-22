@@ -31,10 +31,3 @@ depscale = 8                # constant for the effect of snow depth on albedo [c
 roughnessFreshSnow = 0.24   # surface roughness length for fresh snow [mm] (Moelg etal. 2012, TC)
 roughnessIce = 1.7          # surface roughness length for ice [mm] (Moelg etal. 2012, TC)
 roughnessFirn = 4.0         # surface roughness length for aged snow [mm] (Moelg etal. 2012, TC)
-
-# todo params dict is solely needed by grd.Grid - replace it in Grid.py!
-
-params = {roughnessFreshSnow, roughnessIce,
-          roughnessFirn, alphaFirn,
-          alphaFreshSnow, alphaIce,
-          tscale, depscale, snowIceThres}

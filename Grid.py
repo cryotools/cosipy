@@ -6,7 +6,7 @@ from Constants import *
 
 class Grid:
 
-    def __init__(self, hlayersList, rhoList, TList, LWCList, params, DEBUG):
+    def __init__(self, hlayersList, rhoList, TList, LWCList, DEBUG):
         """ Initialize numerical grid 
         
         Input:         
@@ -14,7 +14,6 @@ class Grid:
         rhoList     : numpy array with density values for each layer
         TList       : numpy array with temperature values for each layer
         LWCList     : numpy array with liquid water content for each layer
-        params      : dictionary with parameter values read from the parameter file
         DEBUG       : Debug level (0, 10, 20, 30) """
 
         # Set class variables

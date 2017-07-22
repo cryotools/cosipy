@@ -3,6 +3,8 @@
 # from jackedCodeTimerPY import JackedTiming
 import numpy as np
 from Constants import *
+from config import *
+
 
 # JTimer = JackedTiming()
 
@@ -15,7 +17,6 @@ def percolation(GRID, water, t):
     """
 
     # Courant-Friedrich Lewis Criteria
-    c_stab = 0.1
     curr_t = 0
     Tnew = 0
 

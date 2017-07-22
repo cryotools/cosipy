@@ -4,6 +4,7 @@
 import numpy as np
 import Node as node
 from Constants import *
+from config import *
 import math
 
 # JTimer = JackedTiming()
@@ -15,7 +16,6 @@ def solveHeatEquation(GRID, t):
     
     """
   
-    c_stab = 0.3
     curr_t = 0
     Tnew = 0
 
@@ -26,7 +26,7 @@ def solveHeatEquation(GRID, t):
         snowRho = [idx for idx in GRID.get_rho() if idx<=830.]  
         snowRhoMean = sum(snowRho)/len(snowRho)
 
-    # Calculate specific heat depending on temperature [J Kg-1 K-1] from mean temperature
+    # Calculate specific heat  [J Kg-1 K-1] depending on density from mean density
     c_pi = 152.2 + 7.122 * snowRhoMean 
     
     # Calculate thermal conductivity [W m-1 K-1] from mean density
@@ -52,9 +52,6 @@ def solveHeatEquation(GRID, t):
             hk = ((hlayers[idxNode]/2.0)+(hlayers[idxNode-1]/2.0))
             hk1 = ((hlayers[idxNode+1]/2.0)+(hlayers[idxNode]/2.0))
             
-            #hk = ((hlayers[idxNode])+(hlayers[idxNode-1]))
-            #hk1 = ((hlayers[idxNode+1])+(hlayers[idxNode]))
-
             # Lagrange coeffiecients
             ak = 2.0 / (hk*(hk+hk1))
             bk = -2.0 / (hk*hk1)
