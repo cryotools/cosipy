@@ -38,7 +38,7 @@ Current status: development
 
 python COSIPY.py
 ```
-All  files have to be in the same directory. Hint: Have a look inside COSIPY.py, you can easily catch the model structure.
+Hint: Have a look inside COSIPY.py, you can easily catch the model structure.
 
 **config.py** This is the only file where you make your individual adaptions:
 
