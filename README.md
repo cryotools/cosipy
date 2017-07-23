@@ -11,7 +11,7 @@ Geography, Friedrich-Alexander-University Erlangen-Nuernberg.
 
 The python version of the model is subsequently called >> COSIPY <<.
 
-The model is written in Python 2.7 and is tested on Anaconda2-4.3.0 64-bit
+The model is written in Python 3.6 and is tested on Anaconda2-4.4.0 64-bit
 distribution with additional packages.
 
 For more information about the model physics please read:
