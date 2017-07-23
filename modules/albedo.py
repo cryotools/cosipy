@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import numpy as np
-from Constants import *
+from constants import *
 
 
 def updateAlbedo(GRID, evdiff):

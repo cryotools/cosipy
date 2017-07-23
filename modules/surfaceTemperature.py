@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
 import numpy as np
-from Constants import *
-from inputData import *
+from constants import *
+from dyn.io import *
 from scipy.optimize import minimize
 
 def energyBalance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):

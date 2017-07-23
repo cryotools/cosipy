@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import math
-from Constants import *
+from constants import *
 
 
 def penetratingRadiation(GRID, SWnet, dt):

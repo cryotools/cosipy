@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from Constants import snowIceThres, roughnessFreshSnow, roughnessFirn, roughnessIce
+from constants import snowIceThres, roughnessFreshSnow, roughnessFirn, roughnessIce
 
 def updateRoughness(GRID, evdiff):
     """ This method updates the roughness length (Moelg et al 2009, J.Clim.)"""
