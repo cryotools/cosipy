@@ -27,3 +27,6 @@ def updateAlbedo(GRID, evdiff):
 
 
     return alphaMod
+
+
+### idea; have a deeper look if it would by worthwhile; albedo decay like (Brock et al. 2000)

@@ -100,7 +100,6 @@ def main():
 
     # JTime.start('while')
     for t in range(tstart, tend, 1):
-
         # Add snowfall
         Hsnow = Hsnow + snowfall[t]
 
@@ -125,7 +124,6 @@ def main():
 
         # Merge grid layers, if necessary
         GRID.update_grid(mergingLevel)
-
         # Solve the heat equation
         solveHeatEquation(GRID, dt)
 
