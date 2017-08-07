@@ -68,14 +68,14 @@ def percolation(GRID, water, t):
 
             energy_water = L_m * GRID.get_LWC_node(idxNode)
 
-            print("CC ", cc, "energy water: ", energy_water, "LWC: ", GRID.get_LWC_node(idxNode))
-            #print(GRID.get_T_node(idxNode))
+            # print("CC ", cc, "energy water: ", energy_water, "LWC: ", GRID.get_LWC_node(idxNode))
+            # print(GRID.get_T_node(idxNode))
 
 
         # Update GRID with new liquid water content
 
-        print("Runoff", runoff)
-        print(GRID.get_LWC())
+        # print("Runoff", runoff)
+        # print(GRID.get_LWC())
         GRID.set_LWC(LWCtmp)
 
         # Add the time step to current time
