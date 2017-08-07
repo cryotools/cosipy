@@ -13,11 +13,11 @@ mat_path = 'input/input_COSIMA-example.mat'   # PATH and filename of model forci
 
 nc_path = 'input/input_COSIMA-example.nc'
 
-tstart = 499                      # time index to start
-tend = 500                     # len(T2) usually the length of the time series
+tstart = 0                      # time index to start
+tend = 4                     # len(T2) usually the length of the time series
 dt = 3600                     # 3600, 7200, 10800 [s] length of time step per iteration in seconds
 
-debug_level = 0                 # DEBUG levels: 0, 10, 20, 30
+debug_level = 0                  # DEBUG levels: 0, 10, 20, 30
 
 mergingLevel = 0                # Merge layers with similar properties:
                                     # 0 = False
