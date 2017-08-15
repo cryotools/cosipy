@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import numpy as np
 from constants import *
 
@@ -8,22 +6,22 @@ def updateAlbedo(GRID, evdiff):
     """ This methods updates the albedo """
 
     # Check if snow or ice
-    if (GRID.get_rho_node(0) <= snowIceThres):
+    if (GRID.get_node_density(0) <= snow_ice_threshold):
     
         # Get current snowheight from layer height 
-        idx = (next((i for i, x in enumerate(GRID.get_rho()) if x >= snowIceThres), None) )
-        h = np.sum(GRID.get_hlayer()[0:idx])
+        idx = (next((i for i, x in enumerate(GRID.get_density()) if x >= snow_ice_threshold), None))
+        h = np.sum(GRID.get_height()[0:idx])
     
         # Surface albedo according to Oerlemans & Knap 1998, JGR)
-        alphaSnow = alphaFirn + (alphaFreshSnow - alphaFirn) * \
-                np.exp((-evdiff)/(tscale*24.0))
-        alphaMod = alphaSnow + (alphaIce - alphaSnow) * \
-                np.exp((-1.0*h)/(depscale/100.0))
+        alphaSnow = albedo_firn + (albedo_fresh_snow - albedo_firn) * \
+                                  np.exp((-evdiff) / (albedo_mod_snow_aging * 24.0))
+        alphaMod = alphaSnow + (albedo_ice - alphaSnow) * \
+                               np.exp((-1.0*h) / (albedo_mod_snow_depth / 100.0))
     
     else:
     
         # If no snow cover than set albedo to ice albedo
-        alphaMod = alphaIce
+        alphaMod = albedo_ice
 
 
     return alphaMod

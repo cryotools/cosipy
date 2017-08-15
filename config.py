@@ -1,11 +1,9 @@
-#!/usr/bin/env python
-
-'''
+"""
  This is the COSIPY configuration (init) file.
  Please make your changes here.
-'''
+"""
 
-''' required_input '''
+''' REQUIRED INPUT '''
 
 mat_path = 'input/input_COSIMA-example.mat'   # PATH and filename of model forcing/input file
                                         # see 'inputData.py' file
@@ -13,31 +11,26 @@ mat_path = 'input/input_COSIMA-example.mat'   # PATH and filename of model forci
 
 nc_path = 'input/input_COSIMA-example.nc'
 
-tstart = 0                      # time index to start
-tend = 4                     # len(T2) usually the length of the time series
+time_start = 0                      # time index to start
+time_end = 4                     # len(T2) usually the length of the time series
 dt = 3600                     # 3600, 7200, 10800 [s] length of time step per iteration in seconds
 
 debug_level = 0                  # DEBUG levels: 0, 10, 20, 30
 
-mergingLevel = 0                # Merge layers with similar properties:
+merging_level = 0                # Merge layers with similar properties:
                                     # 0 = False
                                     # 1 = 5. [kg m^-3] and 0.05 [K]
                                     # 2 = 10. and 0.1
 
-mergeNewSnowThreshold = 0.02    # Minimal height of layer [m]:
+merge_snow_threshold = 0.02    # Minimal height of layer [m]:
                                 # thin layers rise computational needs
                                 # of upwind schemes (e.g. heatEquation)
 
 ''' required variables '''
 
-Tb = 268                        # bottom temperature [K]
-rho_new = 250.                  # density of freshly fallen snow [kg m-3]
+temperature_bottom = 268                        # bottom temperature [K]
 
 c_stab = 0.3                    # cfl criteria
-
-
-
-
 
 
 #### strings with names for parametrisations

@@ -1,13 +1,8 @@
-#!/usr/bin/env python
-
-# from jackedCodeTimerPY import JackedTiming
 import numpy as np
 
 from constants import *
-from namelist import *
+from config import *
 
-
-# JTimer = JackedTiming()
 
 def solveHeatEquation(GRID, t):
     """ Solves the heat equation on a non-uniform grid using
@@ -20,10 +15,10 @@ def solveHeatEquation(GRID, t):
     Tnew = 0
 
     # Get mean snow density
-    if (GRID.get_rho_node(0) >= 830.):
-        snowRhoMean = snowIceThres
+    if (GRID.get_node_density(0) >= 830.):
+        snowRhoMean = snow_ice_threshold
     else:
-        snowRho = [idx for idx in GRID.get_rho() if idx<=830.]  
+        snowRho = [idx for idx in GRID.get_density() if idx <= 830.]
         snowRhoMean = sum(snowRho)/len(snowRho)
 
     # Calculate specific heat  [J Kg-1 K-1] depending on density from mean density
@@ -35,7 +30,7 @@ def solveHeatEquation(GRID, t):
     # Calculate thermal diffusivity [m2 s-1]
     K = lam / (snowRhoMean * c_pi)
     
-    hlayers = GRID.get_hlayer()
+    hlayers = GRID.get_height()
 
     # Check stability criteria for diffusion
     dt_stab = c_stab * (min(hlayers)**2.0) / (K)
@@ -43,10 +38,10 @@ def solveHeatEquation(GRID, t):
     while curr_t < t:
    
         # Get a copy of the GRID temperature profile
-        Ttmp = np.copy(GRID.get_T()) 
+        Ttmp = np.copy(GRID.get_temperature())
 
         # Loop over all internal grid points
-        for idxNode in range(1,GRID.nnodes-1,1):
+        for idxNode in range(1,GRID.number_nodes-1,1):
 
             # Grid spacing            
             hk = ((hlayers[idxNode]/2.0)+(hlayers[idxNode-1]/2.0))
@@ -65,7 +60,7 @@ def solveHeatEquation(GRID, t):
                 (ak * Ttmp[idxNode-1] + bk * Ttmp[idxNode] + ck * Ttmp[idxNode+1]) 
 
             # Update GRID with new temperatures
-            GRID.set_T_node(idxNode, Tnew) 
+            GRID.set_node_temperature(idxNode, Tnew)
 
         # Add the time step to current time
         curr_t = curr_t + dt_use
