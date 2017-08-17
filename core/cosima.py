@@ -56,7 +56,7 @@ def cosima():
     result_lw_radiation_in = []
     result_lw_radiation_out = []
     result_ground_heat_flux = []
-    result_surface_net_radiation = []
+    result_sw_radiation_net = []
     result_surface_temperature = []
     result_albedo = []
     result_snow_height = []
@@ -99,7 +99,7 @@ def cosima():
 
         # Find new surface temperature
         fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
-            ground_heat_flux, surface_net_radiation \
+            ground_heat_flux, sw_radiation_net \
             = update_surface_temperature(GRID, alpha, z0, t)
 
         # Surface fluxes [m w.e.q.]
@@ -115,7 +115,7 @@ def cosima():
             deposition = 0
 
         # Melt energy in [m w.e.q.]
-        melt_energy = max(0, surface_net_radiation + lw_radiation_in + lw_radiation_out - ground_heat_flux -
+        melt_energy = max(0, sw_radiation_net + lw_radiation_in + lw_radiation_out - ground_heat_flux -
                           sensible_heat_flux - latent_heat_flux)  # W m^-2 / J s^-1 ^m-2
 
         melt = melt_energy * dt / (1000 * lat_heat_melting)  # m w.e.q. (ice)
@@ -127,7 +127,7 @@ def cosima():
         GRID.merge_new_snow(merge_snow_threshold)
 
         # Account layer temperature due to penetrating SW radiation
-        penetrating_radiation(GRID, surface_net_radiation, dt)
+        penetrating_radiation(GRID, sw_radiation_net, dt)
 
         # todo Percolation, fluid retention (liquid_water_content) & refreezing of melt water
         # and rain
@@ -140,7 +140,7 @@ def cosima():
         result_latent_heat_flux.append(latent_heat_flux)
         result_ground_heat_flux.append(ground_heat_flux)
         result_surface_temperature.append(surface_temperature)
-        result_surface_net_radiation.append(surface_net_radiation)
+        result_sw_radiation_net.append(sw_radiation_net)
         result_albedo.append(alpha)
         result_snow_height.append(np.sum((GRID.get_height())))
 
