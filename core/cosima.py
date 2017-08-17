@@ -76,7 +76,7 @@ def cosima():
             # TODO: Better use weq than snowheight
 
             # Add a new snow node on top
-            GRID.add_node(float(DATA['snowfall'][t]), densitiy_fresh_snow, float(DATA['T2'][t]), 0)
+            GRID.add_node(float(DATA['snowfall'][t]), density_fresh_snow, float(DATA['T2'][t]), 0)
             GRID.merge_new_snow(merge_snow_threshold)
 
         if snowfall[t] < 0.005:

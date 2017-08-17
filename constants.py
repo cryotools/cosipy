@@ -35,7 +35,7 @@ roughness_fresh_snow = 0.24       # surface roughness length for fresh snow [mm]
 roughness_ice = 1.7               # surface roughness length for ice [mm] (Moelg etal. 2012, TC)
 roughness_firn = 4.0              # surface roughness length for aged snow [mm] (Moelg etal. 2012, TC)
 
-densitiy_fresh_snow = 250.        # density of freshly fallen snow [kg m-3]
+density_fresh_snow = 250.        # density of freshly fallen snow [kg m-3]
 
 ' MODEL CONSTANTS '
 
