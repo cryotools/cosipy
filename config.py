@@ -5,14 +5,14 @@
 
 ''' REQUIRED INPUT '''
 
-mat_path = 'input/input_COSIMA-example.mat'   # PATH and filename of model forcing/input file
+mat_path = 'input/input_COSIPY-example.mat'   # PATH and filename of model forcing/input file
                                         # see 'inputData.py' file
                                         #  todo should be netCDF (in progress)
 
-nc_path = 'input/input_COSIMA-example.nc'
+nc_path = 'input/input_COSIPY-example.nc'
 
 time_start = 0                      # time index to start
-time_end = 4                     # len(T2) usually the length of the time series
+time_end = 3900                     # len(T2) usually the length of the time series
 dt = 3600                     # 3600, 7200, 10800 [s] length of time step per iteration in seconds
 
 debug_level = 0                  # DEBUG levels: 0, 10, 20, 30
