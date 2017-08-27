@@ -1,4 +1,5 @@
 import numpy as np
+from datetime import datetime
 
 from modules.heatEquation import solveHeatEquation
 from modules.penetratingRadiation import penetrating_radiation
@@ -16,6 +17,7 @@ from config import *
 
 def cosima():
     """ COSIMA main routine """
+    start_time=datetime.now()
 
     ''' INITIALIZATION '''
     hours_since_snowfall = 0
@@ -26,6 +28,9 @@ def cosima():
     rho[0] = 250.
     rho[1] = 400.
     rho[2] = 550.
+
+    # read input data
+    wind_speed, solar_radiation, temperature_2m, relative_humidity, snowfall, air_pressure, cloud_cover, initial_snow_height = read_input()
 
     # Init temperature
     temperature_surface = temperature_bottom * np.ones(number_layers)
@@ -61,7 +66,7 @@ def cosima():
     result_albedo = []
     result_snow_height = []
 
-    if initial_snow_height:
+    if initial_snow_height[0]:
         snow_height = initial_snow_height
     else:
         snow_height = 0
@@ -69,6 +74,7 @@ def cosima():
     ' TIME LOOP '
 
     for t in range(time_start, time_end, 1):
+        print(t)
         # Add snowfall
         snow_height = snow_height + snowfall[t]
 
@@ -76,7 +82,7 @@ def cosima():
             # TODO: Better use weq than snowheight
 
             # Add a new snow node on top
-            GRID.add_node(float(DATA['snowfall'][t]), density_fresh_snow, float(DATA['T2'][t]), 0)
+            GRID.add_node(float(snowfall[t]), density_fresh_snow, float(temperature_2m[t]), 0)
             GRID.merge_new_snow(merge_snow_threshold)
 
         if snowfall[t] < 0.005:
@@ -144,4 +150,9 @@ def cosima():
         result_albedo.append(alpha)
         result_snow_height.append(np.sum((GRID.get_height())))
 
+    write_output_1D(result_lw_radiation_in,result_lw_radiation_out,result_sensible_heat_flux,result_latent_heat_flux,
+                    result_ground_heat_flux,result_surface_temperature,result_sw_radiation_net,result_albedo,result_snow_height)
+
     GRID.info()
+    duration_run=datetime.now()-start_time
+    print("run duration in seconds ", duration_run.total_seconds())

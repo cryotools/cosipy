@@ -43,13 +43,16 @@ def update_surface_temperature(GRID, alpha, z0, t):
 
     """
 
-    # todo change input data when input file format is changed to netCDF!
-    T2 = DATA['T2'][t]
-    rH2 = DATA['rH2'][t]
-    N = DATA['N'][t]
-    p = DATA['p'][t]
-    G = DATA['G'][t]
-    u2 = DATA['u2'][t]
+    # read input data
+    wind_speed, solar_radiation, temperature_2m, relative_humidity, snowfall, air_pressure, cloud_cover, \
+    inital_snow_height = read_input()
+
+    T2 = temperature_2m[t]
+    rH2 = relative_humidity[t]
+    N = cloud_cover[t]
+    p = air_pressure[t]
+    G = solar_radiation[t]
+    u2 = wind_speed[t]
 
     # Saturation vapour pressure
     Ew = 6.107 * np.exp((9.5*(T2-273.16)) / (265.5 + (T2-273.16)))

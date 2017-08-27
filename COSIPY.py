@@ -21,7 +21,7 @@
 
     The model is written in Python 3.6 and is tested on Anaconda2-4.4.0 64-bit.
 
-    Correspondence: anselm.arndt@geo.hu-berlin
+    Correspondence: anselm.arndt@geo.hu-berlin.de
 """
 
 from core.cosima import cosima
