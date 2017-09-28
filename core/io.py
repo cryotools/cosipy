@@ -48,6 +48,8 @@ def write_output_1D(lw_in,lw_out,h,lh,g,tsk,sw_net,albedo,sh):
     data.attrs['CREATION_DATE'] = str(today)
     data.to_netcdf(output_netcdf)
 
+def write_output_2d(lw_in,lw_out,h,lh,g,tsk,sw_net,albedo,sh):
+
 
 
 ' Load climatic forcing (variables from Matlab file) '
