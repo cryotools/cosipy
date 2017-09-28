@@ -1,12 +1,10 @@
 """
- This file reads in the input data (model forcing) and write output the output to a netcdf file
+ This file reads the input data (model forcing) and write the output to netcdf file
 """
 
-# import scipy.io as sio
 import xarray as xr
 from datetime import date
 from config import input_netcdf, output_netcdf
-
 
 def read_input():
     DATA = xr.open_dataset(input_netcdf)
@@ -49,7 +47,7 @@ def write_output_1D(lw_in,lw_out,h,lh,g,tsk,sw_net,albedo,sh):
     data.to_netcdf(output_netcdf)
 
 def write_output_2d(lw_in,lw_out,h,lh,g,tsk,sw_net,albedo,sh):
-
+    print("write 2D fields")
 
 
 ' Load climatic forcing (variables from Matlab file) '

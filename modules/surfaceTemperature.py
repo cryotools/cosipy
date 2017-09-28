@@ -34,7 +34,7 @@ def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
     return np.abs(SWnet+Li+Lo-H-L-B)
 
 
-def update_surface_temperature(GRID, alpha, z0, t):
+def update_surface_temperature(GRID, alpha, z0, t, x, y):
     """ This methods updates the surface temperature and returns the surface fluxes 
     
     GRID    :: GRID class
@@ -47,12 +47,12 @@ def update_surface_temperature(GRID, alpha, z0, t):
     wind_speed, solar_radiation, temperature_2m, relative_humidity, snowfall, air_pressure, cloud_cover, \
     inital_snow_height = read_input()
 
-    T2 = temperature_2m[t]
-    rH2 = relative_humidity[t]
-    N = cloud_cover[t]
-    p = air_pressure[t]
-    G = solar_radiation[t]
-    u2 = wind_speed[t]
+    T2 = temperature_2m[x,y,t]
+    rH2 = relative_humidity[x,y,t]
+    N = cloud_cover[x,y,t]
+    p = air_pressure[x,y,t]
+    G = solar_radiation[x,y,t]
+    u2 = wind_speed[x,y,t]
 
     # Saturation vapour pressure
     Ew = 6.107 * np.exp((9.5*(T2-273.16)) / (265.5 + (T2-273.16)))
