@@ -22,15 +22,18 @@ def cosima():
     wind_speed, solar_radiation, temperature_2m, relative_humidity, snowfall, air_pressure, cloud_cover, initial_snow_height = read_input()
 
     """loop in x direction"""
-    for x in range (0, temperature_2m.shape[0]-1,1):
+    for x in range (5, temperature_2m.shape[0]-1,1):
         print(x)
-        print("länge x", temperature_2m.shape[0]-1)
+#        print("länge x", temperature_2m.shape[0]-1)
 
         """loop in y direction"""
-        for y in range(0, temperature_2m.shape[1]-1,1):
+        for y in range(5, temperature_2m.shape[1]-1,1):
             print(y)
-            print("länge y", temperature_2m.shape[1] - 1)
+#            print("länge y", temperature_2m.shape[1] - 1)
             start_time = datetime.now()
+
+            del wind_speed, solar_radiation, temperature_2m, relative_humidity, snowfall, air_pressure, cloud_cover, initial_snow_height
+            wind_speed, solar_radiation, temperature_2m, relative_humidity, snowfall, air_pressure, cloud_cover, initial_snow_height = read_input()
 
             wind_speed = wind_speed[x,y,:]
             solar_radiation = solar_radiation[x,y,:]
@@ -41,7 +44,7 @@ def cosima():
             cloud_cover = cloud_cover[x,y,:]
             initial_snow_height = initial_snow_height[x,y,:]
 
-
+            print(temperature_2m[0])
 
 
 
