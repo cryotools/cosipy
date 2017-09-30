@@ -1,5 +1,7 @@
 import numpy as np
 from datetime import datetime
+import multiprocessing
+from functools import partial
 
 from modules.heatEquation import solveHeatEquation
 from modules.penetratingRadiation import penetrating_radiation
@@ -17,18 +19,20 @@ from config import *
 
 def cosima():
     """ COSIMA main routine """
+    start_time = datetime.now()
 
     # read input data
     wind_speed_mask, solar_radiation_mask, temperature_2m_mask, relative_humidity_mask, snowfall_mask,\
     air_pressure_mask, cloud_cover_mask, initial_snow_height_mask = read_input()
-
+    pool=multiprocessing.Pool()
     """loop in x direction"""
-    for x in range (0, temperature_2m_mask.shape[0]-1,1):
+    for x in range(0, temperature_2m_mask.shape[0]-1,1):
         """loop in y direction"""
+
+        partial_func=partial()
         for y in range(0, temperature_2m_mask.shape[1]-1,1):
             if 0.0 <= temperature_2m_mask[x,y,0] <= 400:
-                start_time = datetime.now()
-
+                print("match")
                 wind_speed = wind_speed_mask[x,y,:]
                 solar_radiation = solar_radiation_mask[x,y,:]
                 temperature_2m = temperature_2m_mask[x,y,:]
@@ -90,7 +94,7 @@ def cosima():
                 ' TIME LOOP '
 
                 for t in range(time_start, time_end, 1):
-                    print(t)
+                    #print(t)
                     # Add snowfall
                     snow_height = snow_height + snowfall[t]
 
@@ -167,12 +171,13 @@ def cosima():
                     result_snow_height.append(np.sum((GRID.get_height())))
 
                     #GRID.info()
+                    #print("grid_point_done")
             else:
                 print("no glacier")
                 #print(temperature_2m[x,y,0])
 
 
-    print("grid_point_done")
+
     #write_output_1D(result_lw_radiation_in,result_lw_radiation_out,result_sensible_heat_flux,result_latent_heat_flux,
      #               result_ground_heat_flux,result_surface_temperature,result_sw_radiation_net,result_albedo,result_snow_height)
 
