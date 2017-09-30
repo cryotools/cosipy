@@ -9,7 +9,7 @@ mat_path = 'input/input_COSIPY-example.mat'         # same input file as matlab 
 output_netcdf = 'output/output_example-1D.nc'       # example output file; in future user have to define external path?
 
 time_start = 0                                      # time index to start
-time_end = 10                                       # len(T2) usually the length of the time series
+time_end = 100                                       # len(T2) usually the length of the time series
 dt = 3600                                           # 3600, 7200, 10800 [s] length of time step per iteration in seconds
 
 debug_level = 0                                     # DEBUG levels: 0, 10, 20, 30

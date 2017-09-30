@@ -338,6 +338,6 @@ class Grid:
         for i in range(self.number_nodes):
             tmp = tmp + self.grid[i].get_layer_height()
 
-        print("Grid consists of %d nodes \t" % self.number_nodes)
-        print("Total domain depth is %4.2f m \n" % tmp)
+#        print("Grid consists of %d nodes \t" % self.number_nodes)
+#        print("Total domain depth is %4.2f m \n" % tmp)
 

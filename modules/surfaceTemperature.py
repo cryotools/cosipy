@@ -44,15 +44,15 @@ def update_surface_temperature(GRID, alpha, z0, t, x, y):
     """
 
     # read input data
-    wind_speed, solar_radiation, temperature_2m, relative_humidity, snowfall, air_pressure, cloud_cover, \
-    inital_snow_height = read_input()
+    wind_speed_mask, solar_radiation_mask, temperature_2m_mask, relative_humidity_mask, snowfall_mask,\
+    air_pressure_mask, cloud_cover_mask, initial_snow_height_mask = read_input()
 
-    T2 = temperature_2m[x,y,t]
-    rH2 = relative_humidity[x,y,t]
-    N = cloud_cover[x,y,t]
-    p = air_pressure[x,y,t]
-    G = solar_radiation[x,y,t]
-    u2 = wind_speed[x,y,t]
+    T2 = temperature_2m_mask[x,y,t]
+    rH2 = relative_humidity_mask[x,y,t]
+    N = cloud_cover_mask[x,y,t]
+    p = air_pressure_mask[x,y,t]
+    G = solar_radiation_mask[x,y,t]
+    u2 = wind_speed_mask[x,y,t]
 
     # Saturation vapour pressure
     Ew = 6.107 * np.exp((9.5*(T2-273.16)) / (265.5 + (T2-273.16)))
