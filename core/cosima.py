@@ -29,7 +29,6 @@ def cosima():
     for x in range(0, temperature_2m_mask.shape[0]-1,1):
         """loop in y direction"""
 
-        partial_func=partial()
         for y in range(0, temperature_2m_mask.shape[1]-1,1):
             if 0.0 <= temperature_2m_mask[x,y,0] <= 400:
                 print("match")
@@ -126,7 +125,7 @@ def cosima():
                     # Find new surface temperature
                     fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
                         ground_heat_flux, sw_radiation_net \
-                        = update_surface_temperature(GRID, alpha, z0, t, x, y)
+                        = update_surface_temperature(GRID, alpha, z0, temperature_2m[t], relative_humidity[t], cloud_cover[t], air_pressure[t], solar_radiation[t], wind_speed[t])
 
                     # Surface fluxes [m w.e.q.]
                     if GRID.get_node_temperature(0) < zero_temperature:
