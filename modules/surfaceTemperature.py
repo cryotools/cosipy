@@ -36,18 +36,7 @@ def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
 
 def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2):
     """ This methods updates the surface temperature and returns the surface fluxes 
-    
-    GRID    :: GRID class
-    alpha   :: Albedo
-    t       :: Current time step
-
-    """
-    # T2 = temperature_2m[t]
-    # rH2 = relative_humidity[t]
-    # N = cloud_cover[t]
-    # p = air_pressure[t]
-    # G = solar_radiation[t]
-    # u2 = wind_speed[t]
+        """
 
     # Saturation vapour pressure
     Ew = 6.107 * np.exp((9.5*(T2-273.16)) / (265.5 + (T2-273.16)))
