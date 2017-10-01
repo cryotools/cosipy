@@ -18,7 +18,7 @@ def read_input():
     initial_snow_height_mask = DATA.sh.values   # Initial snow height [m]
     return wind_speed_mask, solar_radiation_mask, temperature_2m_mask, relative_humidity_mask, snowfall_mask, air_pressure_mask, cloud_cover_mask, initial_snow_height_mask
 
-def write_output_1D(lw_in,lw_out,h,lh,g,tsk,sw_net,albedo,sh):
+def write_output(lw_in,lw_out,h,lh,g,tsk,sw_net,albedo,sh):
     today = date.today()
 
     lw_in = xr.DataArray(lw_in)
@@ -45,10 +45,6 @@ def write_output_1D(lw_in,lw_out,h,lh,g,tsk,sw_net,albedo,sh):
     data.attrs['TITLE'] = 'COSIPY 1D results'
     data.attrs['CREATION_DATE'] = str(today)
     data.to_netcdf(output_netcdf)
-
-def write_output_2d(lw_in,lw_out,h,lh,g,tsk,sw_net,albedo,sh):
-    print("write 2D fields")
-
 
 ' Load climatic forcing (variables from Matlab file) '
 # DATA = sio.loadmat(mat_path)

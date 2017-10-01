@@ -24,7 +24,23 @@ def cosima():
     # read input data
     wind_speed_mask, solar_radiation_mask, temperature_2m_mask, relative_humidity_mask, snowfall_mask,\
     air_pressure_mask, cloud_cover_mask, initial_snow_height_mask = read_input()
+
+    # create xarray Data Arrays for model output
+    result_sensible_heat_flux = xr.DataArray(np.full_like(temperature_2m_mask,"nan"))
+    result_latent_heat_flux = xr.DataArray(np.full_like(temperature_2m_mask,"nan"))
+    result_lw_radiation_in = xr.DataArray(np.full_like(temperature_2m_mask,"nan"))
+    result_lw_radiation_out = xr.DataArray(np.full_like(temperature_2m_mask,"nan"))
+    result_ground_heat_flux = xr.DataArray(np.full_like(temperature_2m_mask,"nan"))
+    result_sw_radiation_net = xr.DataArray(np.full_like(temperature_2m_mask,"nan"))
+    result_surface_temperature = xr.DataArray(np.full_like(temperature_2m_mask,"nan"))
+    result_albedo = xr.DataArray(np.full_like(temperature_2m_mask,"nan"))
+    result_snow_height = xr.DataArray(np.full_like(temperature_2m_mask,"nan"))
+
+    # for parallel computing; does not work at the moment!
     pool=multiprocessing.Pool()
+
+
+
     """loop in x direction"""
     for x in range(0, temperature_2m_mask.shape[0]-1,1):
         """loop in y direction"""
@@ -75,16 +91,6 @@ def cosima():
                 # Merge grid layers, if necessary
                 GRID.update_grid(merging_level)
 
-                result_sensible_heat_flux = []
-                result_latent_heat_flux = []
-                result_lw_radiation_in = []
-                result_lw_radiation_out = []
-                result_ground_heat_flux = []
-                result_sw_radiation_net = []
-                result_surface_temperature = []
-                result_albedo = []
-                result_snow_height = []
-
                 if initial_snow_height[0]:
                     snow_height = initial_snow_height
                 else:
@@ -93,7 +99,7 @@ def cosima():
                 ' TIME LOOP '
 
                 for t in range(time_start, time_end, 1):
-                    #print(t)
+                    print(t)
                     # Add snowfall
                     snow_height = snow_height + snowfall[t]
 
@@ -159,27 +165,27 @@ def cosima():
                     percolation(GRID, melt, dt)
 
                     # write single variables to output variables
-                    result_lw_radiation_in.append(lw_radiation_in)
-                    result_lw_radiation_out.append(lw_radiation_out)
-                    result_sensible_heat_flux.append(sensible_heat_flux)
-                    result_latent_heat_flux.append(latent_heat_flux)
-                    result_ground_heat_flux.append(ground_heat_flux)
-                    result_surface_temperature.append(surface_temperature)
-                    result_sw_radiation_net.append(sw_radiation_net)
-                    result_albedo.append(alpha)
-                    result_snow_height.append(np.sum((GRID.get_height())))
+                    result_sensible_heat_flux[x, y ,t]=sensible_heat_flux
+                    result_lw_radiation_in[x, y ,t]=lw_radiation_in
+                    result_lw_radiation_out[x, y ,t]=lw_radiation_out
+                    result_sensible_heat_flux[x, y ,t]=sensible_heat_flux
+                    result_sensible_heat_flux[x, y ,t]=sensible_heat_flux
+                    result_latent_heat_flux[x, y ,t]=latent_heat_flux
+                    result_ground_heat_flux[x, y ,t]=ground_heat_flux
+                    result_surface_temperature[x, y ,t]=surface_temperature
+                    result_sw_radiation_net[x, y ,t]=sw_radiation_net
+                    result_albedo[x, y ,t]=alpha
+                    result_snow_height[x, y ,t]=np.sum((GRID.get_height()))
 
                     #GRID.info()
-                    #print("grid_point_done")
+                print("grid_point_done")
             else:
                 print("no glacier")
-                #print(temperature_2m[x,y,0])
 
-
-
-    #write_output_1D(result_lw_radiation_in,result_lw_radiation_out,result_sensible_heat_flux,result_latent_heat_flux,
-     #               result_ground_heat_flux,result_surface_temperature,result_sw_radiation_net,result_albedo,result_snow_height)
+    write_output(result_lw_radiation_in,result_lw_radiation_out,result_sensible_heat_flux,result_latent_heat_flux,
+                   result_ground_heat_flux,result_surface_temperature,result_sw_radiation_net,result_albedo,result_snow_height)
 
 
     duration_run=datetime.now()-start_time
+    print("stop run for investigations!!!")
     print("run duration in seconds ", duration_run.total_seconds())
