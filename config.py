@@ -4,12 +4,28 @@
 """
 
 ''' REQUIRED INPUT '''
-input_netcdf = '/home/anselm/Seafile/Diss-2/input_data/study_regions-aufbereitet/Halji/prepro_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'      # example netcdf 1D input file
+folder='/home/anselm/Seafile/diss/io/'
+
+### example Halji 2D Setup
+input_example_2D='input_COSIPY2D-mask_values-example.nc'
+output_example_2D= 'output_COSIPY2D-mask_values-example.nc'
+
+### example Halji 2D Setup
+input_example_1D = 'input_COSIPY-example.nc'
+output_example_1D = 'output_COSIPY-example.nc'
+
+### example Halji 2D Setup
+input_Halji = 'prepro_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'
+output_Halji = 'output_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'
+
+input_netcdf=folder+input_Halji
+output_netcdf=folder+output_Halji
+
 mat_path = 'input/input_COSIPY-example.mat'         # same input file as matlab file; obsolete?
-output_netcdf = 'output/output_Halji-example.nc'       # example output file; in future user have to define external path?
+
 
 time_start = 0                                      # time index to start
-time_end = 100                                     # len(T2) usually the length of the time series
+time_end = 10                                       # len(T2) usually the length of the time series
 dt = 3600                                           # 3600, 7200, 10800 [s] length of time step per iteration in seconds
 
 debug_level = 0                                     # DEBUG levels: 0, 10, 20, 30

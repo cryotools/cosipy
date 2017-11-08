@@ -42,10 +42,10 @@ def cosima():
 
 
     """loop in x direction"""
-    for x in range(0, temperature_2m_mask.shape[0]-1,1):
+    for x in range(0, temperature_2m_mask.shape[0],1):
         """loop in y direction"""
 
-        for y in range(0, temperature_2m_mask.shape[1]-1,1):
+        for y in range(0, temperature_2m_mask.shape[1],1):
             if 0.0 <= temperature_2m_mask[x,y,0] <= 400:
                 print("match")
                 wind_speed = wind_speed_mask[x,y,:]
