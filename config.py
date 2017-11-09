@@ -4,22 +4,16 @@
 """
 
 ''' REQUIRED INPUT '''
-folder='/home/anselm/Seafile/diss/io/'
+### 2D example
+input_example_2D=''
+output_example_2D= ''
 
-### example Halji 2D Setup
-input_example_2D='input_COSIPY2D-mask_values-example.nc'
-output_example_2D= 'output_COSIPY2D-mask_values-example.nc'
+### 1D example
+input_example_1D = 'input/input_COSIPY-example.nc'
+output_example_1D = 'output/output_COSIPY-example.nc'
 
-### example Halji 2D Setup
-input_example_1D = 'input_COSIPY-example.nc'
-output_example_1D = 'output_COSIPY-example.nc'
-
-### example Halji 2D Setup
-input_Halji = 'prepro_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'
-output_Halji = 'output_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'
-
-input_netcdf=folder+input_Halji
-output_netcdf=folder+output_Halji
+input_netcdf=input_example_1D
+output_netcdf=output_example_1D
 
 mat_path = 'input/input_COSIPY-example.mat'         # same input file as matlab file; obsolete?
 
