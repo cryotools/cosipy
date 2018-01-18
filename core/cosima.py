@@ -99,6 +99,9 @@ def cosima():
                 else:
                     snow_height = 0
 
+                # inital mass balance
+                mass_balance = 0
+                
                 ' TIME LOOP '
 
                 for t in range(time_start, time_end, 1):
