@@ -169,7 +169,6 @@ def cosima():
 
                     #print('size layer densities: ', GRID.layer_densities.shape," number nodess ",GRID.number_nodes)
                     node_freezing, node_melting = percolation(GRID, melt, dt)
-                    percolation(GRID, melt, dt)
 
                     # sum subsurface refreezing and melting
                     freezing = np.sum(node_freezing)
