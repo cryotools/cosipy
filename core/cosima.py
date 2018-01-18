@@ -35,6 +35,9 @@ def cosima():
     result_surface_temperature = xr.DataArray(np.full_like(temperature_2m_mask,"nan"))
     result_albedo = xr.DataArray(np.full_like(temperature_2m_mask,"nan"))
     result_snow_height = xr.DataArray(np.full_like(temperature_2m_mask,"nan"))
+    result_runnoff = xr.DataArray(np.full_like(temperature_2m_mask,"nan"))
+    result_mass_balance = xr.DataArray(np.full_like(temperature_2m_mask,"nan"))
+
 
     # for parallel computing; does not work at the moment!
     pool=multiprocessing.Pool()
@@ -164,8 +167,16 @@ def cosima():
                     # todo Percolation, fluid retention (liquid_water_content) & refreezing of melt water
                     # and rain
 
-                    print('size layer densities: ', GRID.layer_densities.shape," number nodess ",GRID.number_nodes)
+                    #print('size layer densities: ', GRID.layer_densities.shape," number nodess ",GRID.number_nodes)
                     node_freezing, node_melting = percolation(GRID, melt, dt)
+                    percolation(GRID, melt, dt)
+
+                    # sum subsurface refreezing and melting
+                    freezing = np.sum(node_freezing)
+                    melting = np.sum(node_melting)
+
+                    # calculate mass balance [m w.e.]
+                    mass_balance = mass_balance + ((snowfall[t]*density_fresh_snow) - (melt + melting - freezing + sublimation + deposition + evaporation + condensation))
 
                     # write grid point variables to output variables (mask)
                     result_sensible_heat_flux[x, y ,t]=sensible_heat_flux
@@ -179,17 +190,21 @@ def cosima():
                     result_sw_radiation_net[x, y ,t]=sw_radiation_net
                     result_albedo[x, y ,t]=alpha
                     result_snow_height[x, y ,t]=np.sum((GRID.get_height()))
+                    result_mass_balance[x,y,t]=mass_balance
+
 
                     #GRID.info()
                 print("grid_point_done")
             else:
                 print("no glacier")
             ### needed???
-            del GRID, air_pressure, alpha, cloud_cover, condensation, deposition, evaporation, fun, gradient,\
-            ground_heat_flux, hours_since_snowfall, i, initial_snow_height, latent_heat_flux, layer_heights,\
-            liquid_water_content, lw_radiation_in, lw_radiation_out, melt, melt_energy, relative_humidity, rho,\
-            sensible_heat_flux, snow_height, snowfall, solar_radiation, sublimation, surface_temperature,\
-            sw_radiation_net, t, temperature_2m, temperature_surface, wind_speed, z0
+            if 'GRID' in locals():
+                print('GRID exists')
+                del GRID, air_pressure, alpha, cloud_cover, condensation, deposition, evaporation, fun, gradient,\
+                ground_heat_flux, hours_since_snowfall, i, initial_snow_height, latent_heat_flux, layer_heights,\
+                liquid_water_content, lw_radiation_in, lw_radiation_out, melt, melt_energy, relative_humidity, rho,\
+                sensible_heat_flux, snow_height, snowfall, solar_radiation, sublimation, surface_temperature,\
+                sw_radiation_net, t, temperature_2m, temperature_surface, wind_speed, z0
 
     write_output(result_lw_radiation_in,result_lw_radiation_out,result_sensible_heat_flux,result_latent_heat_flux,
                    result_ground_heat_flux,result_surface_temperature,result_sw_radiation_net,result_albedo,result_snow_height)
