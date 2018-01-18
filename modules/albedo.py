@@ -27,5 +27,5 @@ def updateAlbedo(GRID, evdiff):
     return alphaMod
 
 
-### idea; have a deeper look if it would by worthwhile; albedo decay like (Brock et al. 2000)
+### idea; albedo decay like (Brock et al. 2000)? or?
 ### Schmidt et al 2017 >doi:10.5194/tc-2017-67, 2017 use the same albedo parameterisation from Oerlemans and Knap 1998 with a slight updated implementation of considering the surface temperature?
