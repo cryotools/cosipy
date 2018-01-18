@@ -99,6 +99,7 @@ def cosima():
                 ' TIME LOOP '
 
                 for t in range(time_start, time_end, 1):
+
                     print(t)
                     # Add snowfall
                     snow_height = snow_height + snowfall[t]
@@ -162,9 +163,11 @@ def cosima():
 
                     # todo Percolation, fluid retention (liquid_water_content) & refreezing of melt water
                     # and rain
-                    percolation(GRID, melt, dt)
 
-                    # write single variables to output variables
+                    print('size layer densities: ', GRID.layer_densities.shape," number nodess ",GRID.number_nodes)
+                    node_freezing, node_melting = percolation(GRID, melt, dt)
+
+                    # write grid point variables to output variables (mask)
                     result_sensible_heat_flux[x, y ,t]=sensible_heat_flux
                     result_lw_radiation_in[x, y ,t]=lw_radiation_in
                     result_lw_radiation_out[x, y ,t]=lw_radiation_out
@@ -181,6 +184,12 @@ def cosima():
                 print("grid_point_done")
             else:
                 print("no glacier")
+            ### needed???
+            del GRID, air_pressure, alpha, cloud_cover, condensation, deposition, evaporation, fun, gradient,\
+            ground_heat_flux, hours_since_snowfall, i, initial_snow_height, latent_heat_flux, layer_heights,\
+            liquid_water_content, lw_radiation_in, lw_radiation_out, melt, melt_energy, relative_humidity, rho,\
+            sensible_heat_flux, snow_height, snowfall, solar_radiation, sublimation, surface_temperature,\
+            sw_radiation_net, t, temperature_2m, temperature_surface, wind_speed, z0
 
     write_output(result_lw_radiation_in,result_lw_radiation_out,result_sensible_heat_flux,result_latent_heat_flux,
                    result_ground_heat_flux,result_surface_temperature,result_sw_radiation_net,result_albedo,result_snow_height)
