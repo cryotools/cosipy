@@ -4,25 +4,40 @@
 """
 from pathlib import Path
 
-''' REQUIRED INPUT '''
-home = str(Path.home())
-folder='/Seafile/diss/io/'
+''' source code for repository '''
+# input_netcdf=input("Path (inclusive directories) to NetCDF input: ")
+# output_netcdf=input("Path (inclusive directories) to NetCDF output: ")
 
-# example Halji 2D Setup
-input_example_2D='input_COSIPY2D-mask_values-example.nc'
-output_example_2D= 'output_COSIPY2D-mask_values-example.nc'
+'''example 1D file'''
+input_netcdf= 'input/input_COSIPY-example.nc'
+output_netcdf = 'output/output_COSIPY-example.nc'
 
-# example 2D Setup
-input_example_1D = 'input_COSIPY-example.nc'
-output_example_1D = 'output_COSIPY-example.nc'
 
-# example 1D Setup
-input_Halji = 'input_prepro_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'
-output_Halji = 'output_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'
 
-# change last example for different setups!
-input_netcdf=home+folder+input_example_1D
-output_netcdf=home+folder+output_example_1D
+''' 
+    source code for local development
+    only used for local development
+    clean for master branch!
+'''
+# home = str(Path.home())
+# folder='/Seafile/diss/io/'
+#
+# # example Martell 2017
+# input_Martell = 'input/input_Martell_2017.nc'
+# output_Martell = 'output/output_Martell_2017.nc'
+#
+# # example 1D Setup
+# input_Halji = 'intput/input_prepro_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'
+# output_Halji = 'ouput/output_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'
+#
+# # example 2D Setup
+# input_example_2D='intput/input_COSIPY2D-mask_values-example.nc'
+# output_example_2D= 'output/output_COSIPY2D-mask_values-example.nc'
+#
+# # select setup!!!
+# input_netcdf=home+folder+input_example_1D
+# output_netcdf=home+folder+output_example_1D
+
 
 time_start = 0                                      # time index to start
 time_end = 7200                                     # len(T2) usually the length of the time series
@@ -38,7 +53,6 @@ merging_level = 0                                   # Merge layers with similar 
 merge_snow_threshold = 0.02                         # Minimal height of layer [m]:
                                                     # thin layers rise computational needs
                                                     # of upwind schemes (e.g. heatEquation)
-
 ''' required variables '''
 
 temperature_bottom = 268                            # bottom temperature [K]
