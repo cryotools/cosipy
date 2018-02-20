@@ -21,23 +21,23 @@ output_netcdf = 'output/output_COSIPY-example.nc'
 '''
 # home = str(Path.home())
 # folder='/Seafile/diss/io/'
+
+# # example 2D Setup
+# input_example_2D='intput/input_COSIPY2D-mask_values-example.nc'
+# output_example_2D= 'output/output_COSIPY2D-mask_values-example.nc'
 #
 # # example Martell 2017
 # input_Martell = 'input/input_Martell_2017.nc'
 # output_Martell = 'output/output_Martell_2017.nc'
 #
-# # example 1D Setup
+# # example Halji
 # input_Halji = 'intput/input_prepro_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'
 # output_Halji = 'ouput/output_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'
 #
-# # example 2D Setup
-# input_example_2D='intput/input_COSIPY2D-mask_values-example.nc'
-# output_example_2D= 'output/output_COSIPY2D-mask_values-example.nc'
 #
 # # select setup!!!
 # input_netcdf=home+folder+input_example_1D
 # output_netcdf=home+folder+output_example_1D
-
 
 time_start = 0                                      # time index to start
 time_end = 7200                                     # len(T2) usually the length of the time series

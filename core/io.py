@@ -8,15 +8,16 @@ from config import input_netcdf, output_netcdf
 
 def read_input():
     DATA = xr.open_dataset(input_netcdf)
-    wind_speed_mask = DATA.u2.values            # Wind speed (magnitude) m/s
-    solar_radiation_mask = DATA.G.values        # Solar radiation at each time step [W m-2]
-    temperature_2m_mask = DATA.T2.values        # Air temperature (2m over ground) [K]
-    relative_humidity_mask = DATA.rH2.values    # Relative humidity (2m over ground)[%]
-    snowfall_mask = DATA.snowfall.values        # Snowfall per time step [m]
-    air_pressure_mask = DATA.p.values           # Air Pressure [hPa]
-    cloud_cover_mask = DATA.N.values            # Cloud cover  [fraction][%/100]
-    initial_snow_height_mask = DATA.sh.values   # Initial snow height [m]
-    return wind_speed_mask, solar_radiation_mask, temperature_2m_mask, relative_humidity_mask, snowfall_mask, air_pressure_mask, cloud_cover_mask, initial_snow_height_mask
+    wind_speed = DATA.u2.values            # Wind speed (magnitude) m/s
+    solar_radiation = DATA.G.values        # Solar radiation at each time step [W m-2]
+    temperature_2m = DATA.T2.values        # Air temperature (2m over ground) [K]
+    relative_humidity = DATA.rH2.values    # Relative humidity (2m over ground)[%]
+    snowfall = DATA.snowfall.values        # Snowfall per time step [m]
+    air_pressure = DATA.p.values           # Air Pressure [hPa]
+    cloud_cover = DATA.N.values            # Cloud cover  [fraction][%/100]
+    initial_snow_height = DATA.sh.values   # Initial snow height [m]
+    return wind_speed, solar_radiation, temperature_2m, relative_humidity, snowfall, air_pressure, cloud_cover, \
+           initial_snow_height
 
 def write_output(lw_in,lw_out,h,lh,g,tsk,sw_net,albedo,sh):
     today = date.today()

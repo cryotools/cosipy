@@ -24,11 +24,11 @@
     Correspondence: anselm.arndt@geo.hu-berlin.de
 """
 
-from core.cosima import cosima
+from core.check_and_run_2D import check_1D_or_2D_run_result
 
 
 def main():
-    cosima()
+    check_1D_or_2D_run_result()
 
 ''' MODEL EXECUTION '''
 if __name__ == "__main__":
