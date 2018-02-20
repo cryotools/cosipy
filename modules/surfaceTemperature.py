@@ -112,6 +112,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2):
     B = -lam * ((2 * GRID.get_node_temperature(1) - (0.5 * ((3 * res.x) + GRID.get_node_temperature(2)))) /
                 (GRID.get_node_height(0)))
 
-    return res.fun, res.x, Li, Lo, H, L, B, SWnet
+    qdiff = q0-q2
+    return res.fun, res.x, Li, Lo, H, L, B, SWnet, rho, Lv, Cs, q0, q2, qdiff, phi
 
 

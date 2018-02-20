@@ -1,22 +1,49 @@
+import numpy as np
 from datetime import datetime
+
 from core.core_1D import core_1D
 from core.io import *
 
-def check_1D_or_distributed_run_result():
+def check_1D_or_distributed_and_run():
 
     start_time = datetime.now()
 
     ### read input data
-    wind_speed, solar_radiation, temperature_2m, relative_humidity, snowfall, air_pressure, cloud_cover, \
-    initial_snow_height = read_input()
-    print("stop")
+    air_pressure, cloud_cover, initial_snow_height, relative_humidity, snowfall, solar_radiation, temperature_2m, \
+        wind_speed = read_input()
 
+    if temperature_2m.ndim == 2:
+        print("1D run")
+
+        ### run model in 1D version
+        albedo_all, condensation_all, depostion_all, evaporation_all, ground_heat_flux_all, \
+             longwave_in_all, longwave_out_all, latent_heat_flux_all, melt_heigt_all, number_layers_all, \
+             sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, surface_melt_all, \
+             surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, snowfall_all, pressure_all, cloud_all, \
+             sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all = core_1D(air_pressure, cloud_cover, \
+             initial_snow_height, relative_humidity, snowfall, solar_radiation,  temperature_2m, wind_speed)
+
+        ### write 1D output variables to netcdf file!
+
+        write_output(albedo_all, condensation_all, depostion_all, evaporation_all, ground_heat_flux_all, \
+             longwave_in_all, longwave_out_all, latent_heat_flux_all, melt_heigt_all, number_layers_all, \
+             sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, surface_melt_all, \
+             surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, snowfall_all, pressure_all, cloud_all, \
+             sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all)
+
+    elif temperature_2m.ndim == 3:
+         print("distributed run")
+
+    else:
+         print("input not suitable")
+
+###sort following and delete everything which is not needed!!!
 ####check and run 2D or 1D and create needed variables!!!
 
 
 
 
-# # create xarray Data Arrays for model output
+
 # result_sensible_heat_flux = xr.DataArray(np.full_like(temperature_2m_mask, "nan"))
 # result_latent_heat_flux = xr.DataArray(np.full_like(temperature_2m_mask, "nan"))
 # result_lw_radiation_in = xr.DataArray(np.full_like(temperature_2m_mask, "nan"))

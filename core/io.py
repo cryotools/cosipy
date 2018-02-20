@@ -3,58 +3,76 @@
 """
 
 import xarray as xr
-from datetime import date
+import time
 from config import input_netcdf, output_netcdf
+import numpy as np
+
 
 def read_input():
     DATA = xr.open_dataset(input_netcdf)
-    wind_speed = DATA.u2.values            # Wind speed (magnitude) m/s
-    solar_radiation = DATA.G.values        # Solar radiation at each time step [W m-2]
-    temperature_2m = DATA.T2.values        # Air temperature (2m over ground) [K]
-    relative_humidity = DATA.rH2.values    # Relative humidity (2m over ground)[%]
-    snowfall = DATA.snowfall.values        # Snowfall per time step [m]
-    air_pressure = DATA.p.values           # Air Pressure [hPa]
-    cloud_cover = DATA.N.values            # Cloud cover  [fraction][%/100]
-    initial_snow_height = DATA.sh.values   # Initial snow height [m]
-    return wind_speed, solar_radiation, temperature_2m, relative_humidity, snowfall, air_pressure, cloud_cover, \
-           initial_snow_height
+    air_pressure = DATA.p.values                # Air Pressure [hPa]
+    cloud_cover = DATA.N.values                 # Cloud cover  [fraction][%/100]
+    initial_snow_height = DATA.sh.values        # Initial snow height [m]
+    relative_humidity = DATA.rH2.values         # Relative humidity (2m over ground)[%]
+    snowfall = DATA.snowfall.values             # Snowfall per time step [m]
+    solar_radiation = DATA.G.values             # Solar radiation at each time step [W m-2]
+    temperature_2m = DATA.T2.values             # Air temperature (2m over ground) [K]
+    wind_speed = DATA.u2.values                 # Wind speed (magnitude) m/s
 
-def write_output(lw_in,lw_out,h,lh,g,tsk,sw_net,albedo,sh):
-    today = date.today()
+    return air_pressure, cloud_cover, initial_snow_height, relative_humidity, snowfall, solar_radiation, \
+                temperature_2m, wind_speed
 
-    lw_in = xr.DataArray(lw_in)
-    lw_out = xr.DataArray(lw_out)
-    h = xr.DataArray(h)
-    lh = xr.DataArray(lh)
-    g = xr.DataArray(g)
-    tsk = xr.DataArray(tsk)
-    sw_net = xr.DataArray(sw_net)
-    albedo = xr.DataArray(albedo)
-    sh = xr.DataArray(sh)
-    data = xr.Dataset({
-                    'lw_in':lw_in,
-                    'lw_out':lw_out,
-                    'h':h,
-                    'lh':lh,
-                    'g':g,
-                    'tsk':tsk,
-                    'sw_net':sw_net,
-                    'albedo':albedo,
-                    'sh':sh
-                    }
-                    )
+def write_output(albedo, condensation, deposition, evaporation, ground_heat_flux, longwave_in, longwave_out, \
+                 latent_heat_flux, melt_height, number_layers, sensible_heat_flux, snowHeight, shortwave_net, \
+                 sublimation, surface_melt, surface_temperature, u2, sw_in, T2, rH2, snowfall, pressure, cloud, sh, \
+                 rho, Lv, Cs, q0, q2, qdiff, phi):
+    COSIPY_output = xr.Dataset({
+                            "albedo": albedo,
+                            "condensation": condensation,
+                            "depostion": deposition,
+                            "evaporation": evaporation,
+                            "ground_heat_flux": ground_heat_flux,
+                            "longwave_in": longwave_in,
+                            "longwave_out longwave_in": longwave_out,
+                            "latent_heat_flux": latent_heat_flux,
+                            # "mass_balance" : mass_balance,
+                            "melt_height" : melt_height,
+                            "number_layers" : number_layers,
+                            # "runoff" : runoff,
+                            "sensible_heat_flux" : sensible_heat_flux,
+                            "snowHeight" : snowHeight,
+                            "shortwave_net" : shortwave_net,
+                            "sublimation" : sublimation,
+                            "surface_melt" : surface_melt,
+                            "surface_temperature" : surface_temperature,
+
+                            ###input variables save in same file for comparision; not needed in longtime???
+                            "u2" : u2,
+                            "sw_in" : sw_in,
+                            "T2" : T2,
+                            "rH2": rH2,
+                            "snowfall" : snowfall,
+                            "pressure": pressure,
+                            "cloud" : cloud,
+                            "sh" : sh,
+
+                            ###interim for investigations; not needed in longterm???
+                            "rho" : rho,
+                            "Lv" : Lv,
+                            "Cs" : Cs,
+                            "q0" : q0,
+                            "q2" : q2,
+                            "qdiff" : qdiff,
+                            "phi" : phi,
+    })
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    COSIPY_output.to_netcdf(output_netcdf+'-'+timestr+'-.nc')
+
+
+### TODO netcdf Dataset has to have attributres!!!
+
+'''
     data.attrs['TITLE'] = 'COSIPY 1D results'
     data.attrs['CREATION_DATE'] = str(today)
     data.to_netcdf(output_netcdf)
-
-' Load climatic forcing (variables from Matlab file) '
-# DATA = sio.loadmat(mat_path)
-#
-# wind_speed = DATA['u2']             # Wind speed (magnitude) m/s
-# solar_radiation = DATA['G']         # Solar radiation at each time step [W m-2]
-# temperature_2m = DATA['T2']         # Air temperature (2m over ground) [K]
-# relative_humidity = DATA['rH2']     # Relative humidity (2m over ground)[%]
-# snowfall = DATA['snowfall']         # Snowfall per time step [m]
-# air_pressure = DATA['p']            # Air Pressure [hPa]
-# cloud_cover = DATA['N']             # Cloud cover  [fraction][%/100]
-# initial_snow_height = DATA['sh']    # Initial snow height [m]
+'''

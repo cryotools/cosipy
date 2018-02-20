@@ -1,21 +1,21 @@
 import numpy as np
-from functools import partial
-
-from modules.heatEquation import solveHeatEquation
-from modules.penetratingRadiation import penetrating_radiation
-from modules.roughness import updateRoughness
-from modules.surfaceTemperature import update_surface_temperature
-from modules.albedo import updateAlbedo
-from modules.percolation import percolation
-
-import core.grid as grd
-
 
 from constants import *
 from config import *
+from confs_dicts_constants.dictionaries import *
 
+from modules.albedo import updateAlbedo
+from modules.heatEquation import solveHeatEquation
+from modules.penetratingRadiation import penetrating_radiation
+from modules.percolation import percolation
+from modules.roughness import updateRoughness
+from modules.surfaceTemperature import update_surface_temperature
 
-def core_1D():
+import core.grid as grd
+
+def core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, snowfall, solar_radiation,
+                 temperature_2m, wind_speed):
+
     ''' INITIALIZATION '''
     hours_since_snowfall = 0
     # Init layers
@@ -61,7 +61,6 @@ def core_1D():
     ' TIME LOOP '
 
     for t in range(time_start, time_end, 1):
-
         print(t)
         # Add snowfall
         snow_height = snow_height + snowfall[t]
@@ -93,7 +92,7 @@ def core_1D():
 
         # Find new surface temperature
         fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
-            ground_heat_flux, sw_radiation_net \
+            ground_heat_flux, sw_radiation_net, rho, Lv, Cs, q0, q2, qdiff, phi \
             = update_surface_temperature(GRID, alpha, z0, temperature_2m[t], relative_humidity[t], cloud_cover[t], air_pressure[t], solar_radiation[t], wind_speed[t])
 
         # Surface fluxes [m w.e.q.]
@@ -139,8 +138,46 @@ def core_1D():
         # calculate mass balance [m w.e.]
         # mass_balance = mass_balance + ((snowfall[t]*density_fresh_snow) - (melt + melting - freezing + sublimation + deposition + evaporation + condensation))
 
+        albedo_all[t] = alpha
+        condensation_all[t] = condensation
+        depostion_all[t] = deposition
+        evaporation_all[t] = evaporation
+        ground_heat_flux_all[t] =ground_heat_flux
+        longwave_in_all[t] = lw_radiation_in
+        longwave_out_all[t] = lw_radiation_out
+        latent_heat_flux_all[t] = latent_heat_flux
+        # mass_balance_all[t] = mass_balance
+        melt_heigt_all[t] = melt+sublimation+deposition+evaporation+condensation
+        number_layers_all[t] = GRID.number_nodes
+        # runoff_all[t] = runoff
+        sensible_heat_flux_all[t] = sensible_heat_flux
+        snowHeight_all[t] = np.sum((GRID.get_height()))
+        shortwave_net_all[t] = sw_radiation_net
+        sublimation_all[t] = sublimation
+        surface_melt_all[t] = melt
+        surface_temperature_all[t] = surface_temperature
 
+        ###input variables save in same file for comparision; not needed in longtime???
+        u2_all[t] = wind_speed[t]
+        sw_in_all[t] = solar_radiation[t]
+        T2_all[t] = temperature_2m[t]
+        rH2_all[t] = relative_humidity[t]
+        snowfall_all[t] = snowfall[t]
+        pressure_all[t] = air_pressure[t]
+        cloud_all[t] = cloud_cover[t]
+        sh_all[t] = initial_snow_height[t]
 
+        ###interim for investigations; not needed in longterm???
+        rho_all[t] = rho
+        Lv_all[t] = Lv
+        Cs_all[t] = Cs
+        q0_all[t] = q0
+        q2_all[t] = q2
+        qdiff_all[t] = qdiff
+        phi_all[t] = phi
 
-
-
+    return albedo_all, condensation_all, depostion_all, evaporation_all, ground_heat_flux_all, \
+        longwave_in_all, longwave_out_all, latent_heat_flux_all, melt_heigt_all, number_layers_all, \
+        sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, surface_melt_all, \
+        surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, snowfall_all, pressure_all, cloud_all, \
+        sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all

@@ -8,39 +8,8 @@ from pathlib import Path
 # input_netcdf=input("Path (inclusive directories) to NetCDF input: ")
 # output_netcdf=input("Path (inclusive directories) to NetCDF output: ")
 
-'''example 1D file'''
-input_netcdf= 'input/input_COSIPY-example.nc'
-output_netcdf = 'output/output_COSIPY-example.nc'
-
-
-
-''' 
-    source code for local development
-    only used for local development
-    clean for master branch!
-'''
-# home = str(Path.home())
-# folder='/Seafile/diss/io/'
-
-# # example 2D Setup
-# input_example_2D='intput/input_COSIPY2D-mask_values-example.nc'
-# output_example_2D= 'output/output_COSIPY2D-mask_values-example.nc'
-#
-# # example Martell 2017
-# input_Martell = 'input/input_Martell_2017.nc'
-# output_Martell = 'output/output_Martell_2017.nc'
-#
-# # example Halji
-# input_Halji = 'intput/input_prepro_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'
-# output_Halji = 'ouput/output_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'
-#
-#
-# # select setup!!!
-# input_netcdf=home+folder+input_example_1D
-# output_netcdf=home+folder+output_example_1D
-
 time_start = 0                                      # time index to start
-time_end = 7200                                     # len(T2) usually the length of the time series
+time_end = 20                                     # len(T2) usually the length of the time series
 dt = 3600                                           # 3600, 7200, 10800 [s] length of time step per iteration in seconds
 
 debug_level = 0                                     # DEBUG levels: 0, 10, 20, 30
@@ -61,3 +30,36 @@ c_stab = 0.3                                        # cfl criteria
 
 
                                                     # ToDo strings with names for parametrisations
+
+
+#### following used for loacl development!!!
+'''example 1D file'''
+input_netcdf= 'input/input_COSIPY-example.nc'
+output_netcdf = 'output/output_COSIPY-example.nc'
+
+
+# '''
+#     source code for local development
+#     only used for local development
+#     clean for master branch!
+# '''
+# home = str(Path.home())
+# folder='/Seafile/diss/io/'
+#
+# # example 2D Setup
+# input_example_2D='input/input_COSIPY2D-mask_values-example.nc'
+# output_example_2D= 'output/output_COSIPY2D-mask_values-example.nc'
+#
+# # example Martell 2017
+# input_Martell = 'input/input_Martell_2017.nc'
+# output_Martell = 'output/output_Martell_2017.nc'
+#
+# # example Halji
+# input_Halji = 'intput/input_prepro_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'
+# output_Halji = 'ouput/output_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'
+#
+#
+# # select setup!!!
+# input_netcdf=home+folder+input_example_2D
+# output_netcdf=home+folder+output_example_2D
+
