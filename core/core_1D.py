@@ -2,7 +2,7 @@ import numpy as np
 
 from constants import *
 from config import *
-from confs_dicts_constants.dictionaries import *
+from confs_dicts_constants.dictionaries_1D import create_1D_output_numpy_arrays
 
 from modules.albedo import updateAlbedo
 from modules.heatEquation import solveHeatEquation
@@ -15,6 +15,12 @@ import core.grid as grd
 
 def core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, snowfall, solar_radiation,
                  temperature_2m, wind_speed):
+
+    albedo_all, condensation_all, depostion_all, evaporation_all, ground_heat_flux_all, longwave_in_all, \
+    longwave_out_all, latent_heat_flux_all, melt_heigt_all, number_layers_all, sensible_heat_flux_all, snowHeight_all, \
+    shortwave_net_all, sublimation_all, surface_melt_all, surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, \
+    snowfall_all, pressure_all, cloud_all, sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all = \
+    create_1D_output_numpy_arrays(temperature_2m)
 
     ''' INITIALIZATION '''
     hours_since_snowfall = 0
@@ -175,6 +181,12 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, s
         q2_all[t] = q2
         qdiff_all[t] = qdiff
         phi_all[t] = phi
+
+    del GRID, air_pressure, alpha, cloud_cover, condensation, deposition, evaporation, fun, gradient, \
+        ground_heat_flux, hours_since_snowfall, i, initial_snow_height, latent_heat_flux, layer_heights, \
+        liquid_water_content, lw_radiation_in, lw_radiation_out, melt, melt_energy, relative_humidity, rho, \
+        sensible_heat_flux, snow_height, snowfall, solar_radiation, sublimation, surface_temperature, \
+        sw_radiation_net, t, temperature_2m, temperature_surface, wind_speed, z0
 
     return albedo_all, condensation_all, depostion_all, evaporation_all, ground_heat_flux_all, \
         longwave_in_all, longwave_out_all, latent_heat_flux_all, melt_heigt_all, number_layers_all, \
