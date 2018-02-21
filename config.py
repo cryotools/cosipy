@@ -12,7 +12,7 @@
 #output_netcdf
 
 time_start = 0                                      # time index to start
-time_end = 3900                                     # len(T2) usually the length of the time series
+time_end = 7200                                     # len(T2) usually the length of the time series
 dt = 3600                                           # 3600, 7200, 10800 [s] length of time step per iteration in seconds
 
 debug_level = 0                                     # DEBUG levels: 0, 10, 20, 30
@@ -46,7 +46,7 @@ folder='/Seafile/diss/io/'
 '''example 1D file'''
 input_netcdf= 'input/input_COSIPY-example.nc'
 output_netcdf = home+folder+'output/COSIPY-output_example_1D'
-#
+
 # ## example 2D Setup
 # input_example_2D='input/input_COSIPY2D-mask_values-example.nc'
 # output_example_2D= 'output/output_COSIPY2D-mask_values-example'

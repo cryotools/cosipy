@@ -39,5 +39,5 @@ density_fresh_snow = 250.        # density of freshly fallen snow [kg m-3]
 
 ' MODEL CONSTANTS '
 
-number_layers = 10
+number_layers = 97              ### 95 nicht!; 100 geht noch nicht!
 

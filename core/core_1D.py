@@ -142,7 +142,7 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, s
         # melting = np.sum(node_melting)
 
         # calculate mass balance [m w.e.]
-        # mass_balance = mass_balance + ((snowfall[t]*density_fresh_snow) - (melt + melting - freezing + sublimation + deposition + evaporation + condensation))
+        # mass_balance = (snowfall[t]*density_fresh_snow) - (melt + melting - freezing + sublimation + deposition + evaporation + condensation)
 
         albedo_all[t] = alpha
         condensation_all[t] = condensation
