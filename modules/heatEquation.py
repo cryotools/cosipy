@@ -22,8 +22,10 @@ def solveHeatEquation(GRID, t):
         snowRhoMean = sum(snowRho)/len(snowRho)
 
     # Calculate specific heat  [J Kg-1 K-1] depending on density from mean density
-    c_pi = 152.2 + 7.122 * snowRhoMean 
-    
+    c_pi = 152.2 + 7.122 * snowRhoMean
+    # static specific heat!!!
+    #c_pi = spec_heat_ice
+
     # Calculate thermal conductivity [W m-1 K-1] from mean density
     lam = 0.021 + 2.5 * (snowRhoMean/1000.0)**2.0
 

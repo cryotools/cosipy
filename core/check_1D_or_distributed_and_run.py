@@ -13,7 +13,7 @@ def check_1D_or_distributed_and_run():
     air_pressure, cloud_cover, initial_snow_height, relative_humidity, snowfall, solar_radiation, temperature_2m, \
         wind_speed = read_input()
 
-    if temperature_2m.ndim == 2:
+    if temperature_2m.ndim == 1:
         print("1D run")
 
         ### run model in 1D version

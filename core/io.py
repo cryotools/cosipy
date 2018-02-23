@@ -6,7 +6,7 @@ import xarray as xr
 import time
 from config import input_netcdf, output_netcdf
 import numpy as np
-
+from mmm import *                                   ###only for local development
 
 def read_input():
     DATA = xr.open_dataset(input_netcdf)
@@ -19,6 +19,18 @@ def read_input():
     temperature_2m = DATA.T2.values             # Air temperature (2m over ground) [K]
     wind_speed = DATA.u2.values                 # Wind speed (magnitude) m/s
 
+    '''
+    only for local ldevelopment
+    '''
+    mmm(air_pressure)
+    mmm(cloud_cover)
+    mmm(initial_snow_height)
+    mmm(relative_humidity)
+    mmm(snowfall)
+    mmm(solar_radiation)
+    mmm(temperature_2m)
+    mmm(wind_speed)
+
     return air_pressure, cloud_cover, initial_snow_height, relative_humidity, snowfall, solar_radiation, \
                 temperature_2m, wind_speed
 
@@ -29,11 +41,11 @@ def write_output_1D(albedo, condensation, deposition, evaporation, ground_heat_f
     COSIPY_output = xr.Dataset({
                             "albedo": albedo,
                             "condensation": condensation,
-                            "depostion": deposition,
+                            "deposition": deposition,
                             "evaporation": evaporation,
                             "ground_heat_flux": ground_heat_flux,
                             "longwave_in": longwave_in,
-                            "longwave_out longwave_in": longwave_out,
+                            "longwave_out": longwave_out,
                             "latent_heat_flux": latent_heat_flux,
                             # "mass_balance" : mass_balance,
                             "melt_height" : melt_height,
@@ -83,11 +95,11 @@ def write_output_distributed(albedo, condensation, deposition, evaporation, grou
     COSIPY_output = xr.Dataset({
                             "albedo": albedo,
                             "condensation": condensation,
-                            "depostion": deposition,
+                            "deposition": deposition,
                             "evaporation": evaporation,
                             "ground_heat_flux": ground_heat_flux,
                             "longwave_in": longwave_in,
-                            "longwave_out longwave_in": longwave_out,
+                            "longwave_out": longwave_out,
                             "latent_heat_flux": latent_heat_flux,
                             # "mass_balance" : mass_balance,
                             "melt_height" : melt_height,
