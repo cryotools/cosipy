@@ -39,5 +39,5 @@ density_fresh_snow = 250.           # density of freshly fallen snow [kg m-3]
 
 ' MODEL CONSTANTS '
 
-number_layers = 38                  #ab 38 nicht! 40 läuft durch static specific heat
+number_layers = 10                  #ab 38 läufts
 

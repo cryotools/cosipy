@@ -28,6 +28,7 @@ def read_input():
     mmm(relative_humidity)
     mmm(snowfall)
     mmm(solar_radiation)
+    mmm(temperature_2m-273.16)
     mmm(temperature_2m)
     mmm(wind_speed)
 
