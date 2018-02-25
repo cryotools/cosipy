@@ -11,7 +11,7 @@
 #input_netcdf=
 #output_netcdf
 
-time_start = 0                                      # time index to start
+time_start = 3000                                   # time index to start
 time_end = 7200                                     # len(T2) usually the length of the time series
 dt = 3600                                           # 3600, 7200, 10800 [s] length of time step per iteration in seconds
 
