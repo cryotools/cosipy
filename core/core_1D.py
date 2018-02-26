@@ -132,10 +132,10 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, s
         # and rain
 
         #print('size layer densities: ', GRID.layer_densities.shape," number nodess ",GRID.number_nodes)
-        percolation(GRID, melt, dt)
+        #percolation(GRID, melt, dt)
 
         ### when freezing workt:
-        # node_freezing, node_melting = percolation(GRID, melt, dt)
+        nodes_freezing, nodes_melting = percolation(GRID, melt, dt)
 
         # sum subsurface refreezing and melting
         # freezing = np.sum(node_freezing)

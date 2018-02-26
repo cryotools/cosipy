@@ -23,13 +23,13 @@ def percolation(GRID, water, t):
     dt_stab = c_stab * min(hlayers) / perolation_velocity
 
     ### array for refreezing per layer
-    nodes_freezing = np.zeros(GRID.number_nodes)
+    nodes_freezing = np.zeros(len(GRID.layer_heights))
 
     ### array for melting per layer
-    nodes_melting = np.zeros(GRID.number_nodes)
+    nodes_melting = np.zeros(len(GRID.layer_heights))
 
     ### temporray array for liquid water per layer melted?
-    liquid_water_temp = np.zeros(GRID.number_nodes)
+    liquid_water_temp = np.zeros(len(GRID.layer_heights))
 
     ### potential freezing (>0) or melting per layer (<0) depending on densities layer heights
     potential_freezing_or_melting = spec_heat_ice * GRID.layer_densities * GRID.layer_heights / \
@@ -85,22 +85,22 @@ def percolation(GRID, water, t):
             GRID.set_liquid_water_content(LWCtmp)
 
         # see if liquid water content is lower or potential freezing and use the minimum for refreezing at time step
-        # nodes_freezing_temp = np.minimum(GRID.liquid_water_contents[idx_freezing],nodes_potential_freezing)
+        nodes_freezing_temp = np.minimum(GRID.liquid_water_contents[idx_freezing],nodes_potential_freezing)
 
         #print(node_freezing_temp)
 
         # substract freezing at time step from potential freezing
-        # nodes_potential_freezing -= node_freezing_temp
+        nodes_potential_freezing -= nodes_freezing_temp
 
         #print(node_freezing_temp)
 
         # substract from liquid water meltted at time step? do not understand?
-        # liquid_water_temp[idx_freezing] = node_freezing_temp
+        # liquid_water_temp[idx_freezing] = nodes_freezing_temp
 
         #print(GRID.liquid_water_contents.shape)
         #print(liquid_water_temp.shape)
         # substract frozen water from liquid water content
-        # GRID.liquid_water_contents = GRID.liquid_water_contents - liquid_water_temp
+        #GRID.liquid_water_contents = GRID.liquid_water_contents - liquid_water_temp
 
         # enlarge layer density if there is refreezing correct?
         # GRID.layer_densities = (GRID.layer_densities * GRID.layer_heights + liquid_water_temp)/GRID.layer_heights
@@ -114,16 +114,15 @@ def percolation(GRID, water, t):
 
     # update layer termpature when water is frozen temperature must be higher because after node potential freezing is lower
     # after one hour the termpature is raised; when there is no refreezing the temperatures has to be the same as before
-    # GRID.layer_temperatures[idx_freezing] = zero_temperature - ((node_potential_freezing*lat_heat_melting*water_density) \
-    #            / (GRID.layer_densities[idx_freezing]*GRID.layer_heights[idx_freezing]*spec_heat_ice))
+    GRID.layer_temperatures[idx_freezing] = zero_temperature - ((nodes_potential_freezing*lat_heat_melting*water_density) \
+                / (GRID.layer_densities[idx_freezing]*GRID.layer_heights[idx_freezing]*spec_heat_ice))
 
     #print(GRID.layer_temperatures)
 
-    # return node_freezing, node_melting
+    del liquid_water_temp, potential_freezing_or_melting, idx_freezing, idx_melting, nodes_potential_freezing, LWCtmp, \
+        nodes_freezing_temp
 
-
-
-
+    return nodes_freezing, nodes_melting
 
 #### old not needed any more?
     '''
