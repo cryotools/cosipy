@@ -36,9 +36,9 @@ def read_input():
                 temperature_2m, wind_speed
 
 def write_output_1D(albedo, condensation, deposition, evaporation, ground_heat_flux, longwave_in, longwave_out, \
-                 latent_heat_flux, melt_height, number_layers, sensible_heat_flux, snowHeight, shortwave_net, \
-                 sublimation, surface_melt, surface_temperature, u2, sw_in, T2, rH2, snowfall, pressure, cloud, sh, \
-                 rho, Lv, Cs, q0, q2, qdiff, phi):
+                 latent_heat_flux, mass_balance, melt_height, number_layers, refreezing, sensible_heat_flux, \
+                 snowHeight, shortwave_net, sublimation, subsurface_melt, surface_melt, surface_temperature, u2, \
+                 sw_in, T2, rH2, snowfall, pressure, cloud, sh, rho, Lv, Cs, q0, q2, qdiff, phi):
     COSIPY_output = xr.Dataset({
                             "albedo": albedo,
                             "condensation": condensation,
@@ -48,14 +48,16 @@ def write_output_1D(albedo, condensation, deposition, evaporation, ground_heat_f
                             "longwave_in": longwave_in,
                             "longwave_out": longwave_out,
                             "latent_heat_flux": latent_heat_flux,
-                            # "mass_balance" : mass_balance,
+                            "mass_balance" : mass_balance,
                             "melt_height" : melt_height,
                             "number_layers" : number_layers,
                             # "runoff" : runoff,
+                            "refreezing": refreezing,
                             "sensible_heat_flux" : sensible_heat_flux,
                             "snowHeight" : snowHeight,
                             "shortwave_net" : shortwave_net,
                             "sublimation" : sublimation,
+                            "subsurface_melt": subsurface_melt,
                             "surface_melt" : surface_melt,
                             "surface_temperature" : surface_temperature,
 

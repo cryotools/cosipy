@@ -18,13 +18,15 @@ def create_1D_output_numpy_arrays(temperature_2m):
     longwave_out_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
     latent_heat_flux_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
     number_layers_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
+    refreezing_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
     sensible_heat_flux_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
     snowHeight_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
     shortwave_net_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
     sublimation_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
+    subsurface_melt_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
     surface_melt_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
     surface_temperature_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
-    #mass_balance_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
+    mass_balance_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
     melt_heigt_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
     # runoff_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
 
@@ -47,10 +49,10 @@ def create_1D_output_numpy_arrays(temperature_2m):
     qdiff_all = xr.DataArray(np.full_like(temperature_2m, "nan"))          ### difference mixing ratio
     phi_all = xr.DataArray(np.full_like(temperature_2m, "nan"))           ### stabilty parameter
     return albedo_all, condensation_all, depostion_all, evaporation_all, ground_heat_flux_all, longwave_in_all, \
-           longwave_out_all, latent_heat_flux_all, melt_heigt_all, number_layers_all, sensible_heat_flux_all, \
-           snowHeight_all, shortwave_net_all, sublimation_all, surface_melt_all, surface_temperature_all, u2_all, \
-           sw_in_all, T2_all, rH2_all, snowfall_all, pressure_all, cloud_all, sh_all, rho_all, Lv_all, Cs_all, q0_all, \
-           q2_all, qdiff_all, phi_all
+           longwave_out_all, latent_heat_flux_all, mass_balance_all, melt_heigt_all, number_layers_all, \
+           refreezing_all, sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, \
+           subsurface_melt_all, surface_melt_all, surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, \
+           snowfall_all, pressure_all, cloud_all, sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all
 #output_list_1D=[albedo, condensation, depostion, evaporation, ground_heat_flux, longwave_in, longwave_out, \
 #                latent_heat_flux, number_layers, sensible_heat_flux, snowHeight, shortwave_net, sublimation, \
 #                surface_melt, surface_temperature, melt_heigt, u2, sw_in, T2, rH2, snowfall, pressure, cloud, sh, rho, \

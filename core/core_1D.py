@@ -17,10 +17,10 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, s
                  temperature_2m, wind_speed):
 
     albedo_all, condensation_all, depostion_all, evaporation_all, ground_heat_flux_all, longwave_in_all, \
-    longwave_out_all, latent_heat_flux_all, melt_heigt_all, number_layers_all, sensible_heat_flux_all, snowHeight_all, \
-    shortwave_net_all, sublimation_all, surface_melt_all, surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, \
-    snowfall_all, pressure_all, cloud_all, sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all = \
-    create_1D_output_numpy_arrays(temperature_2m)
+    longwave_out_all, latent_heat_flux_all, mass_balance_all, melt_heigt_all, number_layers_all, refreezing_all, \
+    sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, subsurface_melt_all, surface_melt_all, \
+    surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, snowfall_all, pressure_all, cloud_all, sh_all, \
+    rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all = create_1D_output_numpy_arrays(temperature_2m)
 
     ''' INITIALIZATION '''
     hours_since_snowfall = 0
@@ -68,6 +68,7 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, s
 
     for t in range(time_start, time_end, 1):
         print(t)
+
         # Add snowfall
         snow_height = snow_height + snowfall[t]
 
@@ -138,11 +139,11 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, s
         nodes_freezing, nodes_melting = percolation(GRID, melt, dt)
 
         # sum subsurface refreezing and melting
-        # freezing = np.sum(node_freezing)
-        # melting = np.sum(node_melting)
+        freezing = np.sum(nodes_freezing)
+        melting = np.sum(nodes_melting)
 
         # calculate mass balance [m w.e.]
-        # mass_balance = (snowfall[t]*density_fresh_snow) - (melt + melting - freezing + sublimation + deposition + evaporation + condensation)
+        mass_balance = (snowfall[t]*0.25) - (melt + melting - freezing + sublimation + deposition + evaporation + condensation)
 
         albedo_all[t] = alpha
         condensation_all[t] = condensation
@@ -152,14 +153,16 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, s
         longwave_in_all[t] = lw_radiation_in
         longwave_out_all[t] = lw_radiation_out
         latent_heat_flux_all[t] = latent_heat_flux
-        # mass_balance_all[t] = mass_balance
+        mass_balance_all[t] = mass_balance
         melt_heigt_all[t] = melt+sublimation+deposition+evaporation+condensation
         number_layers_all[t] = GRID.number_nodes
         # runoff_all[t] = runoff
+        refreezing_all[t] = freezing
         sensible_heat_flux_all[t] = sensible_heat_flux
         snowHeight_all[t] = np.sum((GRID.get_height()))
         shortwave_net_all[t] = sw_radiation_net
         sublimation_all[t] = sublimation
+        subsurface_melt_all[t] = melting
         surface_melt_all[t] = melt
         surface_temperature_all[t] = surface_temperature
 
@@ -182,14 +185,15 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, s
         qdiff_all[t] = qdiff
         phi_all[t] = phi
 
-    del GRID, air_pressure, alpha, cloud_cover, condensation, deposition, evaporation, fun, gradient, \
+    del GRID, air_pressure, alpha, cloud_cover, condensation, deposition, evaporation, freezing, fun, gradient, \
         ground_heat_flux, hours_since_snowfall, i, initial_snow_height, latent_heat_flux, layer_heights, \
-        liquid_water_content, lw_radiation_in, lw_radiation_out, melt, melt_energy, relative_humidity, rho, \
-        sensible_heat_flux, snow_height, snowfall, solar_radiation, sublimation, surface_temperature, \
-        sw_radiation_net, t, temperature_2m, temperature_surface, wind_speed, z0
+        liquid_water_content, lw_radiation_in, lw_radiation_out, mass_balance, melt, melting, melt_energy, \
+        nodes_freezing, nodes_melting, relative_humidity, rho, sensible_heat_flux, snow_height, snowfall, \
+        solar_radiation, sublimation, surface_temperature, sw_radiation_net, t, temperature_2m, temperature_surface, \
+        wind_speed, z0
 
     return albedo_all, condensation_all, depostion_all, evaporation_all, ground_heat_flux_all, \
-        longwave_in_all, longwave_out_all, latent_heat_flux_all, melt_heigt_all, number_layers_all, \
-        sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, surface_melt_all, \
-        surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, snowfall_all, pressure_all, cloud_all, \
-        sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all
+        longwave_in_all, longwave_out_all, latent_heat_flux_all, mass_balance_all, melt_heigt_all, number_layers_all, \
+        refreezing_all, sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, subsurface_melt_all, \
+        surface_melt_all, surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, snowfall_all, pressure_all, \
+        cloud_all, sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all
