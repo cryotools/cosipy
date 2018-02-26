@@ -23,33 +23,29 @@ def percolation(GRID, water, t):
     dt_stab = c_stab * min(hlayers) / perolation_velocity
 
     ### array for refreezing per layer
-    node_freezing = np.zeros(GRID.number_nodes)
+    nodes_freezing = np.zeros(GRID.number_nodes)
 
     ### array for melting per layer
-    node_melting = np.zeros(GRID.number_nodes)
+    nodes_melting = np.zeros(GRID.number_nodes)
 
     ### temporray array for liquid water per layer melted?
     liquid_water_temp = np.zeros(GRID.number_nodes)
 
-    ### potential freezing (>0) or melting per layer (<0) depending on densities layer heights but not one actual liquid water content
-    potential_energy_ice = ((zero_temperature-GRID.layer_temperatures)*GRID.layer_densities*GRID.layer_heights*spec_heat_ice)/(lat_heat_melting*water_density)
-    ### compare with:
-    # Cold Content
-    #### cc = -c_pi * rhoH2O * GRID.get_hlayer_node(idxNode) * (GRID.get_rho_node(idxNode) / 1000.0) \
-    ####         * (GRID.get_T_node(idxNode) - 273.16)
-    #### energy_water = L_m * GRID.get_LWC_node(idxNode)
+    ### potential freezing (>0) or melting per layer (<0) depending on densities layer heights
+    potential_freezing_or_melting = spec_heat_ice * GRID.layer_densities * GRID.layer_heights / \
+                            (lat_heat_melting*water_density)* (zero_temperature-GRID.layer_temperatures)
 
     ### idices freezing
-    idx_freezing = np.where(potential_energy_ice > 0)
+    idx_freezing = np.where(potential_freezing_or_melting > 0)
 
     ### idices melting
-    idx_melting = np.where(potential_energy_ice < 0)
+    idx_melting = np.where(potential_freezing_or_melting < 0)
 
-    # array with only the freezing layers
-    node_potential_freezing=potential_energy_ice[idx_freezing]
+    # array with only the potential freezing layers
+    nodes_potential_freezing=potential_freezing_or_melting[idx_freezing]
 
-    # fill node freezing with potential freezing afters wirds it is substracted; to complicated?
-    # node_freezing[idx_freezing]=node_potential_freezing
+    # fill nodes with maximum potential freezing; afterswards it is substracted; to complicated?
+    # nodes_freezing[idx_freezing]=nodes_potential_freezing
 
     # upwind scheme to adapt liquid water content of entire GRID
     while curr_t < t:
@@ -61,10 +57,10 @@ def percolation(GRID, water, t):
         GRID.set_node_liquid_water_content(0, (float(water) / t) * dt_use)
 
         # melt water to add to liquid water content per time step
-        liquid_water_temp[idx_melting] = (potential_energy_ice[idx_melting] / t) * dt_use
+        liquid_water_temp[idx_melting] = (potential_freezing_or_melting[idx_melting] / t) * dt_use
 
         # substract sub melt temp? do not understand?
-        node_melting[idx_melting] = -(liquid_water_temp[idx_melting])*(t/dt_use)
+        nodes_melting[idx_melting] = -(liquid_water_temp[idx_melting])*(t/dt_use)
 
         # Get a copy of the GRID liquid water content profile
         LWCtmp = np.copy(GRID.get_liquid_water_content())
@@ -89,12 +85,12 @@ def percolation(GRID, water, t):
             GRID.set_liquid_water_content(LWCtmp)
 
         # see if liquid water content is lower or potential freezing and use the minimum for refreezing at time step
-        # node_freezing_temp = np.minimum(GRID.liquid_water_contents[idx_freezing],node_potential_freezing)
+        # nodes_freezing_temp = np.minimum(GRID.liquid_water_contents[idx_freezing],nodes_potential_freezing)
 
         #print(node_freezing_temp)
 
         # substract freezing at time step from potential freezing
-        # node_potential_freezing -= node_freezing_temp
+        # nodes_potential_freezing -= node_freezing_temp
 
         #print(node_freezing_temp)
 
@@ -114,7 +110,7 @@ def percolation(GRID, water, t):
 
     # node freezing and node potential freezing is same at the begining; only if freezing per iteration is substracted from
     # node potential freezing node freezing which will be return is not empty
-    # node_freezing[idx_freezing]=node_freezing[idx_freezing]-node_potential_freezing
+    # nodes_freezing[idx_freezing]=nodes_freezing[idx_freezing]-nodes_potential_freezing
 
     # update layer termpature when water is frozen temperature must be higher because after node potential freezing is lower
     # after one hour the termpature is raised; when there is no refreezing the temperatures has to be the same as before
