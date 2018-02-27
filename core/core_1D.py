@@ -53,7 +53,6 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
     for i in np.arange((initial_snowheight//initial_snow_layer_heights),(initial_glacier_height // initial_glacier_layer_heights)):
         temperature_profile[int(i)] = temperature_2m[0] - temperature_gradient * i
 
-
     # if merging_level == 0:
     #     print('Merging level 0')
     # else:
@@ -73,11 +72,6 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
     mass_balance = 0
 
     ' TIME LOOP '
-
-    B_max = 0 
-    B_min = 0
-    T_max = 0
-
     for t in range(time_start, time_end, 1):
         print(t)
 
@@ -113,13 +107,6 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
         fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
             ground_heat_flux, sw_radiation_net, rho, Lv, Cs, q0, q2, qdiff, phi \
             = update_surface_temperature(GRID, alpha, z0, temperature_2m[t], relative_humidity[t], cloud_cover[t], air_pressure[t], solar_radiation[t], wind_speed[t])
-
-        B_max = np.maximum(B_max, ground_heat_flux)
-        B_min = np.minimum(B_min, ground_heat_flux)
-        T_max = np.maximum(T_max, np.amax(GRID.get_temperature()))
-        print(np.sum(GRID.get_height()), B_max, B_min, GRID.get_node_temperature(1))
-
-
 
         # Surface fluxes [m w.e.q.]
         if GRID.get_node_temperature(0) < zero_temperature:
