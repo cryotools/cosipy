@@ -32,8 +32,8 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
         snow_height = 0
  
     # Init layers
-    layer_heights =  np.ones(initial_snowheight // initial_snow_layer_heights) * initial_snow_layer_heights
-    layer_heights =  np.append(layer_heights, np.ones(initial_glacier_height // initial_glacier_layer_heights) * initial_glacier_layer_heights)
+    layer_heights =  np.ones(int(initial_snowheight // initial_snow_layer_heights)) * initial_snow_layer_heights
+    layer_heights =  np.append(layer_heights, int(np.ones(initial_glacier_height // initial_glacier_layer_heights)) * initial_glacier_layer_heights)
     number_layers = len(layer_heights)
 
     # Init properties
@@ -53,6 +53,7 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
     for i in np.arange(0 ,(initial_glacier_height // initial_glacier_layer_heights)):
         temperature_profile[int(i)] = temperature_2m[0] - temperature_gradient * i
 
+    print(temperature_profile)
     # if merging_level == 0:
     #     print('Merging level 0')
     # else:
