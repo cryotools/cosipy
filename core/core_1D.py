@@ -50,7 +50,7 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
     
     # Init temperature new
     temperature_gradient = (temperature_2m[0] - temperature_bottom) / (initial_glacier_height // initial_glacier_layer_heights)
-    for i in np.arange((initial_snowheight//initial_snow_layer_heights),(initial_glacier_height // initial_glacier_layer_heights)):
+    for i in np.arange(0 ,(initial_glacier_height // initial_glacier_layer_heights)):
         temperature_profile[int(i)] = temperature_2m[0] - temperature_gradient * i
 
     # if merging_level == 0:
