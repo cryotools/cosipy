@@ -39,5 +39,9 @@ density_fresh_snow = 250.           # density of freshly fallen snow [kg m-3]
 
 ' MODEL CONSTANTS '
 
-number_layers = 100
+number_layers = 10
+initial_snowheight = 0.2           
+initial_snow_layer_heights = 0.1       # Initial snow layer heights
+initial_glacier_layer_heights = 1.0    # Initial glacier layer heights
+initial_glacier_height = 20.0               # total domain height (snow+glacier)
 

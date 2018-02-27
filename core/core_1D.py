@@ -13,7 +13,7 @@ from modules.surfaceTemperature import update_surface_temperature
 
 import core.grid as grd
 
-def core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, snowfall, solar_radiation,
+def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidity, snowfall, solar_radiation,
                  temperature_2m, wind_speed):
 
     albedo_all, condensation_all, depostion_all, evaporation_all, ground_heat_flux_all, longwave_in_all, \
@@ -24,22 +24,35 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, s
 
     ''' INITIALIZATION '''
     hours_since_snowfall = 0
+   
+    # Initial snow height
+    if initial_snowheight:
+        snow_height = initial_snowheight
+    else:
+        snow_height = 0
+ 
     # Init layers
-    layer_heights = 0.1 * np.ones(number_layers)
+    layer_heights =  np.ones(initial_snowheight // initial_snow_layer_heights) * initial_snow_layer_heights
+    layer_heights =  np.append(layer_heights, np.ones(initial_glacier_height // initial_glacier_layer_heights) * initial_glacier_layer_heights)
+    number_layers = len(layer_heights)
 
-    rho = ice_density * np.ones(number_layers)
-    rho[0] = 250.
-    rho[1] = 400.
-    rho[2] = 550.
+    # Init properties
+    rho = ice_density * np.ones(len(layer_heights))
+    temperature_profile = temperature_bottom * np.ones(len(layer_heights))
+    liquid_water_content = np.zeros(number_layers)
+    
+    # Init density
+    rho_top = 250.
+    rho_bottom = 500.
+    density_gradient = (rho_top-rho_bottom)/(initial_snowheight//initial_snow_layer_heights)
+    for i in np.arange((initial_snowheight//initial_snow_layer_heights)):
+       rho[int(i)] = rho_top - density_gradient * i 
 
     # Init temperature
-    temperature_surface = temperature_bottom * np.ones(number_layers)
-    for i in range(len(temperature_surface)):
-        gradient = ((temperature_2m[0] - temperature_bottom) / number_layers)
-        temperature_surface[i] = temperature_2m[0] - gradient * i
+    temperature_gradient = (temperature_2m[0] - temperature_bottom) / (initial_glacier_height // initial_glacier_layer_heights)
+    for i in np.arange((initial_snowheight//initial_snow_layer_heights),(initial_glacier_height // initial_glacier_layer_heights)):
+        temperature_profile[int(i)] = temperature_2m[0] - temperature_gradient * i
 
-    # Init liquid water content
-    liquid_water_content = np.zeros(number_layers)
 
     # if merging_level == 0:
     #     print('Merging level 0')
@@ -47,7 +60,7 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, s
     #     print('Merge in action!')
 
     # Initialize grid, the grid class contains all relevant grid information
-    GRID = grd.Grid(layer_heights, rho, temperature_surface, liquid_water_content, debug_level)
+    GRID = grd.Grid(layer_heights, rho, temperature_profile, liquid_water_content, debug_level)
     # todo params handling?
 
     # Get some information on the grid setup
@@ -56,15 +69,14 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, s
     # Merge grid layers, if necessary
     GRID.update_grid(merging_level)
 
-    if initial_snow_height[0]:
-        snow_height = initial_snow_height
-    else:
-        snow_height = 0
-
     # inital mass balance
     mass_balance = 0
 
     ' TIME LOOP '
+
+    B_max = 0 
+    B_min = 0
+    T_max = 0
 
     for t in range(time_start, time_end, 1):
         print(t)
@@ -101,6 +113,13 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, s
         fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
             ground_heat_flux, sw_radiation_net, rho, Lv, Cs, q0, q2, qdiff, phi \
             = update_surface_temperature(GRID, alpha, z0, temperature_2m[t], relative_humidity[t], cloud_cover[t], air_pressure[t], solar_radiation[t], wind_speed[t])
+
+        B_max = np.maximum(B_max, ground_heat_flux)
+        B_min = np.minimum(B_min, ground_heat_flux)
+        T_max = np.maximum(T_max, np.amax(GRID.get_temperature()))
+        print(np.sum(GRID.get_height()), B_max, B_min, GRID.get_node_temperature(1))
+
+
 
         # Surface fluxes [m w.e.q.]
         if GRID.get_node_temperature(0) < zero_temperature:
@@ -174,7 +193,7 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, s
         snowfall_all[t] = snowfall[t]
         pressure_all[t] = air_pressure[t]
         cloud_all[t] = cloud_cover[t]
-        sh_all[t] = initial_snow_height[t]
+        sh_all[t] = initial_snowheight
 
         ###interim for investigations; not needed in longterm???
         rho_all[t] = rho
@@ -185,11 +204,11 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, s
         qdiff_all[t] = qdiff
         phi_all[t] = phi
 
-    del GRID, air_pressure, alpha, cloud_cover, condensation, deposition, evaporation, freezing, fun, gradient, \
-        ground_heat_flux, hours_since_snowfall, i, initial_snow_height, latent_heat_flux, layer_heights, \
+    del GRID, air_pressure, alpha, cloud_cover, condensation, deposition, evaporation, freezing, fun, temperature_gradient, \
+        ground_heat_flux, hours_since_snowfall, i, latent_heat_flux, layer_heights, \
         liquid_water_content, lw_radiation_in, lw_radiation_out, mass_balance, melt, melting, melt_energy, \
         nodes_freezing, nodes_melting, relative_humidity, rho, sensible_heat_flux, snow_height, snowfall, \
-        solar_radiation, sublimation, surface_temperature, sw_radiation_net, t, temperature_2m, temperature_surface, \
+        solar_radiation, sublimation, surface_temperature, sw_radiation_net, t, temperature_2m, temperature_profile, \
         wind_speed, z0
 
     return albedo_all, condensation_all, depostion_all, evaporation_all, ground_heat_flux_all, \
