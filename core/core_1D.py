@@ -12,6 +12,7 @@ from modules.roughness import updateRoughness
 from modules.surfaceTemperature import update_surface_temperature
 
 import core.grid as grd
+from own.inspect_values import *
 
 def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidity, snowfall, solar_radiation,
                  temperature_2m, wind_speed):
@@ -20,7 +21,7 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
     longwave_out_all, latent_heat_flux_all, mass_balance_all, melt_heigt_all, number_layers_all, refreezing_all, \
     sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, subsurface_melt_all, surface_melt_all, \
     surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, snowfall_all, pressure_all, cloud_all, sh_all, \
-    rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all = create_1D_output_numpy_arrays(temperature_2m)
+    rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all, cpi_all = create_1D_output_numpy_arrays(temperature_2m)
 
     ''' INITIALIZATION '''
     hours_since_snowfall = 0
@@ -101,7 +102,7 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
         GRID.update_grid(merging_level)
 
         # Solve the heat equation
-        solveHeatEquation(GRID, dt)
+        cpi = solveHeatEquation(GRID, dt)
 
         # Find new surface temperature
         fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
@@ -190,19 +191,20 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
         q2_all[t] = q2
         qdiff_all[t] = qdiff
         phi_all[t] = phi
-
+        cpi_all[t] = cpi
 
     print(np.mean(latent_heat_flux_all))
+    mmm(latent_heat_flux_all)
 
     del GRID, air_pressure, alpha, cloud_cover, condensation, deposition, evaporation, freezing, fun, temperature_gradient, \
         ground_heat_flux, hours_since_snowfall, i, latent_heat_flux, layer_heights, \
         liquid_water_content, lw_radiation_in, lw_radiation_out, mass_balance, melt, melting, melt_energy, \
         nodes_freezing, nodes_melting, relative_humidity, rho, sensible_heat_flux, snow_height, snowfall, \
         solar_radiation, sublimation, surface_temperature, sw_radiation_net, t, temperature_2m, temperature_profile, \
-        wind_speed, z0
+        wind_speed, z0, cpi
 
     return albedo_all, condensation_all, deposition_all, evaporation_all, ground_heat_flux_all, \
         longwave_in_all, longwave_out_all, latent_heat_flux_all, mass_balance_all, melt_heigt_all, number_layers_all, \
         refreezing_all, sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, subsurface_melt_all, \
         surface_melt_all, surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, snowfall_all, pressure_all, \
-        cloud_all, sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all
+        cloud_all, sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all,cpi_all

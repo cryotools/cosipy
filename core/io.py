@@ -28,7 +28,7 @@ def read_input():
 def write_output_1D(albedo, condensation, deposition, evaporation, ground_heat_flux, longwave_in, longwave_out, \
                  latent_heat_flux, mass_balance, melt_height, number_layers, refreezing, sensible_heat_flux, \
                  snowHeight, shortwave_net, sublimation, subsurface_melt, surface_melt, surface_temperature, u2, \
-                 sw_in, T2, rH2, snowfall, pressure, cloud, sh, rho, Lv, Cs, q0, q2, qdiff, phi):
+                 sw_in, T2, rH2, snowfall, pressure, cloud, sh, rho, Lv, Cs, q0, q2, qdiff, phi, cpi):
     COSIPY_output = xr.Dataset({
                             "albedo": albedo,
                             "condensation": condensation,
@@ -69,6 +69,7 @@ def write_output_1D(albedo, condensation, deposition, evaporation, ground_heat_f
                             "q2" : q2,
                             "qdiff" : qdiff,
                             "phi" : phi,
+                            "cpi": cpi,
     })
     timestr = time.strftime("%Y%m%d-%H%M%S")
     COSIPY_output.to_netcdf(output_netcdf+'-'+timestr+'.nc')
@@ -106,4 +107,5 @@ def write_output_distributed(albedo, condensation, deposition, evaporation, grou
                             "surface_temperature" : surface_temperature
                              })
     timestr = time.strftime("%Y%m%d-%H%M%S")
+    print("Timestamp: ",timestr)
     COSIPY_output.to_netcdf(output_netcdf+'-'+timestr+'.nc')

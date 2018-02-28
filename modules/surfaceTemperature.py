@@ -117,7 +117,6 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2):
 
     # Latent heat flux
     L = rho * Lv * Cs * u2 * (q0-q2) * phi
-    print(L, u2, q0-q2)
 
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(res.x, 4.0)

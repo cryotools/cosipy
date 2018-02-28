@@ -21,7 +21,8 @@ def check_1D_or_distributed_and_run():
              longwave_in_all, longwave_out_all, latent_heat_flux_all, mass_balance_all, melt_heigt_all, number_layers_all, \
              refreezing_all, sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, \
              subsurface_melt_all, surface_melt_all, surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, \
-             snowfall_all, pressure_all, cloud_all, sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all \
+             snowfall_all, pressure_all, cloud_all, sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, \
+            phi_all, cpi_all \
              = core_1D(air_pressure, cloud_cover, initial_snow_height, relative_humidity, snowfall, solar_radiation,  \
              temperature_2m, wind_speed)
 
@@ -32,7 +33,7 @@ def check_1D_or_distributed_and_run():
              number_layers_all, refreezing_all, sensible_heat_flux_all, snowHeight_all, shortwave_net_all, \
              sublimation_all, subsurface_melt_all, surface_melt_all, surface_temperature_all, u2_all, sw_in_all, \
              T2_all, rH2_all, snowfall_all, pressure_all, cloud_all, sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, \
-             qdiff_all, phi_all)
+             qdiff_all, phi_all, cpi_all)
 
     elif temperature_2m.ndim == 3:
 
