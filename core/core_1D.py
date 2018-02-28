@@ -16,7 +16,7 @@ import core.grid as grd
 def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidity, snowfall, solar_radiation,
                  temperature_2m, wind_speed):
 
-    albedo_all, condensation_all, depostion_all, evaporation_all, ground_heat_flux_all, longwave_in_all, \
+    albedo_all, condensation_all, deposition_all, evaporation_all, ground_heat_flux_all, longwave_in_all, \
     longwave_out_all, latent_heat_flux_all, mass_balance_all, melt_heigt_all, number_layers_all, refreezing_all, \
     sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, subsurface_melt_all, surface_melt_all, \
     surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, snowfall_all, pressure_all, cloud_all, sh_all, \
@@ -154,7 +154,7 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
 
         albedo_all[t] = alpha
         condensation_all[t] = condensation
-        depostion_all[t] = deposition
+        deposition_all[t] = deposition
         evaporation_all[t] = evaporation
         ground_heat_flux_all[t] =ground_heat_flux
         longwave_in_all[t] = lw_radiation_in
@@ -199,7 +199,7 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
         solar_radiation, sublimation, surface_temperature, sw_radiation_net, t, temperature_2m, temperature_profile, \
         wind_speed, z0
 
-    return albedo_all, condensation_all, depostion_all, evaporation_all, ground_heat_flux_all, \
+    return albedo_all, condensation_all, deposition_all, evaporation_all, ground_heat_flux_all, \
         longwave_in_all, longwave_out_all, latent_heat_flux_all, mass_balance_all, melt_heigt_all, number_layers_all, \
         refreezing_all, sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, subsurface_melt_all, \
         surface_melt_all, surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, snowfall_all, pressure_all, \
