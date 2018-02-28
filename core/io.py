@@ -6,7 +6,6 @@ import xarray as xr
 import time
 from config import input_netcdf, output_netcdf
 import numpy as np
-from mmm import *                                   ###only for local development
 
 def read_input():
     DATA = xr.open_dataset(input_netcdf)
@@ -22,15 +21,6 @@ def read_input():
     '''
     only for local ldevelopment
     '''
-    mmm(air_pressure)
-    mmm(cloud_cover)
-    mmm(initial_snow_height)
-    mmm(relative_humidity)
-    mmm(snowfall)
-    mmm(solar_radiation)
-    mmm(temperature_2m-273.16)
-    mmm(temperature_2m)
-    mmm(wind_speed)
 
     return air_pressure, cloud_cover, initial_snow_height, relative_humidity, snowfall, solar_radiation, \
                 temperature_2m, wind_speed

@@ -45,7 +45,7 @@ folder='/Seafile/diss/io/'
 
 '''example 1D file'''
 input_netcdf= 'input/input_COSIPY-example.nc'
-output_netcdf = 'output/COSIPY-output_example_1D'
+output_netcdf = home+folder+'COSIPY-output_example_1D'
 
 # '''example 1D Halji highest gridpoint'''
 # input_netcdf= 'input/input_HAR_Halji-highest_gridpoint-1D.nc'
