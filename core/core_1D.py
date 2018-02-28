@@ -191,6 +191,9 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
         qdiff_all[t] = qdiff
         phi_all[t] = phi
 
+
+    print(np.mean(latent_heat_flux_all))
+
     del GRID, air_pressure, alpha, cloud_cover, condensation, deposition, evaporation, freezing, fun, temperature_gradient, \
         ground_heat_flux, hours_since_snowfall, i, latent_heat_flux, layer_heights, \
         liquid_water_content, lw_radiation_in, lw_radiation_out, mass_balance, melt, melting, melt_energy, \
