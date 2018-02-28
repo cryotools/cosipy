@@ -34,7 +34,6 @@ def check_1D_or_distributed_and_run():
              sublimation_all, subsurface_melt_all, surface_melt_all, surface_temperature_all, u2_all, sw_in_all, \
              T2_all, rH2_all, snowfall_all, pressure_all, cloud_all, sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, \
              qdiff_all, phi_all, cpi_all)
-
     elif temperature_2m.ndim == 3:
 
          ### rund model in distributed version (multiple 1D versions)

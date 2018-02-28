@@ -22,6 +22,8 @@ merging_level = 0                                   # Merge layers with similar 
                                                     # 1 = 5. [kg m^-3] and 0.05 [K]
                                                     # 2 = 10. and 0.1
 
+plots = 1                                           # if 1 create plot of output variables
+
 merge_snow_threshold = 0.02                         # Minimal height of layer [m]:
                                                     # thin layers rise computational needs
                                                     # of upwind schemes (e.g. heatEquation)

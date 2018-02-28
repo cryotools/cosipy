@@ -4,7 +4,8 @@
 
 import xarray as xr
 import time
-from config import input_netcdf, output_netcdf
+from config import input_netcdf, output_netcdf, plots
+from postprocessing_modules.plots import plots_fluxes
 import numpy as np
 
 def read_input():
@@ -73,6 +74,8 @@ def write_output_1D(albedo, condensation, deposition, evaporation, ground_heat_f
     })
     timestr = time.strftime("%Y%m%d-%H%M%S")
     COSIPY_output.to_netcdf(output_netcdf+'-'+timestr+'.nc')
+    if plots == 1:
+        plots_fluxes(COSIPY_output,timestr)
 
 
 ### TODO netcdf Dataset has to have attributres!!!
@@ -109,3 +112,4 @@ def write_output_distributed(albedo, condensation, deposition, evaporation, grou
     timestr = time.strftime("%Y%m%d-%H%M%S")
     print("Timestamp: ",timestr)
     COSIPY_output.to_netcdf(output_netcdf+'-'+timestr+'.nc')
+

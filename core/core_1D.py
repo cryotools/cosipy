@@ -193,7 +193,6 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
         phi_all[t] = phi
         cpi_all[t] = cpi
 
-    print(np.mean(latent_heat_flux_all))
     mmm(latent_heat_flux_all)
 
     del GRID, air_pressure, alpha, cloud_cover, condensation, deposition, evaporation, freezing, fun, temperature_gradient, \
