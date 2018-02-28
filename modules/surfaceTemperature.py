@@ -6,13 +6,13 @@ from scipy.optimize import minimize
 
 def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
 
-    if x > 273.16:
+    if x >= zero_temperature:
         Lv = lat_heat_vaporize
     else:
         Lv = lat_heat_sublimation
 
     # Saturation vapour pressure at the surface
-    Ew0 = 6.107 * np.exp((9.5*(x-273.16)) / (265.5 + (x-273.16)))
+    Ew0 = 0.6112 * np.exp((17.67*(x-273.16)) / ((x-29.66)))
 
     # Sensible heat flux
     H = rho * spec_heat_air * Cs * u2 * (x - T2) * phi
@@ -39,7 +39,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2):
         """
 
     # Saturation vapour pressure
-    Ew = 6.107 * np.exp((9.5*(T2-273.16)) / (265.5 + (T2-273.16)))
+    Ew = 0.6112 * np.exp((17.67*(T2-273.16)) / ((T2-29.66)))
 
     # Water vapour at 2 m
     Ea = (rH2 * Ew) / 100.0
@@ -51,7 +51,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2):
 
     # Relative humidity to mixing ratio
     q2 = (rH2 * 0.622 * (Ew/(p-Ew))) / 100.0
-
+    
     # Air density 
     rho = (p*100.0) / (287.058 * (T2 * (1 + 0.608 * q2)))
 
@@ -65,7 +65,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2):
         phi = 0
     else:
         phi = 1
-
+    
     # Total net shortwave radiation
     SWnet = G * (1-alpha)
 
@@ -88,7 +88,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2):
     # Set surface temperature
     GRID.set_node_temperature(0, float(res.x))
 
-    if res.x > 273.16:
+    if res.x >= zero_temperature:
         Lv = lat_heat_vaporize
     else:
         Lv = lat_heat_sublimation
@@ -97,14 +97,14 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2):
     H = rho * spec_heat_air * Cs * u2 * (res.x - T2) * phi
 
     # Saturation vapour pressure at the surface
-    Ew0 = 6.107 * np.exp((9.5*(res.x-273.16)) / (265.5 + (res.x-273.16)))
+    Ew0 = 0.6112 * np.exp((17.67*(res.x-273.16)) / ((res.x-29.66)))
 
     # Mixing ratio at surface
     q0 = (100.0 * 0.622 * (Ew0/(p-Ew0))) / 100.0
 
     # Latent heat flux
     L = rho * Lv * Cs * u2 * (q0-q2) * phi
-
+    #print(L,u2,q0-q2)
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(res.x, 4.0)
 
