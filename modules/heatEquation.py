@@ -23,6 +23,9 @@ def solveHeatEquation(GRID, t):
 
     # Calculate specific heat  [J Kg-1 K-1] depending on mean temperature domain
     c_pi = 152.2 + 7.122 * np.mean(GRID.get_temperature())
+    # with static specific heat of ice
+    # c_pi = 152.2 + 7.122 * spec_heat_ice
+
 
     # Calculate thermal conductivity [W m-1 K-1] from mean density
     lam = 0.021 + 2.5 * (snowRhoMean/1000.0)**2.0

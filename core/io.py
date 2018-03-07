@@ -19,10 +19,6 @@ def read_input():
     temperature_2m = DATA.T2.values             # Air temperature (2m over ground) [K]
     wind_speed = DATA.u2.values                 # Wind speed (magnitude) m/s
 
-    '''
-    only for local ldevelopment
-    '''
-
     return air_pressure, cloud_cover, initial_snow_height, relative_humidity, snowfall, solar_radiation, \
                 temperature_2m, wind_speed
 
