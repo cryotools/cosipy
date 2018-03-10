@@ -47,14 +47,14 @@ def check_1D_or_distributed_and_run():
 
                  ### if temperature for point is reasonable
                  if 0.0 <= temperature_2m[x, y, 0] <= 400:
-                     print("gridpoint match")
+                     print("gridpoint match x: ", x, " y: ", y)
 
                      ### run 1D core version
                      albedo_all, condensation_all, depostion_all, evaporation_all, ground_heat_flux_all, \
-                     longwave_in_all, longwave_out_all, latent_heat_flux_all, melt_heigt_all, number_layers_all, \
-                     sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, surface_melt_all, \
-                     surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, snowfall_all, pressure_all, \
-                     cloud_all, sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all =  \
+                     longwave_in_all, longwave_out_all, latent_heat_flux_all, mass_balacne_all, melt_heigt_all, number_layers_all, \
+                     refreezing_all, sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, subsurface_melt_all, \
+                     surface_melt_all, surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, snowfall_all, pressure_all, \
+                     cloud_all, sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all, cpi_all =  \
                      core_1D(air_pressure[x, y, :], cloud_cover[x, y, :] , initial_snow_height[x, y, :], \
                      relative_humidity[x, y, :], snowfall[x, y, :], solar_radiation[x, y, :], temperature_2m[x, y, :], \
                      wind_speed[x, y, :])

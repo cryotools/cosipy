@@ -74,6 +74,8 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
 
     ' TIME LOOP '
     for t in range(time_start, time_end, 1):
+        # if (t/1000).is_integer():
+        #     print(t)
         print(t)
 
         # Add snowfall
@@ -152,48 +154,46 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
         # calculate mass balance [m w.e.]
         mass_balance = (snowfall[t]*0.25) - (melt + melting - freezing + sublimation + deposition + evaporation + condensation)
 
-        albedo_all[t] = alpha
-        condensation_all[t] = condensation
-        deposition_all[t] = deposition
-        evaporation_all[t] = evaporation
-        ground_heat_flux_all[t] =ground_heat_flux
-        longwave_in_all[t] = lw_radiation_in
-        longwave_out_all[t] = lw_radiation_out
-        latent_heat_flux_all[t] = latent_heat_flux
-        mass_balance_all[t] = mass_balance
-        melt_heigt_all[t] = melt+sublimation+deposition+evaporation+condensation
-        number_layers_all[t] = GRID.number_nodes
+        albedo_all[t] = float(alpha)
+        condensation_all[t] = float(condensation)
+        deposition_all[t] = float(deposition)
+        evaporation_all[t] = float(evaporation)
+        ground_heat_flux_all[t] = float(ground_heat_flux)
+        longwave_in_all[t] = float(lw_radiation_in)
+        longwave_out_all[t] = float(lw_radiation_out)
+        latent_heat_flux_all[t] = float(latent_heat_flux)
+        mass_balance_all[t] = float(mass_balance)
+        melt_heigt_all[t] = float(melt+sublimation+deposition+evaporation+condensation)
+        number_layers_all[t] = float(GRID.number_nodes)
         # runoff_all[t] = runoff
-        refreezing_all[t] = freezing
-        sensible_heat_flux_all[t] = sensible_heat_flux
-        snowHeight_all[t] = np.sum((GRID.get_height()))
-        shortwave_net_all[t] = sw_radiation_net
-        sublimation_all[t] = sublimation
-        subsurface_melt_all[t] = melting
-        surface_melt_all[t] = melt
-        surface_temperature_all[t] = surface_temperature
+        refreezing_all[t] = float(freezing)
+        sensible_heat_flux_all[t] = float(sensible_heat_flux)
+        snowHeight_all[t] = float(np.sum((GRID.get_height())))
+        shortwave_net_all[t] = float(sw_radiation_net)
+        sublimation_all[t] = float(sublimation)
+        subsurface_melt_all[t] = float(melting)
+        surface_melt_all[t] = float(melt)
+        surface_temperature_all[t] = float(surface_temperature)
 
         ###input variables save in same file for comparision; not needed in longtime???
-        u2_all[t] = wind_speed[t]
-        sw_in_all[t] = solar_radiation[t]
-        T2_all[t] = temperature_2m[t]
-        rH2_all[t] = relative_humidity[t]
-        snowfall_all[t] = snowfall[t]
-        pressure_all[t] = air_pressure[t]
-        cloud_all[t] = cloud_cover[t]
-        sh_all[t] = initial_snowheight
+        u2_all[t] = float(wind_speed[t])
+        sw_in_all[t] = float(solar_radiation[t])
+        T2_all[t] = float(temperature_2m[t])
+        rH2_all[t] = float(relative_humidity[t])
+        snowfall_all[t] = float(snowfall[t])
+        pressure_all[t] = float(air_pressure[t])
+        cloud_all[t] = float(cloud_cover[t])
+        sh_all[t] = float(initial_snowheight)
 
         ###interim for investigations; not needed in longterm???
-        rho_all[t] = rho
-        Lv_all[t] = Lv
-        Cs_all[t] = Cs
-        q0_all[t] = q0
-        q2_all[t] = q2
-        qdiff_all[t] = qdiff
-        phi_all[t] = phi
-        cpi_all[t] = cpi
-
-    mmm(latent_heat_flux_all)
+        rho_all[t] = float(rho)
+        Lv_all[t] = float(Lv)
+        Cs_all[t] = float(Cs)
+        q0_all[t] = float(q0)
+        q2_all[t] = float(q2)
+        qdiff_all[t] = float(qdiff)
+        phi_all[t] = float(phi)
+        cpi_all[t] = float(cpi)
 
     del GRID, air_pressure, alpha, cloud_cover, condensation, deposition, evaporation, freezing, fun, temperature_gradient, \
         ground_heat_flux, hours_since_snowfall, i, latent_heat_flux, layer_heights, \

@@ -45,6 +45,7 @@ from pathlib import Path
 home = str(Path.home())
 folder='/Seafile/diss/io/'
 
+## use for test!!!
 '''example 1D file'''
 input_netcdf= 'input/input_COSIPY-example.nc'
 output_netcdf = 'output/COSIPY-output_example_1D'
@@ -61,11 +62,11 @@ output_netcdf = 'output/COSIPY-output_example_1D'
 # input_Martell = 'input/input_Martell_2017.nc'
 # output_Martell = 'output/output_Martell_2017'
 #
-# ## example Halji
+## example Halji
 # input_Halji = 'input/input_prepro_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'
 # output_Halji = 'output/output_HAR_Halji_10_2000-10_2011_ohneKorrekturen'
-#
-# ## select setup!!!
+# #
+# # ## select setup!!!
 # input_netcdf=home+folder+input_Halji
-# output_netcdf=home+'/Downloads/'+output_Halji
+# output_netcdf=home+folder+output_Halji
 
