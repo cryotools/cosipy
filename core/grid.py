@@ -258,11 +258,34 @@ class Grid:
         """ Returns temperature of node idx """
         
         return self.grid[idx].set_layer_temperature(temperature)
-    
+
+    def set_temperature(self, temperature):
+        """ Set temperature of profile """
+
+        for idx in range(self.number_nodes):
+            self.grid[idx].set_layer_temperature(temperature[idx])
+
     def set_node_height(self, idx, height):
         """ Set height of node idx """
         
         return self.grid[idx].set_layer_height(height)
+
+    def set_height(self, height):
+        """ Set height of profile """
+
+        for idx in range(self.number_nodes):
+            self.grid[idx].set_layer_height(height[idx])
+
+    def set_node_density(self, idx, density):
+        """ Set density of node idx """
+
+        return self.grid[idx].set_layer_density(density)
+
+    def set_density(self, density):
+        """ Set density of profile """
+
+        for idx in range(self.number_nodes):
+            self.grid[idx].set_layer_density(density[idx])
     
     def set_node_liquid_water_content(self, idx, liquid_water_content):
         """ Set liquid water content of node idx """

@@ -137,6 +137,8 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
 
         # Account layer temperature due to penetrating SW radiation
         penetrating_radiation(GRID, sw_radiation_net, dt)
+        # only temorary because there is yet no return from penetration solar radiation
+        nodes_melting = np.zeros(GRID.number_nodes)
 
         # todo Percolation, fluid retention (liquid_water_content) & refreezing of melt water
         # and rain
@@ -144,8 +146,8 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
         #print('size layer densities: ', GRID.layer_densities.shape," number nodess ",GRID.number_nodes)
         #percolation(GRID, melt, dt)
 
-        ### when freezing workt:
-        nodes_freezing, nodes_melting = percolation(GRID, melt, dt)
+        ### when freezing work:
+        nodes_freezing, runoff = percolation(GRID, melt, dt)
 
         # sum subsurface refreezing and melting
         freezing = np.sum(nodes_freezing)

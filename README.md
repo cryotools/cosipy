@@ -1,5 +1,20 @@
 # README #
+Needed input variables and units
+Air Pressure                        (hPa)
+Cloud cover                         (fraction; 0-1)
+Initial snow height                 (m)
+Relative humidity (2m over ground)  (%)
+Snowfall per time step              (m)
+Solar radiation at each time step   (W m-2)
+Air temperature (2m over ground)    (K)
+Wind speed (2m over ground)         (m s-1)
 
+In future model should work with total precipitation (separeted with linear allocation between zero degree and 5 degree)
+with liquid and solid precipitation (solid used as snowfall, liquid add to surface melt for percolation)
+
+
+
+REWRITE AND DELETE THE FOLLOWING!!!!
 These are basic information about the python version of
 the 'COupled Snowpack and Ice surface energy and MAss balance glacier
 model' (COSIMA). The model is originally written and developed in
