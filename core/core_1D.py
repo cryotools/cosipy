@@ -7,7 +7,7 @@ from confs_dicts_constants.dictionaries_1D import create_1D_output_numpy_arrays
 from modules.albedo import updateAlbedo
 from modules.heatEquation import solveHeatEquation
 from modules.penetratingRadiation import penetrating_radiation
-from modules.percolation import percolation
+from modules.percolation_incl_refreezing import percolation
 from modules.roughness import updateRoughness
 from modules.surfaceTemperature import update_surface_temperature
 
