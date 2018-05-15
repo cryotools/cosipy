@@ -18,7 +18,7 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
                  temperature_2m, wind_speed):
 
     albedo_all, condensation_all, deposition_all, evaporation_all, ground_heat_flux_all, longwave_in_all, \
-    longwave_out_all, latent_heat_flux_all, mass_balance_all, melt_heigt_all, number_layers_all, refreezing_all, \
+    longwave_out_all, latent_heat_flux_all, mass_balance_all, melt_heigt_all, number_layers_all, runoff_all, refreezing_all, \
     sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, subsurface_melt_all, surface_melt_all, \
     surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, snowfall_all, pressure_all, cloud_all, sh_all, \
     rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all, cpi_all = create_1D_output_numpy_arrays(temperature_2m)
@@ -167,7 +167,7 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
         mass_balance_all[t] = float(mass_balance)
         melt_heigt_all[t] = float(melt+sublimation+deposition+evaporation+condensation)
         number_layers_all[t] = float(GRID.number_nodes)
-        # runoff_all[t] = runoff
+        runoff_all[t] = float(runoff)
         refreezing_all[t] = float(freezing)
         sensible_heat_flux_all[t] = float(sensible_heat_flux)
         snowHeight_all[t] = float(np.sum((GRID.get_height())))
@@ -206,6 +206,6 @@ def core_1D(air_pressure, cloud_cover, initial_snow_height_mat, relative_humidit
 
     return albedo_all, condensation_all, deposition_all, evaporation_all, ground_heat_flux_all, \
         longwave_in_all, longwave_out_all, latent_heat_flux_all, mass_balance_all, melt_heigt_all, number_layers_all, \
-        refreezing_all, sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, subsurface_melt_all, \
+        runoff_all, refreezing_all, sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, subsurface_melt_all, \
         surface_melt_all, surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, snowfall_all, pressure_all, \
         cloud_all, sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all,cpi_all

@@ -51,8 +51,8 @@ def check_1D_or_distributed_and_run():
 
                      ### run 1D core version
                      albedo_all, condensation_all, depostion_all, evaporation_all, ground_heat_flux_all, \
-                     longwave_in_all, longwave_out_all, latent_heat_flux_all, mass_balacne_all, melt_heigt_all, number_layers_all, \
-                     refreezing_all, sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, subsurface_melt_all, \
+                     longwave_in_all, longwave_out_all, latent_heat_flux_all, mass_balance_all, melt_heigt_all, number_layers_all, \
+                     runoff_all, refreezing_all, sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, subsurface_melt_all, \
                      surface_melt_all, surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, snowfall_all, pressure_all, \
                      cloud_all, sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all, cpi_all =  \
                      core_1D(air_pressure[x, y, :], cloud_cover[x, y, :] , initial_snow_height[x, y, :], \
@@ -67,7 +67,7 @@ def check_1D_or_distributed_and_run():
                      longwave_in_distributed[x, y, :] =  longwave_in_all
                      longwave_out_distributed[x, y, :] = longwave_out_all
                      latent_heat_flux_distributed[x, y, :] = latent_heat_flux_all
-                     # mass_balance_distributed[x, y, :] = mass_balance_all
+                     mass_balance_distributed[x, y, :] = mass_balance_all
                      melt_heigt_distributed[x, y, :] = melt_heigt_all
                      number_layers_distributed[x, y, :] = number_layers_all
                      sensible_heat_flux_distributed[x, y, :] = sensible_heat_flux_all
@@ -76,17 +76,21 @@ def check_1D_or_distributed_and_run():
                      sublimation_distributed[x, y, :] = sublimation_all
                      surface_melt_distributed[x, y, :] = surface_melt_all
                      surface_temperature_distributed[x, y, :] = surface_temperature_all
-                     # runoff_distributed[x, y, :] = runoff_all
+                     runoff_distributed[x, y, :] = runoff_all
+                     refreezing_distributed[x, y, :] = refreezing_all
+
+
 
                  else:
                      print("no glacier")
 
          write_output_distributed(albedo_distributed, condensation_distributed, depostion_distributed, \
-                      evaporation_distributed, ground_heat_flux_distributed, longwave_in_distributed, \
-                      longwave_out_distributed, latent_heat_flux_distributed, melt_heigt_distributed, \
-                      number_layers_distributed, sensible_heat_flux_distributed, snowHeight_distributed, \
-                      shortwave_net_distributed, sublimation_distributed, surface_melt_distributed, \
-                      surface_temperature_distributed)
+                                  evaporation_distributed, ground_heat_flux_distributed, longwave_in_distributed, \
+                                  longwave_out_distributed, latent_heat_flux_distributed, mass_balance_distributed, \
+                                  melt_heigt_distributed, number_layers_distributed, refreezing_distributed, \
+                                  runoff_distributed, sensible_heat_flux_distributed, snowHeight_distributed, \
+                                  shortwave_net_distributed, sublimation_distributed, surface_melt_distributed, \
+                                  surface_temperature_distributed)
     else:
          print("input not suitable")
 

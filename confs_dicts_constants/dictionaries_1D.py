@@ -28,7 +28,7 @@ def create_1D_output_numpy_arrays(temperature_2m):
     surface_temperature_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
     mass_balance_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
     melt_heigt_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
-    # runoff_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
+    runoff_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
 
     ###input variables save in same file for comparision; not needed in longtime???
     u2_all = xr.DataArray(np.full_like(temperature_2m, "nan"))
@@ -51,7 +51,7 @@ def create_1D_output_numpy_arrays(temperature_2m):
     cpi_all = xr.DataArray(np.full_like(temperature_2m, "nan"))           ### specific heat ice
     return albedo_all, condensation_all, depostion_all, evaporation_all, ground_heat_flux_all, longwave_in_all, \
            longwave_out_all, latent_heat_flux_all, mass_balance_all, melt_heigt_all, number_layers_all, \
-           refreezing_all, sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, \
+           runoff_all, refreezing_all, sensible_heat_flux_all, snowHeight_all, shortwave_net_all, sublimation_all, \
            subsurface_melt_all, surface_melt_all, surface_temperature_all, u2_all, sw_in_all, T2_all, rH2_all, \
            snowfall_all, pressure_all, cloud_all, sh_all, rho_all, Lv_all, Cs_all, q0_all, q2_all, qdiff_all, phi_all, \
            cpi_all

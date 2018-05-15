@@ -23,9 +23,10 @@ shortwave_net_distributed = xr.DataArray(np.full_like(temperature_2m, "nan"))
 sublimation_distributed = xr.DataArray(np.full_like(temperature_2m, "nan"))
 surface_melt_distributed = xr.DataArray(np.full_like(temperature_2m, "nan"))
 surface_temperature_distributed = xr.DataArray(np.full_like(temperature_2m, "nan"))
-#mass_balance_distributed = xr.DataArray(np.full_like(temperature_2m, "nan"))
+mass_balance_distributed = xr.DataArray(np.full_like(temperature_2m, "nan"))
 melt_heigt_distributed = xr.DataArray(np.full_like(temperature_2m, "nan"))
-# runoff_distributed = xr.DataArray(np.full_like(temperature_2m, "nan"))
+refreezing_distributed = xr.DataArray(np.full_like(temperature_2m, "nan"))
+runoff_distributed = xr.DataArray(np.full_like(temperature_2m, "nan"))
 
 # output_list_distributed = [albedo_distributed, condensation_distributed, depostion_distributed, \
 #                            evaporation_distributed, ground_heat_flux_distributed, longwave_in_distributed,\

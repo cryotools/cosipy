@@ -12,7 +12,7 @@
 #output_netcdf
 
 time_start = 0                                      # time index to start
-time_end = 7200                                     # len(T2) usually the length of the time series
+time_end = 10                                      # len(T2) usually the length of the time series
 dt = 3600                                           # 3600, 7200, 10800 [s] length of time step per iteration in seconds
 
 debug_level = 0                                     # DEBUG levels: 0, 10, 20, 30
@@ -47,8 +47,8 @@ folder='/Seafile/diss/io/'
 
 ## use for test!!!
 '''example 1D file'''
-input_netcdf= 'input/input_COSIPY-example.nc'
-output_netcdf = 'output/COSIPY-output_example_1D'
+# input_netcdf= 'input/input_COSIPY-example.nc'
+# output_netcdf = 'output/COSIPY-output_example_1D'
 
 '''example 1D Halji highest gridpoint'''
 #input_netcdf= 'input/input_HAR_Halji-highest_gridpoint-1D.nc'
@@ -62,10 +62,10 @@ output_netcdf = 'output/COSIPY-output_example_1D'
 # input_Martell = 'input/input_Martell_2017.nc'
 # output_Martell = 'output/output_Martell_2017'
 #
-## example Halji
-# input_Halji = 'input/input_prepro_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'
-# output_Halji = 'output/output_HAR_Halji_10_2000-10_2011_ohneKorrekturen'
+# example Halji
+input_Halji = 'input/input_prepro_HAR_Halji_10_2000-10_2011_ohneKorrekturen.nc'
+output_Halji = 'output/output_HAR_Halji_10_2000-10_2011_ohneKorrekturen'
 # #
 # # ## select setup!!!
-# input_netcdf=home+folder+input_Halji
-# output_netcdf=home+folder+output_Halji
+input_netcdf=home+folder+input_Halji
+output_netcdf=home+folder+output_Halji
