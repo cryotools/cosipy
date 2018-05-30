@@ -21,7 +21,7 @@ zero_temperature = 273.16               # Kelvin [K]
 water_density = 1000.0                  # density of water [kg m^(-3)]
 liquid_water_fraction = 0.05            # irreducible water content of a snow layer;
                                         #  fraction of total mass of the layer [%/100]
-perolation_velocity = 0.0006            # percolation velocity for unsaturated layers [m s-1] (0.06 cm s-1)
+percolation_velocity = 0.0006            # percolation velocity for unsaturated layers [m s-1] (0.06 cm s-1)
                                         # how does it change with density?
                                         # Martinec, J.: Meltwater percolation through an alpine snowpack, Avalanche
                                         # Formation, Movement and Effects, Proceedings of the Davos Symposium, 162, 1987.

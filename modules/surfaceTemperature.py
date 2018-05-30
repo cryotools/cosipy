@@ -46,7 +46,7 @@ def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
 
 def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2):
     """ This methods updates the surface temperature and returns the surface fluxes 
-        """
+       """
     # Saturation vapour pressure (hPa)
     Ew = 6.112 * np.exp((17.67*(T2-273.16)) / ((T2-29.66)))
     # if T2>=zero_temperature:
