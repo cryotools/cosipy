@@ -406,13 +406,9 @@ class Grid:
             vic.append(self.grid[idx].get_layer_vol_ice_content())
         return vic
 
-    def get_total_snowheight(self):
+    def get_total_snowheight(self, verbose=False):
         """ Get the total snowheight (density<snow_ice_threshold)"""
         
-        print("******************************")
-        print("Number of nodes: %d" % self.number_nodes)
-        print("******************************")
-
         total = 0
         snowheight = 0
         for i in range(self.number_nodes):
@@ -420,10 +416,17 @@ class Grid:
                 snowheight = snowheight + self.grid[i].get_layer_height()
             total = total + self.grid[i].get_layer_height()
 
-        print("Grid consists of %d nodes \t" % self.number_nodes)
-        print("Total snow depth is %4.2f m \n" % snowheight)
-        print("Total domain depth is %4.2f m \n" % total)
+        if verbose:
+            print("******************************")
+            print("Number of nodes: %d" % self.number_nodes)
+            print("******************************")
 
+            print("Grid consists of %d nodes \t" % self.number_nodes)
+            print("Total snow depth is %4.2f m \n" % snowheight)
+            print("Total domain depth is %4.2f m \n" % total)
+        
+        return snowheight
+        
 
     def info(self):
         """ Print some information on grid """

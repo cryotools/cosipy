@@ -1,8 +1,12 @@
 import numpy as np
 from datetime import datetime
+import itertools
 
 from core.core_1D import core_1D
 from core.io import *
+
+from dask.distributed import Client, LocalCluster, progress 
+from dask.distributed import Worker
 
 def check_1D_or_distributed_and_run():
 
@@ -23,20 +27,16 @@ def check_1D_or_distributed_and_run():
 
     elif DATA.T2.ndim == 3:
 
-         ### rund model in distributed version (multiple 1D versions)
-         print('------------------------------')
-         print("distributed run")
-         print('------------------------------')
 
-         for i in DATA.lat:
-             for j in DATA.lon:
+        cluster = LocalCluster(n_workers=1,scheduler_port=8786,threads_per_worker=1)
+        client = Client('127.0.0.1:8786')
+        print(client)
 
-                print(DATA.sel(lat=i, lon=j))
-                ### run 1D core version
-                core_1D(DATA.sel(lat=i, lon=j))
-
-    else:
-         print("input not suitable")
+        #fut = [client.submit(core_1D, DATA.sel(lat=i, lon=j)) for i,j in itertools.product(DATA.lat, DATA.lon)]
+        fut = client.submit(core_1D, DATA.sel(lat=-45, lon=-77)) 
+        progress(fut) 
+        result = client.gather(fut)
+        #print(result[0])
 
     duration_run = datetime.now() - start_time
     print("run duration in seconds ", duration_run.total_seconds())

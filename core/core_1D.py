@@ -21,7 +21,9 @@ def core_1D(DATA):
 
     # Initialize snowpack
     GRID = init_snowpack(DATA)
-    GRID.grid_info()
+    RESULT = init_result_arrays(DATA)
+
+    #GRID.grid_info()
 
     # Merge grid layers, if necessary
     GRID.update_grid(merging_level)
@@ -100,5 +102,6 @@ def core_1D(DATA):
         ### when freezing work:
         percolation(GRID, melt, dt, debug_level)
 
-        # Print some grid information
-    GRID.get_total_snowheight()
+        RESULT.SNOWHEIGHT[t] = GRID.get_total_snowheight()
+
+    return 10
