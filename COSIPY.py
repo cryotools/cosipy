@@ -3,9 +3,9 @@
 """
     This is the main code file of the 'COupled Snowpack and Ice surface energy
     and MAss balance glacier model in Python' (COSIPY). The model was initially written by
-    Tobias Sauter and further developed by others.
+    Tobias Sauter. The version is constantly under development by a core developer team.
     
-    Developers:
+    Core developer team:
 
     Tobias Sauter
     Anselm Arndt
