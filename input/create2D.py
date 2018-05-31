@@ -13,20 +13,22 @@ def insert_var(ds, var, name, units, FillValue, missing_value, long_name):
 
 
 def insert_var_2D(ds, var, lat, lon, name, units, FillValue, missing_value, long_name):
-    x, y, z = np.meshgrid(lat,lon,var)
-    ds[name] = (('lat','lon','time'), z)
+    x, y, z = np.meshgrid(lon,lat,var)
+    r = (0.2*np.random.randn(z.shape[0],z.shape[1],z.shape[2]))
+    print(r)
+    ds[name] = (('lat','lon','time'), z+r)
     ds[name].attrs['units'] = units
     ds[name].attrs['long_name'] = long_name
 
     return ds
 
-lat = np.arange(-45,-50,-1.0)
-lon = np.arange(-80,-75,1.0)
+lat = np.arange(-45,-48,-1.0)
+lon = np.arange(-80,-78,1.0)
 A = np.meshgrid(lon,lat)
 
 ds = xr.Dataset()
-ds.coords['lat'] =  np.arange(-45.0, -50.0, -1.0)
-ds.coords['lon'] =  np.arange(-80.0, -75.0, 1.0)
+ds.coords['lat'] =  np.arange(-45.0, -48.0, -1.0)
+ds.coords['lon'] =  np.arange(-80.0, -78.0, 1.0)
 ds.coords['time'] = df.index.values
 
 # Account for the missing values in G

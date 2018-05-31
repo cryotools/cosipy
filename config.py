@@ -33,7 +33,7 @@ c_stab = 0.3                                        # cfl criteria
 
 ### next two lines only for development, in real cases controled by time length of input data
 time_start = '2016-06-02'                                      # time index to start
-time_end = '2016-06-02'                                       # len(T2) usually the length of the time series
+time_end = '2016-07-02'                                       # len(T2) usually the length of the time series
 
 
                                                     # ToDo strings with names for parametrisations

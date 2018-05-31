@@ -1,6 +1,6 @@
 import numpy as np
 from constants import *
-from core.io import *
+from cpkernel.io import *
 from scipy.optimize import minimize
 
 
@@ -140,6 +140,6 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2):
     #print(rho,"             ",GRID.get_node_temperature(2)-273.16, "                ",L)
     qdiff = q0-q2
 
-    return res.fun, res.x, Li, Lo, H, L, B, SWnet, rho, Lv, Cs, q0, q2, qdiff, phi
+    return res.fun, float(res.x), Li, float(Lo), float(H), float(L), float(B), float(SWnet), rho, Lv, Cs, q0, q2, qdiff, phi
 
 
