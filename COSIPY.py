@@ -44,16 +44,22 @@ def main():
     DATA = read_data()
     RESULT = init_result_dataset(DATA)
 
+    # ### for Test purposes 1D
+    # DATA = DATA.sel(lat=DATA.lat.values[5], lon=DATA.lon.values[5])
+    # results = cosipy_core(DATA)
+    # RESULT=results
+
+    ### real Halji run
     # Create a client for distributed calculations
-#    cluster = LocalCluster(scheduler_port=8786, n_workers=8, silence_logs=False)
+    #cluster = LocalCluster(scheduler_port=8786, n_workers=8, silence_logs=False)
     cluster = LocalCluster(scheduler_port=8786, silence_logs=False)
     client = Client(cluster, processes=False)
     print(client)
 
-    # Multithreading using all cores  
+    # Multithreading using all cores
     fut = [client.submit(cosipy_core,DATA.sel(lat=i, lon=j)) for i,j in product(DATA.lat, DATA.lon)]
     #cosipy_core(DATA.sel(lat=-45,lon=-80))
-   
+
     try:
         # Gather the results
         results = client.gather(fut)
@@ -62,19 +68,19 @@ def main():
 
     # Assign the results
     for i in np.arange(len(results)):
-        if hasattr(results[i], 'SNOWHEIGHT'):
-            print("yes")
-            RESULT.SNOWHEIGHT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SNOWHEIGHT
-            RESULT.EVAPORATION.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].EVAPORATION
-            RESULT.SUBLIMATION.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SUBLIMATION
-            RESULT.MELT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].MELT
-            RESULT.H.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].H
-            RESULT.LE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LE
-            RESULT.B.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].B
-            RESULT.TS.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].TS
-        else:
-            print("no")
-    print(output_netcdf)
+         if hasattr(results[i], 'SNOWHEIGHT'):
+             print("yes")
+             RESULT.SNOWHEIGHT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SNOWHEIGHT
+             RESULT.EVAPORATION.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].EVAPORATION
+             RESULT.SUBLIMATION.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SUBLIMATION
+             RESULT.MELT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].MELT
+             RESULT.H.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].H
+             RESULT.LE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LE
+             RESULT.B.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].B
+             RESULT.TS.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].TS
+         else:
+             print("no")
+
     RESULT.to_netcdf(output_netcdf)
     print(RESULT)
 
