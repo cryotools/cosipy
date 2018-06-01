@@ -2,6 +2,19 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 
+1
+import numpy as np
+
+2
+
+
+def mmm(input):
+    print("max: ", np.nanmax(input))
+    print("min: ", np.nanmin(input))
+    print("mean: ", np.nanmean(input))
+    print("sum: ", np.nansum(input),)
+    print("")
+
 df = pd.read_csv('./centinella_master.csv',delimiter=';',index_col=0, parse_dates=['Date'], na_values=' ')
 
 def insert_var(ds, var, name, units, FillValue, missing_value, long_name):
@@ -25,7 +38,6 @@ def insert_var_2D(ds, var, lat, lon, name, units, FillValue, missing_value, long
 lat = np.arange(-45,-48,-1.0)
 lon = np.arange(-80,-78,1.0)
 A = np.meshgrid(lon,lat)
-
 ds = xr.Dataset()
 ds.coords['lat'] =  np.arange(-45.0, -48.0, -1.0)
 ds.coords['lon'] =  np.arange(-80.0, -78.0, 1.0)
@@ -59,6 +71,26 @@ else:
     print('The value is set to a constant value of 1013.0 hPa ')
     insert_var_2D(ds, 1013.0*np.ones_like(df['T']), lat, lon,  'PRES', 'hPa', '-9999', -9999, 'Pressure')
 
+print(ds.T2.long_name)
+mmm(ds.T2.values)
+
+print(ds.RH2.long_name)
+mmm(ds.RH2.values)
+
+print(ds.G.long_name)
+mmm(ds.G.values)
+
+print(ds.U2.long_name)
+mmm(ds.U2.values)
+
+print(ds.RRR.long_name)
+mmm(ds.RRR.values)
+
+print(ds.N.long_name)
+mmm(ds.N.values)
+
+print(ds.PRES.long_name)
+mmm(ds.PRES.values)
 print(ds)
 ds.to_netcdf('data_amalia_2D.nc')
 

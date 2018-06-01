@@ -19,6 +19,7 @@ def read_data():
     U2          ::   Wind speed (magnitude) m/s
     """
     DATA = xr.open_dataset(input_netcdf)
+
     DATA['time'] = np.sort(DATA['time'].values)
     DATA = DATA.sel(time=slice(time_start, time_end))
 

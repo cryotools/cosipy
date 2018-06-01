@@ -43,9 +43,10 @@ def main():
     # Create input and output dataset
     DATA = read_data()
     RESULT = init_result_dataset(DATA)
-    
+
     # Create a client for distributed calculations
-    cluster = LocalCluster(scheduler_port=8786, n_workers=8, silence_logs=False)
+#    cluster = LocalCluster(scheduler_port=8786, n_workers=8, silence_logs=False)
+    cluster = LocalCluster(scheduler_port=8786, silence_logs=False)
     client = Client(cluster, processes=False)
     print(client)
 
@@ -61,15 +62,19 @@ def main():
 
     # Assign the results
     for i in np.arange(len(results)):
-        RESULT.SNOWHEIGHT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SNOWHEIGHT
-        RESULT.EVAPORATION.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].EVAPORATION
-        RESULT.SUBLIMATION.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SUBLIMATION
-        RESULT.MELT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].MELT
-        RESULT.H.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].H
-        RESULT.LE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LE
-        RESULT.B.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].B
-        RESULT.TS.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].TS
-
+        if hasattr(results[i], 'SNOWHEIGHT'):
+            print("yes")
+            RESULT.SNOWHEIGHT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SNOWHEIGHT
+            RESULT.EVAPORATION.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].EVAPORATION
+            RESULT.SUBLIMATION.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SUBLIMATION
+            RESULT.MELT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].MELT
+            RESULT.H.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].H
+            RESULT.LE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LE
+            RESULT.B.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].B
+            RESULT.TS.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].TS
+        else:
+            print("no")
+    print(output_netcdf)
     RESULT.to_netcdf(output_netcdf)
     print(RESULT)
 
