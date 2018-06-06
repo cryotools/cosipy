@@ -58,15 +58,26 @@ def init_result_dataset(DATA):
     RESULT.coords['lon'] = DATA.coords['lon']
     RESULT.coords['time'] = DATA.coords['time']
 
-    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'SNOWHEIGHT', 'm', 'Snowheight')
-    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'EVAPORATION', 'm w.e.q.', 'Evaporation')
-    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'SUBLIMATION', 'm w.e.q.', 'Sublimation')
-    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'MELT', 'm w.e.q.', 'Surface melt')
-    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'H', 'W m^-2', 'Sensible heat flux')
-    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'LE', 'W m^-2', 'Latent heat flux')
-    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'B', 'W m^-2', 'Ground heat flux')
-    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'TS', 'K', 'Surface temperature')
-    
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'SNOWHEIGHT', 'm', 'snowheight')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'EVAPORATION', 'm w.e.q.', 'evaporation')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'SUBLIMATION', 'm w.e.q.', 'sublimation')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'MELT', 'm w.e.q.', 'surface melt')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'H', 'W m^-2', 'sensible heat flux')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'LE', 'W m^-2', 'latent heat flux')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'B', 'W m^-2', 'ground heat flux')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'TS', 'K', 'surface temperature')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'ALB', '-', 'surface albedo')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'DEPO', 'm w.e.q.', 'deposition')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'CONDEN', 'm w.e.q.', 'condensation')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'LWout', 'W m^-2', 'longwave incoming radiation')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'LWin', 'W m^-2', 'longwave outgoing radiation')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'MB', 'm w.e.q.', 'mass balance')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'MH', 'm w.e.q.', 'melt height')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'NL', '-', 'number layer')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'RF', 'm w.e.q.', 'refreezing')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'Q', 'm w.e.q.', 'runoff')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'SM', 'm w.e.q.', 'surface melt')
+
     return RESULT
 
 
@@ -85,15 +96,26 @@ def init_result_dataset_1D(DATA):
     RESULT.coords['lon'] = DATA.coords['lon']
     RESULT.coords['time'] = DATA.coords['time']
 
-    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'SNOWHEIGHT', 'm', 'Snowheight')
-    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'EVAPORATION', 'm w.e.q.', 'Evaporation')
-    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'SUBLIMATION', 'm w.e.q.', 'Sublimation')
-    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'MELT', 'm w.e.q.', 'Surface melt')
-    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'H', 'W m^-2', 'Sensible heat flux')
-    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'LE', 'W m^-2', 'Latent heat flux')
-    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'B', 'W m^-2', 'Ground heat flux')
-    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'TS', 'K', 'Surface temperature')
-    
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'SNOWHEIGHT', 'm', 'snowheight')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'EVAPORATION', 'm w.e.q.', 'evaporation')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'SUBLIMATION', 'm w.e.q.', 'sublimation')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'MELT', 'm w.e.q.', 'surface melt')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'H', 'W m^-2', 'sensible heat flux')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'LE', 'W m^-2', 'latent heat flux')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'B', 'W m^-2', 'ground heat flux')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'TS', 'K', 'surface temperature')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'ALB', '-', 'surface albedo')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'DEPO', 'm w.e.q.', 'deposition')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'CONDEN', 'm w.e.q.', 'condensation')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'LWout', 'W m^-2', 'longwave incoming radiation')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'LWin', 'W m^-2', 'longwave outgoing radiation')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'MB', 'm w.e.q.', 'mass balance')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'MH', 'm w.e.q.', 'melt heigt')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'NL', 'm w.e.q.', 'number layer')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'RF', 'm w.e.q.', 'refreezing')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'Q', 'm w.e.q.', 'runoff')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, -999, dtype=np.double), 'SM', 'm w.e.q.', 'surface melt')
+
     return RESULT
 
 def add_variable_1D(ds, var, name, units, long_name):

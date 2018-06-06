@@ -78,10 +78,29 @@ def main():
              RESULT.LE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LE
              RESULT.B.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].B
              RESULT.TS.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].TS
+             RESULT.ALB.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].ALB
+             RESULT.DEPO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].DEPO
+             RESULT.CONDEN.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].CONDEN
+             RESULT.LWout.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWout
+             RESULT.LWin.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWin
+             RESULT.MB.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].MB
+             RESULT.MH.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].MH
+             RESULT.NL.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].NL
+             RESULT.RF.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].RF
+             RESULT.Q.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].Q
+             RESULT.SM.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SM
+
+
+
          else:
              print("no")
 
-    RESULT.to_netcdf(output_netcdf)
+    ### compress saves file space
+    comp = dict(zlib=True, complevel=9)
+    encoding = {var: comp for var in RESULT.data_vars}
+
+    RESULT.to_netcdf(output_netcdf, encoding=encoding)
+
     print(RESULT)
 
     # Stop time measurement

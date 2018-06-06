@@ -3,5 +3,7 @@ output/*
 venv/
 __pycache__/*
 cpkernel/__pychache__/
+cpkernel/__pychache__/*
 modules/__pychache__/
+modules/__pychache__/*
 

@@ -102,7 +102,10 @@ def cosipy_core(DATA):
             penetrating_radiation(GRID, sw_radiation_net, dt)
 
             ### when freezing work:
-            percolation(GRID, melt, dt, debug_level)
+            Q = percolation(GRID, melt, dt, debug_level)
+
+            ### add melting and freezing to mass balance
+            mass_balance = (SNOWFALL * 0.25) - (melt + sublimation + deposition + evaporation + condensation)
 
             RESULT.SNOWHEIGHT[t] = GRID.get_total_snowheight()
             RESULT.EVAPORATION[t] = evaporation
@@ -112,7 +115,17 @@ def cosipy_core(DATA):
             RESULT.LE[t] = latent_heat_flux
             RESULT.B[t] = ground_heat_flux
             RESULT.TS[t] = surface_temperature
-
+            RESULT.ALB[t] = alpha
+            RESULT.DEPO[t] = deposition
+            RESULT.CONDEN[t] = condensation
+            RESULT.LWout[t] = lw_radiation_out
+            RESULT.LWin[t] = lw_radiation_in
+            RESULT.MB[t] = mass_balance
+            RESULT.MH[t] = melt+sublimation+deposition+evaporation+condensation
+            RESULT.NL[t] = GRID.number_nodes
+            #RESULT.RF[t] = GRID.get_
+            RESULT.Q[t] = Q
+            #RESULT.SM[t] =
 
         return RESULT
     else:
