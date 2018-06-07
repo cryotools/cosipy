@@ -22,8 +22,8 @@ temperature_bottom = 268                            # bottom temperature [K]
 
 c_stab = 0.7                                        # cfl criteria; enlarge for time saving, shrink for stability
 
-time_start = '2009-01-01'                           # input data needs time
-time_end = '2009-01-02'
+time_start = '2000-10-01'                           # input data needs time
+time_end = '2005-09-30'
 
                                                     # ToDo strings with names for parametrisations
 
@@ -46,23 +46,17 @@ time_end = '2009-01-02'
     clean for master branch!!!!!!!!!!
 '''
 from pathlib import Path
+####local
 home = str(Path.home())
-folder='/Seafile/diss/io/'
+input_folder=home+'/Seafile/diss/io/input/'
+output_folder =home+'/Downloads/'
 
-# example Halji
-input_Halji = 'input/input_prepro_HAR_Halji_ohneKorrekturen.nc'
-output_Halji = '/Downloads/output_Halji.nc'
+####cluster
+#input_folder='/data/scratch/arndtans/io/input/'
+#output_folder='/data/scratch/arndtans/io/output'
 
-input_netcdf=home+folder+input_Halji
-output_netcdf=home+output_Halji
+input_Halji = 'input_prepro_HAR_Halji_ohneKorrekturen.nc'
+output_Halji = 'output_Halji_'+str(time_start.replace("-",""))+'-'+str(time_end.replace("-",""))+'-c_stab_'+str(c_stab)+'-msnowthres_'+str(merge_snow_threshold)+'.nc'
 
-'''
-    source code for local development - Anselm
-    only used for local development
-    clean for master branch!!!!!!!!!!
-'''
-#folder='/data/scratch/arndtans/io/'
-#input_Halji = 'input/input_prepro_HAR_Halji_ohneKorrekturen.nc'
-#output_Halji = 'output/output_HAR_Halji_ohneKorrekturen.nc'
-#input_netcdf=folder+input_Halji
-#output_netcdf=folder+output_Halji
+input_netcdf=input_folder+input_Halji
+output_netcdf=output_folder+output_Halji

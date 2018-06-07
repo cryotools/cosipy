@@ -90,8 +90,6 @@ def main():
              RESULT.Q.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].Q
              RESULT.SM.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SM
 
-
-
          else:
              print("no")
 
@@ -106,7 +104,10 @@ def main():
     # Stop time measurement
     duration_run = datetime.now() - start_time
     print("run duration in seconds ", duration_run.total_seconds())
-
+    if duration_run.total_seconds() >= 60 and duration_run.total_seconds() < 3600:
+        print ("run duration in minutes", duration_run.total_seconds()/60)
+    if duration_run.total_seconds() >= 3600:
+        print ("run duration in hours", duration_run.total_seconds()/3600)
 
 
 ''' MODEL EXECUTION '''

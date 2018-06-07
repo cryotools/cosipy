@@ -37,11 +37,15 @@ def cosipy_core(DATA):
         # For development
         for t in np.arange(len(DATA.time)):
 
+            #### VERY IMPORT BE SURE ABOUT UNITS? SNOWFALL NEEDED IN WHICH UNIT!!!!!!
             # Rainfall is given as mm, so we convert m. w.e.q. snowheight
-            if (DATA.RRR[t]<274.0):
-                SNOWFALL = (DATA.RRR[t].values/1000.0) * (ice_density/density_fresh_snow)
-            else:
-                SNWOFALL = 0.0
+            # if (DATA.RRR[t]<274.0):
+            #     SNOWFALL = (DATA.RRR[t].values/1000.0) * (ice_density/density_fresh_snow)
+            # else:
+            #     SNWOFALL = 0.0
+
+            ### old way try for Halji
+            SNOWFALL = float(DATA.RRR[t])
 
             if SNOWFALL > 0.0:
                 # TODO: Better use weq than snowheight
@@ -105,7 +109,7 @@ def cosipy_core(DATA):
             Q = percolation(GRID, melt, dt, debug_level)
 
             ### add melting and freezing to mass balance
-            mass_balance = (SNOWFALL * 0.25) - (melt + sublimation + deposition + evaporation + condensation)
+            mass_balance = (SNOWFALL * 0.25) - (melt + sublimation + deposition + evaporation + condensation - (melt - Q))
 
             RESULT.SNOWHEIGHT[t] = GRID.get_total_snowheight()
             RESULT.EVAPORATION[t] = evaporation
@@ -125,7 +129,7 @@ def cosipy_core(DATA):
             RESULT.NL[t] = GRID.number_nodes
             #RESULT.RF[t] = GRID.get_
             RESULT.Q[t] = Q
-            #RESULT.SM[t] =
+            RESULT.SM[t] = melt
 
         return RESULT
     else:
