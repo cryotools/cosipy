@@ -109,7 +109,9 @@ def cosipy_core(DATA):
             Q = percolation(GRID, melt, dt, debug_level)
 
             ### add melting and freezing to mass balance
-            mass_balance = (SNOWFALL * 0.25) - (melt + sublimation + deposition + evaporation + condensation - (melt - Q))
+            surface_mass_balance = (SNOWFALL * 0.25) - (melt + sublimation + deposition + evaporation + condensation)
+            internal_mass_balance = melt - Q
+            mass_balance = surface_mass_balance + internal_mass_balance
 
             RESULT.SNOWHEIGHT[t] = GRID.get_total_snowheight()
             RESULT.EVAPORATION[t] = evaporation
@@ -125,6 +127,8 @@ def cosipy_core(DATA):
             RESULT.LWout[t] = lw_radiation_out
             RESULT.LWin[t] = lw_radiation_in
             RESULT.MB[t] = mass_balance
+            RESULT.MB[t] = surface_mass_balance
+            RESULT.MB[t] = internal_mass_balance
             RESULT.MH[t] = melt+sublimation+deposition+evaporation+condensation
             RESULT.NL[t] = GRID.number_nodes
             #RESULT.RF[t] = GRID.get_

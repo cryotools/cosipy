@@ -20,10 +20,10 @@ merge_snow_threshold = 0.02                         # Minimal height of layer [m
 
 temperature_bottom = 268                            # bottom temperature [K]
 
-c_stab = 0.7                                        # cfl criteria; enlarge for time saving, shrink for stability
+c_stab = 0.3                                        # cfl criteria; enlarge for time saving, shrink for stability
 
 time_start = '2000-10-01'                           # input data needs time
-time_end = '2005-09-30'
+time_end = '2000-12-31'
 
                                                     # ToDo strings with names for parametrisations
 
@@ -49,7 +49,7 @@ from pathlib import Path
 ####local
 home = str(Path.home())
 input_folder=home+'/Seafile/diss/io/input/'
-output_folder =home+'/Downloads/'
+output_folder =home+'/Seafile/diss/io/output/'
 
 ####cluster
 #input_folder='/data/scratch/arndtans/io/input/'

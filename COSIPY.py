@@ -44,14 +44,19 @@ def main():
     DATA = read_data()
     RESULT = init_result_dataset(DATA)
 
-    # ### for Test purposes 1D
-    # DATA = DATA.sel(lat=DATA.lat.values[5], lon=DATA.lon.values[5])
+    ### for Test purposes 1D
+    # DATA = DATA.sel(lat=DATA.lat.values[0], lon=DATA.lon.values[0])
     # results = cosipy_core(DATA)
     # RESULT=results
+    #
+    # ### compress saves file space
+    # comp = dict(zlib=True, complevel=9)
+    # encoding = {var: comp for var in RESULT.data_vars}
+    # RESULT.to_netcdf(output_netcdf+'0_0_gridpoint.nc', encoding=encoding)
 
-    ### real Halji run
+    # real Halji run
     # Create a client for distributed calculations
-    #cluster = LocalCluster(scheduler_port=8786, n_workers=8, silence_logs=False)
+    # cluster = LocalCluster(scheduler_port=8786, n_workers=8, silence_logs=False)
     cluster = LocalCluster(scheduler_port=8786, silence_logs=False)
     client = Client(cluster, processes=False)
     print(client)
@@ -84,6 +89,8 @@ def main():
              RESULT.LWout.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWout
              RESULT.LWin.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWin
              RESULT.MB.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].MB
+             RESULT.SMB.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SMB
+             RESULT.IMB.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].IMB
              RESULT.MH.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].MH
              RESULT.NL.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].NL
              RESULT.RF.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].RF
@@ -103,6 +110,7 @@ def main():
 
     # Stop time measurement
     duration_run = datetime.now() - start_time
+    print("time periode calculated ",str(time_start.replace("-",""))+'-'+str(time_end.replace("-","")))
     print("run duration in seconds ", duration_run.total_seconds())
     if duration_run.total_seconds() >= 60 and duration_run.total_seconds() < 3600:
         print ("run duration in minutes", duration_run.total_seconds()/60)
