@@ -79,6 +79,7 @@ def init_result_dataset(DATA):
     add_variable_2D(RESULT, np.full_like(DATA.T2, np.nan, dtype=np.double), 'RF', 'm w.e.q.', 'refreezing')
     add_variable_2D(RESULT, np.full_like(DATA.T2, np.nan, dtype=np.double), 'Q', 'm w.e.q.', 'runoff')
     add_variable_2D(RESULT, np.full_like(DATA.T2, np.nan, dtype=np.double), 'SM', 'm w.e.q.', 'surface melt')
+    add_variable_2D(RESULT, np.full_like(DATA.T2, np.nan, dtype=np.double), 'SF', 'm w.e.q.', 'snowfall')
 
     return RESULT
 
@@ -119,6 +120,7 @@ def init_result_dataset_1D(DATA):
     add_variable_1D(RESULT, np.full_like(DATA.T2, np.nan, dtype=np.double), 'RF', 'm w.e.q.', 'refreezing')
     add_variable_1D(RESULT, np.full_like(DATA.T2, np.nan, dtype=np.double), 'Q', 'm w.e.q.', 'runoff')
     add_variable_1D(RESULT, np.full_like(DATA.T2, np.nan, dtype=np.double), 'SM', 'm w.e.q.', 'surface melt')
+    add_variable_1D(RESULT, np.full_like(DATA.T2, np.nan, dtype=np.double), 'SF', 'm w.e.q.', 'snowfall')
 
     return RESULT
 

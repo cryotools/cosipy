@@ -53,7 +53,7 @@ output_folder =home+'/Seafile/diss/io/output/'
 
 ####cluster
 #input_folder='/data/scratch/arndtans/io/input/'
-#output_folder='/data/scratch/arndtans/io/output'
+#output_folder='/data/scratch/arndtans/io/output/'
 
 input_Halji = 'input_prepro_HAR_Halji_ohneKorrekturen.nc'
 output_Halji = 'output_Halji_'+str(time_start.replace("-",""))+'-'+str(time_end.replace("-",""))+'-c_stab_'+str(c_stab)+'-msnowthres_'+str(merge_snow_threshold)+'.nc'

@@ -134,6 +134,8 @@ def cosipy_core(DATA):
             #RESULT.RF[t] = GRID.get_
             RESULT.Q[t] = Q
             RESULT.SM[t] = melt
+            RESULT.SF[t] = SNOWFALL
+
 
         return RESULT
     else:

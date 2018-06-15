@@ -96,6 +96,7 @@ def main():
              RESULT.RF.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].RF
              RESULT.Q.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].Q
              RESULT.SM.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SM
+             RESULT.SF.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SF
 
          else:
              print("no")
