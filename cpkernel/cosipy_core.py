@@ -127,8 +127,8 @@ def cosipy_core(DATA):
             RESULT.LWout[t] = lw_radiation_out
             RESULT.LWin[t] = lw_radiation_in
             RESULT.MB[t] = mass_balance
-            RESULT.MB[t] = surface_mass_balance
-            RESULT.MB[t] = internal_mass_balance
+            RESULT.SMB[t] = surface_mass_balance
+            RESULT.IMB[t] = internal_mass_balance
             RESULT.MH[t] = melt+sublimation+deposition+evaporation+condensation
             RESULT.NL[t] = GRID.number_nodes
             #RESULT.RF[t] = GRID.get_
