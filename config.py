@@ -22,7 +22,7 @@ temperature_bottom = 268                            # bottom temperature [K]
 
 c_stab = 0.3                                        # cfl criteria; enlarge for time saving, shrink for stability
 
-time_start = '2000-10-01'                              # input data needs time
+time_start = '2000-10-01'                           # input data needs time
 time_end = '2000-10-02'
 
                                                     # ToDo strings with names for parametrisations

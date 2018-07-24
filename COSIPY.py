@@ -79,6 +79,7 @@ def main():
              RESULT.SWnet.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SWnet
              RESULT.LWin.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWin
              RESULT.LWout.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWout
+             RESULT.LWnet.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWnet
              RESULT.H.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].H
              RESULT.LE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LE
              RESULT.B.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].B

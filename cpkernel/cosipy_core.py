@@ -36,8 +36,9 @@ def cosipy_core(DATA):
         ' TIME LOOP '
         # For development
         for t in np.arange(len(DATA.time)):
-            if (t / 1000).is_integer():
-                print(t)
+            ### to log how fast model is; print every 1000 iteration
+            #if (t / 1000).is_integer():
+            #    print(t)
 
             #### VERY IMPORT BE SURE ABOUT UNITS? SNOWFALL NEEDED IN WHICH UNIT!!!!!!
             # Rainfall is given as mm, so we convert m. w.e.q. snowheight
@@ -80,6 +81,8 @@ def cosipy_core(DATA):
                 ground_heat_flux, sw_radiation_net, rho, Lv, Cs, q0, q2, qdiff, phi \
                 = update_surface_temperature(GRID, alpha, z0, DATA.T2[t].values, DATA.RH2[t].values, DATA.N[t].values, \
                                              DATA.PRES[t].values, DATA.G[t].values, DATA.U2[t].values)
+            lw_radiation_net = lw_radiation_in - lw_radiation_out
+
             # Surface fluxes [m w.e.]
             if GRID.get_node_temperature(0) < zero_temperature:
                 sublimation = max(latent_heat_flux / (1000.0 * lat_heat_sublimation), 0) * dt
@@ -119,6 +122,7 @@ def cosipy_core(DATA):
             RESULT.SWnet[t]=sw_radiation_net
             RESULT.LWin[t] = lw_radiation_in
             RESULT.LWout[t] = lw_radiation_out
+            RESULT.LWnet[t] = lw_radiation_net
             RESULT.H[t] = sensible_heat_flux
             RESULT.LE[t] = latent_heat_flux
             RESULT.B[t] = ground_heat_flux
