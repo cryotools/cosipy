@@ -93,4 +93,3 @@ print(ds.PRES.long_name)
 mmm(ds.PRES.values)
 print(ds)
 ds.to_netcdf('data_amalia_2D.nc')
-

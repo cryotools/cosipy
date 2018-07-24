@@ -36,6 +36,8 @@ def cosipy_core(DATA):
         ' TIME LOOP '
         # For development
         for t in np.arange(len(DATA.time)):
+            if (t / 1000).is_integer():
+                print(t)
 
             #### VERY IMPORT BE SURE ABOUT UNITS? SNOWFALL NEEDED IN WHICH UNIT!!!!!!
             # Rainfall is given as mm, so we convert m. w.e.q. snowheight
@@ -78,7 +80,7 @@ def cosipy_core(DATA):
                 ground_heat_flux, sw_radiation_net, rho, Lv, Cs, q0, q2, qdiff, phi \
                 = update_surface_temperature(GRID, alpha, z0, DATA.T2[t].values, DATA.RH2[t].values, DATA.N[t].values, \
                                              DATA.PRES[t].values, DATA.G[t].values, DATA.U2[t].values)
-            # Surface fluxes [m w.e.q.]
+            # Surface fluxes [m w.e.]
             if GRID.get_node_temperature(0) < zero_temperature:
                 sublimation = max(latent_heat_flux / (1000.0 * lat_heat_sublimation), 0) * dt
                 deposition = min(latent_heat_flux / (1000.0 * lat_heat_sublimation), 0) * dt
@@ -94,10 +96,10 @@ def cosipy_core(DATA):
             melt_energy = max(0, sw_radiation_net + lw_radiation_in + lw_radiation_out - ground_heat_flux -
                               sensible_heat_flux - latent_heat_flux)  # W m^-2 / J s^-1 ^m-2
 
-            melt = melt_energy * dt / (1000 * lat_heat_melting)  # m w.e.q. (ice)
+            surface_melt = melt_energy * dt / (1000 * lat_heat_melting)  # m w.e.q. (ice)
 
             # Remove melt height
-            GRID.remove_melt_energy(melt + sublimation + deposition + evaporation + condensation)
+            GRID.remove_melt_energy(surface_melt + sublimation + deposition + evaporation + condensation)
 
             # Merge first layer, if too small (for model stability)
             GRID.merge_new_snow(merge_snow_threshold)
@@ -106,36 +108,38 @@ def cosipy_core(DATA):
             penetrating_radiation(GRID, sw_radiation_net, dt)
 
             ### when freezing work:
-            Q = percolation(GRID, melt, dt, debug_level)
+            Q = percolation(GRID, surface_melt, dt, debug_level)
 
             ### add melting and freezing to mass balance
-            surface_mass_balance = (SNOWFALL * 0.25) - (melt + sublimation + deposition + evaporation + condensation)
-            internal_mass_balance = melt - Q
+            surface_mass_balance = (SNOWFALL * 0.25) - (surface_melt + sublimation + deposition + evaporation + condensation)
+            internal_mass_balance = surface_melt - Q
             mass_balance = surface_mass_balance + internal_mass_balance
 
-            RESULT.SNOWHEIGHT[t] = GRID.get_total_snowheight()
-            RESULT.EVAPORATION[t] = evaporation
-            RESULT.SUBLIMATION[t] = sublimation
-            RESULT.MELT[t] = melt
+            RESULT.SWin[t]=DATA.G[t].values
+            RESULT.SWnet[t]=sw_radiation_net
+            RESULT.LWin[t] = lw_radiation_in
+            RESULT.LWout[t] = lw_radiation_out
             RESULT.H[t] = sensible_heat_flux
             RESULT.LE[t] = latent_heat_flux
             RESULT.B[t] = ground_heat_flux
-            RESULT.TS[t] = surface_temperature
-            RESULT.ALB[t] = alpha
-            RESULT.DEPO[t] = deposition
-            RESULT.CONDEN[t] = condensation
-            RESULT.LWout[t] = lw_radiation_out
-            RESULT.LWin[t] = lw_radiation_in
+            RESULT.ME[t] = melt_energy
             RESULT.MB[t] = mass_balance
-            RESULT.SMB[t] = surface_mass_balance
-            RESULT.IMB[t] = internal_mass_balance
-            RESULT.MH[t] = melt+sublimation+deposition+evaporation+condensation
-            RESULT.NL[t] = GRID.number_nodes
-            #RESULT.RF[t] = GRID.get_
+            RESULT.surfMB[t] = surface_mass_balance
+            RESULT.intMB[t] = internal_mass_balance
+            RESULT.SUBLI[t] = sublimation
+            RESULT.DEPO[t] = deposition
+            RESULT.EVAPO[t] = evaporation
+            RESULT.CONDEN[t] = condensation
+            RESULT.surfM[t] = surface_melt
+            #RESULT.subM[t]=
             RESULT.Q[t] = Q
-            RESULT.SM[t] = melt
+            #RESULT.RF[t] =
             RESULT.SF[t] = SNOWFALL
-
+            RESULT.surfMH[t] = surface_melt+sublimation+deposition+evaporation+condensation
+            RESULT.SH[t] = GRID.get_total_snowheight()
+            RESULT.surfT[t] = surface_temperature
+            RESULT.surfA[t] = alpha
+            RESULT.NL[t] = GRID.number_nodes
 
         return RESULT
     else:

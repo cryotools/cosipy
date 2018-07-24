@@ -44,15 +44,15 @@ def main():
     DATA = read_data()
     RESULT = init_result_dataset(DATA)
 
-    ### for Test purposes 1D
-    # DATA = DATA.sel(lat=DATA.lat.values[0], lon=DATA.lon.values[0])
+    # ## for Test purposes 1D
+    # DATA = DATA.sel(lat=DATA.lat.values[5], lon=DATA.lon.values[6])
     # results = cosipy_core(DATA)
     # RESULT=results
     #
     # ### compress saves file space
     # comp = dict(zlib=True, complevel=9)
     # encoding = {var: comp for var in RESULT.data_vars}
-    # RESULT.to_netcdf(output_netcdf+'0_0_gridpoint.nc', encoding=encoding)
+    # RESULT.to_netcdf(output_netcdf+'5_6_gridpoint.nc', encoding=encoding)
 
     # real Halji run
     # Create a client for distributed calculations
@@ -73,30 +73,33 @@ def main():
 
     # Assign the results
     for i in np.arange(len(results)):
-         if hasattr(results[i], 'SNOWHEIGHT'):
+         if hasattr(results[i], 'MB'):
              print("yes")
-             RESULT.SNOWHEIGHT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SNOWHEIGHT
-             RESULT.EVAPORATION.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].EVAPORATION
-             RESULT.SUBLIMATION.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SUBLIMATION
-             RESULT.MELT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].MELT
+             RESULT.SWin.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SWin
+             RESULT.SWnet.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SWnet
+             RESULT.LWin.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWin
+             RESULT.LWout.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWout
              RESULT.H.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].H
              RESULT.LE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LE
              RESULT.B.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].B
-             RESULT.TS.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].TS
-             RESULT.ALB.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].ALB
-             RESULT.DEPO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].DEPO
-             RESULT.CONDEN.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].CONDEN
-             RESULT.LWout.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWout
-             RESULT.LWin.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWin
+             RESULT.ME.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].ME
              RESULT.MB.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].MB
-             RESULT.SMB.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SMB
-             RESULT.IMB.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].IMB
-             RESULT.MH.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].MH
-             RESULT.NL.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].NL
-             RESULT.RF.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].RF
+             RESULT.surfMB.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].surfMB
+             RESULT.intMB.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].intMB
+             RESULT.SUBLI.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SUBLI
+             RESULT.DEPO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].DEPO
+             RESULT.EVAPO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].EVAPO
+             RESULT.CONDEN.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].CONDEN
+             RESULT.surfM.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].surfM
+             #RESULT.subM.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].subM
              RESULT.Q.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].Q
-             RESULT.SM.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SM
+             #RESULT.RF.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].RF
              RESULT.SF.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SF
+             RESULT.surfM.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].surfM
+             RESULT.SH.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SH
+             RESULT.surfT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].surfT
+             RESULT.surfA.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].surfA
+             RESULT.NL.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].NL
 
          else:
              print("no")
@@ -104,9 +107,8 @@ def main():
     ### compress saves file space
     comp = dict(zlib=True, complevel=9)
     encoding = {var: comp for var in RESULT.data_vars}
-
-    RESULT.to_netcdf(output_netcdf, encoding=encoding)
-
+    timestr = time.strftime("%Y%m%d")  # ("%Y%m%d-%H%M%S")
+    RESULT.to_netcdf(output_netcdf+'_run_date-'+timestr+'.nc', encoding=encoding)
     print(RESULT)
 
     # Stop time measurement
