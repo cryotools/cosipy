@@ -18,25 +18,61 @@ def init_snowpack(DATA):
     number_layers = len(layer_heights)
 
     # Init properties
-    rho = ice_density * np.ones(len(layer_heights))
-    temperature_profile = temperature_bottom * np.ones(len(layer_heights))
-    liquid_water_content = np.zeros(number_layers)
+    layer_density = ice_density * np.ones(len(layer_heights))
+    layer_T = temperature_bottom * np.ones(len(layer_heights))
+    layer_LWC = np.zeros(number_layers)
+    layer_cc = np.zeros(number_layers)
+    layer_porosity = np.zeros(number_layers)
+    layer_vol = np.zeros(number_layers)
     
     # Init density
     rho_top = 250.
     rho_bottom = 500.
     density_gradient = (rho_top-rho_bottom)/(initial_snowheight//initial_snow_layer_heights)
     for i in np.arange((initial_snowheight//initial_snow_layer_heights)):
-       rho[int(i)] = rho_top - density_gradient * i 
+       layer_density[int(i)] = rho_top - density_gradient * i 
     
     # Init temperature new
     temperature_gradient = (DATA.T2[0] - temperature_bottom) / (initial_glacier_height // initial_glacier_layer_heights)
     for i in np.arange(0 ,(initial_glacier_height // initial_glacier_layer_heights)):
-        temperature_profile[int(i)] = DATA.T2[0] - temperature_gradient * i
+        layer_T[int(i)] = DATA.T2[0] - temperature_gradient * i
 
     # Initialize grid, the grid class contains all relevant grid information
-    GRID = Grid(layer_heights, rho, temperature_profile, liquid_water_content, debug_level)
+    GRID = Grid(layer_heights, layer_density, layer_T, layer_LWC, layer_cc, layer_porosity, layer_vol, debug_level)
 
     return GRID
+
+
+
+def load_snowpack(GRID_RESTART):
+    """ Initialize grid from restart file """
+
+    # Number of layers
+    num_layers = np.int(GRID_RESTART.NLAYERS.values)
+    
+    # Init layer height
+    layer_heights = GRID_RESTART.LAYER_HEIGHT[0:num_layers].values
+    layer_density = GRID_RESTART.LAYER_RHO[0:num_layers].values
+    layer_T = GRID_RESTART.LAYER_T[0:num_layers].values
+    layer_LWC = GRID_RESTART.LAYER_LWC[0:num_layers].values
+    layer_cc = GRID_RESTART.LAYER_CC[0:num_layers].values
+    layer_porosity = GRID_RESTART.LAYER_POROSITY[0:num_layers].values
+    layer_vol = GRID_RESTART.LAYER_VOL[0:num_layers].values
+
+    GRID = Grid(layer_heights, layer_density, layer_T, layer_LWC, layer_cc, layer_porosity, layer_vol, debug_level)
+    
+    return GRID
+
+
+
+
+
+
+
+
+
+
+
+
 
 

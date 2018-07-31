@@ -24,6 +24,7 @@
     Correspondence: tobias.sauter@fau.de
 
 """
+import os
 from datetime import datetime
 from itertools import product
 
@@ -34,92 +35,159 @@ from cpkernel.io import *
 from distributed import Client, LocalCluster
 from dask import compute, delayed
 import dask as da
+from dask.diagnostics import ProgressBar
+from dask.distributed import progress
 
 def main():
+
+    #------------------------------------------
+    # Create input and output dataset
+    #------------------------------------------
+    
+    # Check, if restart
+    if (restart==True):
+        print('--------------------------------------------------------------')
+        print('\t RESTART FROM PREVIOUS STATE')
+        print('--------------------------------------------------------------')
+        
+        # Load the restart file
+        if os.path.isfile(restart_netcdf):
+            GRID_RESTART = xr.open_dataset(restart_netcdf)
+            latest_time = GRID_RESTART.time     # Get time of the last calculation
+            DATA = read_data(latest_time)       # Read data from the last date to the end of the data file
+        else:
+            print('\n No restart file available!')  # if there is a problem kill the program
+            sys.exit(1)
+    else:
+        DATA = read_data()  # If no restart, read data according to the dates defined in the config.py
+    
+    # Initialize the result dataset
+    RESULT = init_result_dataset(DATA)
+
+
+
+    #-----------------------------------------------
+    # Create a client for distributed calculations
+    #-----------------------------------------------
+    cluster = LocalCluster(scheduler_port=8786, n_workers=8, silence_logs=False)
+    client = Client(cluster, processes=False)
+    print('--------------------------------------------------------------')
+    print('\t Starting clients ... \n')
+    print(client)
+    print('--------------------------------------------------------------')
 
     # Measure time
     start_time = datetime.now()
 
-    # Create input and output dataset
-    DATA = read_data()
-    RESULT = init_result_dataset(DATA)
 
-    # ## for Test purposes 1D
-    # DATA = DATA.sel(lat=DATA.lat.values[5], lon=DATA.lon.values[6])
-    # results = cosipy_core(DATA)
-    # RESULT=results
-    #
-    # ### compress saves file space
-    # comp = dict(zlib=True, complevel=9)
-    # encoding = {var: comp for var in RESULT.data_vars}
-    # RESULT.to_netcdf(output_netcdf+'5_6_gridpoint.nc', encoding=encoding)
+    #----------------------------------------------
+    # Calculation - Multithreading using all cores  
+    #----------------------------------------------
+    fut = []
+    nfut = 0
+    for i,j in product(DATA.lat, DATA.lon):
+        mask = DATA.MASK.sel(lat=i, lon=j)
+       
+        # Provide restart grid if necessary
+        if ((mask==1) & (restart==False)):
+            nfut = nfut+1
+            fut.append(client.submit(cosipy_core, DATA.sel(lat=i, lon=j)))
+        elif ((mask==1) & (restart==True)):
+            nfut = nfut+1
+            fut.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), GRID_RESTART.sel(lat=i,lon=j)))
+  
 
-    # real Halji run
-    # Create a client for distributed calculations
-    # cluster = LocalCluster(scheduler_port=8786, n_workers=8, silence_logs=False)
-    cluster = LocalCluster(scheduler_port=8786, silence_logs=False)
-    client = Client(cluster, processes=False)
-    print(client)
+    # Finally, do the calculations and print the progress
+    progress(fut)
+    results = client.gather(fut)
 
-    # Multithreading using all cores
-    fut = [client.submit(cosipy_core,DATA.sel(lat=i, lon=j)) for i,j in product(DATA.lat, DATA.lon)]
-    #cosipy_core(DATA.sel(lat=-45,lon=-80))
 
-    try:
-        # Gather the results
-        results = client.gather(fut)
-    except:
-        pass
 
-    # Assign the results
-    for i in np.arange(len(results)):
-         if hasattr(results[i], 'MB'):
-             print("yes")
-             RESULT.SWin.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SWin
-             RESULT.SWnet.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SWnet
-             RESULT.LWin.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWin
-             RESULT.LWout.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWout
-             RESULT.LWnet.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWnet
-             RESULT.H.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].H
-             RESULT.LE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LE
-             RESULT.B.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].B
-             RESULT.ME.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].ME
-             RESULT.MB.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].MB
-             RESULT.surfMB.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].surfMB
-             RESULT.intMB.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].intMB
-             RESULT.SUBLI.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SUBLI
-             RESULT.DEPO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].DEPO
-             RESULT.EVAPO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].EVAPO
-             RESULT.CONDEN.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].CONDEN
-             RESULT.surfM.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].surfM
-             #RESULT.subM.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].subM
-             RESULT.Q.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].Q
-             #RESULT.RF.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].RF
-             RESULT.SF.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SF
-             RESULT.surfM.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].surfM
-             RESULT.SH.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SH
-             RESULT.surfT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].surfT
-             RESULT.surfA.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].surfA
-             RESULT.NL.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].NL
-
-         else:
-             print("no")
-
-    ### compress saves file space
-    comp = dict(zlib=True, complevel=9)
-    encoding = {var: comp for var in RESULT.data_vars}
-    timestr = time.strftime("%Y%m%d")  # ("%Y%m%d-%H%M%S")
-    RESULT.to_netcdf(output_netcdf+'_run_date-'+timestr+'.nc', encoding=encoding)
-    print(RESULT)
-
+    #----------------------------------------------
+    # Save data  
+    #----------------------------------------------
+    
+    # First close restart file
+    if (restart==True):
+        GRID_RESTART.close()
+    
+    # Aggregate and save result and restart file
+    RESULT = write_results(RESULT, results, output_netcdf)
+    write_restart(RESULT, restart_netcdf)
+ 
     # Stop time measurement
     duration_run = datetime.now() - start_time
-    print("time periode calculated ",str(time_start.replace("-",""))+'-'+str(time_end.replace("-","")))
-    print("run duration in seconds ", duration_run.total_seconds())
-    if duration_run.total_seconds() >= 60 and duration_run.total_seconds() < 3600:
-        print ("run duration in minutes", duration_run.total_seconds()/60)
-    if duration_run.total_seconds() >= 3600:
-        print ("run duration in hours", duration_run.total_seconds()/3600)
+    print("\n \n Total run duration in seconds %4.2f \n\n" % (duration_run.total_seconds()))
+
+
+    print('--------------------------------------------------------------')
+    print('\t SIMULATION WAS SUCCESSFUL')
+    print('--------------------------------------------------------------')
+
+
+
+def write_results(RESULT, results, output_netcdf):
+    """ This function aggregates the point result 
+    
+    results         ::  List with the result from COSIPI
+    """
+     
+    # Assign point results to the aggregated dataset
+    for i in np.arange(len(results)):
+        RESULT.SNOWHEIGHT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SNOWHEIGHT
+        RESULT.EVAPORATION.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].EVAPORATION
+        RESULT.SUBLIMATION.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SUBLIMATION
+        RESULT.MELT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].MELT
+        RESULT.LWin.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWin
+        RESULT.LWout.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWout
+        RESULT.H.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].H
+        RESULT.LE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LE
+        RESULT.B.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].B
+        RESULT.TS.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].TS
+        RESULT.RH2.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].RH2
+        RESULT.T2.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].T2
+        RESULT.G.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].G
+        RESULT.U2.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].U2
+        RESULT.N.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].N
+        RESULT.Z0.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].Z0
+        RESULT.ALBEDO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].ALBEDO
+        
+        RESULT.NLAYERS.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].NLAYERS
+        RESULT.LAYER_HEIGHT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_HEIGHT
+        RESULT.LAYER_RHO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_RHO
+        RESULT.LAYER_T.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_T
+        RESULT.LAYER_LWC.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_LWC
+        RESULT.LAYER_CC.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_CC
+        RESULT.LAYER_POROSITY.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_POROSITY
+        RESULT.LAYER_VOL.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_VOL
+
+    # Write results to netcdf
+    encoding = {'lat': {'zlib': False, '_FillValue': False},
+                'lon': {'zlib': False, '_FillValue': False},
+            }
+
+    print('\n')
+    print('--------------------------------------------------------------')
+    print('\t Writing result file \n')
+    
+    RESULT.to_netcdf(output_netcdf, encoding=encoding)
+    return RESULT
+
+
+def write_restart(RESULT, restart_netcdf):
+    """ Writes the restart file 
+    
+    RESULT      :: RESULT dataset
+    
+    """
+
+    # Create restart file (last time step)
+    print('\t Writing restart file')
+    print('--------------------------------------------------------------')
+
+    RESTART = RESULT.isel(time=-1)
+    RESTART.to_netcdf(restart_netcdf)
+
 
 
 ''' MODEL EXECUTION '''

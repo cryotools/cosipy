@@ -5,7 +5,7 @@ from cpkernel.node import *
 
 class Grid:
 
-    def __init__(self, layer_heights, layer_densities, layer_temperatures, liquid_water_contents, debug):
+    def __init__(self, layer_heights, layer_densities, layer_temperatures, liquid_water_contents, cc, porosity, vol, debug):
         """ Initialize numerical grid 
         
         Input:         
@@ -23,9 +23,9 @@ class Grid:
         self.layer_densities = layer_densities
         self.layer_temperatures = layer_temperatures
         self.liquid_water_contents = liquid_water_contents
-        self.cold_contents = np.zeros(len(layer_heights))
-        self.porosity = np.zeros(len(layer_heights))
-        self.vol_ice_content = np.zeros(len(layer_heights))
+        self.cold_contents = cc
+        self.porosity = porosity
+        self.vol_ice_content = vol 
         self.debug = debug
 
         # Number of total nodes
@@ -248,7 +248,7 @@ class Grid:
             remove = False
 
         while remove:
-                
+               
                 # How much energy required to melt first layer
                 melt_required = self.get_node_height(0) * (self.get_node_density(0) / 1000.0)
 
@@ -427,6 +427,9 @@ class Grid:
         
         return snowheight
         
+    def get_number_layers(self):
+        """ Get the number of layers"""
+        return (self.number_nodes)
 
     def info(self):
         """ Print some information on grid """

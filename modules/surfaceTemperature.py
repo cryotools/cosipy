@@ -44,11 +44,14 @@ def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
     return np.abs(SWnet+Li+Lo-H-L-B)
 
 
-def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2):
+
+
+def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2, LWin=None):
     """ This methods updates the surface temperature and returns the surface fluxes 
        """
     # Saturation vapour pressure (hPa)
     Ew = 6.112 * np.exp((17.67*(T2-273.16)) / ((T2-29.66)))
+    
     # if T2>=zero_temperature:
     #    Ew = 6.1078 * np.exp((17.269388*(T2-273.16)) / ((T2-35.86)))
     # else:
@@ -61,10 +64,14 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2):
     # Water vapour at 2 m (hPa)
     Ea = (rH2 * Ew) / 100.0
 
-    # Incoming longwave radiation CORRECT
-    eps_cs = 0.23 + 0.433 * np.power(Ea/T2,1.0/8.0)
-    eps_tot = eps_cs * (1 - np.power(N,2)) + 0.984 * np.power(N,2)
-    Li = eps_tot * sigma * np.power(T2,4.0)
+    # Calc incoming longwave radiation, if not available
+    if LWin is None:
+        eps_cs = 0.23 + 0.433 * np.power(Ea/T2,1.0/8.0)
+        eps_tot = eps_cs * (1 - np.power(N,2)) + 0.984 * np.power(N,2)
+        Li = eps_tot * sigma * np.power(T2,4.0)
+    else:
+    # otherwise use LW data from file
+        Li = LWin
 
     # Mixing Ratio at 2 m or calculate with other formula? 0.622*e/p = q
     q2 = (rH2 * 0.622 * (Ew / (p - Ew))) / 100.0
@@ -86,7 +93,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2):
     # Total net shortwave radiation
     SWnet = G * (1-alpha)
 
-    # Bulk transfer coefficient todo: I think z0e-4 is wrong it must be z0e-3
+    # Bulk transfer coefficient 
     Cs = np.power(0.41,2.0) / np.power(np.log(2.0/(z0/1000)),2)
 
     # Get mean snow density
@@ -99,8 +106,8 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2):
     # Calculate thermal conductivity [W m-1 K-1] from mean density
     lam = 0.021 + 2.5 * (snowRhoMean/1000.0)**2.0
     
-    res = minimize(energy_balance, GRID.get_node_temperature(0), method='L-BFGS-B', bounds=((200.0, 273.16),),
-                   tol=1e-8, args=(GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam))
+    res = minimize(energy_balance, GRID.get_node_temperature(0), method='TNC', bounds=((240.0, 273.16),),
+                   tol=1e-4, args=(GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam))
  
     # Set surface temperature
     GRID.set_node_temperature(0, float(res.x))
@@ -120,10 +127,6 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2):
     # else:
     #    Ew0 = 6.1078 * np.exp((21.8745584*(res.x-273.16)) / ((res.x-7.66)))
 
-    # newest Saturation water pressure calculation - Anselm http://www.sisyphe.upmc.fr/~ducharne/documents/MEC558reportDiyin_LU.pdf
-    # result is (hPa) and termpature in K!!!
-    # Ew0 = 6.112 * np.exp((17.62*T2)/(T2+243.12))
-
     # Mixing ratio at surface
     q0 = (100.0 * 0.622 * (Ew0/(p-Ew0))) / 100.0
 
@@ -137,9 +140,8 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2):
     B = -lam * ((2 * GRID.get_node_temperature(1) - (0.5 * ((3 * res.x) + GRID.get_node_temperature(2)))) /\
                 (GRID.get_node_height(0)))
 
-    #print(rho,"             ",GRID.get_node_temperature(2)-273.16, "                ",L)
     qdiff = q0-q2
 
-    return res.fun, float(res.x), Li, float(Lo), float(H), float(L), float(B), float(SWnet), rho, Lv, Cs, q0, q2, qdiff, phi
+    return res.fun, float(res.x), float(Li), float(Lo), float(H), float(L), float(B), float(SWnet), rho, Lv, Cs, q0, q2, qdiff, phi
 
 
