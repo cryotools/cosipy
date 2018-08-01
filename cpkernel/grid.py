@@ -1,7 +1,7 @@
 import numpy as np
 from constants import *
 from cpkernel.node import *
-
+import sys
 
 class Grid:
 
@@ -83,6 +83,16 @@ class Grid:
             # Decrease node counter
             self.number_nodes -= 1
 
+    def split_node(self, pos):
+        """ Split node at position pos """
+
+        self.grid.insert(pos+1, Node(self.get_node_height(pos)/2.0, self.get_node_density(pos), self.get_node_temperature(pos), self.get_node_liquid_water_content(pos)/2.0,
+                         self.get_node_cold_content(pos)/2.0, self.get_node_porosity(pos), self.get_node_vol_ice_content(pos)))
+        self.update_node(pos, self.get_node_height(pos)/2.0 , self.get_node_density(pos), self.get_node_temperature(pos), self.get_node_liquid_water_content(pos)/2.0,
+                         self.get_node_cold_content(pos)/2.0, self.get_node_porosity(pos), self.get_node_vol_ice_content(pos))
+        self.number_nodes += 1
+
+
     def update_node(self, no, height, density, temperature, liquid_water_content, cold_content, porosity, vol_ice_content):
         """ Update properties of a specific node """
 
@@ -94,13 +104,15 @@ class Grid:
         self.grid[no].set_layer_porosity(porosity)
         self.grid[no].set_layer_vol_ice_content(vol_ice_content)
 
-    def update_grid(self, level):
+    def update_grid(self, level, merge_snow_threshold):
         """ Merge the similar layers according to certain criteria. Users can 
         determine different levels: 
             
             level 0 :   Layers are never merged
             level 1 :   Layers are merged when density and T are similar
             level 2 :   Layers are merged when density and T are very similar 
+
+            merge_snow_threshold :  Minimum height of snow layers
             
         The iterative process starts from the upper grid point and goes through 
         all nodes. If two subsequent nodes are similar, the layers are merged. 
@@ -128,7 +140,6 @@ class Grid:
         
         # Iterate over grid and check for similarity
         while merge: 
-            
             if ((np.abs(self.grid[idx].get_layer_density() - self.grid[idx-1].get_layer_density())
                 <= threshold_density) &
                     (np.abs(self.grid[idx-1].get_layer_density() - self.grid[idx-2].get_layer_density()) <= 100.) &
@@ -179,13 +190,21 @@ class Grid:
                               self.grid[i].get_layer_density(), self.grid[i].get_layer_liquid_water_content(), self.grid[i].get_layer_cold_content(), 
                               self.grid[i].get_layer_porosity(), self.grid[i].get_layer_vol_ice_content()))
                     print("End merging .... \n")
+            
+            # Split node, if temperature difference is 2.0 times the temperature threshold
+            elif ((np.abs(self.grid[idx].get_layer_density() - self.grid[idx-1].get_layer_density()) > 10.0*threshold_density) & 
+                  (np.abs(self.grid[idx].get_layer_temperature() - self.grid[idx-1].get_layer_temperature()) >= 10.0*threshold_temperature) & 
+                  (self.grid[idx].get_layer_height() > 2.5*merge_snow_threshold)):
+                
+                self.split_node(idx)
+                idx -= 1
 
             else:
 
                 # Stop merging process, if iterated over entire grid
                 idx -= 1
-                if idx == 0:
-                    merge = False
+            if idx == 0:
+                merge = False
 
     def merge_new_snow(self, height_diff):
         """ Merge first layers according to certain criteria """
@@ -455,9 +474,9 @@ class Grid:
         if (n==-999):
             n = self.number_nodes
 
-        print("Layer height [m] \t Temperature [K] \t Density [kg m^-3] \t LWC [kg m^-2] \t CC [J Kg^-1] \t Porosity [-] \t Vol. Ice Content [-]")
+        print("Node no. \t\t  Layer height [m] \t Temperature [K] \t Density [kg m^-3] \t LWC [kg m^-2] \t CC [J Kg^-1] \t Porosity [-] \t Vol. Ice Content [-]")
         for i in range(n):
-            print("%3.2f \t %3.2f \t %4.2f \t %2.7f \t %10.4f \t %4.4f \t %4.4f" % (self.grid[i].get_layer_height(), self.grid[i].get_layer_temperature(),
+            print("%d %3.2f \t %3.2f \t %4.2f \t %2.7f \t %10.4f \t %4.4f \t %4.4f" % (i, self.grid[i].get_layer_height(), self.grid[i].get_layer_temperature(),
                   self.grid[i].get_layer_density(), self.grid[i].get_layer_liquid_water_content(), self.grid[i].get_layer_cold_content(),
                   self.grid[i].get_layer_porosity(), self.grid[i].get_layer_vol_ice_content()))
-
+        print('\n\n')
