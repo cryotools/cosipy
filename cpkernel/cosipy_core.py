@@ -33,7 +33,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
     #GRID.grid_info()
 
     # Merge grid layers, if necessary
-    GRID.update_grid(merging_level)
+    GRID.update_grid(merging_level, merge_snow_threshold)
 
     # hours since the last snowfall (albedo module)
     hours_since_snowfall = 0
@@ -85,7 +85,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         z0 = updateRoughness(GRID, hours_since_snowfall)
 
         # Merge grid layers, if necessary
-        GRID.update_grid(merging_level)
+        GRID.update_grid(merging_level, merge_snow_threshold)
 
         # Solve the heat equation
         cpi = solveHeatEquation(GRID, dt)
