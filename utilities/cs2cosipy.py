@@ -1,11 +1,13 @@
 """
  This file reads the input data (model forcing) and write the output to netcdf file
 """
-
+import sys
 import xarray as xr
 import pandas as pd
 import numpy as np
 import time
+
+sys.path.append('../')
 
 from cs2cosipyConfig import * 
 from config import *
