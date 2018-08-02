@@ -71,7 +71,7 @@ def read_data(restart_date=None):
 
 
 
-def init_result_dataset(DATA):
+def init_result_dataset(DATA, full_field):
     """ This function creates the result file 
     Args:
         
@@ -105,25 +105,26 @@ def init_result_dataset(DATA):
     add_variable_along_latlontime(RESULT, np.full_like(DATA.T2, np.nan), 'Z0', 'm', 'Roughness length')
     add_variable_along_latlontime(RESULT, np.full_like(DATA.T2, np.nan), 'ALBEDO', '-', 'Albedo')
     add_variable_along_latlontime(RESULT, np.full_like(DATA.T2, np.nan), 'RUNOFF', 'm w.e.q.', 'Runoff')
-    
-    add_variable_along_latlontime(RESULT, np.full_like(DATA.T2, np.nan), 'NLAYERS', '-', 'Number of layers')
-    
-    add_variable_along_latlonlayertime(RESULT, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESULT.coords['layer'].shape[0],RESULT.coords['time'].shape[0]), 
-                                                        np.nan), 'LAYER_HEIGHT', 'm', 'Height of each layer')
-    add_variable_along_latlonlayertime(RESULT, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESULT.coords['layer'].shape[0],RESULT.coords['time'].shape[0]), 
-                                                        np.nan), 'LAYER_RHO', 'kg m^-3', 'Layer density')
-    add_variable_along_latlonlayertime(RESULT, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESULT.coords['layer'].shape[0],RESULT.coords['time'].shape[0]), 
-                                                        np.nan), 'LAYER_T', 'K', 'Layer temperature')
-    add_variable_along_latlonlayertime(RESULT, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESULT.coords['layer'].shape[0],RESULT.coords['time'].shape[0]), 
-                                                        np.nan), 'LAYER_LWC', 'kg m^-2', 'Liquid water content of layer')
-    add_variable_along_latlonlayertime(RESULT, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESULT.coords['layer'].shape[0],RESULT.coords['time'].shape[0]), 
-                                                        np.nan), 'LAYER_CC', 'J m^-2', 'Cold content of each layer')
-    add_variable_along_latlonlayertime(RESULT, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESULT.coords['layer'].shape[0],RESULT.coords['time'].shape[0]), 
-                                                        np.nan), 'LAYER_POROSITY', '-', 'Porosity of each layer')
-    add_variable_along_latlonlayertime(RESULT, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESULT.coords['layer'].shape[0],RESULT.coords['time'].shape[0]), 
-                                                        np.nan), 'LAYER_VOL', '-', 'Volumetic ice content of each layer')
-    add_variable_along_latlonlayertime(RESULT, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESULT.coords['layer'].shape[0],RESULT.coords['time'].shape[0]), 
-                                                        np.nan), 'LAYER_REFREEZE', 'm w.e.q.', 'Refreezing of each layer')
+   
+    if (full_field):
+        add_variable_along_latlontime(RESULT, np.full_like(DATA.T2, np.nan), 'NLAYERS', '-', 'Number of layers')
+        
+        add_variable_along_latlonlayertime(RESULT, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESULT.coords['layer'].shape[0],RESULT.coords['time'].shape[0]), 
+                                                            np.nan), 'LAYER_HEIGHT', 'm', 'Height of each layer')
+        add_variable_along_latlonlayertime(RESULT, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESULT.coords['layer'].shape[0],RESULT.coords['time'].shape[0]), 
+                                                            np.nan), 'LAYER_RHO', 'kg m^-3', 'Layer density')
+        add_variable_along_latlonlayertime(RESULT, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESULT.coords['layer'].shape[0],RESULT.coords['time'].shape[0]), 
+                                                            np.nan), 'LAYER_T', 'K', 'Layer temperature')
+        add_variable_along_latlonlayertime(RESULT, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESULT.coords['layer'].shape[0],RESULT.coords['time'].shape[0]), 
+                                                            np.nan), 'LAYER_LWC', 'kg m^-2', 'Liquid water content of layer')
+        add_variable_along_latlonlayertime(RESULT, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESULT.coords['layer'].shape[0],RESULT.coords['time'].shape[0]), 
+                                                            np.nan), 'LAYER_CC', 'J m^-2', 'Cold content of each layer')
+        add_variable_along_latlonlayertime(RESULT, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESULT.coords['layer'].shape[0],RESULT.coords['time'].shape[0]), 
+                                                            np.nan), 'LAYER_POROSITY', '-', 'Porosity of each layer')
+        add_variable_along_latlonlayertime(RESULT, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESULT.coords['layer'].shape[0],RESULT.coords['time'].shape[0]), 
+                                                            np.nan), 'LAYER_VOL', '-', 'Volumetic ice content of each layer')
+        add_variable_along_latlonlayertime(RESULT, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESULT.coords['layer'].shape[0],RESULT.coords['time'].shape[0]), 
+                                                            np.nan), 'LAYER_REFREEZE', 'm w.e.q.', 'Refreezing of each layer')
     
     print('\n') 
     print('Output dataset ... ok \n')
@@ -132,8 +133,7 @@ def init_result_dataset(DATA):
     return RESULT
 
 
-
-def init_result_dataset_point(DATA, max_layers):
+def init_result_dataset_point(DATA, max_layers, full_field):
     """ This function creates the result dataset for a grid point 
     Args:
         
@@ -168,29 +168,106 @@ def init_result_dataset_point(DATA, max_layers):
     add_variable_along_time(RESULT, np.full_like(DATA.T2, np.nan), 'ALBEDO', '-', 'Albedo')
     add_variable_along_time(RESULT, np.full_like(DATA.T2, np.nan), 'RUNOFF', 'm w.e.q.', 'Runoff')
     
-    add_variable_along_time(RESULT, np.full_like(DATA.T2, np.nan), 'NLAYERS', '-', 'Number of layers')
-    add_variable_along_layertime(RESULT, np.full((RESULT.coords['layer'].shape[0], RESULT.coords['time'].shape[0]), np.nan), 'LAYER_HEIGHT', 'm', 'Layer height')
-    add_variable_along_layertime(RESULT, np.full((RESULT.coords['layer'].shape[0], RESULT.coords['time'].shape[0]), np.nan), 'LAYER_RHO', 'kg m^-3', 'Density of layer')
-    add_variable_along_layertime(RESULT, np.full((RESULT.coords['layer'].shape[0], RESULT.coords['time'].shape[0]), np.nan), 'LAYER_T', 'K', 'Layer temperature')
-    add_variable_along_layertime(RESULT, np.full((RESULT.coords['layer'].shape[0], RESULT.coords['time'].shape[0]), np.nan), 'LAYER_LWC', 'kg m^-2', 'LWC of each layer')
-    add_variable_along_layertime(RESULT, np.full((RESULT.coords['layer'].shape[0], RESULT.coords['time'].shape[0]), np.nan), 'LAYER_CC', 'J m^-2', 'Cold content of each layer')
-    add_variable_along_layertime(RESULT, np.full((RESULT.coords['layer'].shape[0], RESULT.coords['time'].shape[0]), np.nan), 'LAYER_POROSITY', '-', 'Porosity of each layer')
-    add_variable_along_layertime(RESULT, np.full((RESULT.coords['layer'].shape[0], RESULT.coords['time'].shape[0]), np.nan), 'LAYER_VOL', '-', 'Volumetric ice content of each layer')
-    add_variable_along_layertime(RESULT, np.full((RESULT.coords['layer'].shape[0], RESULT.coords['time'].shape[0]), np.nan), 'LAYER_REFREEZE', 'm w.e.q.', 'Refreezing of each layer')
-    
+    if (full_field):
+        add_variable_along_time(RESULT, np.full_like(DATA.T2, np.nan), 'NLAYERS', '-', 'Number of layers')
+        add_variable_along_layertime(RESULT, np.full((RESULT.coords['layer'].shape[0], RESULT.coords['time'].shape[0]), np.nan), 'LAYER_HEIGHT', 'm', 'Layer height')
+        add_variable_along_layertime(RESULT, np.full((RESULT.coords['layer'].shape[0], RESULT.coords['time'].shape[0]), np.nan), 'LAYER_RHO', 'kg m^-3', 'Density of layer')
+        add_variable_along_layertime(RESULT, np.full((RESULT.coords['layer'].shape[0], RESULT.coords['time'].shape[0]), np.nan), 'LAYER_T', 'K', 'Layer temperature')
+        add_variable_along_layertime(RESULT, np.full((RESULT.coords['layer'].shape[0], RESULT.coords['time'].shape[0]), np.nan), 'LAYER_LWC', 'kg m^-2', 'LWC of each layer')
+        add_variable_along_layertime(RESULT, np.full((RESULT.coords['layer'].shape[0], RESULT.coords['time'].shape[0]), np.nan), 'LAYER_CC', 'J m^-2', 'Cold content of each layer')
+        add_variable_along_layertime(RESULT, np.full((RESULT.coords['layer'].shape[0], RESULT.coords['time'].shape[0]), np.nan), 'LAYER_POROSITY', '-', 'Porosity of each layer')
+        add_variable_along_layertime(RESULT, np.full((RESULT.coords['layer'].shape[0], RESULT.coords['time'].shape[0]), np.nan), 'LAYER_VOL', '-', 'Volumetric ice content of each layer')
+        add_variable_along_layertime(RESULT, np.full((RESULT.coords['layer'].shape[0], RESULT.coords['time'].shape[0]), np.nan), 'LAYER_REFREEZE', 'm w.e.q.', 'Refreezing of each layer')
+
     return RESULT
 
 
+def init_restart_dataset(DATA):
+    """ This function creates the result file 
+    Args:
+        
+        DATA    ::  DATA structure 
+        
+    Returns:
+        
+        RESULT  ::  one-dimensional RESULT structure"""
+
+    RESTART = xr.Dataset()
+    RESTART.coords['lat'] = DATA.coords['lat']
+    RESTART.coords['lon'] = DATA.coords['lon']
+    RESTART.coords['time'] = DATA.coords['time'][-1] 
+    RESTART.coords['layer'] = np.arange(max_layers)
+
+    add_variable_along_latlon(RESTART,  np.nan, 'NLAYERS', '-', 'Number of layers')
+    
+    add_variable_along_latlonlayer(RESTART, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESTART.coords['layer'].shape[0]), 
+                                                        np.nan), 'LAYER_HEIGHT', 'm', 'Height of each layer')
+    add_variable_along_latlonlayer(RESTART, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESTART.coords['layer'].shape[0]), 
+                                                        np.nan), 'LAYER_RHO', 'kg m^-3', 'Layer density')
+    add_variable_along_latlonlayer(RESTART, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESTART.coords['layer'].shape[0]), 
+                                                        np.nan), 'LAYER_T', 'K', 'Layer temperature')
+    add_variable_along_latlonlayer(RESTART, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESTART.coords['layer'].shape[0]), 
+                                                        np.nan), 'LAYER_LWC', 'kg m^-2', 'Liquid water content of layer')
+    add_variable_along_latlonlayer(RESTART, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESTART.coords['layer'].shape[0]), 
+                                                        np.nan), 'LAYER_CC', 'J m^-2', 'Cold content of each layer')
+    add_variable_along_latlonlayer(RESTART, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESTART.coords['layer'].shape[0]), 
+                                                        np.nan), 'LAYER_POROSITY', '-', 'Porosity of each layer')
+    add_variable_along_latlonlayer(RESTART, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESTART.coords['layer'].shape[0]), 
+                                                        np.nan), 'LAYER_VOL', '-', 'Volumetic ice content of each layer')
+    add_variable_along_latlonlayer(RESTART, np.full((DATA.T2.shape[0], DATA.T2.shape[1], RESTART.coords['layer'].shape[0]), 
+                                                        np.nan), 'LAYER_REFREEZE', 'm w.e.q.', 'Refreezing of each layer')
+    
+    print('\n') 
+    print('Restart ataset ... ok \n')
+    print('--------------------------------------------------------------\n')
+
+    return RESTART
+
+
+def init_restart_dataset_point(DATA, max_layers):
+    """ This function creates the result dataset for a grid point 
+    Args:
+        
+        DATA    ::  DATA structure 
+        
+    Returns:
+        
+        RESTART  ::  one-dimensional RESULT structure"""
+
+    RESTART = xr.Dataset()
+    RESTART.coords['lat'] = DATA.coords['lat']
+    RESTART.coords['lon'] = DATA.coords['lon']
+    RESTART.coords['time'] = DATA.coords['time'][-1] 
+    RESTART.coords['layer'] = np.arange(max_layers)
+    
+    add_variable_along_latlon(RESTART, [1], 'NLAYERS', '-', 'Number of layers')
+    add_variable_along_layer(RESTART, np.full((RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_HEIGHT', 'm', 'Layer height')
+    add_variable_along_layer(RESTART, np.full((RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_RHO', 'kg m^-3', 'Density of layer')
+    add_variable_along_layer(RESTART, np.full((RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_T', 'K', 'Layer temperature')
+    add_variable_along_layer(RESTART, np.full((RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_LWC', 'kg m^-2', 'LWC of each layer')
+    add_variable_along_layer(RESTART, np.full((RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_CC', 'J m^-2', 'Cold content of each layer')
+    add_variable_along_layer(RESTART, np.full((RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_POROSITY', '-', 'Porosity of each layer')
+    add_variable_along_layer(RESTART, np.full((RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_VOL', '-', 'Volumetric ice content of each layer')
+    add_variable_along_layer(RESTART, np.full((RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_REFREEZE', 'm w.e.q.', 'Refreezing of each layer')
+
+    return RESTART
+
+
+def add_variable_along_latlon(ds, var, name, units, long_name):
+    """ This function adds missing variables to the DATA class """
+    ds[name] = (('lat','lon'), var)
+    print(var.shape, ds)
+    ds[name].attrs['units'] = units
+    ds[name].attrs['long_name'] = long_name
+    ds[name].encoding['_FillValue'] = -9999
+    return ds
 
 def add_variable_along_time(ds, var, name, units, long_name):
     """ This function adds missing variables to the DATA class """
     ds[name] = xr.DataArray(var, coords=[('time', ds.time)])
     ds[name].attrs['units'] = units
     ds[name].attrs['long_name'] = long_name
-    #ds[name].encoding['dtype'] = 'int16'
-    #ds[name].encoding['scale_factor'] =  0.01
     ds[name].encoding['_FillValue'] = -9999
-    #ds[name].attrs['missing_value'] = -9999
     return ds
 
 def add_variable_along_latlontime(ds, var, name, units, long_name):
@@ -198,10 +275,7 @@ def add_variable_along_latlontime(ds, var, name, units, long_name):
     ds[name] = (('lat','lon','time'), var)
     ds[name].attrs['units'] = units
     ds[name].attrs['long_name'] = long_name
-    #ds[name].encoding['dtype'] = 'int16'
-    #ds[name].encoding['scale_factor'] =  0.01
     ds[name].encoding['_FillValue'] = -9999
-    #ds[name].attrs['missing_value'] = -9999
     return ds
 
 def add_variable_along_latlonlayertime(ds, var, name, units, long_name):
@@ -209,10 +283,15 @@ def add_variable_along_latlonlayertime(ds, var, name, units, long_name):
     ds[name] = (('lat','lon','layer','time'), var)
     ds[name].attrs['units'] = units
     ds[name].attrs['long_name'] = long_name
-    #ds[name].encoding['dtype'] = 'int16'
-    #ds[name].encoding['scale_factor'] =  0.01
     ds[name].encoding['_FillValue'] = -9999
-    #ds[name].attrs['missing_value'] = -9999
+    return ds
+
+def add_variable_along_latlonlayer(ds, var, name, units, long_name):
+    """ This function adds missing variables to the DATA class """
+    ds[name] = (('lat','lon','layer'), var)
+    ds[name].attrs['units'] = units
+    ds[name].attrs['long_name'] = long_name
+    ds[name].encoding['_FillValue'] = -9999
     return ds
 
 def add_variable_along_layertime(ds, var, name, units, long_name):
@@ -220,8 +299,13 @@ def add_variable_along_layertime(ds, var, name, units, long_name):
     ds[name] = (('layer','time'), var)
     ds[name].attrs['units'] = units
     ds[name].attrs['long_name'] = long_name
-    #ds[name].encoding['dtype'] = 'int16'
-    #ds[name].encoding['scale_factor'] =  0.01
     ds[name].encoding['_FillValue'] = -9999
-    #ds[name].attrs['missing_value'] = -9999
+    return ds
+
+def add_variable_along_layer(ds, var, name, units, long_name):
+    """ This function adds missing variables to the DATA class """
+    ds[name] = (('layer'), var)
+    ds[name].attrs['units'] = units
+    ds[name].attrs['long_name'] = long_name
+    ds[name].encoding['_FillValue'] = -9999
     return ds

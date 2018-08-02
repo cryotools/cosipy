@@ -16,8 +16,8 @@ from cpkernel.io import *
 from cpkernel.grid import *
 import cProfile
 
-def cosipy_core(DATA, GRID_RESTART=None):
-
+def cosipy_core(DATA, GRID_RESTART=None, full_field=False):
+    
     ''' INITIALIZATION '''
     
     # Initialize snowpack or load restart grid
@@ -27,7 +27,10 @@ def cosipy_core(DATA, GRID_RESTART=None):
         GRID = load_snowpack(GRID_RESTART)
 
     # Initialize local result array
-    RESULT = init_result_dataset_point(DATA, max_layers)
+    RESULT = init_result_dataset_point(DATA, max_layers, full_field)
+    
+    # TODO: Need to make restart work
+    #RESTART = init_restart_dataset_point(DATA, max_layers)
 
     # Plot some grid information, if necessary
     #GRID.grid_info()
@@ -69,7 +72,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
 
         if SNOWFALL > 0.0:
             # Add a new snow node on top
-            GRID.add_node(SNOWFALL, density_fresh_snow, float(T2[t]), 0.0, 0.0, 0.0, 0.0)
+            GRID.add_node(SNOWFALL, density_fresh_snow, float(T2[t]), 0.0, 0.0, 0.0, 0.0, 0.0)
             GRID.merge_new_snow(merge_snow_threshold)
 
         # Get hours since last snowfall for the albedo calculations
@@ -152,16 +155,28 @@ def cosipy_core(DATA, GRID_RESTART=None):
         RESULT.Z0[t] = z0
         RESULT.ALBEDO[t] = alpha
         RESULT.RUNOFF[t] = Q 
-        
-        RESULT.NLAYERS[t] = GRID.get_number_layers()
-        RESULT.LAYER_HEIGHT[0:GRID.get_number_layers(),t] = GRID.get_height() 
-        RESULT.LAYER_RHO[0:GRID.get_number_layers(),t] = GRID.get_density() 
-        RESULT.LAYER_T[0:GRID.get_number_layers(),t] = GRID.get_temperature() 
-        RESULT.LAYER_LWC[0:GRID.get_number_layers(),t] = GRID.get_liquid_water_content() 
-        RESULT.LAYER_CC[0:GRID.get_number_layers(),t] = GRID.get_cold_content() 
-        RESULT.LAYER_POROSITY[0:GRID.get_number_layers(),t] = GRID.get_porosity() 
-        RESULT.LAYER_VOL[0:GRID.get_number_layers(),t] = GRID.get_vol_ice_content() 
-        RESULT.LAYER_REFREEZE[0:GRID.get_number_layers(),t] = GRID.get_refreeze() 
+       
+        if full_field:
+            RESULT.NLAYERS[t] = GRID.get_number_layers()
+            RESULT.LAYER_HEIGHT[0:GRID.get_number_layers(),t] = GRID.get_height() 
+            RESULT.LAYER_RHO[0:GRID.get_number_layers(),t] = GRID.get_density() 
+            RESULT.LAYER_T[0:GRID.get_number_layers(),t] = GRID.get_temperature() 
+            RESULT.LAYER_LWC[0:GRID.get_number_layers(),t] = GRID.get_liquid_water_content() 
+            RESULT.LAYER_CC[0:GRID.get_number_layers(),t] = GRID.get_cold_content() 
+            RESULT.LAYER_POROSITY[0:GRID.get_number_layers(),t] = GRID.get_porosity() 
+            RESULT.LAYER_VOL[0:GRID.get_number_layers(),t] = GRID.get_vol_ice_content() 
+            RESULT.LAYER_REFREEZE[0:GRID.get_number_layers(),t] = GRID.get_refreeze() 
 
+    # TODO Restart
+    #RESTART.NLAYERS = GRID.get_number_layers()
+    #RESTART.LAYER_HEIGHT[0:GRID.get_number_layers()] = GRID.get_height() 
+    #RESTART.LAYER_RHO[0:GRID.get_number_layers()] = GRID.get_density() 
+    #RESTART.LAYER_T[0:GRID.get_number_layers()] = GRID.get_temperature() 
+    #RESTART.LAYER_LWC[0:GRID.get_number_layers()] = GRID.get_liquid_water_content() 
+    #RESTART.LAYER_CC[0:GRID.get_number_layers()] = GRID.get_cold_content() 
+    #RESTART.LAYER_POROSITY[0:GRID.get_number_layers()] = GRID.get_porosity() 
+    #RESTART.LAYER_VOL[0:GRID.get_number_layers()] = GRID.get_vol_ice_content() 
+    #RESTART.LAYER_REFREEZE[0:GRID.get_number_layers()] = GRID.get_refreeze() 
+    
     # Return results
     return RESULT

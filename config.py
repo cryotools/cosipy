@@ -5,12 +5,17 @@
 
 ## Simulation period
 time_start = '2018-06-01T10:00'
-time_end   = '2018-06-05T10:00'                                       
+time_end   = '2018-06-01T11:00'                                       
+#time_start = '2016-02-07T10:00'
+#time_end   = '2017-03-04T11:00'                                       
 
 ## Input/Output files 
 input_netcdf= './data/input/input_hintereisferner.nc'
 output_netcdf = './data/output/output_hintereisferner.nc'
 restart_netcdf = './data/restart/restart.nc'
+
+## Write full fields
+full_field = False
 
 ## Time step in the input files [s]
 dt = 3600                                           # 3600, 7200, 10800 [s] length of time step per iteration in seconds
@@ -34,7 +39,7 @@ max_layers = 100
 temperature_bottom = 272                     
 
 ## CFL criteria
-c_stab = 0.9                                        
+c_stab = 0.7                                        
 
 ## Parallel
 restart = False 

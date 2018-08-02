@@ -62,9 +62,10 @@ def main():
         DATA = read_data()  # If no restart, read data according to the dates defined in the config.py
     
     # Initialize the result dataset
-    RESULT = init_result_dataset(DATA)
-
-
+    RESULT = init_result_dataset(DATA, full_field)
+    
+    # TODO restart
+    # RESTART = init_restart_dataset(DATA)
 
     #-----------------------------------------------
     # Create a client for distributed calculations
@@ -91,10 +92,10 @@ def main():
         # Provide restart grid if necessary
         if ((mask==1) & (restart==False)):
             nfut = nfut+1
-            fut.append(client.submit(cosipy_core, DATA.sel(lat=i, lon=j)))
+            fut.append(client.submit(cosipy_core, DATA.sel(lat=i, lon=j), full_field=full_field))
         elif ((mask==1) & (restart==True)):
             nfut = nfut+1
-            fut.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), GRID_RESTART.sel(lat=i,lon=j)))
+            fut.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), GRID_RESTART.sel(lat=i,lon=j), full_field=full_field))
   
 
     # Finally, do the calculations and print the progress
@@ -110,7 +111,7 @@ def main():
         GRID_RESTART.close()
     
     # Aggregate and save result and restart file
-    RESULT = write_results(RESULT, results, output_netcdf)
+    RESULT = write_results(RESULT, results, output_netcdf, full_field)
     write_restart(RESULT, restart_netcdf)
  
     # Stop time measurement
@@ -124,7 +125,7 @@ def main():
 
 
 
-def write_results(RESULT, results, output_netcdf):
+def write_results(RESULT, results, output_netcdf, full_field):
     """ This function aggregates the point result 
     
     results         ::  List with the result from COSIPI
@@ -150,16 +151,17 @@ def write_results(RESULT, results, output_netcdf):
         RESULT.Z0.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].Z0
         RESULT.ALBEDO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].ALBEDO
         RESULT.RUNOFF.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].RUNOFF
-        
-        RESULT.NLAYERS.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].NLAYERS
-        RESULT.LAYER_HEIGHT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_HEIGHT
-        RESULT.LAYER_RHO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_RHO
-        RESULT.LAYER_T.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_T
-        RESULT.LAYER_LWC.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_LWC
-        RESULT.LAYER_CC.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_CC
-        RESULT.LAYER_POROSITY.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_POROSITY
-        RESULT.LAYER_VOL.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_VOL
-        RESULT.LAYER_REFREEZE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_REFREEZE
+       
+        if full_field:
+            RESULT.NLAYERS.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].NLAYERS
+            RESULT.LAYER_HEIGHT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_HEIGHT
+            RESULT.LAYER_RHO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_RHO
+            RESULT.LAYER_T.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_T
+            RESULT.LAYER_LWC.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_LWC
+            RESULT.LAYER_CC.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_CC
+            RESULT.LAYER_POROSITY.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_POROSITY
+            RESULT.LAYER_VOL.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_VOL
+            RESULT.LAYER_REFREEZE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_REFREEZE
 
     # Write results to netcdf
 #    encoding = {'lat': {'zlib': False, '_FillValue': False},

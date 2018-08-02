@@ -72,9 +72,8 @@ def Fdif_Neustift(doy, zeni, Rg):
      
      last edit: 23.04.2018, Georg
     """
-
-    So = 1367.0 * (1 + 0.033 * math.cos(2.0 * math.pi * doy / 365.0)) * math.cos(zeni)
-   
+    So = 1367.0 * (1 + 0.033 * math.cos(2.0 * math.pi * doy / 366.0)) * math.cos(zeni)
+    
     CI = Rg / So
     
     # empirical parameters from Wohlfahrt et al. (2016) (Appendix C)
@@ -82,6 +81,7 @@ def Fdif_Neustift(doy, zeni, Rg):
     p2 = 4.7930
     p3 = 9.4758
     p4 = 0.2465
+    
     Fdif = math.exp(-math.exp(p1 - (p2 - p3 * CI))) * (1.0 - p4) + p4 # Eq. C1 in Wohlfahrt et al. (2016)
     
     return Fdif
