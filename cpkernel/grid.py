@@ -474,7 +474,7 @@ class Grid:
         if (n==-999):
             n = self.number_nodes
 
-        print("Node no. \t\t  Layer height [m] \t Temperature [K] \t Density [kg m^-3] \t LWC [kg m^-2] \t CC [J Kg^-1] \t Porosity [-] \t Vol. Ice Content [-]")
+        print("Node no. \t\t  Layer height [m] \t Temperature [K] \t Density [kg m^-3] \t LWC [kg m^-2] \t CC [J m^-2] \t Porosity [-] \t Vol. Ice Content [-]")
         for i in range(n):
             print("%d %3.2f \t %3.2f \t %4.2f \t %2.7f \t %10.4f \t %4.4f \t %4.4f" % (i, self.grid[i].get_layer_height(), self.grid[i].get_layer_temperature(),
                   self.grid[i].get_layer_density(), self.grid[i].get_layer_liquid_water_content(), self.grid[i].get_layer_cold_content(),

@@ -20,6 +20,9 @@ def cosipy_core(DATA, GRID_RESTART=None):
 
     ''' INITIALIZATION '''
     
+    melt_sum = 0 
+    Q_sum = 0 
+    ref_sum = 0 
     # Initialize snowpack or load restart grid
     if GRID_RESTART is None:
         GRID = init_snowpack(DATA)
@@ -53,8 +56,9 @@ def cosipy_core(DATA, GRID_RESTART=None):
     else:
         LWin = None
 
-
+    # Profiling
     cp = cProfile.Profile()
+    
     ' TIME LOOP '
     # For development
     for t in np.arange(len(DATA.time)):
@@ -62,7 +66,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         # Rainfall is given as mm, so we convert m. w.e.q. snowheight
         # TODO: Insert transition function for precipitation-snowfall, i.e. sigmoid function
         if ((T2[t]<=274.0) & (RRR[t]>0.0)):
-            SNOWFALL = (RRR[t].values/1000.0) * (ice_density/density_fresh_snow)
+            SNOWFALL = (RRR[t]/1000.0) * (ice_density/density_fresh_snow)
         else:
             SNOWFALL = 0.0
 
@@ -130,8 +134,12 @@ def cosipy_core(DATA, GRID_RESTART=None):
         penetrating_radiation(GRID, sw_radiation_net, dt)
 
         # Refreezing
-        percolation(GRID, melt, dt, debug_level)
-        
+        Q, water_refreezed = percolation(GRID, melt, dt, debug_level)
+     
+        melt_sum = melt_sum+melt
+        Q_sum = Q_sum+Q
+        ref_sum = ref_sum+water_refreezed
+
         # Write results
         RESULT.SNOWHEIGHT[t] = GRID.get_total_snowheight()
         RESULT.EVAPORATION[t] = evaporation
@@ -160,5 +168,9 @@ def cosipy_core(DATA, GRID_RESTART=None):
         RESULT.LAYER_POROSITY[0:GRID.get_number_layers(),t] = GRID.get_porosity() 
         RESULT.LAYER_VOL[0:GRID.get_number_layers(),t] = GRID.get_vol_ice_content() 
 
+    print('\n')
+    print('Melt: ', melt_sum)
+    print('Q: ',Q_sum)
+    print('ref: ', ref_sum)
     # Return results
     return RESULT

@@ -70,7 +70,7 @@ def percolation(GRID, water, t, debug_level):
         curr_t = curr_t + dt_use
    
     # Do the refreezing after percolation
-    refreeze(GRID)
+    water_refreezed = refreeze(GRID)
 
     # Write merging steps if debug level is set >= 10
     if debug_level >= 40:
@@ -79,7 +79,7 @@ def percolation(GRID, water, t, debug_level):
         print("End percolation .... \n")
         print("Runoff: %2.7f" % (Q))
 
-    return Q
+    return Q, water_refreezed
 
 
 def calc_cc(GRID, node):
@@ -92,6 +92,10 @@ def calc_cc(GRID, node):
 
 def refreeze(GRID):
 
+    # water refreezed
+    water_refreezed = 0
+    LWCref = 0
+
     # Loop over all internal grid points for percolation 
     for idxNode in range(0, GRID.number_nodes-1, 1):
     
@@ -100,8 +104,15 @@ def refreeze(GRID):
         
         # potential latent energy if all water is refreezed (J m^-2)
         Qp = lat_heat_melting * water_density * (GRID.get_node_liquid_water_content(idxNode)/water_density)
-    
+   
+        # If energy is smaller than CC, warm the snow pack
         if ((GRID.get_node_cold_content(idxNode)+Qp)<0): 
+            #print('\n')
+            #print('warm snowpack')
+            #print('T before: ',GRID.get_node_temperature(idxNode))
+            #print('CC: ',GRID.get_node_cold_content(idxNode))
+            #print('LWC: ',GRID.get_node_liquid_water_content(idxNode))
+            #print('Qp: ',Qp)
 
             # volumetric ice content (Coleou et Lesaffre, 1998)
             theta_ice = GRID.get_node_density(idxNode)/ice_density
@@ -120,33 +131,52 @@ def refreeze(GRID):
             # Set volumetic ice content
             GRID.set_node_vol_ice_content(idxNode, theta_ret)
         
-            # Update CC
+            # Update CC (reduce)
             GRID.set_node_cold_content(idxNode,GRID.get_node_cold_content(idxNode)+Qp)
 
-            # Update temperature
+            # Update temperature (warm the snowpack)
             GRID.set_node_temperature(idxNode, GRID.get_node_temperature(idxNode) + (Qp/(spec_heat_ice*GRID.get_node_density(idxNode)*GRID.get_node_height(idxNode))) )
+            #print('T after: \n',GRID.get_node_temperature(idxNode))
             
-            # Update density
+            # Update density (increase density)
             a = GRID.get_node_height(idxNode)*(GRID.get_node_density(idxNode)/ice_density)
             b = GRID.get_node_liquid_water_content(idxNode)/water_density
             GRID.set_node_density(idxNode, (1-(b/a))*GRID.get_node_density(idxNode)+(b/a)*ice_density)
 
-            # Set LWC to zero
+            # Set LWC to zero (remove all water)
             GRID.set_node_liquid_water_content(idxNode, 0.0) 
+       
+        # if refreeze energy is greater than CC, warm the snowpack to zero degrees and reduce LWC
         else:
-
+            #if GRID.get_node_cold_content(idxNode)<0:
+            #    print('\n')
+            #    print('exceed')
+            #    print('T before: ',GRID.get_node_temperature(idxNode))
+            #    print('CC: ',GRID.get_node_cold_content(idxNode))
+            #    print('Qp: ',Qp)
+            #    print('LWC: ',GRID.get_node_liquid_water_content(idxNode))
+            
             # Set temperature to zero
             GRID.set_node_temperature(idxNode, zero_temperature)
-           
+             
             # How much water is refreezed
-            LWCref = GRID.get_node_liquid_water_content(idxNode)-(GRID.get_node_cold_content(idxNode)+Qp)/(lat_heat_melting)
+            LWCref = np.abs(GRID.get_node_cold_content(idxNode)/(lat_heat_melting))
 
             # Get exceeding energy and calculate the remaing LWC
-            GRID.set_node_liquid_water_content(idxNode, (GRID.get_node_cold_content(idxNode)+Qp)/(lat_heat_melting))
+            GRID.set_node_liquid_water_content(idxNode, GRID.get_node_liquid_water_content(idxNode)-LWCref)
+            #if GRID.get_node_cold_content(idxNode)<0:
+            #    calc_cc(GRID, idxNode)
+            #    print('ref: ', LWCref)
+            #    print('T after: ',GRID.get_node_temperature(idxNode))
+            #    print('CC after: ',GRID.get_node_cold_content(idxNode))
+            #    print('LWC new: ',GRID.get_node_liquid_water_content(idxNode))
         
             # Update density
             a = GRID.get_node_height(idxNode)*(GRID.get_node_density(idxNode)/ice_density)
             b = LWCref/water_density
             GRID.set_node_density(idxNode, (1-(b/a))*GRID.get_node_density(idxNode)+(b/a)*ice_density)
 
+        # Convert kg m^-2 (mm) to m w.e.q.
+        water_refreezed = water_refreezed + (LWCref/ice_density)
 
+    return water_refreezed
