@@ -4,8 +4,8 @@
 """
 
 ## Simulation period
-time_start = '2018-05-02T10:00'
-time_end   = '2018-06-02T14:00'                                       
+time_start = '2018-06-01T10:00'
+time_end   = '2018-06-05T10:00'                                       
 
 ## Input/Output files 
 input_netcdf= './data/input/input_hintereisferner.nc'

@@ -1,7 +1,7 @@
 class Node:
     """ This is the basic class which contains information of individual grid point. """
 
-    def __init__(self, height, density, temperature, liquid_water_content, cold_content, porosity, vol_ice_content):
+    def __init__(self, height, density, temperature, liquid_water_content, cold_content, porosity, vol_ice_content, refreeze):
         """ Initialize the node with:
             loc                     :      location of the node 0 = lowest node
             height                  :      height of the layer [m]
@@ -17,6 +17,7 @@ class Node:
         self.cold_content = cold_content
         self.porosity = porosity
         self.vol_ice_content = vol_ice_content
+        self.refreeze = refreeze
 
     def __del__(self):
         """ Remove node """
@@ -51,6 +52,10 @@ class Node:
     def get_layer_vol_ice_content(self):
         """ Return the volumetric ice content of the layer """
         return self.vol_ice_content
+    
+    def get_refreeze(self):
+        """ Return the volumetric ice content of the layer """
+        return self.refreeze
 
     ''' SETTER FUNCTIONS '''
 
@@ -81,3 +86,7 @@ class Node:
     def set_layer_vol_ice_content(self, vol_ice_content):
         """ Set the volumetric ice content of the layer """
         self.vol_ice_content = vol_ice_content
+
+    def set_refreeze(self, refreeze):
+        """ Set the volumetric ice content of the layer """
+        self.refreeze = refreeze 

@@ -20,9 +20,6 @@ def cosipy_core(DATA, GRID_RESTART=None):
 
     ''' INITIALIZATION '''
     
-    melt_sum = 0 
-    Q_sum = 0 
-    ref_sum = 0 
     # Initialize snowpack or load restart grid
     if GRID_RESTART is None:
         GRID = init_snowpack(DATA)
@@ -135,10 +132,6 @@ def cosipy_core(DATA, GRID_RESTART=None):
 
         # Refreezing
         Q, water_refreezed = percolation(GRID, melt, dt, debug_level)
-     
-        melt_sum = melt_sum+melt
-        Q_sum = Q_sum+Q
-        ref_sum = ref_sum+water_refreezed
 
         # Write results
         RESULT.SNOWHEIGHT[t] = GRID.get_total_snowheight()
@@ -158,6 +151,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         RESULT.N[t] = N[t]
         RESULT.Z0[t] = z0
         RESULT.ALBEDO[t] = alpha
+        RESULT.RUNOFF[t] = Q 
         
         RESULT.NLAYERS[t] = GRID.get_number_layers()
         RESULT.LAYER_HEIGHT[0:GRID.get_number_layers(),t] = GRID.get_height() 
@@ -167,10 +161,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         RESULT.LAYER_CC[0:GRID.get_number_layers(),t] = GRID.get_cold_content() 
         RESULT.LAYER_POROSITY[0:GRID.get_number_layers(),t] = GRID.get_porosity() 
         RESULT.LAYER_VOL[0:GRID.get_number_layers(),t] = GRID.get_vol_ice_content() 
+        RESULT.LAYER_REFREEZE[0:GRID.get_number_layers(),t] = GRID.get_refreeze() 
 
-    print('\n')
-    print('Melt: ', melt_sum)
-    print('Q: ',Q_sum)
-    print('ref: ', ref_sum)
     # Return results
     return RESULT

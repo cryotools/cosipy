@@ -149,6 +149,7 @@ def write_results(RESULT, results, output_netcdf):
         RESULT.N.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].N
         RESULT.Z0.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].Z0
         RESULT.ALBEDO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].ALBEDO
+        RESULT.RUNOFF.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].RUNOFF
         
         RESULT.NLAYERS.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].NLAYERS
         RESULT.LAYER_HEIGHT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_HEIGHT
@@ -158,11 +159,15 @@ def write_results(RESULT, results, output_netcdf):
         RESULT.LAYER_CC.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_CC
         RESULT.LAYER_POROSITY.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_POROSITY
         RESULT.LAYER_VOL.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_VOL
+        RESULT.LAYER_REFREEZE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_REFREEZE
 
     # Write results to netcdf
-    encoding = {'lat': {'zlib': False, '_FillValue': False},
-                'lon': {'zlib': False, '_FillValue': False},
-            }
+#    encoding = {'lat': {'zlib': False, '_FillValue': False},
+#                'lon': {'zlib': False, '_FillValue': False},
+#            }
+
+    comp = dict(zlib=True, complevel=9)
+    encoding = {var: comp for var in RESULT.data_vars}
 
     print('\n')
     print('--------------------------------------------------------------')

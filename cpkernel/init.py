@@ -24,6 +24,7 @@ def init_snowpack(DATA):
     layer_cc = np.zeros(number_layers)
     layer_porosity = np.zeros(number_layers)
     layer_vol = np.zeros(number_layers)
+    layer_refreeze = np.zeros(number_layers)
     
     # Init density
     rho_top = 250.
@@ -38,7 +39,7 @@ def init_snowpack(DATA):
         layer_T[int(i)] = DATA.T2[0] - temperature_gradient * i
 
     # Initialize grid, the grid class contains all relevant grid information
-    GRID = Grid(layer_heights, layer_density, layer_T, layer_LWC, layer_cc, layer_porosity, layer_vol, debug_level)
+    GRID = Grid(layer_heights, layer_density, layer_T, layer_LWC, layer_cc, layer_porosity, layer_vol, layer_refreeze, debug_level)
 
     return GRID
 
@@ -58,8 +59,9 @@ def load_snowpack(GRID_RESTART):
     layer_cc = GRID_RESTART.LAYER_CC[0:num_layers].values
     layer_porosity = GRID_RESTART.LAYER_POROSITY[0:num_layers].values
     layer_vol = GRID_RESTART.LAYER_VOL[0:num_layers].values
+    layer_refreeze = GRID_RESTART.REFREEZE[0:num_layers].values
 
-    GRID = Grid(layer_heights, layer_density, layer_T, layer_LWC, layer_cc, layer_porosity, layer_vol, debug_level)
+    GRID = Grid(layer_heights, layer_density, layer_T, layer_LWC, layer_cc, layer_porosity, layer_vol, layer_refreeze, debug_level)
     
     return GRID
 
