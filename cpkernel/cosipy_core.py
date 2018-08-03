@@ -16,7 +16,7 @@ from cpkernel.io import *
 from cpkernel.grid import *
 import cProfile
 
-def cosipy_core(DATA, GRID_RESTART=None, full_field=False):
+def cosipy_core(DATA, GRID_RESTART=None):
     
     ''' INITIALIZATION '''
     
@@ -26,14 +26,10 @@ def cosipy_core(DATA, GRID_RESTART=None, full_field=False):
     else:
         GRID = load_snowpack(GRID_RESTART)
 
-    # Initialize local result array
-    RESULT = init_result_dataset_point(DATA, max_layers, full_field)
-    
-    # TODO: Need to make restart work
-    #RESTART = init_restart_dataset_point(DATA, max_layers)
-
-    # Plot some grid information, if necessary
-    #GRID.grid_info()
+    # Create the local output datasets
+    IO = IOClass(DATA)
+    RESULT = IO.create_local_result_dataset()
+    RESTART = IO.create_local_restart_dataset()
 
     # Merge grid layers, if necessary
     GRID.update_grid(merging_level, merge_snow_threshold)
@@ -168,15 +164,15 @@ def cosipy_core(DATA, GRID_RESTART=None, full_field=False):
             RESULT.LAYER_REFREEZE[0:GRID.get_number_layers(),t] = GRID.get_refreeze() 
 
     # TODO Restart
-    #RESTART.NLAYERS = GRID.get_number_layers()
-    #RESTART.LAYER_HEIGHT[0:GRID.get_number_layers()] = GRID.get_height() 
-    #RESTART.LAYER_RHO[0:GRID.get_number_layers()] = GRID.get_density() 
-    #RESTART.LAYER_T[0:GRID.get_number_layers()] = GRID.get_temperature() 
-    #RESTART.LAYER_LWC[0:GRID.get_number_layers()] = GRID.get_liquid_water_content() 
-    #RESTART.LAYER_CC[0:GRID.get_number_layers()] = GRID.get_cold_content() 
-    #RESTART.LAYER_POROSITY[0:GRID.get_number_layers()] = GRID.get_porosity() 
-    #RESTART.LAYER_VOL[0:GRID.get_number_layers()] = GRID.get_vol_ice_content() 
-    #RESTART.LAYER_REFREEZE[0:GRID.get_number_layers()] = GRID.get_refreeze() 
-    
+    RESTART['NLAYERS'] = GRID.get_number_layers()
+    RESTART.LAYER_HEIGHT[0:GRID.get_number_layers()] = GRID.get_height() 
+    RESTART.LAYER_RHO[0:GRID.get_number_layers()] = GRID.get_density() 
+    RESTART.LAYER_T[0:GRID.get_number_layers()] = GRID.get_temperature() 
+    RESTART.LAYER_LWC[0:GRID.get_number_layers()] = GRID.get_liquid_water_content() 
+    RESTART.LAYER_CC[0:GRID.get_number_layers()] = GRID.get_cold_content() 
+    RESTART.LAYER_POROSITY[0:GRID.get_number_layers()] = GRID.get_porosity() 
+    RESTART.LAYER_VOL[0:GRID.get_number_layers()] = GRID.get_vol_ice_content() 
+    RESTART.LAYER_REFREEZE[0:GRID.get_number_layers()] = GRID.get_refreeze() 
+
     # Return results
-    return RESULT
+    return RESULT, RESTART

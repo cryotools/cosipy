@@ -87,6 +87,16 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
         if(LW_var in df):
             LW_interp[:,:,t] = LW[t] 
 
+    # Change aspect to south==0, east==negative, west==positive
+    ds['ASPECT'] = np.mod(ds['ASPECT']+180.0, 360.0)
+    print(ds['ASPECT'])
+    mask = ds['ASPECT'].where(ds['ASPECT']<=180.0) 
+    aspect = ds['ASPECT'].values
+    aspect[aspect<180] = aspect[aspect<180]*-1.0
+    aspect[aspect>=180] = 360.0 - aspect[aspect>=180]
+    ds['ASPECT'] = (('lat','lon'),aspect)
+    print(ds['ASPECT'])
+
     # Auxiliary variables
     mask = ds.MASK.values
     slope = ds.SLOPE.values
@@ -119,10 +129,10 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     add_variable_2D(ds, G_interp, 'G', 'W m^-2', 'Incoming shortwave radiation')
     add_variable_2D(ds, P_interp, 'PRES', 'hPa', 'Atmospheric Pressure')
     add_variable_2D(ds, N_interp, 'N', '%', 'Cloud cover fraction')
-    
+        
     if(LW_var in df):
         add_variable_2D(ds, LW_interp, 'LWin', 'W m^-2', 'Incoming longwave radiation')
-    
+    print(ds)
     ds.to_netcdf(cosipy_file)
     
     print('Input file created \n')

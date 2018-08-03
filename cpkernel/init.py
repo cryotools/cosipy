@@ -27,8 +27,8 @@ def init_snowpack(DATA):
     layer_refreeze = np.zeros(number_layers)
     
     # Init density
-    rho_top = 250.
-    rho_bottom = 500.
+    rho_top = 500.
+    rho_bottom = 800.
     density_gradient = (rho_top-rho_bottom)/(initial_snowheight//initial_snow_layer_heights)
     for i in np.arange((initial_snowheight//initial_snow_layer_heights)):
        layer_density[int(i)] = rho_top - density_gradient * i 
@@ -59,7 +59,7 @@ def load_snowpack(GRID_RESTART):
     layer_cc = GRID_RESTART.LAYER_CC[0:num_layers].values
     layer_porosity = GRID_RESTART.LAYER_POROSITY[0:num_layers].values
     layer_vol = GRID_RESTART.LAYER_VOL[0:num_layers].values
-    layer_refreeze = GRID_RESTART.REFREEZE[0:num_layers].values
+    layer_refreeze = GRID_RESTART.LAYER_REFREEZE[0:num_layers].values
 
     GRID = Grid(layer_heights, layer_density, layer_T, layer_LWC, layer_cc, layer_porosity, layer_vol, layer_refreeze, debug_level)
     

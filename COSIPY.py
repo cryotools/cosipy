@@ -37,162 +37,78 @@ from dask import compute, delayed
 import dask as da
 from dask.diagnostics import ProgressBar
 from dask.distributed import progress
+import dask
 
 def main():
 
     #------------------------------------------
     # Create input and output dataset
-    #------------------------------------------
-    
-    # Check, if restart
-    if (restart==True):
-        print('--------------------------------------------------------------')
-        print('\t RESTART FROM PREVIOUS STATE')
-        print('--------------------------------------------------------------')
-        
-        # Load the restart file
-        if os.path.isfile(restart_netcdf):
-            GRID_RESTART = xr.open_dataset(restart_netcdf)
-            latest_time = GRID_RESTART.time     # Get time of the last calculation
-            DATA = read_data(latest_time)       # Read data from the last date to the end of the data file
-        else:
-            print('\n No restart file available!')  # if there is a problem kill the program
-            sys.exit(1)
-    else:
-        DATA = read_data()  # If no restart, read data according to the dates defined in the config.py
-    
-    # Initialize the result dataset
-    RESULT = init_result_dataset(DATA, full_field)
-    
-    # TODO restart
-    # RESTART = init_restart_dataset(DATA)
+    #------------------------------------------ 
+    IO = IOClass()
+    DATA = IO.create_data_file() 
+    RESULT = IO.create_result_file() 
+    RESTART = IO.create_restart_file() 
+
 
     #-----------------------------------------------
     # Create a client for distributed calculations
     #-----------------------------------------------
     cluster = LocalCluster(scheduler_port=8786, n_workers=8, silence_logs=False)
+    #dask.config.set(scheduler='single-threaded')
     client = Client(cluster, processes=False)
+
     print('--------------------------------------------------------------')
     print('\t Starting clients ... \n')
     print(client)
-    print('--------------------------------------------------------------')
-
-    # Measure time
-    start_time = datetime.now()
+    print('-------------------------------------------------------------- \n')
 
 
     #----------------------------------------------
     # Calculation - Multithreading using all cores  
     #----------------------------------------------
+    
+    # Auxiliary variables for futures
     fut = []
     nfut = 0
+
+    # Measure time
+    start_time = datetime.now()
+
+    # Go over the whole grid
     for i,j in product(DATA.lat, DATA.lon):
         mask = DATA.MASK.sel(lat=i, lon=j)
        
         # Provide restart grid if necessary
         if ((mask==1) & (restart==False)):
             nfut = nfut+1
-            fut.append(client.submit(cosipy_core, DATA.sel(lat=i, lon=j), full_field=full_field))
+            fut.append(client.submit(cosipy_core, DATA.sel(lat=i, lon=j)))
         elif ((mask==1) & (restart==True)):
             nfut = nfut+1
-            fut.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), GRID_RESTART.sel(lat=i,lon=j), full_field=full_field))
+            fut.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), IO.create_grid_restart().sel(lat=i,lon=j)))
   
-
     # Finally, do the calculations and print the progress
     progress(fut)
+
+    # cosipy-core returns two datasets results[:][0] are the 2D results fields, results[:][1] are the restart fields
     results = client.gather(fut)
+
 
     #----------------------------------------------
     # Save data  
     #----------------------------------------------
     
-    # First close restart file
-    if (restart==True):
-        GRID_RESTART.close()
-    
-    # Aggregate and save result and restart file
-    RESULT = write_results(RESULT, results, output_netcdf, full_field)
-    write_restart(RESULT, restart_netcdf)
+    # Aggregate and save result and restart files
+    IO.write_results(results)
+    IO.write_restart(results)
  
     # Stop time measurement
     duration_run = datetime.now() - start_time
+
+    # Print out some information
     print("\n \n Total run duration in seconds %4.2f \n\n" % (duration_run.total_seconds()))
-
-
     print('--------------------------------------------------------------')
     print('\t SIMULATION WAS SUCCESSFUL')
     print('--------------------------------------------------------------')
-
-
-
-def write_results(RESULT, results, output_netcdf, full_field):
-    """ This function aggregates the point result 
-    
-    results         ::  List with the result from COSIPI
-    """
-     
-    # Assign point results to the aggregated dataset
-    for i in np.arange(len(results)):
-        RESULT.SNOWHEIGHT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SNOWHEIGHT
-        RESULT.EVAPORATION.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].EVAPORATION
-        RESULT.SUBLIMATION.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SUBLIMATION
-        RESULT.MELT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].MELT
-        RESULT.LWin.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWin
-        RESULT.LWout.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWout
-        RESULT.H.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].H
-        RESULT.LE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LE
-        RESULT.B.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].B
-        RESULT.TS.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].TS
-        RESULT.RH2.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].RH2
-        RESULT.T2.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].T2
-        RESULT.G.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].G
-        RESULT.U2.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].U2
-        RESULT.N.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].N
-        RESULT.Z0.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].Z0
-        RESULT.ALBEDO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].ALBEDO
-        RESULT.RUNOFF.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].RUNOFF
-       
-        if full_field:
-            RESULT.NLAYERS.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].NLAYERS
-            RESULT.LAYER_HEIGHT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_HEIGHT
-            RESULT.LAYER_RHO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_RHO
-            RESULT.LAYER_T.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_T
-            RESULT.LAYER_LWC.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_LWC
-            RESULT.LAYER_CC.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_CC
-            RESULT.LAYER_POROSITY.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_POROSITY
-            RESULT.LAYER_VOL.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_VOL
-            RESULT.LAYER_REFREEZE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_REFREEZE
-
-    # Write results to netcdf
-#    encoding = {'lat': {'zlib': False, '_FillValue': False},
-#                'lon': {'zlib': False, '_FillValue': False},
-#            }
-
-    comp = dict(zlib=True, complevel=9)
-    encoding = {var: comp for var in RESULT.data_vars}
-
-    print('\n')
-    print('--------------------------------------------------------------')
-    print('\t Writing result file \n')
-    
-    RESULT.to_netcdf(output_netcdf, encoding=encoding)
-    return RESULT
-
-
-def write_restart(RESULT, restart_netcdf):
-    """ Writes the restart file 
-    
-    RESULT      :: RESULT dataset
-    
-    """
-
-    # Create restart file (last time step)
-    print('\t Writing restart file')
-    print('--------------------------------------------------------------')
-
-    RESTART = RESULT.isel(time=-1)
-    RESTART.to_netcdf(restart_netcdf)
-
 
 
 ''' MODEL EXECUTION '''
