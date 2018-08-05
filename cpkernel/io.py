@@ -142,6 +142,7 @@ class IOClass:
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'Z0', 'm', 'Roughness length')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'ALBEDO', '-', 'Albedo')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'RUNOFF', 'm w.e.q.', 'Runoff')
+        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'REFREEZE', 'm w.e.q.', 'Refreezing')
        
         if (full_field):
             self.RESULT.coords['layer'] = np.arange(max_layers)
@@ -242,6 +243,7 @@ class IOClass:
         self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'Z0', 'm', 'Roughness length')
         self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'ALBEDO', '-', 'Albedo')
         self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'RUNOFF', 'm w.e.q.', 'Runoff')
+        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'REFREEZE', 'm w.e.q.', 'Refreezing')
         
         if (full_field):
             self.RESULT.coords['layer'] = np.arange(max_layers)
@@ -313,6 +315,7 @@ class IOClass:
             self.RESULT.Z0.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].Z0
             self.RESULT.ALBEDO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].ALBEDO
             self.RESULT.RUNOFF.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].RUNOFF
+            self.RESULT.REFREEZE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].REFREEZE
            
             if full_field:
                 self.RESULT.NLAYERS.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].NLAYERS
@@ -333,6 +336,45 @@ class IOClass:
         print('\t Writing result file %s \n' % (output_netcdf))
         
         self.RESULT.to_netcdf(output_netcdf, encoding=encoding)
+
+
+    def write_results_future(self, results):
+        """ This function aggregates the point result 
+        
+        results         ::  List with the result from COSIPI
+        """
+         
+        self.RESULT.SNOWHEIGHT.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.SNOWHEIGHT
+        self.RESULT.EVAPORATION.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.EVAPORATION
+        self.RESULT.SUBLIMATION.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.SUBLIMATION
+        self.RESULT.MELT.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.MELT
+        self.RESULT.LWin.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.LWin
+        self.RESULT.LWout.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.LWout
+        self.RESULT.H.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.H
+        self.RESULT.LE.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.LE
+        self.RESULT.B.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.B
+        self.RESULT.TS.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.TS
+        self.RESULT.RH2.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.RH2
+        self.RESULT.T2.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.T2
+        self.RESULT.G.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.G
+        self.RESULT.U2.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.U2
+        self.RESULT.N.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.N
+        self.RESULT.Z0.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.Z0
+        self.RESULT.ALBEDO.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.ALBEDO
+        self.RESULT.RUNOFF.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.RUNOFF
+        self.RESULT.REFREEZE.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.REFREEZE
+        
+        if full_field:
+            self.RESULT.NLAYERS.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.NLAYERS
+            self.RESULT.LAYER_HEIGHT.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_HEIGHT
+            self.RESULT.LAYER_RHO.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_RHO
+            self.RESULT.LAYER_T.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_T
+            self.RESULT.LAYER_LWC.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_LWC
+            self.RESULT.LAYER_CC.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_CC
+            self.RESULT.LAYER_POROSITY.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_POROSITY
+            self.RESULT.LAYER_VOL.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_VOL
+            self.RESULT.LAYER_REFREEZE.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_REFREEZE
+
 
     def write_restart(self, results):
         """ Writes the restart file 
@@ -369,6 +411,33 @@ class IOClass:
         self.RESTART.to_netcdf(restart_netcdf, encoding=encoding)
 
 
+
+    def write_restart_future(self, results):
+        """ Writes the restart file 
+        
+        RESULT      :: RESULT dataset
+        
+        """
+
+        self.RESTART['NLAYERS'] = results.NLAYERS.values
+        self.RESTART.LAYER_HEIGHT.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_HEIGHT
+        self.RESTART.LAYER_RHO.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_RHO
+        self.RESTART.LAYER_T.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_T
+        self.RESTART.LAYER_LWC.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_LWC
+        self.RESTART.LAYER_CC.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_CC
+        self.RESTART.LAYER_POROSITY.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_POROSITY
+        self.RESTART.LAYER_VOL.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_VOL
+        self.RESTART.LAYER_REFREEZE.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_REFREEZE
+    
+
+    def get_result(self):
+        return self.RESULT
+
+    def get_restart(self):
+        return self.RESTART
+
+    def get_grid_restart(self):
+        return self.GRID_RESTART
 
     #---------------------------------------------------
     # Auxiliary functions for writing variables

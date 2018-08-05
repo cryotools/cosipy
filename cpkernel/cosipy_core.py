@@ -19,7 +19,7 @@ import cProfile
 def cosipy_core(DATA, GRID_RESTART=None):
     
     ''' INITIALIZATION '''
-    
+
     # Initialize snowpack or load restart grid
     if GRID_RESTART is None:
         GRID = init_snowpack(DATA)
@@ -151,6 +151,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         RESULT.Z0[t] = z0
         RESULT.ALBEDO[t] = alpha
         RESULT.RUNOFF[t] = Q 
+        RESULT.REFREEZE[t] = water_refreezed 
        
         if full_field:
             RESULT.NLAYERS[t] = GRID.get_number_layers()

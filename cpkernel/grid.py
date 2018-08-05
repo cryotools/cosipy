@@ -29,10 +29,10 @@ class Grid:
         self.vol_ice_content = vol 
         self.refreeze = refreeze 
         self.debug = debug
-
+        
         # Number of total nodes
         self.number_nodes = len(layer_heights)
-
+        
         # Print some information on initialized grid
         if self.debug > 0:
             print("Init grid with %d nodes \t" % self.number_nodes)
@@ -106,6 +106,7 @@ class Grid:
         self.grid[no].set_layer_cold_content(cold_content)
         self.grid[no].set_layer_porosity(porosity)
         self.grid[no].set_layer_vol_ice_content(vol_ice_content)
+        self.grid[no].set_layer_refreeze(refreeze)
 
     def update_grid(self, level, merge_snow_threshold):
         """ Merge the similar layers according to certain criteria. Users can 
@@ -142,7 +143,7 @@ class Grid:
         idx = self.number_nodes - 1
         
         # Iterate over grid and check for similarity
-        while merge: 
+        while merge:
             if ((np.abs(self.grid[idx].get_layer_density() - self.grid[idx-1].get_layer_density())
                 <= threshold_density) &
                     (np.abs(self.grid[idx-1].get_layer_density() - self.grid[idx-2].get_layer_density()) <= 100.) &
@@ -171,7 +172,7 @@ class Grid:
                 
                 # Convert total energy to temperature according to the new density
                 new_temperature = new_total_energy/(spec_heat_air*new_density*new_height)
-                
+                   
                 # Todo: CHECK IF RIGHT!!!!!
                 new_liquid_water_content = self.grid[idx].get_layer_liquid_water_content() + self.grid[idx].get_layer_liquid_water_content()
 
@@ -198,7 +199,6 @@ class Grid:
             elif ((np.abs(self.grid[idx].get_layer_density() - self.grid[idx-1].get_layer_density()) > 10.0*threshold_density) & 
                   (np.abs(self.grid[idx].get_layer_temperature() - self.grid[idx-1].get_layer_temperature()) >= 10.0*threshold_temperature) & 
                   (self.grid[idx].get_layer_height() > 2.5*merge_snow_threshold)):
-                
                 self.split_node(idx)
                 idx -= 1
 
@@ -206,6 +206,7 @@ class Grid:
 
                 # Stop merging process, if iterated over entire grid
                 idx -= 1
+
             if idx == 0:
                 merge = False
 
@@ -439,13 +440,13 @@ class Grid:
 
     def get_node_refreeze(self, idx):
         """ Returns refreezing of node idx """
-        return self.grid[idx].get_refreeze()
+        return self.grid[idx].get_layer_refreeze()
         
     def get_refreeze(self):
         """ Returns the refreezing profile """
         ref = []
         for idx in range(self.number_nodes):
-            ref.append(self.grid[idx].get_refreeze())
+            ref.append(self.grid[idx].get_layer_refreeze())
         return ref
 
     def get_total_snowheight(self, verbose=False):
@@ -496,11 +497,13 @@ class Grid:
 
         if (n==-999):
             n = self.number_nodes
-
+        
         print("Node no. \t\t  Layer height [m] \t Temperature [K] \t Density [kg m^-3] \t LWC [kg m^-2] \t CC [J m^-2] \t Porosity [-] \t Vol. Ice Content [-] \
               \t Refreezing [m w.e.q.]")
+
         for i in range(n):
-            print("%d %3.2f \t %3.2f \t %4.2f \t %2.7f \t %10.4f \t %4.4f \t %4.4f" % (i, self.grid[i].get_layer_height(), self.grid[i].get_layer_temperature(),
+            print("%d %3.2f \t %3.2f \t %4.2f \t %2.7f \t %10.4f \t %4.4f \t %4.4f \t %4.4f" % (i, self.grid[i].get_layer_height(), self.grid[i].get_layer_temperature(),
                   self.grid[i].get_layer_density(), self.grid[i].get_layer_liquid_water_content(), self.grid[i].get_layer_cold_content(),
-                  self.grid[i].get_layer_porosity(), self.grid[i].get_layer_vol_ice_content(),self.grid[i].get_refreeze()))
+                  self.grid[i].get_layer_porosity(), self.grid[i].get_layer_vol_ice_content(),self.grid[i].get_layer_refreeze()))
         print('\n\n')
+

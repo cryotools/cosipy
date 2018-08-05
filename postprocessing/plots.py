@@ -63,7 +63,7 @@ def plotMesh(filename, pdate, var=None):
         gl.ylabels_right = False
         
         ax = plt.subplot(4,3,8,projection=ccrs.PlateCarree())
-        DATA.LWin.sel(time=pdate).plot.pcolormesh('lon', 'lat', ax=ax);
+        DATA.RUNOFF.sel(time=pdate).plot.pcolormesh('lon', 'lat', ax=ax);
         gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                           linewidth=1, color='gray', alpha=0.1, linestyle='--')
         gl.xlabels_top = None
@@ -91,7 +91,7 @@ def plotMesh(filename, pdate, var=None):
         gl.ylabels_right = False
         
         ax = plt.subplot(4,3,12,projection=ccrs.PlateCarree())
-        DATA.RUNOFF.sel(time=pdate).plot.pcolormesh('lon', 'lat', ax=ax);
+        DATA.REFREEZE.sel(time=pdate).plot.pcolormesh('lon', 'lat', ax=ax);
         gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                           linewidth=1, color='gray', alpha=0.1, linestyle='--')
         gl.xlabels_top = None

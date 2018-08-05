@@ -36,7 +36,7 @@ from distributed import Client, LocalCluster
 from dask import compute, delayed
 import dask as da
 from dask.diagnostics import ProgressBar
-from dask.distributed import progress
+from dask.distributed import progress, wait, as_completed
 import dask
 
 def main():
@@ -53,7 +53,7 @@ def main():
     #-----------------------------------------------
     # Create a client for distributed calculations
     #-----------------------------------------------
-    cluster = LocalCluster(scheduler_port=8786, n_workers=8, silence_logs=False)
+    cluster = LocalCluster(scheduler_port=8786, silence_logs=True)
     #dask.config.set(scheduler='single-threaded')
     client = Client(cluster, processes=False)
 
@@ -68,8 +68,8 @@ def main():
     #----------------------------------------------
     
     # Auxiliary variables for futures
-    fut = []
-    nfut = 0
+    futures = []
+    nfutures = 0
 
     # Measure time
     start_time = datetime.now()
@@ -80,26 +80,32 @@ def main():
        
         # Provide restart grid if necessary
         if ((mask==1) & (restart==False)):
-            nfut = nfut+1
-            fut.append(client.submit(cosipy_core, DATA.sel(lat=i, lon=j)))
+            nfutures = nfutures+1
+            futures.append(client.submit(cosipy_core, DATA.sel(lat=i, lon=j)))
         elif ((mask==1) & (restart==True)):
-            nfut = nfut+1
-            fut.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), IO.create_grid_restart().sel(lat=i,lon=j)))
+            nfutures = nfutures+1
+            futures.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), IO.create_grid_restart().sel(lat=i,lon=j)))
   
     # Finally, do the calculations and print the progress
-    progress(fut)
+    progress(futures)
 
-    # cosipy-core returns two datasets results[:][0] are the 2D results fields, results[:][1] are the restart fields
-    results = client.gather(fut)
+    if (restart==True):
+        IO.get_grid_restart().close()
 
+    for future in as_completed(futures):   
+        results = future.result()
+        result_data = results[0]
+        restart_data = results[1]
+        IO.write_results_future(result_data)
+        IO.write_restart_future(restart_data)
 
-    #----------------------------------------------
-    # Save data  
-    #----------------------------------------------
-    
-    # Aggregate and save result and restart files
-    IO.write_results(results)
-    IO.write_restart(results)
+    comp = dict(zlib=True, complevel=9)
+    encoding = {var: comp for var in IO.get_result().data_vars}
+    IO.get_result().to_netcdf(output_netcdf, encoding=encoding)
+  
+    comp = dict(zlib=True, complevel=9)
+    encoding = {var: comp for var in IO.get_restart().data_vars}
+    IO.get_restart().to_netcdf(restart_netcdf, encoding=encoding)
  
     # Stop time measurement
     duration_run = datetime.now() - start_time

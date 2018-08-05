@@ -3,7 +3,6 @@ import numpy as np
 from constants import *
 from config import *
 
-
 def solveHeatEquation(GRID, t):
     """ Solves the heat equation on a non-uniform grid using
 
@@ -15,7 +14,7 @@ def solveHeatEquation(GRID, t):
     Tnew = 0
 
     # Get mean snow density
-    if (GRID.get_node_density(0) >= 830.):
+    if (GRID.get_node_density(0) > 830.):
         snowRhoMean = snow_ice_threshold
     else:
         snowRho = [idx for idx in GRID.get_density() if idx <= 830.]
@@ -25,19 +24,19 @@ def solveHeatEquation(GRID, t):
     c_pi = 152.2 + 7.122 * np.mean(GRID.get_temperature())
     # with static specific heat of ice
     # c_pi = 152.2 + 7.122 * spec_heat_ice
-
-
+    
     # Calculate thermal conductivity [W m-1 K-1] from mean density
     lam = 0.021 + 2.5 * (snowRhoMean/1000.0)**2.0
 
     # Calculate thermal diffusivity [m2 s-1]
     K = lam / (snowRhoMean * c_pi)
-    
+
+    # Get snow layer heights    
     hlayers = GRID.get_height()
 
     # Check stability criteria for diffusion
     dt_stab = c_stab * (min(hlayers)**2.0) / (K)
-   
+    
     while curr_t < t:
    
         # Get a copy of the GRID temperature profile

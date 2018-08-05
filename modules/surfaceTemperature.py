@@ -39,7 +39,7 @@ def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
     # Ground heat flux
     B = -lam * ((2.0 * GRID.get_node_temperature(1) - (0.5 * ((3.0 * x) + GRID.get_node_temperature(2)))) /\
                (GRID.get_node_height(0)))
-
+    
     # Return residual of energy balance
     return np.abs(SWnet+Li+Lo-H-L-B)
 
@@ -105,9 +105,9 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2, LWin=None)
 
     # Calculate thermal conductivity [W m-1 K-1] from mean density
     lam = 0.021 + 2.5 * (snowRhoMean/1000.0)**2.0
-    
-    res = minimize(energy_balance, GRID.get_node_temperature(0), method='TNC', bounds=((240.0, 273.16),),
-                   tol=1e-4, args=(GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam))
+   
+    res = minimize(energy_balance, GRID.get_node_temperature(0), method='L-BFGS-B', bounds=((240.0, 273.16),),
+                   tol=1e-8, args=(GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam))
  
     # Set surface temperature
     GRID.set_node_temperature(0, float(res.x))

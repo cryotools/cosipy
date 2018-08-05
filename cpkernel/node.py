@@ -53,7 +53,7 @@ class Node:
         """ Return the volumetric ice content of the layer """
         return self.vol_ice_content
     
-    def get_refreeze(self):
+    def get_layer_refreeze(self):
         """ Return the volumetric ice content of the layer """
         return self.refreeze
 
@@ -87,6 +87,6 @@ class Node:
         """ Set the volumetric ice content of the layer """
         self.vol_ice_content = vol_ice_content
 
-    def set_refreeze(self, refreeze):
+    def set_layer_refreeze(self, refreeze):
         """ Set the volumetric ice content of the layer """
         self.refreeze = refreeze 
