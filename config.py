@@ -4,7 +4,7 @@
 """
 
 ## Simulation period
-time_start = '2018-05-03T00:00'
+time_start = '2018-06-03T00:00'
 time_end   = '2018-06-04T00:00'                                       
 
 ## Input/Output files 
@@ -16,7 +16,7 @@ restart_netcdf = './data/restart/restart.nc'
 full_field = False 
 
 ## Restart
-restart = False 
+restart = True 
 
 ## Time step in the input files [s]
 dt = 3600                                           # 3600, 7200, 10800 [s] length of time step per iteration in seconds

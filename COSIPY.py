@@ -39,6 +39,8 @@ from dask.diagnostics import ProgressBar
 from dask.distributed import progress, wait, as_completed
 import dask
 
+from tornado import gen
+
 def main():
 
     #------------------------------------------
@@ -48,20 +50,6 @@ def main():
     DATA = IO.create_data_file() 
     RESULT = IO.create_result_file() 
     RESTART = IO.create_restart_file() 
-
-
-    #-----------------------------------------------
-    # Create a client for distributed calculations
-    #-----------------------------------------------
-    cluster = LocalCluster(scheduler_port=8786, silence_logs=True)
-    #dask.config.set(scheduler='single-threaded')
-    client = Client(cluster, processes=False)
-
-    print('--------------------------------------------------------------')
-    print('\t Starting clients ... \n')
-    print(client)
-    print('-------------------------------------------------------------- \n')
-
 
     #----------------------------------------------
     # Calculation - Multithreading using all cores  
@@ -74,47 +62,65 @@ def main():
     # Measure time
     start_time = datetime.now()
 
-    # Go over the whole grid
-    for i,j in product(DATA.lat, DATA.lon):
-        mask = DATA.MASK.sel(lat=i, lon=j)
-       
-        # Provide restart grid if necessary
-        if ((mask==1) & (restart==False)):
-            nfutures = nfutures+1
-            futures.append(client.submit(cosipy_core, DATA.sel(lat=i, lon=j)))
-        elif ((mask==1) & (restart==True)):
-            nfutures = nfutures+1
-            futures.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), IO.create_grid_restart().sel(lat=i,lon=j)))
+    #-----------------------------------------------
+    # Create a client for distributed calculations
+    #-----------------------------------------------
+    with LocalCluster(scheduler_port=8786, silence_logs=True) as cluster:
+        with Client(cluster, processes=False) as client:
+            print('--------------------------------------------------------------')
+            print('\t Starting clients ... \n')
+            print(client)
+            print('-------------------------------------------------------------- \n')
+            
+            # Go over the whole grid
+            for i,j in product(DATA.lat, DATA.lon):
+                mask = DATA.MASK.sel(lat=i, lon=j)
+               
+                # Provide restart grid if necessary
+                if ((mask==1) & (restart==False)):
+                    nfutures = nfutures+1
+                    futures.append(client.submit(cosipy_core, DATA.sel(lat=i, lon=j)))
+                elif ((mask==1) & (restart==True)):
+                    nfutures = nfutures+1
+                    futures.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), IO.create_grid_restart().sel(lat=i,lon=j)))
   
-    # Finally, do the calculations and print the progress
-    progress(futures)
+            # Finally, do the calculations and print the progress
+            progress(futures)
 
-    if (restart==True):
-        IO.get_grid_restart().close()
+            if (restart==True):
+                IO.get_grid_restart().close()
 
-    for future in as_completed(futures):   
-        results = future.result()
-        result_data = results[0]
-        restart_data = results[1]
-        IO.write_results_future(result_data)
-        IO.write_restart_future(restart_data)
+            for future in as_completed(futures):   
+                results = future.result()
+                result_data = results[0]
+                restart_data = results[1]
+                IO.write_results_future(result_data)
+                IO.write_restart_future(restart_data)
+
 
     comp = dict(zlib=True, complevel=9)
     encoding = {var: comp for var in IO.get_result().data_vars}
     IO.get_result().to_netcdf(output_netcdf, encoding=encoding)
-  
+    
     comp = dict(zlib=True, complevel=9)
     encoding = {var: comp for var in IO.get_restart().data_vars}
     IO.get_restart().to_netcdf(restart_netcdf, encoding=encoding)
- 
+    
     # Stop time measurement
     duration_run = datetime.now() - start_time
-
+    
     # Print out some information
     print("\n \n Total run duration in seconds %4.2f \n\n" % (duration_run.total_seconds()))
     print('--------------------------------------------------------------')
     print('\t SIMULATION WAS SUCCESSFUL')
     print('--------------------------------------------------------------')
+
+
+@gen.coroutine
+def close_everything(scheduler):
+    yield scheduler.retire_workers(workers=scheduler.workers, close_workers=True)
+    yield scheduler.close()
+
 
 
 ''' MODEL EXECUTION '''
