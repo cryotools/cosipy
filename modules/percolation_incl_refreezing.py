@@ -13,11 +13,10 @@ def percolation(GRID, water, t, debug_level):
         dt      ::  Integration time
 
     """
-
     # Courant-Friedrich Lewis Criteria
     curr_t = 0
     Tnew = 0
-
+    
     Q = 0  # initial runoff [m w.e.]
 
     # Get height of snow layers
@@ -32,9 +31,9 @@ def percolation(GRID, water, t, debug_level):
         # Select appropriate time step
         dt_use = min(dt_stab, t - curr_t)
 
-        # set liquid water content of top layer (idx, LWCnew) in kg m^-2
-        GRID.set_node_liquid_water_content(0, GRID.get_node_liquid_water_content(0)+((float(water)*water_density) / t) * dt_use)
-       
+        # set liquid water content of top layer (idx, LWCnew) in m
+        GRID.set_node_liquid_water_content(0, GRID.get_node_liquid_water_content(0)+(float(water) * (dt_use/t)))
+        
         # Loop over all internal grid points for percolation 
         for idxNode in range(1, GRID.number_nodes-1, 1):
         
@@ -57,10 +56,10 @@ def percolation(GRID, water, t, debug_level):
                 GRID.set_node_liquid_water_content(idxNode, GRID.get_node_liquid_water_content(idxNode) + dt_use * (ux * pvel + uy * pvel))
                     
                 # Calculate runoff in m w.e.q
-                if ((GRID.get_node_density(idxNode)>=snow_ice_threshold)):
-                    Q = Q + GRID.get_node_liquid_water_content(idxNode)/ice_density
-                    GRID.set_node_liquid_water_content(idxNode, 0.0)
-    
+                #if ((GRID.get_node_density(idxNode)>=snow_ice_threshold)):
+                #    Q = Q + GRID.get_node_liquid_water_content(idxNode)
+                #    GRID.set_node_liquid_water_content(idxNode, 0.0)
+
                 # Remove water from the first layer
                 if (idxNode==1):
                     GRID.set_node_liquid_water_content(0, GRID.get_node_liquid_water_content(0)- dt_use * (ux * percolation_velocity))
@@ -68,18 +67,16 @@ def percolation(GRID, water, t, debug_level):
         
         # Add the time step to current time
         curr_t = curr_t + dt_use
+
+    # Loop over all internal grid points for percolation 
+    LWC_sum = np.sum(GRID.get_liquid_water_content()) 
    
     # Do the refreezing after percolation
-    water_refreezed = refreeze(GRID)
+    #water_refreezed = refreeze(GRID)
+    water_refreezed = 0
 
-    # Write merging steps if debug level is set >= 10
-    if debug_level >= 40:
-        print("Percolation ....")
-        GRID.grid_info(10)
-        print("End percolation .... \n")
-        print("Runoff: %2.7f" % (Q))
-
-    return Q, water_refreezed
+    print(water, LWC_sum)
+    return Q , water_refreezed
 
 
 def calc_cc(GRID, node):
@@ -105,7 +102,6 @@ def refreeze(GRID):
         # potential latent energy if all water is refreezed (J m^-2)
         Qp = lat_heat_melting * water_density * GRID.get_node_liquid_water_content(idxNode)
   
-        #print(idxNode, GRID.get_node_temperature(idxNode), GRID.get_node_liquid_water_content(idxNode), GRID.get_node_cold_content(idxNode), Qp) 
         # If energy is smaller than CC, warm the snow pack
         if ((GRID.get_node_cold_content(idxNode)+Qp)<0): 
 
@@ -133,21 +129,19 @@ def refreeze(GRID):
             GRID.set_node_temperature(idxNode, GRID.get_node_temperature(idxNode) + (Qp/(spec_heat_ice*GRID.get_node_density(idxNode)*GRID.get_node_height(idxNode))) )
             
             # How much water is refreezed
-            LWCref = np.abs(Qp/(lat_heat_melting))
-            GRID.set_node_refreeze(idxNode, LWCref/ice_density)
+            LWCref = np.abs(Qp/(water_density*lat_heat_melting))
+            GRID.set_node_refreeze(idxNode, LWCref)
     
             # Update density
-            #a = GRID.get_node_height(idxNode)*(GRID.get_node_density(idxNode)/ice_density)
-            #b = LWCref/water_density
-            #GRID.set_node_density(idxNode, (1-(b/a))*GRID.get_node_density(idxNode)+(b/a)*ice_density)
-            
-            # Update density (increase density)
             a = GRID.get_node_height(idxNode)*(GRID.get_node_density(idxNode)/ice_density)
-            b = GRID.get_node_liquid_water_content(idxNode)/water_density
+            b = LWCref
             GRID.set_node_density(idxNode, (1-(b/a))*GRID.get_node_density(idxNode)+(b/a)*ice_density)
-
+            
             # Set LWC to zero (remove all water)
             GRID.set_node_liquid_water_content(idxNode, 0.0) 
+            
+            # Set cold content and potential latent heat energy
+            calc_cc(GRID, idxNode)
        
         # if refreeze energy is greater than CC, warm the snowpack to zero degrees and reduce LWC
         else:
@@ -156,24 +150,21 @@ def refreeze(GRID):
             GRID.set_node_temperature(idxNode, zero_temperature)
              
             # How much water is refreezed [kg m^-2, mm]
-            LWCref = np.abs(GRID.get_node_cold_content(idxNode)/(lat_heat_melting))
-            GRID.set_node_refreeze(idxNode, LWCref/ice_density)
+            LWCref = np.abs(GRID.get_node_cold_content(idxNode)/(water_density*lat_heat_melting))
+            GRID.set_node_refreeze(idxNode, LWCref)
 
-            if (LWCref>GRID.get_node_liquid_water_content(idxNode)):
-                print(GRID.get_node_cold_content(idxNode), Qp)
-                print(LWCref, GRID.get_node_liquid_water_content(idxNode))
-                print('Fuck')        
             # Get exceeding energy and calculate the remaing LWC
             GRID.set_node_liquid_water_content(idxNode, GRID.get_node_liquid_water_content(idxNode)-LWCref)
 
             # Update density
             a = GRID.get_node_height(idxNode)*(GRID.get_node_density(idxNode)/ice_density)
-            b = LWCref/water_density
+            b = LWCref 
             GRID.set_node_density(idxNode, (1-(b/a))*GRID.get_node_density(idxNode)+(b/a)*ice_density)
+        
+            # Set cold content and potential latent heat energy
+            calc_cc(GRID, idxNode)
 
         # Convert kg m^-2 (mm) to m w.e.q.
-        water_refreezed = water_refreezed + (LWCref/ice_density)
+        water_refreezed = water_refreezed + LWCref
 
-    print('asdfasdf')
-    GRID.grid_info(5)
     return water_refreezed

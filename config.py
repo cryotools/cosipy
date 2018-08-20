@@ -19,7 +19,7 @@ snowheight_measurements = False     # if snow exists in m
 full_field = False 
 
 ## Restart
-restart = True 
+restart = False 
 
 ## Time step in the input files [s]
 dt = 3600                                           # 3600, 7200, 10800 [s] length of time step per iteration in seconds
@@ -46,4 +46,4 @@ temperature_bottom = 272
 c_stab = 0.5                                        
 
 ## Number of workers, if None all cores are used
-workers = 1#  None
+workers = 1 #None

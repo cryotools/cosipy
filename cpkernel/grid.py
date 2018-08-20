@@ -31,7 +31,7 @@ class Grid:
                 config = yaml.safe_load(f.read())
             logging.config.dictConfig(config)
         else:
-           logging.basicConfig(level=logging.DEBUG)
+            logging.basicConfig(level=logging.DEBUG)
    
         self.logger = logging.getLogger(__name__)
         
@@ -604,8 +604,8 @@ class Grid:
         if (n==-999):
             n = self.number_nodes
         
-        self.logger.debug("Node no. \t\t  Layer height [m] \t Temperature [K] \t Density [kg m^-3] \t LWC [kg m^-2] \t CC [J m^-2] \t Porosity [-] \t Vol. Ice Content [-] \
-              \t Refreezing [m w.e.q.]")
+        self.logger.debug("Node no. \t\t  Layer height [m] \t Temperature [K] \t Density [kg m^-3] \t LWC [m] \t CC [J m^-2] \t Porosity [-] \t Vol. Ice Content [-] \
+              \t Refreezing [m w.e.]")
 
         for i in range(n):
             self.logger.debug("%d %3.2f \t %3.2f \t %4.2f \t %2.7f \t %10.4f \t %4.4f \t %4.4f \t %4.4f" % (i, self.grid[i].get_layer_height(), self.grid[i].get_layer_temperature(),

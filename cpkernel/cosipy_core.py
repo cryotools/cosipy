@@ -20,7 +20,8 @@ import cProfile
 def cosipy_core(DATA, GRID_RESTART=None):
     
     ''' INITIALIZATION '''
-
+    t1 = 0
+    t2 = 0
     # Start logging
     logger = logging.getLogger(__name__)
 
@@ -127,7 +128,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
                           sensible_heat_flux - latent_heat_flux) 
 
         # Convert melt energy to m w.e.q.   
-        melt = melt_energy * dt / (1000 * lat_heat_melting)  
+        melt = melt_energy * dt / (1000.0 * lat_heat_melting)  
 
         # Remove melt m w.e.q.
         GRID.remove_melt_energy(melt + sublimation + deposition + evaporation + condensation)
@@ -148,6 +149,12 @@ def cosipy_core(DATA, GRID_RESTART=None):
         surface_mass_balance = SNOWFALL*(density_fresh_snow/ice_density) - melt - sublimation - deposition - evaporation - condensation
         internal_mass_balance = water_refreezed #+ subsurface_melt
         mass_balance = surface_mass_balance + internal_mass_balance
+        mass_balance_check = surface_mass_balance - Q 
+
+        t1 = t1+mass_balance
+        t2 = t2+mass_balance_check
+        #print(water_refreezed, Q, melt, np.sum(GRID.get_liquid_water_content()), melt - (Q + np.sum(GRID.get_liquid_water_content())))
+        #print(t1,t2)
 
         # 
         RESULT.T2[t] = T2[t]
