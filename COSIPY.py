@@ -28,6 +28,9 @@ import os
 from datetime import datetime
 from itertools import product
 
+import logging
+import yaml
+
 from config import *
 from cpkernel.cosipy_core import cosipy_core
 from cpkernel.io import *
@@ -43,7 +46,9 @@ from tornado import gen
 
 def main():
 
-    #------------------------------------------
+    start_logging()
+    
+    #------------------------------------------te logger with 'spam_application'
     # Create input and output dataset
     #------------------------------------------ 
     IO = IOClass()
@@ -65,8 +70,9 @@ def main():
     #-----------------------------------------------
     # Create a client for distributed calculations
     #-----------------------------------------------
-    with LocalCluster(scheduler_port=8786, silence_logs=True) as cluster:
+    with LocalCluster(scheduler_port=8786, n_workers=workers, threads_per_worker=1, silence_logs=True) as cluster:
         with Client(cluster, processes=False) as client:
+
             print('--------------------------------------------------------------')
             print('\t Starting clients ... \n')
             print(client)
@@ -98,13 +104,15 @@ def main():
                 IO.write_restart_future(restart_data)
 
 
+    # Write results and restart files
+    timestamp = pd.to_datetime(str(IO.get_restart().time.values)).strftime('%Y-%m-%dT%H:%M:%S')
     comp = dict(zlib=True, complevel=9)
-    encoding = {var: comp for var in IO.get_result().data_vars}
-    IO.get_result().to_netcdf(output_netcdf, encoding=encoding)
     
-    comp = dict(zlib=True, complevel=9)
+    encoding = {var: comp for var in IO.get_result().data_vars}
+    IO.get_result().to_netcdf(os.path.join(data_path,'output',output_netcdf.replace('.nc','_'+timestamp+'.nc')), encoding=encoding)
+    
     encoding = {var: comp for var in IO.get_restart().data_vars}
-    IO.get_restart().to_netcdf(restart_netcdf, encoding=encoding)
+    IO.get_restart().to_netcdf(os.path.join(data_path,'restart','restart_'+timestamp+'.nc'), encoding=encoding)
     
     # Stop time measurement
     duration_run = datetime.now() - start_time
@@ -114,6 +122,22 @@ def main():
     print('--------------------------------------------------------------')
     print('\t SIMULATION WAS SUCCESSFUL')
     print('--------------------------------------------------------------')
+
+
+
+def start_logging():
+    ''' Start the python logging'''
+
+    if os.path.exists('./cosipy.yaml'):
+        with open('./cosipy.yaml', 'rt') as f:
+            config = yaml.safe_load(f.read())
+        logging.config.dictConfig(config)
+    else:
+       logging.basicConfig(level=logging.INFO)
+
+    logger = logging.getLogger(__name__)
+    logger.info('COSIPY simulation started')    
+
 
 
 @gen.coroutine

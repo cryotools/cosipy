@@ -4,13 +4,13 @@
 """
 
 ## Simulation period
-time_start = '2018-06-03T00:00'
-time_end   = '2018-06-04T00:00'                                       
+time_start = '2018-06-02T04:00'
+time_end   = '2018-06-02T12:00'                                       
 
-## Input/Output files 
-input_netcdf= './data/input/input_hintereisferner.nc'
-output_netcdf = './data/output/output_hintereisferner.nc'
-restart_netcdf = './data/restart/restart.nc'
+##  Input/Output files 
+data_path = './data'
+input_netcdf= 'input_hintereisferner.nc'
+output_netcdf = 'output_hintereisferner.nc'
 
 ## Write full fields
 full_field = False 
@@ -25,7 +25,7 @@ dt = 3600                                           # 3600, 7200, 10800 [s] leng
 debug_level = 0                                     # DEBUG levels: 0, 10, 20, 30
 
 ## Merging level
-merging_level = 0                                   # Merge layers with similar properties:
+merging_level = 1                                   # Merge layers with similar properties:
                                                     # 0 = False
                                                     # 1 = <5. [kg m^-3] and <0.05 [K]
                                                     # 2 = <10. and <0.1
@@ -42,3 +42,5 @@ temperature_bottom = 272
 ## CFL criteria
 c_stab = 0.5                                        
 
+## Number of workers, if None all cores are used
+workers = None

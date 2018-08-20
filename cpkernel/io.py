@@ -8,6 +8,7 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 import time
+import logging
 
 from config import * 
 from modules.radCor import correctRadiation
@@ -16,6 +17,11 @@ class IOClass:
 
     def __init__(self, DATA=None):
         """ Init IO Class"""
+
+        # start module logging
+        self.logger = logging.getLogger(__name__)
+
+        # Initialize data
         self.DATA = DATA
         self.RESTART = None
         self.RESULT = None
@@ -25,16 +31,18 @@ class IOClass:
     
         if (restart==True):
             print('--------------------------------------------------------------')
-            print('\t self.RESTART FROM PREVIOUS STATE')
+            print('\t RESTART FROM PREVIOUS STATE')
             print('-------------------------------------------------------------- \n')
             
             # Load the restart file
-            if os.path.isfile(restart_netcdf):
-                self.GRID_RESTART = xr.open_dataset(restart_netcdf)
+            timestamp = pd.to_datetime(time_start).strftime('%Y-%m-%dT%H:%M:%S')
+            if (os.path.isfile(os.path.join(data_path, 'restart', 'restart_'+timestamp+'.nc')) & (time_start != time_end)):
+                self.GRID_RESTART = xr.open_dataset(os.path.join(data_path, 'restart', 'restart_'+timestamp+'.nc'))
                 self.restart_date = self.GRID_RESTART.time     # Get time of the last calculation
-                self.init_data_dataset()       # Read data from the last date to the end of the data file
+                self.init_data_dataset()                       # Read data from the last date to the end of the data file
             else:
-                print('No restart file available! \n')  # if there is a problem kill the program
+                self.logger.error('No restart file available for the given date %s' % (timestamp))  # if there is a problem kill the program
+                self.logger.error('OR start date %s equals end date %s \n' % (time_start, time_end))
                 sys.exit(1)
         else:
             self.restart_date = None
@@ -67,7 +75,7 @@ class IOClass:
         """
     
         # Open input dataset
-        self.DATA = xr.open_dataset(input_netcdf)
+        self.DATA = xr.open_dataset(os.path.join(data_path,'input',input_netcdf))
         self.DATA['time'] = np.sort(self.DATA['time'].values)
         
         # Check if restart
@@ -77,17 +85,14 @@ class IOClass:
             print('--------------------------------------------------------------\n')
             self.DATA = self.DATA.sel(time=slice(time_start, time_end))   # Select dates from config.py
         else:
-            # Get end date from the input data
-            end_date = self.DATA.time[-1]
-    
             # There is nothing to do if the dates are equal
-            if (self.restart_date==end_date):
+            if (self.restart_date==time_end):
                 print('Start date equals end date ... no new data ... EXIT')
                 sys.exit(1)
             else:
-                # otherwise, run the model from the restart date to the end of the input data
-                print('Starting from %s (from restart file) to %s (from config.py) \n' % (self.restart_date.values, end_date.values))
-                self.DATA = self.DATA.sel(time=slice(self.restart_date, end_date))
+                # otherwise, run the model from the restart date to the defined end date
+                print('Starting from %s (from restart file) to %s (from config.py) \n' % (self.restart_date.values, time_end))
+                self.DATA = self.DATA.sel(time=slice(self.restart_date, time_end))
     
         print('--------------------------------------------------------------')
         print('Checking input data .... \n')
@@ -179,7 +184,7 @@ class IOClass:
         Returns:
             
             self.RESULT  ::  one-dimensional self.RESULT structure"""
-    
+        
         self.RESTART = xr.Dataset()
         self.RESTART.coords['lat'] = self.DATA.coords['lat']
         self.RESTART.coords['lon'] = self.DATA.coords['lon']
@@ -287,56 +292,6 @@ class IOClass:
     
         return self.RESTART
 
-    def write_results(self, results):
-        """ This function aggregates the point result 
-        
-        results         ::  List with the result from COSIPI
-        """
-        # Get only the 2D fields from the results list 
-        results = [x[0] for x in results]
-         
-        # Assign point results to the aggregated dataset
-        for i in np.arange(len(results)):
-            self.RESULT.SNOWHEIGHT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SNOWHEIGHT
-            self.RESULT.EVAPORATION.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].EVAPORATION
-            self.RESULT.SUBLIMATION.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].SUBLIMATION
-            self.RESULT.MELT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].MELT
-            self.RESULT.LWin.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWin
-            self.RESULT.LWout.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LWout
-            self.RESULT.H.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].H
-            self.RESULT.LE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].LE
-            self.RESULT.B.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].B
-            self.RESULT.TS.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].TS
-            self.RESULT.RH2.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].RH2
-            self.RESULT.T2.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].T2
-            self.RESULT.G.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].G
-            self.RESULT.U2.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].U2
-            self.RESULT.N.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].N
-            self.RESULT.Z0.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].Z0
-            self.RESULT.ALBEDO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].ALBEDO
-            self.RESULT.RUNOFF.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].RUNOFF
-            self.RESULT.REFREEZE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].REFREEZE
-           
-            if full_field:
-                self.RESULT.NLAYERS.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values)] = results[i].NLAYERS
-                self.RESULT.LAYER_HEIGHT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_HEIGHT
-                self.RESULT.LAYER_RHO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_RHO
-                self.RESULT.LAYER_T.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_T
-                self.RESULT.LAYER_LWC.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_LWC
-                self.RESULT.LAYER_CC.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_CC
-                self.RESULT.LAYER_POROSITY.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_POROSITY
-                self.RESULT.LAYER_VOL.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_VOL
-                self.RESULT.LAYER_REFREEZE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_REFREEZE
-    
-        comp = dict(zlib=True, complevel=9)
-        encoding = {var: comp for var in self.RESULT.data_vars}
-   
-        print('\n')
-        print('--------------------------------------------------------------')
-        print('\t Writing result file %s \n' % (output_netcdf))
-        
-        self.RESULT.to_netcdf(output_netcdf, encoding=encoding)
-
 
     def write_results_future(self, results):
         """ This function aggregates the point result 
@@ -374,42 +329,6 @@ class IOClass:
             self.RESULT.LAYER_POROSITY.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_POROSITY
             self.RESULT.LAYER_VOL.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_VOL
             self.RESULT.LAYER_REFREEZE.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_REFREEZE
-
-
-    def write_restart(self, results):
-        """ Writes the restart file 
-        
-        RESULT      :: RESULT dataset
-        
-        """
-
-        # Close open restart file so that the new file can be written
-        if (restart==True):
-            self.GRID_RESTART.close()
-
-        # Create restart file (last time step)
-        # Get only the restart fields from the results list 
-        results = [x[1] for x in results]
-        
-        for i in np.arange(len(results)):
-            self.RESTART['NLAYERS'] = results[i].NLAYERS.values
-            self.RESTART.LAYER_HEIGHT.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_HEIGHT
-            self.RESTART.LAYER_RHO.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_RHO
-            self.RESTART.LAYER_T.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_T
-            self.RESTART.LAYER_LWC.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_LWC
-            self.RESTART.LAYER_CC.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_CC
-            self.RESTART.LAYER_POROSITY.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_POROSITY
-            self.RESTART.LAYER_VOL.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_VOL
-            self.RESTART.LAYER_REFREEZE.loc[dict(lon=results[i].lon.values, lat=results[i].lat.values, layer=np.arange(max_layers))] = results[i].LAYER_REFREEZE
-    
-        comp = dict(zlib=True, complevel=9)
-        encoding = {var: comp for var in self.RESTART.data_vars}
-    
-        print('\t Writing restart file %s \n' % (restart_netcdf))
-        print('-------------------------------------------------------------- \n')
-        
-        self.RESTART.to_netcdf(restart_netcdf, encoding=encoding)
-
 
 
     def write_restart_future(self, results):

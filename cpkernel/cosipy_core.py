@@ -1,4 +1,5 @@
 import numpy as np
+import logging
 
 from constants import *
 from config import *
@@ -20,6 +21,9 @@ def cosipy_core(DATA, GRID_RESTART=None):
     
     ''' INITIALIZATION '''
 
+    # Start logging
+    logger = logging.getLogger(__name__)
+
     # Initialize snowpack or load restart grid
     if GRID_RESTART is None:
         GRID = init_snowpack(DATA)
@@ -27,11 +31,13 @@ def cosipy_core(DATA, GRID_RESTART=None):
         GRID = load_snowpack(GRID_RESTART)
 
     # Create the local output datasets
+    logger.debug('Create local datasets')
     IO = IOClass(DATA)
     RESULT = IO.create_local_result_dataset()
     RESTART = IO.create_local_restart_dataset()
 
     # Merge grid layers, if necessary
+    logger.debug('Create local datasets')
     GRID.update_grid(merging_level, merge_snow_threshold)
 
     # hours since the last snowfall (albedo module)
@@ -52,11 +58,12 @@ def cosipy_core(DATA, GRID_RESTART=None):
     else:
         LWin = None
 
-    # Profiling
+    # Profiling with bokeh
     cp = cProfile.Profile()
     
     ' TIME LOOP '
     # For development
+    logger.debug('Start time loop')
     for t in np.arange(len(DATA.time)):
         
         # Rainfall is given as mm, so we convert m. w.e.q. snowheight
@@ -133,6 +140,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         Q, water_refreezed = percolation(GRID, melt, dt, debug_level)
 
         # Write results
+        logger.debug('Write data into local result structure')
         RESULT.SNOWHEIGHT[t] = GRID.get_total_snowheight()
         RESULT.EVAPORATION[t] = evaporation
         RESULT.SUBLIMATION[t] = sublimation
@@ -165,6 +173,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
             RESULT.LAYER_REFREEZE[0:GRID.get_number_layers(),t] = GRID.get_refreeze() 
 
     # TODO Restart
+    logger.debug('Write restart data into local restart structure')
     RESTART['NLAYERS'] = GRID.get_number_layers()
     RESTART.LAYER_HEIGHT[0:GRID.get_number_layers()] = GRID.get_height() 
     RESTART.LAYER_RHO[0:GRID.get_number_layers()] = GRID.get_density() 

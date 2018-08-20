@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 import xarray as xr
+import logging
 
 from constants import *
 from config import *
@@ -9,6 +10,8 @@ from cpkernel.grid import *
 def init_snowpack(DATA):
     
     ''' INITIALIZATION '''
+
+    logger = logging.getLogger(__name__)
     
     # Initial snow height
     initial_snowheight = 0.2 
