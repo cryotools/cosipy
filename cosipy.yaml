@@ -48,7 +48,7 @@ loggers:
         handlers: [debug_file_handler]
         propagate: no
     cpkernel.grid:
-        level: ERROR
+        level: DEBUG 
         handlers: [debug_file_handler]
         propagate: no
 

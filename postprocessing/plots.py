@@ -84,7 +84,7 @@ def plotMesh(filename, pdate, var=None):
         gl.ylabels_right = False
         
         ax = plt.subplot(4,3,11,projection=ccrs.PlateCarree())
-        DATA.ALBEDO.sel(time=pdate).plot.pcolormesh('lon', 'lat', ax=ax);
+        DATA.PRES.sel(time=pdate).plot.pcolormesh('lon', 'lat', ax=ax);
         gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                           linewidth=1, color='gray', alpha=0.1, linestyle='--')
         gl.xlabels_top = None

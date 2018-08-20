@@ -36,7 +36,7 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     df[G_var] = df[G_var].apply(pd.to_numeric, errors='coerce')    
     
     if(P_var not in df):
-        df[P_var] = 1013.00
+        df[P_var] = 700.00
     
     # Select time slice
     df = df.loc[start_date:end_date]
@@ -82,8 +82,11 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
         RH_interp[:,:,t] = RH2[t] + (ds.HGT.values-stationAlt)*lapse_RH 
         RRR_interp[:,:,t] = RRR[t]  
         U_interp[:,:,t] = U2[t] 
-        P_interp[:,:,t] = P[t] 
-        
+       
+        # Interpolate pressure using the barometric equation 
+        SLP = P[t]/np.power((1-(0.0065*stationAlt)/(288.15)), 5.255)
+        P_interp[:,:,t] = SLP * np.power((1-(0.0065*ds.HGT.values)/(288.15)), 5.255)
+         
         if(LW_var in df):
             LW_interp[:,:,t] = LW[t] 
 
@@ -124,7 +127,7 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     # Add arrays to dataset and write file
     add_variable_2D(ds, T_interp, 'T2', 'K', 'Temperature at 2 m')
     add_variable_2D(ds, RH_interp, 'RH2', '%', 'Relative humidity at 2 m')
-    add_variable_2D(ds, RRR_interp, 'RRR', 'mm', 'Precipitation')
+    add_variable_2D(ds, RRR_interp, 'RRR', 'mm', 'Total precipitation (liquid+solid)')
     add_variable_2D(ds, U_interp, 'U2', 'm/s', 'Wind velocity at 2 m')
     add_variable_2D(ds, G_interp, 'G', 'W m^-2', 'Incoming shortwave radiation')
     add_variable_2D(ds, P_interp, 'PRES', 'hPa', 'Atmospheric Pressure')
@@ -137,6 +140,8 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     
     print('Input file created \n')
     print('-------------------------------------------')
+
+    print(ds)
 
 
 def add_variable_2D(ds, var, name, units, long_name):

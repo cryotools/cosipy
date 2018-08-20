@@ -66,17 +66,21 @@ def cosipy_core(DATA, GRID_RESTART=None):
     logger.debug('Start time loop')
     for t in np.arange(len(DATA.time)):
         
-        # Rainfall is given as mm, so we convert m. w.e.q. snowheight
-        # TODO: Insert transition function for precipitation-snowfall, i.e. sigmoid function
-        if ((T2[t]<=274.0) & (RRR[t]>0.0)):
-            SNOWFALL = (RRR[t]/1000.0) * (ice_density/density_fresh_snow)
+        # Rainfall is given as mm, so we convert m snowheight
+        if (snowheight_measurements==True):
+            SNOWFALL = SNOWFALL[t]
         else:
-            SNOWFALL = 0.0
+            SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(np.tanh(((T2[t]-273.15)-2.5)*2.5)+1))
+            if SNOWFALL<0.0:        
+                SNOWFALL = 0.0
 
         if SNOWFALL > 0.0:
             # Add a new snow node on top
             GRID.add_node(SNOWFALL, density_fresh_snow, float(T2[t]), 0.0, 0.0, 0.0, 0.0, 0.0)
             GRID.merge_new_snow(merge_snow_threshold)
+     
+        # Calculate rain
+        RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density)
 
         # Get hours since last snowfall for the albedo calculations
         if SNOWFALL < 0.005:
@@ -115,8 +119,6 @@ def cosipy_core(DATA, GRID_RESTART=None):
             evaporation = 0
             condensation = 0
         else:
-            evaporation = max(latent_heat_flux / (1000.0 * lat_heat_vaporize), 0) * dt
-            condensation = min(latent_heat_flux / (1000.0 * lat_heat_vaporize), 0) * dt
             sublimation = 0
             deposition = 0
 
@@ -141,28 +143,45 @@ def cosipy_core(DATA, GRID_RESTART=None):
 
         # Write results
         logger.debug('Write data into local result structure')
-        RESULT.SNOWHEIGHT[t] = GRID.get_total_snowheight()
-        RESULT.EVAPORATION[t] = evaporation
-        RESULT.SUBLIMATION[t] = sublimation
-        RESULT.MELT[t] = melt
+
+        # Calculate mass balance
+        surface_mass_balance = SNOWFALL*(density_fresh_snow/ice_density) - melt - sublimation - deposition - evaporation - condensation
+        internal_mass_balance = water_refreezed #+ subsurface_melt
+        mass_balance = surface_mass_balance + internal_mass_balance
+
+        # 
+        RESULT.T2[t] = T2[t]
+        RESULT.RH2[t] = RH2[t]
+        RESULT.U2[t] = U2[t]
+        RESULT.RAIN[t] = RAIN
+        RESULT.SNOWFALL[t] = SNOWFALL
+        RESULT.PRES[t] = PRES[t]
+        RESULT.N[t] = N[t]
+        RESULT.G[t] = G[t]
         RESULT.LWin[t] = lw_radiation_in
         RESULT.LWout[t] = lw_radiation_out
         RESULT.H[t] = sensible_heat_flux
         RESULT.LE[t] = latent_heat_flux
         RESULT.B[t] = ground_heat_flux
-        RESULT.TS[t] = surface_temperature
-        RESULT.RH2[t] = RH2[t]
-        RESULT.T2[t] = T2[t]
-        RESULT.G[t] = G[t]
-        RESULT.U2[t] = U2[t]
-        RESULT.N[t] = N[t]
-        RESULT.Z0[t] = z0
-        RESULT.ALBEDO[t] = alpha
-        RESULT.RUNOFF[t] = Q 
+        RESULT.ME[t] = melt_energy
+        RESULT.MB[t] = mass_balance
+        RESULT.surfMB[t] = surface_mass_balance
+        RESULT.intMB[t] = internal_mass_balance
+        RESULT.EVAPORATION[t] = evaporation
+        RESULT.SUBLIMATION[t] = sublimation
+        RESULT.CONDENSATION[t] = condensation
+        RESULT.DEPOSITION[t] = deposition
+        RESULT.surfM[t] = melt
+        #RESULT.subM[t] = subsurface_melt
+        RESULT.Q[t] = Q 
         RESULT.REFREEZE[t] = water_refreezed 
-       
+        RESULT.SNOWHEIGHT[t] = GRID.get_total_snowheight()
+        RESULT.TS[t] = surface_temperature
+        RESULT.ALBEDO[t] = alpha
+        RESULT.Z0[t] = z0
+        RESULT.NLAYERS[t] = GRID.get_number_layers()
+
         if full_field:
-            RESULT.NLAYERS[t] = GRID.get_number_layers()
             RESULT.LAYER_HEIGHT[0:GRID.get_number_layers(),t] = GRID.get_height() 
             RESULT.LAYER_RHO[0:GRID.get_number_layers(),t] = GRID.get_density() 
             RESULT.LAYER_T[0:GRID.get_number_layers(),t] = GRID.get_temperature() 
