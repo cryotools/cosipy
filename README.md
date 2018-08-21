@@ -14,16 +14,16 @@ Evaluation
 
 # Config options
 
-|Variable|Short Name|Unit|
-|---|---|---|
-Air Pressure                        (hPa)
-Cloud cover                         (fraction; 0-1)
-Initial snow height                 (m)
-Relative humidity (2m over ground)  (%)
-Snowfall per time step              (m)
-Solar radiation at each time step   (W m-2)
-Air temperature (2m over ground)    (K)
-Wind speed (2m over ground)         (m s-1)
+|Variable|Short Name|Unit|Comment|
+|---|---|---|---|
+| Air Pressure| PRES | hPa| |
+| Cloud cover | N | - | |
+| Relative humidity | RH2 | %/100 | |
+| Snowfall | SNOWFALL | m | optional |
+| Solar radiation | G | W m<sup>-2</sup> | |
+| Air temperature | T2 | K | |
+| Wind speed | U2 | m s<sup>-1</sup> | |
+| Incoming longwave radiation | LWin | W m<sup>-2</sup> | optional |
 
 In future model should work with total precipitation (separeted with linear allocation between zero degree and 5 degree)
 with liquid and solid precipitation (solid used as snowfall, liquid add to surface melt for percolation)
