@@ -138,7 +138,7 @@ def plotContour(filename, pdate, var=None):
         gl.ylabels_right = False
         
         ax = plt.subplot(4,3,5,projection=ccrs.PlateCarree())
-        DATA.MELT.sel(time=pdate).plot.contourf('lon', 'lat', ax=ax);
+        DATA.surfM.sel(time=pdate).plot.contourf('lon', 'lat', ax=ax);
         gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                           linewidth=1, color='gray', alpha=0.1, linestyle='--')
         gl.xlabels_top = None
@@ -173,21 +173,21 @@ def plotContour(filename, pdate, var=None):
         gl.ylabels_right = False
         
         ax = plt.subplot(4,3,10,projection=ccrs.PlateCarree())
-        DATA.Z0.sel(time=pdate).plot.contourf('lon', 'lat', ax=ax);
+        DATA.MB.sel(time=pdate).plot.contourf('lon', 'lat', ax=ax);
         gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                           linewidth=1, color='gray', alpha=0.1, linestyle='--')
         gl.xlabels_top = None
         gl.ylabels_right = False
         
         ax = plt.subplot(4,3,11,projection=ccrs.PlateCarree())
-        DATA.ALBEDO.sel(time=pdate).plot.contourf('lon', 'lat', ax=ax);
+        DATA.surfMB.sel(time=pdate).plot.contourf('lon', 'lat', ax=ax);
         gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                           linewidth=1, color='gray', alpha=0.1, linestyle='--')
         gl.xlabels_top = None
         gl.ylabels_right = False
         
         ax = plt.subplot(4,3,12,projection=ccrs.PlateCarree())
-        DATA.RUNOFF.sel(time=pdate).plot.contourf('lon', 'lat', ax=ax);
+        DATA.Q.sel(time=pdate).plot.contourf('lon', 'lat', ax=ax);
         gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                           linewidth=1, color='gray', alpha=0.1, linestyle='--')
         gl.xlabels_top = None

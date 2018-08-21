@@ -77,20 +77,18 @@ def main():
             print('\t Starting clients ... \n')
             print(client)
             print('-------------------------------------------------------------- \n')
-            t1 = 0
+            
             # Go over the whole grid
             for i,j in product(DATA.lat, DATA.lon):
                 mask = DATA.MASK.sel(lat=i, lon=j)
                
                 # Provide restart grid if necessary
-                if ((mask==1) & (restart==False) & (t1==0)):
+                if ((mask==1) & (restart==False)):
                     nfutures = nfutures+1
                     futures.append(client.submit(cosipy_core, DATA.sel(lat=i, lon=j)))
-                    t1=t1+1
-                elif ((mask==1) & (restart==True) & (t1==0)):
+                elif ((mask==1) & (restart==True)):
                     nfutures = nfutures+1
                     futures.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), IO.create_grid_restart().sel(lat=i,lon=j)))
-                    t1=t1+1
   
             # Finally, do the calculations and print the progress
             progress(futures)

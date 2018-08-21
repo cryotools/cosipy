@@ -43,7 +43,6 @@ def percolation(GRID, water, t, debug_level):
 
         # Loop over all internal grid points for percolation 
         for idxNode in range(0, GRID.number_nodes, 1):
-            
 
             if (idxNode==0):
                 x = LWCtmp[idxNode]
@@ -84,17 +83,16 @@ def percolation(GRID, water, t, debug_level):
                 else:
                     GRID.set_node_liquid_water_content(idxNode, LWCtmp[idxNode] + dt_use * (ux * pvel + uy * pvel))
                     
-                    
-
-        
         # Add the time step to current time
         curr_t = curr_t + dt_use
-  
+ 
+    # Changes in LWC
+    LWCchange = np.sum(LWCtmp) - np.sum(GRID.get_liquid_water_content())
+
     # Do the refreezing after percolation
-    
     water_refreezed = refreeze(GRID)
     
-    return -Q, water_refreezed
+    return -Q, water_refreezed, LWCchange
 
 
 def calc_cc(GRID, node):
@@ -110,7 +108,7 @@ def refreeze(GRID):
     # water refreezed
     water_refreezed = 0
     LWCref = 0
-
+    
     # Loop over all internal grid points for percolation 
     for idxNode in range(0, GRID.number_nodes-1, 1):
     

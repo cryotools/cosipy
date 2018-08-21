@@ -20,10 +20,7 @@ import cProfile
 def cosipy_core(DATA, GRID_RESTART=None):
     
     ''' INITIALIZATION '''
-    meltSum = 0
-    Qsum = 0
-    refreeze_sum = 0
-
+    
     # Start logging
     logger = logging.getLogger(__name__)
 
@@ -143,32 +140,22 @@ def cosipy_core(DATA, GRID_RESTART=None):
         # Account layer temperature due to penetrating SW radiation
         penetrating_radiation(GRID, sw_radiation_net, dt)
 
-        # Refreezing
-        #if t==0:
-        #    melt = 0.1
-        #else:
-        #    melt=0
-        Q, water_refreezed = percolation(GRID, melt, dt, debug_level)
+        # Percolation/Refreezing
+        Q, water_refreezed, LWCchange  = percolation(GRID, melt, dt, debug_level)
         
         # Write results
         logger.debug('Write data into local result structure')
 
-        meltSum = meltSum + melt
-        Qsum = Qsum + Q
-        refreeze_sum = refreeze_sum + water_refreezed
         # Calculate mass balance
-        surface_mass_balance = SNOWFALL*(density_fresh_snow/ice_density) - melt - sublimation - deposition - evaporation - condensation
-        
-        internal_mass_balance = water_refreezed #+ subsurface_melt
+        surface_mass_balance = SNOWFALL*(density_fresh_snow/ice_density) - melt - sublimation - deposition - evaporation - condensation 
+        internal_mass_balance = water_refreezed + LWCchange #+ subsurface_melt
         mass_balance = surface_mass_balance + internal_mass_balance
-        #print(surface_mass_balance, mass_balance, water_refreezed, Q)
 
-        internal_mass_balance2 = melt-Q-np.sum(GRID.get_liquid_water_content())  #+ subsurface_melt
+        internal_mass_balance2 = melt-Q  #+ subsurface_melt
         mass_balance_check = surface_mass_balance + internal_mass_balance2
-        #print(melt-Q-np.sum(GRID.get_liquid_water_content())-water_refreezed,internal_mass_balance-internal_mass_balance2, Qsum, np.sum(GRID.get_liquid_water_content()))
+        #print(internal_mass_balance-internal_mass_balance2)
 
-
-        # 
+        # Save results 
         RESULT.T2[t] = T2[t]
         RESULT.RH2[t] = RH2[t]
         RESULT.U2[t] = U2[t]
@@ -179,8 +166,8 @@ def cosipy_core(DATA, GRID_RESTART=None):
         RESULT.G[t] = G[t]
         RESULT.LWin[t] = lw_radiation_in
         RESULT.LWout[t] = lw_radiation_out
-        RESULT.H[t] = sensible_heat_flux
-        RESULT.LE[t] = latent_heat_flux
+        RESULT.H[t] = -sensible_heat_flux
+        RESULT.LE[t] = -latent_heat_flux
         RESULT.B[t] = ground_heat_flux
         RESULT.ME[t] = melt_energy
         RESULT.MB[t] = mass_balance

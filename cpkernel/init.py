@@ -66,9 +66,11 @@ def load_snowpack(GRID_RESTART):
     layer_refreeze = GRID_RESTART.LAYER_REFREEZE[0:num_layers].values
     
     GRID = Grid(layer_heights, layer_density, layer_T, layer_LWC, layer_cc, layer_porosity, layer_vol, layer_refreeze, debug_level)
+
     if np.isnan(layer_T).any():
         GRID.grid_info()
         sys.exit(1) 
+    
     return GRID
 
 
