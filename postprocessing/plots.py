@@ -42,7 +42,7 @@ def plotMesh(filename, pdate, var=None):
         gl.ylabels_right = False
         
         ax = plt.subplot(4,3,5,projection=ccrs.PlateCarree())
-        DATA.MELT.sel(time=pdate).plot.pcolormesh('lon', 'lat', ax=ax);
+        DATA.surfM.sel(time=pdate).plot.pcolormesh('lon', 'lat', ax=ax);
         gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                           linewidth=1, color='gray', alpha=0.1, linestyle='--')
         gl.xlabels_top = None
@@ -63,7 +63,7 @@ def plotMesh(filename, pdate, var=None):
         gl.ylabels_right = False
         
         ax = plt.subplot(4,3,8,projection=ccrs.PlateCarree())
-        DATA.RUNOFF.sel(time=pdate).plot.pcolormesh('lon', 'lat', ax=ax);
+        DATA.Q.sel(time=pdate).plot.pcolormesh('lon', 'lat', ax=ax);
         gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                           linewidth=1, color='gray', alpha=0.1, linestyle='--')
         gl.xlabels_top = None
@@ -77,14 +77,14 @@ def plotMesh(filename, pdate, var=None):
         gl.ylabels_right = False
         
         ax = plt.subplot(4,3,10,projection=ccrs.PlateCarree())
-        DATA.Z0.sel(time=pdate).plot.pcolormesh('lon', 'lat', ax=ax);
+        DATA.surfMB.sel(time=pdate).plot.pcolormesh('lon', 'lat', ax=ax);
         gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                           linewidth=1, color='gray', alpha=0.1, linestyle='--')
         gl.xlabels_top = None
         gl.ylabels_right = False
         
         ax = plt.subplot(4,3,11,projection=ccrs.PlateCarree())
-        DATA.PRES.sel(time=pdate).plot.pcolormesh('lon', 'lat', ax=ax);
+        DATA.MB.sel(time=pdate).plot.pcolormesh('lon', 'lat', ax=ax);
         gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                           linewidth=1, color='gray', alpha=0.1, linestyle='--')
         gl.xlabels_top = None

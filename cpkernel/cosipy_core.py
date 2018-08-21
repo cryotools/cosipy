@@ -20,8 +20,10 @@ import cProfile
 def cosipy_core(DATA, GRID_RESTART=None):
     
     ''' INITIALIZATION '''
-    t1 = 0
-    t2 = 0
+    meltSum = 0
+    Qsum = 0
+    refreeze_sum = 0
+
     # Start logging
     logger = logging.getLogger(__name__)
 
@@ -122,13 +124,15 @@ def cosipy_core(DATA, GRID_RESTART=None):
         else:
             sublimation = 0
             deposition = 0
+            evaporation = max(latent_heat_flux / (1000.0 * lat_heat_vaporize), 0) * dt
+            condensation = min(latent_heat_flux / (1000.0 * lat_heat_vaporize), 0) * dt
 
         # Melt energy in [W m^-2 or J s^-1 m^-2]
         melt_energy = max(0, sw_radiation_net + lw_radiation_in + lw_radiation_out - ground_heat_flux -
                           sensible_heat_flux - latent_heat_flux) 
 
         # Convert melt energy to m w.e.q.   
-        melt = melt_energy * dt / (1000.0 * lat_heat_melting)  
+        melt = melt_energy * dt / (1000 * lat_heat_melting)  
 
         # Remove melt m w.e.q.
         GRID.remove_melt_energy(melt + sublimation + deposition + evaporation + condensation)
@@ -140,21 +144,29 @@ def cosipy_core(DATA, GRID_RESTART=None):
         penetrating_radiation(GRID, sw_radiation_net, dt)
 
         # Refreezing
+        #if t==0:
+        #    melt = 0.1
+        #else:
+        #    melt=0
         Q, water_refreezed = percolation(GRID, melt, dt, debug_level)
-
+        
         # Write results
         logger.debug('Write data into local result structure')
 
+        meltSum = meltSum + melt
+        Qsum = Qsum + Q
+        refreeze_sum = refreeze_sum + water_refreezed
         # Calculate mass balance
         surface_mass_balance = SNOWFALL*(density_fresh_snow/ice_density) - melt - sublimation - deposition - evaporation - condensation
+        
         internal_mass_balance = water_refreezed #+ subsurface_melt
         mass_balance = surface_mass_balance + internal_mass_balance
-        mass_balance_check = surface_mass_balance - Q 
+        #print(surface_mass_balance, mass_balance, water_refreezed, Q)
 
-        t1 = t1+mass_balance
-        t2 = t2+mass_balance_check
-        #print(water_refreezed, Q, melt, np.sum(GRID.get_liquid_water_content()), melt - (Q + np.sum(GRID.get_liquid_water_content())))
-        #print(t1,t2)
+        internal_mass_balance2 = melt-Q-np.sum(GRID.get_liquid_water_content())  #+ subsurface_melt
+        mass_balance_check = surface_mass_balance + internal_mass_balance2
+        #print(melt-Q-np.sum(GRID.get_liquid_water_content())-water_refreezed,internal_mass_balance-internal_mass_balance2, Qsum, np.sum(GRID.get_liquid_water_content()))
+
 
         # 
         RESULT.T2[t] = T2[t]
