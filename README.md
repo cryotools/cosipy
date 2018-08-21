@@ -28,12 +28,12 @@ Anselm Arndt, anselm.arndt@geo.hu-berlin.de
 
 | Directory | Files | Content |
 |---|---|---|
-. | COSIPY.py | Main program |
-cpkernel | core_cosipy.py | Core of the model (time loop) |
-         | grid.py | Grid structure, consists of a list of layer nodes (vertical snow profile) |
-         | node.py | Node class handles the nformation of each layer |
-         | init.py | Initialization of the snow cover |
-         | io.py | Contains all input/output functions |
+| . | COSIPY.py | Main program |
+|cpkernel | core_cosipy.py | Core of the model (time loop) |
+|         | grid.py | Grid structure, consists of a list of layer nodes (vertical snow profile) |
+|         | node.py | Node class handles the nformation of each layer |
+|         | init.py | Initialization of the snow cover |
+|         | io.py | Contains all input/output functions |
          
 
 # How to run the model
