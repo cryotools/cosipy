@@ -28,14 +28,22 @@ Anselm Arndt, anselm.arndt@geo.hu-berlin.de
 
 | Directory | Files | Content |
 |---|---|---|
-| . | COSIPY.py | Main program |
+|   | COSIPY.py | Main program |
 |---|---|---|
 |cpkernel | core_cosipy.py | Core of the model (time loop) |
 |         | grid.py | Grid structure, consists of a list of layer nodes (vertical snow profile) |
 |         | node.py | Node class handles the nformation of each layer |
 |         | init.py | Initialization of the snow cover |
 |         | io.py | Contains all input/output functions |
-         
+|---|---|---|
+| modules | albedo.py | Albedo parametrization |
+|         | densification.py | Snowpack densification |
+|         | heatEquation.py | Solves the heat equation |
+|         | penetratingRadiation.py | Parametrization of the penetrating shortwave radiation |
+|         | percolation_incl_refreezing.py | Liquid water percolation and refreezing |
+|         | radCor.py | Radiation model (topographic shading) |
+|         | roughness.py | Update of the roughness length |
+|         | surfaceTemperature.py | Solves the energy balance at the surface and calculates the surface temperature |
 
 # How to run the model
 
