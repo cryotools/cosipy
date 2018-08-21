@@ -65,11 +65,12 @@ COSPY provides some utilities which can be used to create the input file
 
 ## Output
 
-* densification
-* subsurface melt (penetrating radiation)
-
 # Config options
 
+## Open issues:
+
+* densification
+* subsurface melt (penetrating radiation)
 
 In future model should work with total precipitation (separeted with linear allocation between zero degree and 5 degree)
 with liquid and solid precipitation (solid used as snowfall, liquid add to surface melt for percolation)
