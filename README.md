@@ -11,6 +11,21 @@ Anselm Arndt, anselm.arndt@geo.hu-berlin.de
 Libraries
 
 
+# Quick tutorial
+
+## Create input file
+
+```bash
+gdal_warp asdfasdfa
+```
+
+COSPY provides some utilities which can be used to create the input file 
+
+## Run model
+
+## Evaluation
+
+
 ## Input
 |Variable|Short Name|Unit|Comment|
 |---|---|---|---|
@@ -51,19 +66,6 @@ Libraries
 |         | roughness.py | Update of the roughness length |
 |         | surfaceTemperature.py | Solves the energy balance at the surface and calculates the surface temperature |
 
-# How to run the model
-
-## Create input file
-
-```bash
-gdal_warp asdfasdfa
-```
-
-COSPY provides some utilities which can be used to create the input file 
-
-## Run model
-
-## Evaluation
 
 
 
