@@ -36,10 +36,6 @@ COSPY provides some utilities which can be used to create the input file
 
 ## Evaluation
 
-
-
-## Output
-
 ## Restart
 
 
@@ -67,7 +63,10 @@ COSPY provides some utilities which can be used to create the input file
 |         | surfaceTemperature.py | Solves the energy balance at the surface and calculates the surface temperature |
 
 
+## Output
 
+* densification
+* subsurface melt (penetrating radiation)
 
 # Config options
 
