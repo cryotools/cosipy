@@ -55,6 +55,12 @@ Libraries
 
 ## Create input file
 
+```
+#!python
+
+python COSIPY.py
+```
+
 COSPY provides some utilities which can be used to create the input file 
 
 ## Run model
