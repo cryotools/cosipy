@@ -1,0 +1,38 @@
+
+------------------------------------------
+Reproject DEM to lat-long
+------------------------------------------
+gdalwrap -t_srs EPSG:4326 input.tif output.tif
+
+------------------------------------------
+Subset domain
+------------------------------------------
+gdal_translate -r cubicspline -projwin ulx uly lrx lry input.tif output.tif
+
+------------------------------------------
+Slope and Aspect 
+------------------------------------------
+gdaldem slope input.tif output.tif
+gdaldem aspect input.tif output.tif
+
+------------------------------------------
+Create glacier mask with shape and DEM
+------------------------------------------
+gdalwarp -cutline shapefile.shp DEM.tif mask.tif
+
+------------------------------------------
+Create NC-files from geoTiff
+------------------------------------------
+gdal_translate -of NETCDF input.tif output.nc
+
+------------------------------------------
+Combine NC-files to one NC-file
+------------------------------------------
+cdo merge *.nc static.nc
+
+------------------------------------------
+Rename variables in static.nc
+------------------------------------------
+python create2D.py
+
+Hint: See name convention in example static.nc

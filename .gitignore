@@ -1,6 +1,10 @@
-output/*
 .idea/
 venv/
 __pycache__/*
-dask-worker-space/worker*
+dask-worker-space/
 *pyc
+data/output/*
+data/restart/*
+debug*
+info*
+error*

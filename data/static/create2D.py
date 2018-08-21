@@ -36,38 +36,6 @@ def write_static_data():
     ds.to_netcdf('static.nc')
 
 
-
 write_static_data()
 
-
-## Account for the missing values in G
-#for i in range(len(df['G'])):
-#    if (np.isnan(df['G'][i])):
-#        df['G'][i] = df['G'][i-1]
-#
-#insert_var_2D(ds, df['T']+273.15, lat, lon, 'T2', 'degC', '-9999', -9999, 'Temperature at 2 m')
-#insert_var_2D(ds, df['RH'], lat, lon, 'RH2', '%', '-9999', -9999, 'Relative humidity at 2 m')
-#insert_var_2D(ds, df['G'], lat, lon,  'G', 'W m^-2', '-9999', -9999, 'Shortwave radiation')
-#insert_var_2D(ds, df['U'], lat, lon, 'U2', 'm s^-1','-9999', -9999, 'Wind velocity at 2 m')
-#insert_var_2D(ds, df['P']/1000.0, lat, lon,  'RRR', 'm', '-9999', -9999, 'Precipitation')
-#
-#if ('N' in df):
-#    print('Cloud cover data (N) exists ')
-#    insert_var_2D(ds, df['N'], lat, lon,  'N', '-', '-9999', -9999, 'Cloud cover')
-#else:
-#    print('Cloud cover data (N) is missing ')
-#    print('The value is set to a constant value of 0.5 ')
-#    insert_var_2D(ds, 0.5*np.ones_like(df['T']), lat, lon,  'N', '-', '-9999', -9999, 'Cloud cover')
-#
-#
-#if ('PRES' in df):
-#    print('Pressure data (PRES) exists ')
-#    insert_var_2D(ds, df['PRES'], lat, lon,  'PRES', 'hPa', '-9999', -9999, 'Pressure')
-#else:
-#    print('Pressure data (PRES) is missing ')
-#    print('The value is set to a constant value of 1013.0 hPa ')
-#    insert_var_2D(ds, 1013.0*np.ones_like(df['T']), lat, lon,  'PRES', 'hPa', '-9999', -9999, 'Pressure')
-#
-#print(ds)
-#ds.to_netcdf('data_amalia_2D.nc')
 
