@@ -1,5 +1,21 @@
-# README #
-Needed input variables and units
+
+## Introduction ##
+Contact
+
+# Requirements
+
+# How to run the model
+
+Create input file
+
+Run model
+
+Evaluation
+
+# Config options
+
+|Variable|Short Name|Unit|
+|---|---|---|
 Air Pressure                        (hPa)
 Cloud cover                         (fraction; 0-1)
 Initial snow height                 (m)
