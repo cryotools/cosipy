@@ -10,6 +10,17 @@ Anselm Arndt, anselm.arndt@geo.hu-berlin.de
 # Requirements
 Libraries
 
+## Input
+|Variable|Short Name|Unit|Comment|
+|---|---|---|---|
+| Air Pressure| PRES | hPa| |
+| Cloud cover | N | - | |
+| Relative humidity | RH2 | %/100 | |
+| Snowfall | SNOWFALL | m | optional |
+| Solar radiation | G | W m<sup>-2</sup> | |
+| Air temperature | T2 | K | |
+| Wind speed | U2 | m s<sup>-1</sup> | |
+| Incoming longwave radiation | LWin | W m<sup>-2</sup> | optional |
 
 # Quick tutorial
 
@@ -26,17 +37,6 @@ COSPY provides some utilities which can be used to create the input file
 ## Evaluation
 
 
-## Input
-|Variable|Short Name|Unit|Comment|
-|---|---|---|---|
-| Air Pressure| PRES | hPa| |
-| Cloud cover | N | - | |
-| Relative humidity | RH2 | %/100 | |
-| Snowfall | SNOWFALL | m | optional |
-| Solar radiation | G | W m<sup>-2</sup> | |
-| Air temperature | T2 | K | |
-| Wind speed | U2 | m s<sup>-1</sup> | |
-| Incoming longwave radiation | LWin | W m<sup>-2</sup> | optional |
 
 ## Output
 
