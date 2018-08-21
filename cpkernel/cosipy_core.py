@@ -24,7 +24,9 @@ def cosipy_core(DATA, GRID_RESTART=None):
     # Start logging
     logger = logging.getLogger(__name__)
 
+    #--------------------------------------------
     # Initialize snowpack or load restart grid
+    #--------------------------------------------
     if GRID_RESTART is None:
         GRID = init_snowpack(DATA)
     else:
@@ -43,7 +45,9 @@ def cosipy_core(DATA, GRID_RESTART=None):
     # hours since the last snowfall (albedo module)
     hours_since_snowfall = 0
 
+    #--------------------------------------------
     # Get data from file
+    #--------------------------------------------
     T2 = DATA.T2.values
     RH2 = DATA.RH2.values
     N = DATA.N.values
@@ -51,6 +55,12 @@ def cosipy_core(DATA, GRID_RESTART=None):
     G = DATA.G.values
     U2 = DATA.U2.values
     RRR = DATA.RRR.values
+
+    # Check whether snowfall data is availible 
+    if ('SNOWFALL' in DATA):
+        SNWOF = DATA.SNOWFALL.values
+    else:
+        SNOWF = None
 
     # Check whether longwave data is availible -> used for surface temperature calculations
     if ('LWin' in DATA):
@@ -61,15 +71,18 @@ def cosipy_core(DATA, GRID_RESTART=None):
     # Profiling with bokeh
     cp = cProfile.Profile()
     
-    ' TIME LOOP '
-    # For development
+    #--------------------------------------------
+    # TIME LOOP 
+    #--------------------------------------------
     logger.debug('Start time loop')
+    
     for t in np.arange(len(DATA.time)):
         
-        # Rainfall is given as mm, so we convert m snowheight
-        if (snowheight_measurements==True):
-            SNOWFALL = SNOWFALL[t]
+        if (SNOWF is not None): 
+        # Snowfall is given in m
+            SNOWFALL = SNOWF[t]
         else:
+        # Rainfall is given as mm, so we convert to m snowheight
             SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(np.tanh(((T2[t]-273.15)-2.5)*2.5)+1))
             if SNOWFALL<0.0:        
                 SNOWFALL = 0.0

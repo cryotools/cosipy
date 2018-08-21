@@ -41,11 +41,11 @@ handlers:
 loggers:
     cpkernel.io:
         level: ERROR
-        handlers: [debug_file_handler]
+        handlers: [error_file_handler]
         propagate: no
     cpkernel.cosipy_core:
         level: ERROR 
-        handlers: [debug_file_handler]
+        handlers: [error_file_handler]
         propagate: no
     cpkernel.grid:
         level: ERROR 

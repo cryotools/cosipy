@@ -13,7 +13,7 @@ input_netcdf= 'input_hintereisferner.nc'
 output_netcdf = 'output_hintereisferner.nc'
 
 ## Snowfall given in input file
-snowheight_measurements = False     # if snow exists in m
+snowheight_measurements = True # if snow exists in m
 
 ## Write full fields
 full_field = False 

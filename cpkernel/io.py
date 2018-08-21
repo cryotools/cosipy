@@ -142,7 +142,13 @@ class IOClass:
             print('Snowfall data (SNOWFALL) ... ok ')
             check(self.DATA.SNOWFALL, 0.1, 0.0)
         else:
-            print('\n Calculate snowfall from precipitation')
+            if (snowheight_measurements==True):
+                print('')
+                print('Error in input file ... see error.log')
+                self.logger.error('Variable SNOWFALL is missing, although snowheight_measurements==True')
+                sys.exit(0)
+            else:
+                print('\n Calculate snowfall from precipitation')
  
  
  
