@@ -1,19 +1,10 @@
 
-## Introduction ##
-Contact
+# Introduction ##
+### Contact
 
 # Requirements
 
-# How to run the model
-
-Create input file
-
-Run model
-
-Evaluation
-
-# Config options
-
+## Input
 |Variable|Short Name|Unit|Comment|
 |---|---|---|---|
 | Air Pressure| PRES | hPa| |
@@ -24,6 +15,16 @@ Evaluation
 | Air temperature | T2 | K | |
 | Wind speed | U2 | m s<sup>-1</sup> | |
 | Incoming longwave radiation | LWin | W m<sup>-2</sup> | optional |
+# How to run the model
+
+Create input file
+
+Run model
+
+Evaluation
+
+# Config options
+
 
 In future model should work with total precipitation (separeted with linear allocation between zero degree and 5 degree)
 with liquid and solid precipitation (solid used as snowfall, liquid add to surface melt for percolation)
