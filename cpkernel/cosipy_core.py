@@ -58,7 +58,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
 
     # Check whether snowfall data is availible 
     if ('SNOWFALL' in DATA):
-        SNWOF = DATA.SNOWFALL.values
+        SNOWF = DATA.SNOWFALL.values
     else:
         SNOWF = None
 
