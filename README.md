@@ -1,13 +1,76 @@
-# README #
-Needed input variables and units
-Air Pressure                        (hPa)
-Cloud cover                         (fraction; 0-1)
-Initial snow height                 (m)
-Relative humidity (2m over ground)  (%)
-Snowfall per time step              (m)
-Solar radiation at each time step   (W m-2)
-Air temperature (2m over ground)    (K)
-Wind speed (2m over ground)         (m s-1)
+
+# IN PROGRESS
+
+# Introduction ##
+
+### Contact
+Tobias Sauter, tobias.sauter@fau.de
+Anselm Arndt, anselm.arndt@geo.hu-berlin.de
+
+# Requirements
+Libraries
+
+## Input
+|Variable|Short Name|Unit|Comment|
+|---|---|---|---|
+| Air Pressure| PRES | hPa| |
+| Cloud cover | N | - | |
+| Relative humidity | RH2 | %/100 | |
+| Snowfall | SNOWFALL | m | optional |
+| Solar radiation | G | W m<sup>-2</sup> | |
+| Air temperature | T2 | K | |
+| Wind speed | U2 | m s<sup>-1</sup> | |
+| Incoming longwave radiation | LWin | W m<sup>-2</sup> | optional |
+
+# Quick tutorial
+
+## Create input file
+
+```bash
+gdal_warp asdfasdfa
+```
+
+COSPY provides some utilities which can be used to create the input file 
+
+## Run model
+
+## Evaluation
+
+## Restart
+
+
+# Model Structure
+
+## Directories
+
+| Directory | Files | Content |
+|---|---|---|
+|   | COSIPY.py | Main program |
+|---|---|---|
+|cpkernel | core_cosipy.py | Core of the model (time loop) |
+|         | grid.py | Grid structure, consists of a list of layer nodes (vertical snow profile) |
+|         | node.py | Node class handles the nformation of each layer |
+|         | init.py | Initialization of the snow cover |
+|         | io.py | Contains all input/output functions |
+|---|---|---|
+| modules | albedo.py | Albedo parametrization |
+|         | densification.py | Snowpack densification |
+|         | heatEquation.py | Solves the heat equation |
+|         | penetratingRadiation.py | Parametrization of the penetrating shortwave radiation |
+|         | percolation_incl_refreezing.py | Liquid water percolation and refreezing |
+|         | radCor.py | Radiation model (topographic shading) |
+|         | roughness.py | Update of the roughness length |
+|         | surfaceTemperature.py | Solves the energy balance at the surface and calculates the surface temperature |
+
+
+## Output
+
+# Config options
+
+## Open issues:
+
+* densification
+* subsurface melt (penetrating radiation)
 
 In future model should work with total precipitation (separeted with linear allocation between zero degree and 5 degree)
 with liquid and solid precipitation (solid used as snowfall, liquid add to surface melt for percolation)
