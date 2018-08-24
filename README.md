@@ -20,7 +20,7 @@ Libraries
 | Solar radiation | G | W m<sup>-2</sup> | |
 | Air temperature | T2 | K | |
 | Wind speed | U2 | m s<sup>-1</sup> | |
-| Incoming longwave radiation | LWin | W m<sup>-2</sup> | optional |
+| Incoming shortwave radiation | LWin | W m<sup>-2</sup> | optional |
 
 # Quick tutorial
 
