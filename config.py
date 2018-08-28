@@ -4,8 +4,8 @@
 """
 
 ## Simulation period
-time_start = '2018-06-04T04:00'
-time_end   = '2018-06-04T12:00'                                       
+time_start = '2018-08-01T00:00'
+time_end   = '2018-08-10T06:00'                                       
 
 ##  Input/Output files 
 data_path = './data'
@@ -13,7 +13,7 @@ input_netcdf= 'input_hintereisferner.nc'
 output_netcdf = 'output_hintereisferner.nc'
 
 ## Snowfall given in input file
-snowheight_measurements = True # if snow exists in m
+snowheight_measurements = False # if snow exists in m
 
 ## Write full fields
 full_field = False 

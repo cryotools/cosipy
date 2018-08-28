@@ -120,7 +120,7 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
             for j in range(len(ds.lon)):
                 if (mask[i,j]==1):
                     if radiationModule:
-                        G_interp[i,j,t] = correctRadiation(lats[i],lons[j], timezone_lon, doy, hour, slope[i,j], aspect[i,j], sw[t], zeni_thld)
+                        G_interp[i,j,t] = np.maximum(0.0, correctRadiation(lats[i],lons[j], timezone_lon, doy, hour, slope[i,j], aspect[i,j], sw[t], zeni_thld))
                     else:
                         G_interp[i,j,t] = sw[t]
 
