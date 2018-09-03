@@ -19,10 +19,10 @@ def insert_var_2D(ds, data, lat, lon, name, units, FillValue, missing_value, lon
 
 def write_static_data():
     # Static data
-    ds_dem = xr.open_dataset('./orig/dem.nc')
-    ds_slo = xr.open_dataset('./orig/slope.nc')
-    ds_asp = xr.open_dataset('./orig/aspect.nc')
-    ds_mask = xr.open_dataset('./orig/glaciergrid.nc')
+    ds_dem = xr.open_dataset('./dem.nc')
+    ds_slo = xr.open_dataset('./slope.nc')
+    ds_asp = xr.open_dataset('./aspect.nc')
+    ds_mask = xr.open_dataset('./glaciergrid.nc')
     
     # Write static data
     ds = xr.Dataset()
