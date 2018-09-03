@@ -358,7 +358,7 @@ class IOClass:
         
         results         ::  List with the result from COSIPI
         """
-
+        self.RESULT.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.T2
         self.RESULT.T2.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.T2
         self.RESULT.RH2.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.RH2
         self.RESULT.U2.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.U2

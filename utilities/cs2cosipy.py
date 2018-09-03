@@ -92,14 +92,13 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
 
     # Change aspect to south==0, east==negative, west==positive
     ds['ASPECT'] = np.mod(ds['ASPECT']+180.0, 360.0)
-    print(ds['ASPECT'])
     mask = ds['ASPECT'].where(ds['ASPECT']<=180.0) 
     aspect = ds['ASPECT'].values
     aspect[aspect<180] = aspect[aspect<180]*-1.0
     aspect[aspect>=180] = 360.0 - aspect[aspect>=180]
     ds['ASPECT'] = (('lat','lon'),aspect)
-    print(ds['ASPECT'])
-
+    print(np.count_nonzero(~np.isnan(ds['MASK'].values)))
+    
     # Auxiliary variables
     mask = ds.MASK.values
     slope = ds.SLOPE.values

@@ -78,10 +78,12 @@ def main():
             print(client)
             print('-------------------------------------------------------------- \n')
             
+            # Do only consider non-nan fields
+            DATA = DATA.where(DATA.MASK==1,drop=True)
+            
             # Go over the whole grid
             for i,j in product(DATA.lat, DATA.lon):
                 mask = DATA.MASK.sel(lat=i, lon=j)
-               
                 # Provide restart grid if necessary
                 if ((mask==1) & (restart==False)):
                     nfutures = nfutures+1
@@ -89,13 +91,18 @@ def main():
                 elif ((mask==1) & (restart==True)):
                     nfutures = nfutures+1
                     futures.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), IO.create_grid_restart().sel(lat=i,lon=j)))
-  
+            
             # Finally, do the calculations and print the progress
             progress(futures)
 
             if (restart==True):
                 IO.get_grid_restart().close()
 
+           
+            print('\n')
+            print('--------------------------------------------------------------')
+            print('Copy local results to global')
+            print('-------------------------------------------------------------- \n')
             for future in as_completed(futures):   
                 results = future.result()
                 result_data = results[0]
@@ -104,6 +111,10 @@ def main():
                 IO.write_restart_future(restart_data)
 
 
+    print('\n')
+    print('--------------------------------------------------------------')
+    print('Write results to netcdf')
+    print('-------------------------------------------------------------- \n')
     # Write results and restart files
     timestamp = pd.to_datetime(str(IO.get_restart().time.values)).strftime('%Y-%m-%dT%H:%M:%S')
     comp = dict(zlib=True, complevel=9)
