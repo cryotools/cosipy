@@ -80,8 +80,11 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2, LWin=None)
     rho = (p*100.0) / (287.058 * (T2 * (1 + 0.608 * q2)))
 
     # Bulk Richardson number todo: Check if eq correct!
-    Ri = (9.81 * (T2 - zero_temperature) * 2.0) / (T2 * np.power(u2, 2))
-
+    if (u2!=0):
+        Ri = (9.81 * (T2 - zero_temperature) * 2.0) / (T2 * np.power(u2, 2))
+    else:
+        Ri = 0
+    
     # Stability correction
     if (Ri > 0.01) & (Ri <= 0.2):
         phi = np.power(1-5*Ri,2)

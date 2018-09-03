@@ -4,8 +4,8 @@
 """
 
 ## Simulation period
-time_start = '2018-08-01T00:00'
-time_end   = '2018-08-10T06:00'                                       
+time_start = '2018-08-30T00:00'
+time_end   = '2018-09-01T06:00'                                       
 
 ##  Input/Output files 
 data_path = './data'

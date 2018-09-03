@@ -36,7 +36,7 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     df[G_var] = df[G_var].apply(pd.to_numeric, errors='coerce')    
     
     if(P_var not in df):
-        df[P_var] = 700.00
+        df[P_var] = 660.00
     
     # Select time slice
     df = df.loc[start_date:end_date]

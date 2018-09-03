@@ -8,22 +8,22 @@
 #------------------------
 
 # Temperature
-T_var = 'Tair_Avg'  
+T_var = 'AirTC_Avg'  
 
 # Relative humidity
-RH_var = 'Hum_Avg'   
+RH_var = 'RH'   
 
 # Wind velocity
-U_var = 'Wspeed'     
+U_var = 'WS_ms_S_WVT'     
 
 # Precipitation
-RRR_var = 'Rain_Tot' 
+RRR_var = 'Rain_mm_Tot' 
 
 # Incoming shortwave radiation
 G_var = 'SWin_Avg'   
 
 # Incoming longwave radiation
-LW_var = 'LWinCor_Avg'   
+LW_var = 'LWin_Avg'   
 
 # Pressure
 P_var = 'Press_Avg'   
