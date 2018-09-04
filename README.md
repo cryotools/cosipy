@@ -23,11 +23,12 @@ Libraries
 | Incoming shortwave radiation | LWin | W m<sup>-2</sup> | optional |
 
 # Quick tutorial
-
+COSPY provides some utilities which can be used to create the input file 
 ## Create combined static input file
 ### Requirements:
 #### Installed packages and libaries:
 * gdal (e.g. in Ubuntu package called gdal-bin
+#### Needed static input files
 * Digital elevation model
 ### Procedure:
 Convert digital elevation model (DEM) to lat lon:
@@ -35,9 +36,10 @@ Convert digital elevation model (DEM) to lat lon:
 ```bash
 gdalwrap -t_srs EPSG:4326 input.tif output.tif
 ```
-
-COSPY provides some utilities which can be used to create the input file 
-
+Subset the domain of your DEM you need for your studyarea with upper left x and y value and lr x and y value:
+```bash
+gdal_translate -r cubicspline -projwin ulx uly lrx lry input.tif output.tif
+```
 ## Run model
 
 ## Evaluation
