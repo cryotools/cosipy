@@ -26,6 +26,10 @@ Libraries
 
 ## Create combined static input file
 ### Requirements:
+#### Installed packages and libaries:
+* gdal (e.g. in Ubuntu package called gdal-bin
+* Digital elevation model
+### Procedure:
 Convert digital elevation model (DEM) to lat lon:
 
 ```bash
