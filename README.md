@@ -24,10 +24,12 @@ Libraries
 
 # Quick tutorial
 
-## Create input file
+## Create combined static input file
+### Requirements:
+Convert digital elevation model (DEM) to lat lon:
 
 ```bash
-gdal_warp asdfasdfa
+gdalwrap -t_srs EPSG:4326 input.tif output.tif
 ```
 
 COSPY provides some utilities which can be used to create the input file 
