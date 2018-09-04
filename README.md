@@ -36,7 +36,7 @@ Convert digital elevation model (DEM) to lat lon:
 ```bash
 gdalwrap -t_srs EPSG:4326 input.tif output.tif
 ```
-Subset the domain of your DEM you need for your studyarea with upper left x and y value and lr x and y value:
+Subset the domain of your DEM you need for your studyarea with upper left x and y value and lower right x and y value:
 ```bash
 gdal_translate -r cubicspline -projwin ulx uly lrx lry input.tif output.tif
 ```
