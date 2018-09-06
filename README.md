@@ -22,7 +22,7 @@ Libraries
 | Air temperature | T2 | K | |
 | Wind speed | U2 | m s<sup>-1</sup> | |
 | Incoming shortwave radiation | LWin | W m<sup>-2</sup> | optional |
-### Static 2D fiels:
+### Static 2D fields:
 |Variable|Short Name|Unit|Comment|
 |---|---|---|---|
 |Glacier mask|Mask|Boolean||
