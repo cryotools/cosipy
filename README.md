@@ -11,7 +11,7 @@ Anselm Arndt, anselm.arndt@geo.hu-berlin.de
 Libraries
 
 ## Input
-### 2D fields (with time results in 3 dimensional data): 
+### Dynamic 2D fields: 
 |Variable|Short Name|Unit|Comment|
 |---|---|---|---|
 | Air Pressure| PRES | hPa| |
@@ -22,7 +22,7 @@ Libraries
 | Air temperature | T2 | K | |
 | Wind speed | U2 | m s<sup>-1</sup> | |
 | Incoming shortwave radiation | LWin | W m<sup>-2</sup> | optional |
-### static 2D fiels:
+### Static 2D fiels:
 |Variable|Short Name|Unit|Comment|
 |---|---|---|---|
 |Glacier mask|Mask|Boolean||
