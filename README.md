@@ -32,7 +32,7 @@ COSPY provides some utilities which can be used to create the input file
 ## Create combined static input file
 ### Requirements:
 #### Installed packages and libaries:
-* gdal (e.g. in Ubuntu package called gdal-bin
+* gdal (e.g. in Ubuntu package called gdal-bin)
 #### Needed static input files
 * Digital elevation model
 ### Procedure:
