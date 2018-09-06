@@ -25,7 +25,8 @@ Libraries
 ### static 2D fiels:
 |Variable|Short Name|Unit|Comment|
 |---|---|---|---|
-
+|Glacier mask|Mask|Boolean||
+||m a.s.l.|||
 # Quick tutorial
 COSPY provides some utilities which can be used to create the input file 
 ## Create combined static input file
