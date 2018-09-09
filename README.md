@@ -32,7 +32,8 @@ COSPY provides some utilities which can be used to create the input file
 ## Create combined static input file
 ### Requirements:
 #### Installed packages and libaries:
-* gdal (e.g. in Ubuntu package called gdal-bin)
+* gdal (e.g. in Debian-based called gdal-bin)
+* cliamte date operators (e.g. in Debian-based distributions package called cdo)
 #### Needed static input files
 * Digital elevation model
 ### Procedure:
@@ -46,6 +47,11 @@ Subset the domain of your DEM you need for your studyarea with upper left x (lon
 gdal_translate -r cubicspline -projwin ulx uly lrx lry input.tif output.tif
 #example; small area of Hintereisferner
 gdal_translate -r cubicspline -projwin 10.74 46.794 10.76 46.79 dem1.tif dem_small.tif #
+```
+Calculate aspect and slope:
+```bash
+gdaldem slope dem_small.tif slope.tif
+gdaldem aspect dem_small.tif aspect.tif
 ```
 ## Run model
 
