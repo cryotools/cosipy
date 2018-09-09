@@ -29,7 +29,7 @@ Libraries
 Elevation|hgt|m a.s.l.||
 # Quick tutorial
 COSPY provides some utilities which can be used to create the input file 
-## Create combined static input file
+## Create needed combined static input file
 ### Requirements:
 #### Installed packages and libaries:
 * gdal (e.g. in Debian-based called gdal-bin)
@@ -73,9 +73,15 @@ Combine created netCDF files:
 ```bash
 cdo merge *.nc static.nc
 ```
-
-
-
+## Create input file with all needed static and dynamic 2D fields
+In the utilities folder there is a python script called cs2cosipy.py. This file has a configuration file called cs2cosipyConfig.py.
+The script needs the input file. For example a Campbell Scientific logger file (csv file), the name of the resulting COSIPY file, which will be used as input file for the COSIPY run, the path to the static file, created in the step above, and the start and end date of the time period.
+In the cs2cosipyConfig.py one has to define where how the needed input variables are called in the CS_FILE. 
+For the radiation module one has to stet the timezone and the zenit threshold. Furthemore the station name has to set, the saltitude of the station, and the laps rates for temperature, relative humidity and precipitation
+If everything is set, configured and prepared, run the script:
+```bash
+python cs2cosipy.py -c data/008_station_hintereis_lf_toa5_cr3000_a_small.dat -o test_hef.nc -s ../data/static/static.nc -b 2018-05-26T04:00 -e 2018-05-28T23:00
+```
 ## Run model
 
 ## Evaluation
