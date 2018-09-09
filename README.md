@@ -34,11 +34,12 @@ COSPY provides some utilities which can be used to create the input file
 #### Installed packages and libaries:
 * gdal (e.g. in Debian-based called gdal-bin)
 * cliamte date operators (e.g. in Debian-based distributions package called cdo)
+* netCDF Operators (e.g. in Debian-based distritutions package called nco)
 #### Needed static input files
 * Digital elevation model
+* Shapefile of glacier
 ### Procedure:
 Convert digital elevation model (DEM) to lat lon:
-
 ```bash
 gdalwrap -t_srs EPSG:4326 input.tif output.tif
 ```
@@ -53,6 +54,24 @@ Calculate aspect and slope:
 gdaldem slope dem_small.tif slope.tif
 gdaldem aspect dem_small.tif aspect.tif
 ```
+Create glacier mask with shapefile:
+```bash
+gdalwarp -cutline shapefile.shp DEM.tif mask.tif   
+```
+ Create NC-files from geoTiffs:
+ ```bash
+ gdal_translate -of NETCDF input.tif output.nc
+ ```Rename variables in netCDF files:
+```bash
+ncrename -v Band1,HGT dem_small.nc  # example if elevation is called Band1
+ncrename -v Band1,ASPECT aspect.nc  # example if aspect is called Band1
+ncrename -v Band1,SLOPE slope.nc    # example if slope is called Band1
+ncrename -v Band1,MASK mask.nc      # example if boolean mask is called Band1
+```
+
+
+
+
 ## Run model
 
 ## Evaluation
