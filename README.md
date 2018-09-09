@@ -58,10 +58,11 @@ Create glacier mask with shapefile:
 ```bash
 gdalwarp -cutline shapefile.shp DEM.tif mask.tif   
 ```
- Create NC-files from geoTiffs:
+Create NC-files from geoTiffs:
  ```bash
  gdal_translate -of NETCDF input.tif output.nc
- ```Rename variables in netCDF files:
+ ```
+Rename variables in netCDF files:
 ```bash
 ncrename -v Band1,HGT dem_small.nc  # example if elevation is called Band1
 ncrename -v Band1,ASPECT aspect.nc  # example if aspect is called Band1
