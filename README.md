@@ -69,7 +69,10 @@ ncrename -v Band1,ASPECT aspect.nc  # example if aspect is called Band1
 ncrename -v Band1,SLOPE slope.nc    # example if slope is called Band1
 ncrename -v Band1,MASK mask.nc      # example if boolean mask is called Band1
 ```
-
+Combine created netCDF files:
+```bash
+cdo merge *.nc static.nc
+```
 
 
 
