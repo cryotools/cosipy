@@ -4,11 +4,11 @@
 # Introduction ##
 
 ### Contact
-Tobias Sauter, tobias.sauter@fau.de  Anselm Arndt, anselm.arndt@geo.hu-berlin.de
+Tobias Sauter, tobias.sauter@fau.de <br>
+Anselm Arndt, anselm.arndt@geo.hu-berlin.de
 
 # Requirements
-Libraries
-
+* Python 3 (model is tested and developed on a MAC OsX Computer with the Anaconda distribution, on an Ubuntu computer with Python 3.6.5, on a CentOS High performance Cluster with the Anaconda distribution (*Number?*) and a *OSystem?* Cluster with *which python distribution?*
 ## Input
 ### Dynamic 2D fields: 
 |Variable|Short Name|Unit|Comment|
