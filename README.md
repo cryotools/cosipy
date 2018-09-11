@@ -94,9 +94,10 @@ Combine created netCDF files:
 cdo merge *.nc static.nc
 ```
 ### Create input file with all needed static and dynamic 2D fields
-#### Needed files
+#### Needed files and parameters
 * static.nc file, created in step above
 * 1D fields of all required dynamic input files
+### Run script
 In the utilities folder there is a python script called cs2cosipy.py. This file has a configuration file called cs2cosipyConfig.py. The script can be uses to create 2D fiels from 1D fiels. For the solar radiation a modell from Wohlfahrt et al. (2016; doi: 10.1016/j.agrformet.2016.05.012)<br>
 The script needes:
 * the input file; for example a Campbell Scientific logger file (csv file) with all required dynamic input fiels
