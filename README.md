@@ -1,4 +1,3 @@
-
 # IN PROGRESS
 
 # Introduction ##
@@ -8,7 +7,19 @@ Tobias Sauter, tobias.sauter@fau.de <br>
 Anselm Arndt, anselm.arndt@geo.hu-berlin.de
 
 # Requirements
-* Python 3 (model is tested and developed on a MAC OsX Computer with the Anaconda distribution, on an Ubuntu computer with Python 3.6.5, on a CentOS High performance Cluster with the Anaconda distribution (*Number?*) and a *OSystem?* Cluster with *which python distribution?*
+##Packages and libaries
+* Python 3; any Python 3 version on any Operating System should work <br> model is tested and developed on:
+**Anaconda Distribution on max OS 
+**pure Python 3.6.5 on Ubuntu 18.04
+**Anaconda 3 64-bit (Python 3.6.3) on CentOS Linux 7.4
+**CLUSTER Innsbruck
+##Needed python modules (with an anaconda installtion, they might be already installed):
+* numpy
+* xarray
+* netcdf4
+* scipy
+* distributed
+
 ## Input
 ### Dynamic 2D fields: 
 |Variable|Short Name|Unit|Comment|
