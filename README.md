@@ -10,7 +10,7 @@ Anselm Arndt, anselm.arndt@geo.hu-berlin.de
 ## Packages and libaries
 * Python 3; any Python 3 version on any Operating System should work <br> model is tested and developed on:
  * Anaconda Distribution on max OS 
- * pure Python 3.6.5 on Ubuntu 18.04
+ * Python 3.6.5 on Ubuntu 18.04
  * Anaconda 3 64-bit (Python 3.6.3) on CentOS Linux 7.4
  * CLUSTER Innsbruck
 ##Needed python modules (with an anaconda installtion, they might be already installed):
