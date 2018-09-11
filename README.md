@@ -7,7 +7,7 @@ Tobias Sauter, tobias.sauter@fau.de <br>
 Anselm Arndt, anselm.arndt@geo.hu-berlin.de
 
 # Requirements
-##Packages and libaries
+## Packages and libaries
 * Python 3; any Python 3 version on any Operating System should work <br> model is tested and developed on:
 **Anaconda Distribution on max OS 
 **pure Python 3.6.5 on Ubuntu 18.04
