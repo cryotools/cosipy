@@ -13,7 +13,7 @@ Anselm Arndt, anselm.arndt@geo.hu-berlin.de
   * Python 3.6.5 on Ubuntu 18.04
   * Anaconda 3 64-bit (Python 3.6.3) on CentOS Linux 7.4
   * CLUSTER Innsbruck
-##Needed python modules (with an anaconda installtion, they might be already installed):
+## Needed python modules (with an anaconda installtion, they might be already installed):
 * numpy
 * xarray
 * netcdf4
