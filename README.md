@@ -98,7 +98,7 @@ cdo merge *.nc static.nc
 * static.nc file, created in step above
 * 1D fields of all required dynamic input files
 ### Run script
-In the utilities folder there is a python script called cs2cosipy.py. This file has a configuration file called cs2cosipyConfig.py. The script can be uses to create 2D fiels from 1D fiels. For the solar radiation a modell from Wohlfahrt et al. (2016; doi: 10.1016/j.agrformet.2016.05.012)<br>
+In the utilities folder there is a python script called cs2cosipy.py. This file has a configuration file called cs2cosipyConfig.py. The script can be uses to create 2D fiels from 1D fiels. For the solar radiation a model after Wohlfahrt et al. (2016; doi: 10.1016/j.agrformet.2016.05.012) is used. For air temperature, relative humidity and precipitation constant lapse rates, which have to be set, are used. Wind speed and cloud cover fraction kept constant for all gridpoint at on time stept.<br><br>
 The script needes:
 * the input file; for example a Campbell Scientific logger file (csv file) with all required dynamic input fiels
 * the file path (including the name) for the resulting COSIPY file, which will be used as input file for the core run
@@ -111,7 +111,7 @@ If everything is set, configured and prepared, run the script:
 python cs2cosipy.py -c data/input_1D.dat -o input_core_run.nc -s ../data/static/static.nc -b 2010-01-01T00:00 -e 2010-12-31T23:00
 ```
 ## Core run
-### Changes config.py and set everything for your specific need.
+### Changes config.py and set everything for your specific need. See in config options.
 
 ## Evaluation
 
@@ -146,17 +146,19 @@ python cs2cosipy.py -c data/input_1D.dat -o input_core_run.nc -s ../data/static/
 ## Output
 
 # Config options
+### describe everything possible!
 
-## Open issues:
+# Open issues:
 
 * densification
 * subsurface melt (penetrating radiation)
 
-## Planed parameterisations and included processes:
+# Planed parameterisations and included processes:
 * add heat flux from liquid precipitation
 * add liquid precipitation to surface melt
 * superimposed ice
 
+# 
 Please branch or fork your version, do not change the master.
 
 You are allowed to use and modify this code in a noncommercial manner and by
