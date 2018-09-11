@@ -13,7 +13,8 @@ Anselm Arndt, anselm.arndt@geo.hu-berlin.de
   * Python 3.6.5 on Ubuntu 18.04
   * Anaconda 3 64-bit (Python 3.6.3) on CentOS Linux 7.4
   * CLUSTER Innsbruck
-## Needed python modules (with an anaconda installtion, they might be already installed):
+
+##Needed Python modules (with an anaconda installtion, they might be already installed):
 * numpy
 * xarray
 * netcdf4
@@ -21,6 +22,7 @@ Anselm Arndt, anselm.arndt@geo.hu-berlin.de
 * distributed
 
 ## Input
+Some variables are optinal. If they exist and the users wnat to include them, one has to set theese options in the config.py file.
 ### Dynamic 2D fields: 
 |Variable|Short Name|Unit|Comment|
 |---|---|---|---|
@@ -36,11 +38,12 @@ Anselm Arndt, anselm.arndt@geo.hu-berlin.de
 |Variable|Short Name|Unit|Comment|
 |---|---|---|---|
 |Glacier mask|Mask|Boolean||
-Elevation|hgt|m a.s.l.||
+|Elevation|hgt|m a.s.l.||
 # Quick tutorial
-COSPY provides some utilities which can be used to create the input file 
-## Create needed combined static input file
-### Requirements:
+## Preprocessing
+COSPY provides some utilities which can be used to create the required input file for the core run.
+### Create needed combined static input file
+#### Requirements:
 #### Installed packages and libaries:
 * gdal (e.g. in Debian-based called gdal-bin)
 * cliamte date operators (e.g. in Debian-based distributions package called cdo)
