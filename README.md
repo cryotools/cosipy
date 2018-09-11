@@ -98,7 +98,10 @@ cdo merge *.nc static.nc
 * static.nc file, created in step above
 * 1D fields of all required dynamic input files
 ### Run script
-In the utilities folder there is a python script called cs2cosipy.py. This file has a configuration file called cs2cosipyConfig.py. The script can be uses to create 2D fiels from 1D fiels. For the solar radiation a model after Wohlfahrt et al. (2016; doi: 10.1016/j.agrformet.2016.05.012) is used. For air temperature, relative humidity and precipitation constant lapse rates, which have to be set, are used. Wind speed and cloud cover fraction kept constant for all gridpoint at on time stept.<br><br>
+In the utilities folder there is a python script called cs2cosipy.py. This file has a configuration file called cs2cosipyConfig.py. The script can be uses to create 2D fiels from 1D fiels. <br>
+For the solar radiation a model after Wohlfahrt et al. (2016; doi: 10.1016/j.agrformet.2016.05.012) is used. <br>
+For air temperature, relative humidity and precipitation constant lapse rates, which have to be set, are used. <br>
+Wind speed and cloud cover fraction kept constant for all gridpoint at on time stept.<br><br>
 The script needes:
 * the input file; for example a Campbell Scientific logger file (csv file) with all required dynamic input fiels
 * the file path (including the name) for the resulting COSIPY file, which will be used as input file for the core run
