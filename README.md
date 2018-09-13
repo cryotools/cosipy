@@ -35,6 +35,7 @@ Some variables are optinal. If they exist and the users wnat to include them, on
 | Cloud cover | N | - | |
 | Relative humidity | RH2 | %/100 | |
 | Snowfall | SNOWFALL | m | optional |
+| Total precipitation | RRR | mm |  |
 | Solar radiation | G | W m<sup>-2</sup> | |
 | Air temperature | T2 | K | |
 | Wind speed | U2 | m s<sup>-1</sup> | |
