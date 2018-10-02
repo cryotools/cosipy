@@ -121,8 +121,12 @@ python cs2cosipy.py -c data/input_1D.dat -o input_core_run.nc -s ../data/static/
 
 ## Restart
 
-
-
+## Postprocessing
+In folder postprocessing
+```bash
+python plot_cosipy_fields.py -f $OUTPUT_FILE -d $POINT_IN_TIME_OF_INTEREST -t 1
+python plot_cosipy_fields.py -h #for help
+```
 # Model Structure
 
 ## Directories
