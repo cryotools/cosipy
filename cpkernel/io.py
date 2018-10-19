@@ -89,7 +89,12 @@ class IOClass:
         # Open input dataset
         self.DATA = xr.open_dataset(os.path.join(data_path,'input',input_netcdf))
         self.DATA['time'] = np.sort(self.DATA['time'].values)
-        
+
+        start_interval=str(self.DATA.time.values[0])[0:16]
+        end_interval = str(self.DATA.time.values[-1])[0:16]
+        time_steps = str(len(self.DATA.time))
+        print('\n Maximum available timer interval from %s until %s. Time steps: %s \n\n' % (start_interval, end_interval, time_steps)) 
+
         # Check if restart
         if self.restart_date is None:
             print('--------------------------------------------------------------')
@@ -111,7 +116,7 @@ class IOClass:
         
         def check(field, max, min):
             '''Check the validity of the input data '''
-            if np.nanmax(field) >= max or np.nanmin(field) < min:
+            if np.nanmax(field) > max or np.nanmin(field) < min:
                 print('Please check the input data, its seems they are out of range %s MAX: %.2f MIN: %.2f \n' % (str.capitalize(field.name), np.nanmax(field), np.nanmin(field)))
         
         if ('T2' in self.DATA):
@@ -360,9 +365,6 @@ class IOClass:
         
         results         ::  List with the result from COSIPI
         """
-        print(results.T2)
-        print(self.RESULT)
-        self.RESULT.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.T2
         self.RESULT.T2.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.T2
         self.RESULT.RH2.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.RH2
         self.RESULT.U2.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.U2
