@@ -251,7 +251,7 @@ class Grid:
 
         self.logger.debug('Merge new snow')
 
-        if self.grid[0].get_layer_height() <= height_diff:
+        if (self.grid[0].get_layer_height() <= height_diff) & (self.grid[0].get_layer_density() < snow_ice_threshold):
 
                 # Total height of both layer which are merged
                 total_height = self.grid[0].get_layer_height() + self.grid[1].get_layer_height()
@@ -287,7 +287,7 @@ class Grid:
            
                 # Write merging steps if debug level is set >= 10
                 self.logger.debug("Merging new snow (merge_new_snow) ....")
-                self.grid_info(10)
+                self.grid_info()
                 self.logger.debug("End merging .... \n")
 
 
@@ -572,6 +572,27 @@ class Grid:
         
         return snowheight
 
+    
+    def get_total_height(self, verbose=False):
+        """ Get the total domain height """
+        
+        total = 0
+        snowheight = 0
+        for i in range(self.number_nodes):
+            if (self.grid[i].get_layer_density()<snow_ice_threshold):
+                snowheight = snowheight + self.grid[i].get_layer_height()
+            total = total + self.grid[i].get_layer_height()
+
+        if verbose:
+            print("******************************")
+            print("Number of nodes: %d" % self.number_nodes)
+            print("******************************")
+
+            print("Grid consists of %d nodes \t" % self.number_nodes)
+            print("Total snow depth is %4.2f m \n" % snowheight)
+            print("Total domain depth is %4.2f m \n" % total)
+        
+        return total
 
         
     def get_number_layers(self):

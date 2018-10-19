@@ -194,6 +194,7 @@ class IOClass:
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'Q', 'm w.e.', 'Runoff')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'REFREEZE', 'm w.e.', 'Refreezing')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'SNOWHEIGHT', 'm', 'Snowheight') 
+        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'TOTALHEIGHT', 'm', 'Total domamin height') 
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'TS', 'K', 'Surface temperature')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'Z0', 'm', 'Roughness length')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'ALBEDO', '-', 'Albedo')
@@ -306,6 +307,7 @@ class IOClass:
         self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'Q', 'm w.e.', 'Runoff')
         self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'REFREEZE', 'm w.e.', 'Refreezing')
         self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'SNOWHEIGHT', 'm', 'Snowheight') 
+        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'TOTALHEIGHT', 'm', 'Total domain height') 
         self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'TS', 'K', 'Surface temperature')
         self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'Z0', 'm', 'Roughness length')
         self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'ALBEDO', '-', 'Albedo')
@@ -358,6 +360,8 @@ class IOClass:
         
         results         ::  List with the result from COSIPI
         """
+        print(results.T2)
+        print(self.RESULT)
         self.RESULT.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.T2
         self.RESULT.T2.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.T2
         self.RESULT.RH2.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.RH2
@@ -385,6 +389,7 @@ class IOClass:
         self.RESULT.Q.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.Q
         self.RESULT.REFREEZE.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.REFREEZE
         self.RESULT.SNOWHEIGHT.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.SNOWHEIGHT
+        self.RESULT.TOTALHEIGHT.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.TOTALHEIGHT
         self.RESULT.TS.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.TS
         self.RESULT.Z0.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.Z0
         self.RESULT.ALBEDO.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.ALBEDO

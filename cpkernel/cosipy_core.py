@@ -83,7 +83,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
             SNOWFALL = SNOWF[t]
         else:
         # Rainfall is given as mm, so we convert to m snowheight
-            SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(np.tanh(((T2[t]-273.15)-2.5)*2.5)+1))
+            SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-273.15)-2.5)*2.5)+1))
             if SNOWFALL<0.0:        
                 SNOWFALL = 0.0
 
@@ -195,6 +195,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         RESULT.Q[t] = Q 
         RESULT.REFREEZE[t] = water_refreezed 
         RESULT.SNOWHEIGHT[t] = GRID.get_total_snowheight()
+        RESULT.TOTALHEIGHT[t] = GRID.get_total_height()
         RESULT.TS[t] = surface_temperature
         RESULT.ALBEDO[t] = alpha
         RESULT.Z0[t] = z0

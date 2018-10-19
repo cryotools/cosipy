@@ -97,7 +97,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2, LWin=None)
     SWnet = G * (1-alpha)
 
     # Bulk transfer coefficient 
-    Cs = np.power(0.41,2.0) / np.power(np.log(2.0/(z0/1000)),2)
+    Cs = np.power(0.41,2.0) / np.power(np.log(2.0/(z0)),2)
 
     # Get mean snow density
     if (GRID.get_node_density(0) >= 830.):

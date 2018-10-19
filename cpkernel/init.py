@@ -13,9 +13,6 @@ def init_snowpack(DATA):
 
     logger = logging.getLogger(__name__)
     
-    # Initial snow height
-    initial_snowheight = 0.2 
- 
     # Init layers
     layer_heights =  np.ones(int(initial_snowheight // initial_snow_layer_heights)) * initial_snow_layer_heights
     layer_heights =  np.append(layer_heights, np.ones(int(initial_glacier_height // initial_glacier_layer_heights)) * initial_glacier_layer_heights)

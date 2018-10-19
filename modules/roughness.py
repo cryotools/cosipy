@@ -15,5 +15,5 @@ def updateRoughness(GRID, evdiff):
         sigma = roughness_ice
 
 
-    return sigma
+    return (sigma/1000)
 

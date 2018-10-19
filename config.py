@@ -5,7 +5,7 @@
 
 ## Simulation period
 time_start = '2018-08-25T00:00'
-time_end   = '2018-08-31T00:00'                                       
+time_end   = '2018-08-25T03:00'                                       
 
 ##  Input/Output files 
 data_path = './data'
