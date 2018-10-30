@@ -3,8 +3,6 @@ venv/
 __pycache__/*
 dask-worker-space/
 *pyc
-data/output/*
-data/restart/*
 debug*
 info*
 error*

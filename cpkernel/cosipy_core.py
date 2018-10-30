@@ -202,14 +202,14 @@ def cosipy_core(DATA, GRID_RESTART=None):
         RESULT.NLAYERS[t] = GRID.get_number_layers()
 
         if full_field:
-            RESULT.LAYER_HEIGHT[0:GRID.get_number_layers(),t] = GRID.get_height() 
-            RESULT.LAYER_RHO[0:GRID.get_number_layers(),t] = GRID.get_density() 
-            RESULT.LAYER_T[0:GRID.get_number_layers(),t] = GRID.get_temperature() 
-            RESULT.LAYER_LWC[0:GRID.get_number_layers(),t] = GRID.get_liquid_water_content() 
-            RESULT.LAYER_CC[0:GRID.get_number_layers(),t] = GRID.get_cold_content() 
-            RESULT.LAYER_POROSITY[0:GRID.get_number_layers(),t] = GRID.get_porosity() 
-            RESULT.LAYER_VOL[0:GRID.get_number_layers(),t] = GRID.get_vol_ice_content() 
-            RESULT.LAYER_REFREEZE[0:GRID.get_number_layers(),t] = GRID.get_refreeze() 
+            RESULT.LAYER_HEIGHT[t, 0:GRID.get_number_layers()] = GRID.get_height()
+            RESULT.LAYER_RHO[t, 0:GRID.get_number_layers()] = GRID.get_density()
+            RESULT.LAYER_T[t, 0:GRID.get_number_layers()] = GRID.get_temperature()
+            RESULT.LAYER_LWC[t, 0:GRID.get_number_layers()] = GRID.get_liquid_water_content()
+            RESULT.LAYER_CC[t, 0:GRID.get_number_layers()] = GRID.get_cold_content()
+            RESULT.LAYER_POROSITY[t, 0:GRID.get_number_layers()] = GRID.get_porosity()
+            RESULT.LAYER_VOL[t, 0:GRID.get_number_layers()] = GRID.get_vol_ice_content()
+            RESULT.LAYER_REFREEZE[t, 0:GRID.get_number_layers()] = GRID.get_refreeze()
 
     # TODO Restart
     logger.debug('Write restart data into local restart structure')
