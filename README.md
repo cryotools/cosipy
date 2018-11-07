@@ -34,7 +34,7 @@ Some variables are optinal. If they exist and the users wnat to include them, on
 | Air Pressure| PRES | hPa| |
 | Cloud cover | N | - | |
 | Relative humidity | RH2 | %/100 | |
-| Snowfall | SNOWFALL | m | optional |
+| Snowfall | SNOWFALL | m | optional, replaces RRR |
 | Total precipitation | RRR | mm |  |
 | Solar radiation | G | W m<sup>-2</sup> | |
 | Air temperature | T2 | K | |
@@ -44,7 +44,7 @@ Some variables are optinal. If they exist and the users wnat to include them, on
 |Variable|Short Name|Unit|Comment|
 |---|---|---|---|
 |Glacier mask|Mask|Boolean||
-|Elevation|hgt|m a.s.l.||
+|Elevation|HGT|m a.s.l.||
 
 
 
@@ -52,6 +52,8 @@ Some variables are optinal. If they exist and the users wnat to include them, on
 ## Preprocessing
 COSPY provides some utilities which can be used to create the required input file for the core run.
 ### Create needed combined static input file
+The following is run on the example in the data/static folder. If the procedure does not work for your study area pleasr try first
+to execute the example. Then it is easier to know if there is a problem with the libaries or programs or if it is a case specific probelm. Thanks!
 #### Required packages and libaries:
 * gdal (e.g. in Debian-based Linux distributions package called gdal-bin)
 * cliamte date operators (e.g. in Debian-based Linux distributions package called cdo)
@@ -61,34 +63,38 @@ COSPY provides some utilities which can be used to create the required input fil
 * Shapefile of glacier
 ### Procedure:
 Convert digital elevation model (DEM) to lat lon:
+
 ```bash
-gdalwrap -t_srs EPSG:4326 input.tif output.tif
+gdalwarp -t_srs EPSG:4326 dgm_hintereisferner.tif dgm_hintereisferner-lat_lon.tif
 ```
 Subset your studyarea from the DEM with upper left x (longitude) and y (latitude) value and lower right x and y value:
 ```bash
 gdal_translate -r cubicspline -projwin ulx uly lrx lry input.tif output.tif
 #example; small area of Hintereisferner
-gdal_translate -r cubicspline -projwin 10.74 46.794 10.76 46.79 dem1.tif dem_small.tif #
+gdal_translate -r cubicspline -projwin 10.70 46.85 10.85 46.75 Hintereis.tif HEF.tif
 ```
 Calculate aspect and slope:
 ```bash
-gdaldem slope dem_small.tif slope.tif
-gdaldem aspect dem_small.tif aspect.tif
+gdaldem slope HEF_DEM_small.tif slope.tif
+gdaldem aspect HEF_DEM_small.tif aspect.tif
 ```
 Create glacier mask with shapefile:
 ```bash
-gdalwarp -cutline shapefile.shp DEM.tif mask.tif   
+gdalwarp -cutline HEF_Flaeche2018.shp HEF_DEM_small.tif mask.tif 
 ```
 Create NC-files from geoTiffs:
  ```bash
- gdal_translate -of NETCDF input.tif output.nc
+ gdal_translate -of NETCDF aspect.tif aspect.nc
+ gdal_translate -of NETCDF slope.tif slope.nc
+ gdal_translate -of NETCDF HEF_DEM_small.tif HEF_DEM_small.nc
+ gdal_translate -of NETCDF mask.tif mask.nc 
  ```
 Rename variables in netCDF files:
 ```bash
-ncrename -v Band1,HGT dem_small.nc  # example if elevation is called Band1
-ncrename -v Band1,ASPECT aspect.nc  # example if aspect is called Band1
-ncrename -v Band1,SLOPE slope.nc    # example if slope is called Band1
-ncrename -v Band1,MASK mask.nc      # example if boolean mask is called Band1
+ncrename -v Band1,HGT HEF_DEM_small.nc      # example if elevation is called Band1
+ncrename -v Band1,ASPECT aspect.nc          # example if aspect is called Band1
+ncrename -v Band1,SLOPE slope.nc            # example if slope is called Band1
+ncrename -v Band1,MASK mask.nc              # example if boolean mask is called Band1
 ```
 Combine created netCDF files:
 ```bash
@@ -154,6 +160,46 @@ python plot_cosipy_fields.py -h #for help
 
 
 ## Output
+Input variables are stored in output dataset as well.
+### Dynamic 2D fields: 
+|Variable|Short Name|Unit|Comment|
+|---|---|---|---|
+Air temperature at 2 m|T2|K
+Relative humidity at 2 m|RH2|%| 
+U2| m s^-1| Wind velocity at 2 m|
+Liquid precipitation|RAIN| mm|
+Snowfall|SNOWFALL| m| 
+Atmospheric pressure|PRES| hPa| 
+Cloud fraction|N| -| 
+Incoming shortwave radiation|G| W m<sup>-2</sup>| 
+Incoming longwave radiation|LWin| W m<sup>-2</sup>| 
+Outgoing longwave radiation|LWout|W m<sup>-2</sup>| 
+Sensible heat flux|H|W m<sup>-2</sup>| 
+Latent heat flux|LE|W m<sup>-2</sup>| 
+Ground heat flux|B|W m<sup>-2</sup>| 
+Available melt energy|ME|W m<sup>-2</sup>| 
+Total mass balance|MB| m w.e.| 
+Surface mass balance|surfMB| m w.e.| 
+Internal mass balance|intMB| m w.e.| 
+Evaporation|EVAPORATION| m w.e.| 
+Sublimation|SUBLIMATION| m w.e.| 
+Condensation|CONDENSATION| m w.e.| 
+Depostion|DEPOSITION| m w.e.| 
+Surface melt|surfM| m w.e.| 
+Subsurface melt|subM| m w.e.| 
+Runoff|Q| m w.e.| 
+Refreezing|REFREEZE| m w.e.| 
+Snowheight|SNOWHEIGHT| m|  
+Total domamin height|TOTALHEIGHT| m|  
+Surface temperature|TS| K| 
+Roughness length|Z0| m| 
+Albedo|ALBEDO| -| 
+Number of layers|NLAYERS| -|
+### Static 2D fields:
+|Variable|Short Name|Unit|Comment|
+|---|---|---|---|
+|Glacier mask|Mask|Boolean||
+|Elevation|HGT|m a.s.l.||
 
 # Config options
 ### describe everything possible!
