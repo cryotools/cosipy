@@ -4,22 +4,23 @@
 * Finish Model strucute
 * describe config options
 * describe plot routines
-
 # Introduction ##
-
+COSIPY solves the energy balance at the surface and is coupled to an adaptive vertical multilayer snow and ice module.
 ### Contact
 Tobias Sauter, tobias.sauter@fau.de <br>
 Anselm Arndt, anselm.arndt@geo.hu-berlin.de
 
 # Requirements
 ## Packages and libaries
-* Python 3, any Python 3 version on any Operating System should and must work. If you think the reason of a problem might be your specific Python 3 version or your Operating System, please create a topic in the forum. <br> Model is tested and developed on:
+####Python 3
+Any Python 3 version on any operating system should work. If you think the reason of a problem might be your specific Python 3 version or your 
+operating system, please create a topic in the forum. $LINK$ <br> Model is tested and developed on:
   * Anaconda Distribution on max OS 
   * Python 3.6.5 on Ubuntu 18.04
   * Anaconda 3 64-bit (Python 3.6.3) on CentOS Linux 7.4
-  * CLUSTER Innsbruck
+  * Cluster Innsbruck
 
-## Needed Python modules (with an Anaconda installation, they might be already installed):
+#### Needed Python modules (with an Anaconda installation, they might be already installed):
 * numpy
 * xarray
 * netcdf4
@@ -27,18 +28,18 @@ Anselm Arndt, anselm.arndt@geo.hu-berlin.de
 * distributed
 
 ## Input
-Some variables are optinal. If they exist and the users wnat to include them, one has to set theese options in the config.py file.
+Some variables are optinal and for ussage it has to be specified in the config file.
 ### Dynamic 2D fields: 
 |Variable|Short Name|Unit|Comment|
 |---|---|---|---|
-| Air Pressure| PRES | hPa| |
+| Air pressure| PRES | hPa| |
+| Air temperature | T2 | K | |
 | Cloud cover | N | - | |
 | Relative humidity | RH2 | %/100 | |
-| Snowfall | SNOWFALL | m | optional, replaces RRR |
-| Total precipitation | RRR | mm |  |
 | Solar radiation | G | W m<sup>-2</sup> | |
-| Air temperature | T2 | K | |
+| Total precipitation | RRR | mm |  |
 | Wind speed | U2 | m s<sup>-1</sup> | |
+| Snowfall | SNOWFALL | m | optional, replaces RRR |
 | Incoming longwave radiation | LWin | W m<sup>-2</sup> | optional |
 ### Static 2D fields:
 |Variable|Short Name|Unit|Comment|
@@ -52,8 +53,8 @@ Some variables are optinal. If they exist and the users wnat to include them, on
 ## Preprocessing
 COSPY provides some utilities which can be used to create the required input file for the core run.
 ### Create needed combined static input file
-The following is run on the example in the data/static folder. If the procedure does not work for your study area pleasr try first
-to execute the example. Then it is easier to know if there is a problem with the libaries or programs or if it is a case specific probelm. Thanks!
+The following is the example in the "data/static/" folder. If the procedure does not work for your study area please try it first
+with the the example.
 #### Required packages and libaries:
 * gdal (e.g. in Debian-based Linux distributions package called gdal-bin)
 * cliamte date operators (e.g. in Debian-based Linux distributions package called cdo)
@@ -67,7 +68,7 @@ Convert digital elevation model (DEM) to lat lon:
 ```bash
 gdalwarp -t_srs EPSG:4326 dgm_hintereisferner.tif dgm_hintereisferner-lat_lon.tif
 ```
-Subset your studyarea from the DEM with upper left x (longitude) and y (latitude) value and lower right x and y value:
+Subset your study area from the DEM with upper left x (longitude) and y (latitude) value and lower right x and y value:
 ```bash
 gdal_translate -r cubicspline -projwin ulx uly lrx lry input.tif output.tif
 #example; small area of Hintereisferner
@@ -166,7 +167,7 @@ Input variables are stored in output dataset as well.
 |---|---|---|---|
 Air temperature at 2 m|T2|K
 Relative humidity at 2 m|RH2|%| 
-U2| m s^-1| Wind velocity at 2 m|
+|Wind velocity at 2 m|U2| m s<sup>-1</sup>|
 Liquid precipitation|RAIN| mm|
 Snowfall|SNOWFALL| m| 
 Atmospheric pressure|PRES| hPa| 
@@ -205,7 +206,7 @@ Number of layers|NLAYERS| -|
 ### describe everything possible!
 
 # Open issues:
-
+$TODO:LINK TO ISSUE SECTION WOULD BE BETTER$
 * densification
 * subsurface melt (penetrating radiation)
 
