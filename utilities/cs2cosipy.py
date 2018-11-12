@@ -6,6 +6,7 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 import time
+#np.warnings.filterwarnings('ignore')
 
 sys.path.append('../')
 
@@ -47,7 +48,7 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
                                RRR_var:'sum',G_var:'mean',LW_var:'mean',P_var:'mean'})
     else:
         df = df.resample('H').agg({T_var:'mean', RH_var:'mean',U_var:'mean',
-                               RRR_var:'sum',G_var:'mean',P_var:'mean'})
+                               RRR_var:'sum',G_var:'mean',P_var:'mean',N_var:'mean'})
 
     # Load static data
     print('Read static file %s \n' % (static_file))
@@ -63,32 +64,36 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     P = df[P_var]        # Pressure
     
     # Create data arrays for the 2D fields
-    T_interp = np.zeros([len(ds.lat), len(ds.lon), len(ds.time)])
-    RH_interp = np.zeros([len(ds.lat), len(ds.lon), len(ds.time)])
-    RRR_interp = np.zeros([len(ds.lat), len(ds.lon), len(ds.time)])
-    U_interp = np.zeros([len(ds.lat), len(ds.lon), len(ds.time)])
-    G_interp = np.zeros([len(ds.lat), len(ds.lon), len(ds.time)])
-    N_interp = np.zeros([len(ds.lat), len(ds.lon), len(ds.time)])
-    P_interp = np.zeros([len(ds.lat), len(ds.lon), len(ds.time)])
+    T_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
+    RH_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
+    RRR_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
+    U_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
+    G_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
+    P_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
     
     if(LW_var in df):
         LW = df[LW_var]      # Incoming longwave radiation
-        LW_interp = np.zeros([len(ds.lat), len(ds.lon), len(ds.time)])
+        LW_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
+    else:
+        N = df[N_var]        # Cloud cover fraction
+        N_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
  
     print('Interpolate CR file to grid')
     # Interpolate data (T, RH, RRR, U)  to grid using lapse rates
     for t in range(len(ds.time)):
-        T_interp[:,:,t] = (T2[t]+273.16) + (ds.HGT.values-stationAlt)*lapse_T 
-        RH_interp[:,:,t] = RH2[t] + (ds.HGT.values-stationAlt)*lapse_RH 
-        RRR_interp[:,:,t] = RRR[t]  
-        U_interp[:,:,t] = U2[t] 
+        T_interp[t,:,:] = (T2[t]+273.16) + (ds.HGT.values-stationAlt)*lapse_T 
+        RH_interp[t,:,:] = RH2[t] + (ds.HGT.values-stationAlt)*lapse_RH 
+        RRR_interp[t,:,:] = RRR[t]  
+        U_interp[t,:,:] = U2[t] 
        
         # Interpolate pressure using the barometric equation 
         SLP = P[t]/np.power((1-(0.0065*stationAlt)/(288.15)), 5.255)
-        P_interp[:,:,t] = SLP * np.power((1-(0.0065*ds.HGT.values)/(288.15)), 5.255)
+        P_interp[t,:,:] = SLP * np.power((1-(0.0065*ds.HGT.values)/(288.15)), 5.255)
          
         if(LW_var in df):
-            LW_interp[:,:,t] = LW[t] 
+            LW_interp[t,:,:] = LW[t] 
+        else:
+            N_interp[t,:,:] = N[t]
 
     # Change aspect to south==0, east==negative, west==positive
     ds['ASPECT'] = np.mod(ds['ASPECT']+180.0, 360.0)
@@ -123,6 +128,16 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
                     else:
                         G_interp[i,j,t] = sw[t]
 
+    print("Maximum relative humidity", np.nanmax(RH_interp))
+    print("Minimum relative humidity", np.nanmin(RH_interp)) 
+    print("Mean relative humidity", np.nanmean(RH_interp)) 
+    # Check temperature, rh2, pressure, 
+    RH_interp[RH_interp > 100.0] = 100.0
+    RH_interp[RH_interp < 0.0] = 0.1
+    print("Maximum relative humidity", np.nanmax(RH_interp))
+    print("Minimum relative humidity", np.nanmin(RH_interp)) 
+    print("Mean relative humidity", np.nanmean(RH_interp)) 
+
     # Add arrays to dataset and write file
     add_variable_2D(ds, T_interp, 'T2', 'K', 'Temperature at 2 m')
     add_variable_2D(ds, RH_interp, 'RH2', '%', 'Relative humidity at 2 m')
@@ -130,11 +145,12 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     add_variable_2D(ds, U_interp, 'U2', 'm/s', 'Wind velocity at 2 m')
     add_variable_2D(ds, G_interp, 'G', 'W m^-2', 'Incoming shortwave radiation')
     add_variable_2D(ds, P_interp, 'PRES', 'hPa', 'Atmospheric Pressure')
-    add_variable_2D(ds, N_interp, 'N', '%', 'Cloud cover fraction')
         
     if(LW_var in df):
         add_variable_2D(ds, LW_interp, 'LWin', 'W m^-2', 'Incoming longwave radiation')
-    print(ds)
+    else:
+        add_variable_2D(ds, N_interp, 'N', '%', 'Cloud cover fraction')
+
     ds.to_netcdf(cosipy_file)
     
     print('Input file created \n')
@@ -145,7 +161,7 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
 
 def add_variable_2D(ds, var, name, units, long_name):
     """ This function adds missing variables to the DATA class """
-    ds[name] = (('lat','lon','time'), var)
+    ds[name] = (('time','lat','lon'), var)
     ds[name].attrs['units'] = units
     ds[name].attrs['long_name'] = long_name
     return ds
