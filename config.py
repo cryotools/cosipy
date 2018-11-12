@@ -3,8 +3,11 @@
  Please make your changes here.
 """
 
+## Set keyword to true if you want to use the job scheduler Slurm (own configuration file slurm_config.py)
+slurm_use = False
+
 ## Simulation period
-time_start = '2018-08-25T00:00'
+time_start = '2018-01-01T00:00'
 time_end   = '2018-08-25T03:00'                                       
 
 ##  Input/Output files 
