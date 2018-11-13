@@ -226,7 +226,7 @@ class Grid:
 
                 # Write merging steps if debug level is set >= 10
                 self.logger.debug("Merging (update_grid)....")
-                self.grid_info(10)
+                self.grid_info()
                 self.logger.debug("End merging .... \n")
             
             # Split node, if temperature difference is 2.0 times the temperature threshold

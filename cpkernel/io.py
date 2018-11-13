@@ -146,16 +146,7 @@ class IOClass:
         if ('SNOWFALL' in self.DATA):
             print('Snowfall data (SNOWFALL) ... ok ')
             check(self.DATA.SNOWFALL, 0.1, 0.0)
-        else:
-            if (snowheight_measurements==True):
-                print('')
-                print('Error in input file ... see error.log')
-                self.logger.error('Variable SNOWFALL is missing, although snowheight_measurements==True')
-                sys.exit(0)
-            else:
-                print('\n Calculate snowfall from precipitation')
- 
- 
+
  
     def init_result_dataset(self):
         """ This function creates the result file 
@@ -200,7 +191,7 @@ class IOClass:
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'Q', 'm w.e.', 'Runoff')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'REFREEZE', 'm w.e.', 'Refreezing')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'SNOWHEIGHT', 'm', 'Snowheight') 
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'TOTALHEIGHT', 'm', 'Total domamin height') 
+        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'TOTALHEIGHT', 'm', 'Total domain height')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'TS', 'K', 'Surface temperature')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'Z0', 'm', 'Roughness length')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'ALBEDO', '-', 'Albedo')
