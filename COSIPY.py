@@ -74,85 +74,13 @@ def main():
     #-----------------------------------------------
     if (slurm_use):
         with SLURMCluster(scheduler_port=port_monitoring, cores=cores, processes=processes, memory=memory,
-                          job_extra=slurm_parameters) as cluster:
-            with Client(cluster, processes=False) as client:
-                cluster.scale(slurm_scale)
-                print('--------------------------------------------------------------')
-                print('\t Starting clients ... \n')
-                print(client)
-                print('-------------------------------------------------------------- \n')
-
-                # Do only consider non-nan fields
-                DATA = DATA.where(DATA.MASK==1,drop=True)
-
-                # Go over the whole grid
-                for i,j in product(DATA.lat, DATA.lon):
-                    mask = DATA.MASK.sel(lat=i, lon=j)
-                    # Provide restart grid if necessary
-                    if ((mask==1) & (restart==False)):
-                        nfutures = nfutures+1
-                        futures.append(client.submit(cosipy_core, DATA.sel(lat=i, lon=j)))
-                    elif ((mask==1) & (restart==True)):
-                        nfutures = nfutures+1
-                        futures.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), IO.create_grid_restart().sel(lat=i,lon=j)))
-
-                # Finally, do the calculations and print the progress
-                progress(futures)
-
-                if (restart==True):
-                    IO.get_grid_restart().close()
-
-
-                print('\n')
-                print('--------------------------------------------------------------')
-                print('Copy local results to global')
-                print('-------------------------------------------------------------- \n')
-                for future in as_completed(futures):
-                    results = future.result()
-                    result_data = results[0]
-                    restart_data = results[1]
-                    IO.write_results_future(result_data)
-                    IO.write_restart_future(restart_data)
+                         job_extra=slurm_parameters) as cluster:
+            cluster.scale(slurm_scale)
+            main_body(cluster,IO,DATA,RESULT,RESTART,futures,nfutures)
 
     else:
         with LocalCluster(scheduler_port=8786, n_workers=workers, threads_per_worker=1, silence_logs=True) as cluster:
-            with Client(cluster, processes=False) as client:
-                print('--------------------------------------------------------------')
-                print('\t Starting clients ... \n')
-                print(client)
-                print('-------------------------------------------------------------- \n')
-
-                # Do only consider non-nan fields
-                DATA = DATA.where(DATA.MASK==1,drop=True)
-
-                # Go over the whole grid
-                for i,j in product(DATA.lat, DATA.lon):
-                    mask = DATA.MASK.sel(lat=i, lon=j)
-                    # Provide restart grid if necessary
-                    if ((mask==1) & (restart==False)):
-                        nfutures = nfutures+1
-                        futures.append(client.submit(cosipy_core, DATA.sel(lat=i, lon=j)))
-                    elif ((mask==1) & (restart==True)):
-                        nfutures = nfutures+1
-                        futures.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), IO.create_grid_restart().sel(lat=i,lon=j)))
-
-                # Finally, do the calculations and print the progress
-                progress(futures)
-
-                if (restart==True):
-                    IO.get_grid_restart().close()
-
-
-                print('\n')
-                print('--------------------------------------------------------------')
-                print('Copy local results to global')
-                print('-------------------------------------------------------------- \n')
-                for future in as_completed(futures):
-                    results = future.result()
-                    result_data = results[0]
-                    restart_data = results[1]
-                    IO.write_results_future(result_data)
-                    IO.write_restart_future(restart_data)
+            main_body(cluster,IO,DATA,RESULT,RESTART,futures,nfutures)
 
     print('\n')
     print('--------------------------------------------------------------')
@@ -177,7 +105,44 @@ def main():
     print('\t SIMULATION WAS SUCCESSFUL')
     print('--------------------------------------------------------------')
 
+def main_body(cluster,IO,DATA,RESULT,RESTART,futures,nfutures):
+    with Client(cluster, processes=False) as client:
+        print('--------------------------------------------------------------')
+        print('\t Starting clients ... \n')
+        print(client)
+        print('-------------------------------------------------------------- \n')
 
+        # Do only consider non-nan fields
+        DATA = DATA.where(DATA.MASK==1,drop=True)
+
+        # Go over the whole grid
+        for i,j in product(DATA.lat, DATA.lon):
+            mask = DATA.MASK.sel(lat=i, lon=j)
+            # Provide restart grid if necessary
+            if ((mask==1) & (restart==False)):
+                nfutures = nfutures+1
+                futures.append(client.submit(cosipy_core, DATA.sel(lat=i, lon=j)))
+            elif ((mask==1) & (restart==True)):
+                nfutures = nfutures+1
+                futures.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), IO.create_grid_restart().sel(lat=i,lon=j)))
+
+        # Finally, do the calculations and print the progress
+        progress(futures)
+
+        if (restart==True):
+            IO.get_grid_restart().close()
+
+
+        print('\n')
+        print('--------------------------------------------------------------')
+        print('Copy local results to global')
+        print('-------------------------------------------------------------- \n')
+        for future in as_completed(futures):
+            results = future.result()
+            result_data = results[0]
+            restart_data = results[1]
+            IO.write_results_future(result_data)
+            IO.write_restart_future(restart_data)
 
 def start_logging():
     ''' Start the python logging'''

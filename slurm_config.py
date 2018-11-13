@@ -9,5 +9,6 @@ processes = 1             ### 1 process pro core
 memory = '2GB'            ### memoroy per job
 slurm_parameters = ['--qos=short', '--job-name="Argog"','--account=prime',
                     '--output=/data/scratch/arndtans/logs/1_COSIPY_Argog.out',
-                    '--error=/data/scratch/arndtans/logs/1_COSIPY_Argog.err']
-slurm_scale = 200
+                    '--error=/data/scratch/arndtans/logs/1_COSIPY_Argog.err'
+                    ]
+slurm_scale = 100
