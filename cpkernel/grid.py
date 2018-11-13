@@ -251,7 +251,8 @@ class Grid:
 
         self.logger.debug('Merge new snow')
 
-        if (self.grid[0].get_layer_height() <= height_diff) & (self.grid[0].get_layer_density() < snow_ice_threshold):
+        if ((self.grid[0].get_layer_height() <= height_diff) & (self.grid[1].get_layer_density() < snow_ice_threshold)) \
+                or ((self.grid[0].get_layer_height() <= height_diff) & (self.get_total_snowheight() < minimum_snow_height)):
 
                 # Total height of both layer which are merged
                 total_height = self.grid[0].get_layer_height() + self.grid[1].get_layer_height()
@@ -557,7 +558,7 @@ class Grid:
         total = 0
         snowheight = 0
         for i in range(self.number_nodes):
-            if (self.grid[i].get_layer_density()<snow_ice_threshold):
+            if (self.grid[i].get_layer_density()<threshold_for_snowheight):
                 snowheight = snowheight + self.grid[i].get_layer_height()
             total = total + self.grid[i].get_layer_height()
 

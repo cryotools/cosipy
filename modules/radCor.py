@@ -81,9 +81,12 @@ def Fdif_Neustift(doy, zeni, Rg):
     p2 = 4.7930
     p3 = 9.4758
     p4 = 0.2465
-    
-    Fdif = math.exp(-math.exp(p1 - (p2 - p3 * CI))) * (1.0 - p4) + p4 # Eq. C1 in Wohlfahrt et al. (2016)
-    
+
+    if (CI>50):
+        Fdif = p4
+    else:
+        # Eq. C1 in Wohlfahrt et al. (2016)
+        Fdif = math.exp(-math.exp(p1 - (p2 - p3 * CI))) * (1.0 - p4) + p4
     return Fdif
 
 

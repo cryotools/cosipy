@@ -14,8 +14,12 @@ def init_snowpack(DATA):
     logger = logging.getLogger(__name__)
     
     # Init layers
-    layer_heights =  np.ones(int(initial_snowheight // initial_snow_layer_heights)) * initial_snow_layer_heights
-    layer_heights =  np.append(layer_heights, np.ones(int(initial_glacier_height // initial_glacier_layer_heights)) * initial_glacier_layer_heights)
+    if (initial_snowheight > 0.0):
+        layer_heights =  np.ones(int(initial_snowheight // initial_snow_layer_heights)) * initial_snow_layer_heights
+        layer_heights =  np.append(layer_heights, np.ones(int(initial_glacier_height // initial_glacier_layer_heights)) * initial_glacier_layer_heights)
+    else:
+        layer_heights = np.ones(int(initial_glacier_height // initial_glacier_layer_heights)) * initial_glacier_layer_heights
+
     number_layers = len(layer_heights)
 
     # Init properties
@@ -26,13 +30,14 @@ def init_snowpack(DATA):
     layer_porosity = np.zeros(number_layers)
     layer_vol = np.zeros(number_layers)
     layer_refreeze = np.zeros(number_layers)
-    
-    # Init density
-    rho_top = 500.
-    rho_bottom = 800.
-    density_gradient = (rho_top-rho_bottom)/(initial_snowheight//initial_snow_layer_heights)
-    for i in np.arange((initial_snowheight//initial_snow_layer_heights)):
-       layer_density[int(i)] = rho_top - density_gradient * i 
+
+    if (initial_snowheight > 0.0):
+        # Init density
+        rho_top = 500.
+        rho_bottom = 800.
+        density_gradient = (rho_top-rho_bottom)/(initial_snowheight//initial_snow_layer_heights)
+        for i in np.arange((initial_snowheight//initial_snow_layer_heights)):
+            layer_density[int(i)] = rho_top - density_gradient * i
     
     # Init temperature new
     temperature_gradient = (DATA.T2[0] - temperature_bottom) / (initial_glacier_height // initial_glacier_layer_heights)
@@ -69,8 +74,6 @@ def load_snowpack(GRID_RESTART):
         sys.exit(1) 
     
     return GRID
-
-
 
 
 
