@@ -7,13 +7,16 @@
 slurm_use = False
 
 ## Simulation period
-time_start = '2018-01-01T00:00'
-time_end   = '2018-08-25T03:00'                                       
+time_start = '2014-10-01T12:00'
+time_end   = '2014-12-31T23:00'
+
+##
+setup_no= '1'
 
 ##  Input/Output files 
-data_path = './data'
-input_netcdf= 'input_hintereisferner.nc'
-output_netcdf = 'output_hintereisferner.nc'
+data_path = '/home/anz/Seafile/work/io/Argog-Co/'
+input_netcdf= 'input_ArgogCo_1d.nc'
+output_netcdf = 'Argog_1D_setup_'+setup_no+'.nc'
 
 ## Snowfall given in input file
 snowheight_measurements = False # if snow exists in m
@@ -43,10 +46,10 @@ merge_snow_threshold = 0.01
 max_layers = 100
 
 ## Lower boundary condition (temperature [K])
-temperature_bottom = 272                     
+temperature_bottom = 268
 
 ## CFL criteria
-c_stab = 0.5                                        
+c_stab = 0.5
 
 ## Number of workers, if None all cores are used
 workers = None
