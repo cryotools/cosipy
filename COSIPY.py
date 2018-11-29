@@ -75,7 +75,7 @@ def main():
     if (slurm_use):
         with SLURMCluster(scheduler_port=port_monitoring, cores=cores, processes=processes, memory=memory,
                          job_extra=slurm_parameters) as cluster:
-            cluster.scale(slurm_scale)
+            cluster.adapt(minimum=min_slurm_workers,maximum=max_slurm_workers)
             main_body(cluster,IO,DATA,RESULT,RESTART,futures,nfutures)
 
     else:
@@ -101,7 +101,12 @@ def main():
     duration_run = datetime.now() - start_time
     
     # Print out some information
-    print("\n \n Total run duration in seconds %4.2f \n\n" % (duration_run.total_seconds()))
+    print("\n \n Total run duration in seconds %4.2f \n" % (duration_run.total_seconds()))
+    if duration_run.total_seconds() >= 60 and duration_run.total_seconds() < 3600:
+        print("Total run duration in minutes %4.2f \n\n" %(duration_run.total_seconds() / 60))
+    if duration_run.total_seconds() >= 3600:
+        print("Total run duration in hours %4.2f \n\n" %(duration_run.total_seconds() / 3600))
+
     print('--------------------------------------------------------------')
     print('\t SIMULATION WAS SUCCESSFUL')
     print('--------------------------------------------------------------')

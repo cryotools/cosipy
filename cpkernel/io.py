@@ -93,7 +93,7 @@ class IOClass:
         start_interval=str(self.DATA.time.values[0])[0:16]
         end_interval = str(self.DATA.time.values[-1])[0:16]
         time_steps = str(len(self.DATA.time))
-        print('\n Maximum available timer interval from %s until %s. Time steps: %s \n\n' % (start_interval, end_interval, time_steps)) 
+        print('\n Maximum available time interval from %s until %s. Time steps: %s \n\n' % (start_interval, end_interval, time_steps))
 
         # Check if restart
         if self.restart_date is None:
@@ -110,7 +110,15 @@ class IOClass:
                 # otherwise, run the model from the restart date to the defined end date
                 print('Starting from %s (from restart file) to %s (from config.py) \n' % (self.restart_date.values, time_end))
                 self.DATA = self.DATA.sel(time=slice(self.restart_date, time_end))
-    
+
+        if time_start < start_interval:
+            print('\n WARNING! Selected startpoint before first timestep of input data\n')
+        if time_end > end_interval:
+            print('\n WARNING! Selected endpoint after last timestep of input data\n')
+        if time_start > end_interval or time_end < start_interval:
+            print('\n ERROR! Selected period not availalbe in input data\n')
+
+
         print('--------------------------------------------------------------')
         print('Checking input data .... \n')
         
@@ -147,6 +155,8 @@ class IOClass:
             print('Snowfall data (SNOWFALL) ... ok ')
             check(self.DATA.SNOWFALL, 0.1, 0.0)
 
+        print('\n Glacier gridpoints: %s \n\n' %(np.nansum(self.DATA.MASK>=1)))
+
  
     def init_result_dataset(self):
         """ This function creates the result file 
@@ -167,7 +177,7 @@ class IOClass:
         self.add_variable_along_latlon(self.RESULT, self.DATA.HGT, 'HGT', 'm', 'Elevation')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'T2', 'K', 'Air temperature at 2 m')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'RH2', '%', 'Relative humidity at 2 m')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'U2', 'm s^-1', 'Wind velocity at 2 m')
+        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'U2', 'm s\u207b\xb9', 'Wind velocity at 2 m')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'RAIN', 'mm', 'Liquid precipitation')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'SNOWFALL', 'm', 'Snowfall')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'PRES', 'hPa', 'Atmospheric pressure')

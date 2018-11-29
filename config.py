@@ -7,25 +7,20 @@
 slurm_use = False
 
 ## Simulation period
-time_start = '2014-10-01T12:00'
-time_end   = '2014-12-31T23:00'
 
-##
-setup_no= '1'
+time_start = '2018-05-25T00:00'
+time_end   = '2018-05-25T23:00'
 
 ##  Input/Output files 
-data_path = '/home/anz/Seafile/work/io/Argog-Co/'
-input_netcdf= 'input_ArgogCo_1d.nc'
-output_netcdf = 'Argog_1D_setup_'+setup_no+'.nc'
-
-## Snowfall given in input file
-snowheight_measurements = False # if snow exists in m
+data_path = './data'
+input_netcdf= 'Hintereisferner_input.nc'
+output_netcdf = 'Hintereisferner_output.nc'
 
 ## Write full fields
-full_field = False 
+full_field = False
 
 ## Restart
-restart = False 
+restart = False
 
 ## Time step in the input files [s]
 dt = 3600                                           # 3600, 7200, 10800 [s] length of time step per iteration in seconds
@@ -40,7 +35,7 @@ merging_level = 0                                   # Merge layers with similar 
                                                     # 2 = <10. and <0.1
 
 ## Minimum height of layer [m]
-merge_snow_threshold = 0.01    
+merge_snow_threshold = 0.01
 
 ## Max. number of layers, just for the restart file
 max_layers = 100

@@ -51,7 +51,7 @@ Some variables are optinal and for ussage it has to be specified in the config f
 
 # Quick tutorial
 ## Preprocessing
-COSPY provides some utilities which can be used to create the required input file for the core run.
+COSiPY provides some utilities which can be used to create the required input file for the core run.
 ### Create needed combined static input file
 The following is the example in the "data/static/" folder. If the procedure does not work for your study area please try it first
 with the the example.
@@ -74,21 +74,21 @@ gdal_translate -r cubicspline -projwin ulx uly lrx lry input.tif output.tif
 #example; small area of Hintereisferner
 gdal_translate -r cubicspline -projwin 10.70 46.85 10.85 46.75 Hintereis.tif HEF.tif
 ```
-Calculate aspect and slope:
+Calculate slope.  If horizontal unit degrees (e.g Lat/Long WGS84 projection), you can use scale=111120 if the vertical units are meters (or scale=370400 if they are in feet):
 ```bash
-gdaldem slope HEF_DEM_small.tif slope.tif
-gdaldem aspect HEF_DEM_small.tif aspect.tif
+gdaldem slope -of NETCDF HEF.tif slope.nc -s 111120
+```
+Calculate aspect:
+```bash
+gdaldem aspect -of NETCDF HEF.tif aspect.nc
 ```
 Create glacier mask with shapefile:
 ```bash
-gdalwarp -cutline HEF_Flaeche2018.shp HEF_DEM_small.tif mask.tif 
+gdalwarp -of NETCDF -cutline HEF.shp HEF.tif mask.nc
 ```
 Create NC-files from geoTiffs:
  ```bash
- gdal_translate -of NETCDF aspect.tif aspect.nc
- gdal_translate -of NETCDF slope.tif slope.nc
- gdal_translate -of NETCDF HEF_DEM_small.tif HEF_DEM_small.nc
- gdal_translate -of NETCDF mask.tif mask.nc 
+ gdal_translate -of NETCDF HEF.tif HEF.nc
  ```
 Rename variables in netCDF files:
 ```bash
@@ -190,7 +190,7 @@ Surface melt|surfM| m w.e.|
 Subsurface melt|subM| m w.e.| 
 Runoff|Q| m w.e.| 
 Refreezing|REFREEZE| m w.e.| 
-Snowheight|SNOWHEIGHT| m|  
+Snowheight|SNOWHEIGHT| m|
 Total domamin height|TOTALHEIGHT| m|  
 Surface temperature|TS| K| 
 Roughness length|Z0| m| 
