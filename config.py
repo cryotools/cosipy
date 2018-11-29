@@ -7,6 +7,7 @@
 slurm_use = False
 
 ## Simulation period
+
 time_start = '2018-05-25T00:00'
 time_end   = '2018-05-25T23:00'
 
@@ -40,10 +41,10 @@ merge_snow_threshold = 0.01
 max_layers = 100
 
 ## Lower boundary condition (temperature [K])
-temperature_bottom = 272                     
+temperature_bottom = 268
 
 ## CFL criteria
-c_stab = 0.5                                        
+c_stab = 0.5
 
 ## Number of workers, if None all cores are used
 workers = None

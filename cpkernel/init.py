@@ -33,8 +33,10 @@ def init_snowpack(DATA):
 
     if (initial_snowheight > 0.0):
         # Init density
+
         rho_top = initial_top_density_snowpack
         rho_bottom = initial_botton_density_snowpack
+
         density_gradient = (rho_top-rho_bottom)/(initial_snowheight//initial_snow_layer_heights)
         for i in np.arange((initial_snowheight//initial_snow_layer_heights)):
             layer_density[int(i)] = rho_top - density_gradient * i
