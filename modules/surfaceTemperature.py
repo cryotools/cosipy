@@ -4,7 +4,7 @@ from cpkernel.io import *
 from scipy.optimize import minimize
 
 
-def  energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
+def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
 
     if x >= zero_temperature:
         Lv = lat_heat_vaporize
@@ -43,7 +43,10 @@ def  energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
     # Return residual of energy balance
     return np.abs(SWnet+Li+Lo-H-L-B)
 
-def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2, TS_upper, LWin=None):
+
+
+
+def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2, LWin=None):
     """ This methods updates the surface temperature and returns the surface fluxes 
        """
     # Saturation vapour pressure (hPa)
@@ -98,19 +101,15 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2, TS_upper, 
 
     # Get mean snow density
     if (GRID.get_node_density(0) >= 830.):
-        #snowRhoMean = snow_ice_threshold
-        snowRhoMean = 1300.
+        snowRhoMean = snow_ice_threshold
     else:
         snowRho = [idx for idx in GRID.get_density() if idx <= 830.]
         snowRhoMean = sum(snowRho)/len(snowRho)
 
     # Calculate thermal conductivity [W m-1 K-1] from mean density
-    if GRID.get_total_snowheight() > 0.0:
-        lam = 0.021 + 2.5 * (snowRhoMean/1000.0)**2.0
-    else:
-        lam = 0.021 + 2.5 * (snowRhoMean / 1000.0) ** 2.0
-
-    res = minimize(energy_balance, GRID.get_node_temperature(0), method='L-BFGS-B', bounds=((240.0, TS_upper),),
+    lam = 0.021 + 2.5 * (snowRhoMean/1000.0)**2.0
+   
+    res = minimize(energy_balance, GRID.get_node_temperature(0), method='L-BFGS-B', bounds=((240.0, 273.16),),
                    tol=1e-8, args=(GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam))
  
     # Set surface temperature

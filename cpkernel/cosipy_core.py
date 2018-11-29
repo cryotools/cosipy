@@ -114,42 +114,28 @@ def cosipy_core(DATA, GRID_RESTART=None):
         # Solve the heat equation
         cpi = solveHeatEquation(GRID, dt)
 
-        if GRID.get_total_snowheight() > 0.0:
-            TS_upper = zero_temperature
-        else:
-            TS_upper = 333.16
-
         if LWin is not None:
             # Find new surface temperature
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
                 ground_heat_flux, sw_radiation_net, rho, Lv, Cs, q0, q2, qdiff, phi \
-                = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], N[t], PRES[t], G[t], U2[t], TS_upper, LWin=LWin[t])
+                = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], N[t], PRES[t], G[t], U2[t], LWin=LWin[t])
         else:
             # Find new surface temperature
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
                 ground_heat_flux, sw_radiation_net, rho, Lv, Cs, q0, q2, qdiff, phi \
-                = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], N[t], PRES[t], G[t], U2[t], TS_upper)
+                = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], N[t], PRES[t], G[t], U2[t])
         
         # Surface fluxes [m w.e.q.]
         if GRID.get_node_temperature(0) < zero_temperature:
-            if GRID.get_total_snowheight() > 0.0:
-                sublimation = max(latent_heat_flux / (1000.0 * lat_heat_sublimation), 0) * dt
-                deposition = min(latent_heat_flux / (1000.0 * lat_heat_sublimation), 0) * dt
-            else:
-                sublimation = 0
-                depostition = 0
-
+            sublimation = max(latent_heat_flux / (1000.0 * lat_heat_sublimation), 0) * dt
+            deposition = min(latent_heat_flux / (1000.0 * lat_heat_sublimation), 0) * dt
             evaporation = 0
             condensation = 0
         else:
             sublimation = 0
             deposition = 0
-            if GRID.get_total_snowheight() > 0.0:
-                evaporation = max(latent_heat_flux / (1000.0 * lat_heat_vaporize), 0) * dt
-                condensation = min(latent_heat_flux / (1000.0 * lat_heat_vaporize), 0) * dt
-            else:
-                evaporation = 0
-                condensation = 0
+            evaporation = max(latent_heat_flux / (1000.0 * lat_heat_vaporize), 0) * dt
+            condensation = min(latent_heat_flux / (1000.0 * lat_heat_vaporize), 0) * dt
 
         # Melt energy in [W m^-2 or J s^-1 m^-2]
         melt_energy = max(0, sw_radiation_net + lw_radiation_in + lw_radiation_out - ground_heat_flux -
@@ -163,13 +149,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
 
         # Merge first layer, if too small (for model stability)
         GRID.merge_new_snow(merge_snow_threshold)
-
-        if (t / 24).is_integer():
-            print(DATA.time.values[t])
-            print(surface_temperature)
-            print(GRID.get_total_snowheight())
-            print(melt, '\n')
-
+        
         # Account layer temperature due to penetrating SW radiation
         penetrating_radiation(GRID, sw_radiation_net, dt)
 

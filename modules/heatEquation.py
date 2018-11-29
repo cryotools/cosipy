@@ -15,8 +15,7 @@ def solveHeatEquation(GRID, t):
 
     # Get mean snow density
     if (GRID.get_node_density(0) > 830.):
-        #snowRhoMean = snow_ice_threshold
-        snowRhoMean = 1300.
+        snowRhoMean = snow_ice_threshold
     else:
         snowRho = [idx for idx in GRID.get_density() if idx <= 830.]
         snowRhoMean = sum(snowRho)/len(snowRho)
@@ -27,10 +26,7 @@ def solveHeatEquation(GRID, t):
     # c_pi = 152.2 + 7.122 * spec_heat_ice
     
     # Calculate thermal conductivity [W m-1 K-1] from mean density
-    if GRID.get_total_snowheight() > 0.0:
-        lam = 0.021 + 2.5 * (snowRhoMean/1000.0)**2.0
-    else:
-        lam = 0.021 + 2.5 * (snowRhoMean / 1000.0) ** 2.0
+    lam = 0.021 + 2.5 * (snowRhoMean/1000.0)**2.0
 
     # Calculate thermal diffusivity [m2 s-1]
     K = lam / (snowRhoMean * c_pi)

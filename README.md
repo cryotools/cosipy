@@ -40,7 +40,7 @@ Some variables are optinal and for ussage it has to be specified in the config f
 | Total precipitation | RRR | mm |  |
 | Wind speed | U2 | m s<sup>-1</sup> | |
 | Snowfall | SNOWFALL | m | optional, replaces RRR |
-| Incoming longwave radiation | LWin | W m<sup>-2</sup> | optional, replaces N |
+| Incoming longwave radiation | LWin | W m<sup>-2</sup> | optional |
 ### Static 2D fields:
 |Variable|Short Name|Unit|Comment|
 |---|---|---|---|
