@@ -29,7 +29,7 @@ LW_var = 'LWin_Avg'
 P_var = 'Press_Avg'   
 
 # Cloud cover fraction
-N_var = 'tcc'   
+#N_var = 'tcc'   
 
 #------------------------
 # Radiation module 

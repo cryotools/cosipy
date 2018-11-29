@@ -6,9 +6,13 @@
 port_monitoring = 8786
 cores = 1                 ### 1 gridpoint on one core is one job
 processes = 1             ### 1 process pro core
+
+### please adapt the following ###
+
 memory = '2GB'            ### memoroy per job
-slurm_parameters = ['--qos=short', '--job-name="Argog"','--account=prime',
+min_slurm_workers = 1     ### minimum jobs
+max_slurm_workers = 20    ### maximum jobs
+slurm_parameters = ['--qos=', '--job-name="Hintereisfener"','--account=',
                     '--output=',
                     '--error='
                     ]
-slurm_scale = 100
