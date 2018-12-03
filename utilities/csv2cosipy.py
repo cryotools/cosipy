@@ -125,9 +125,9 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
                     else:
                         G_interp[t,i,j] = sw[t]
 
-    # # Check temperature, rh2, pressure,
-    # RH_interp[RH_interp > 100.0] = 100.0
-    # RH_interp[RH_interp < 0.0] = 0.1
+    # Check temperature, rh2, pressure,
+    RH_interp[RH_interp > 100.0] = 100.0
+    RH_interp[RH_interp < 0.0] = 0.1
 
     # Add arrays to dataset and write file
     add_variable_2D(ds, T_interp, 'T2', 'K', 'Temperature at 2 m')

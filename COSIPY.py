@@ -135,9 +135,7 @@ def main_body(cluster,IO,DATA,RESULT,RESTART,futures,nfutures):
         # Finally, do the calculations and print the progress
         progress(futures)
 
-        if (restart==True):
-            IO.get_grid_restart().close()
-
+        IO.get_grid_restart().close()
 
         print('\n')
         print('--------------------------------------------------------------')

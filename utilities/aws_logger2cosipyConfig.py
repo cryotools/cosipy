@@ -29,7 +29,7 @@ RRR_var = 'Rain_Tot'
 U2_var = 'Wspeed'     
 
 # Incoming longwave radiation
-LWin_var = 'LWin_Avg'
+LWin_var = 'LWinCor_Avg'
 
 
 #------------------------

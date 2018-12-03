@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.distutils.command.install_clib import install_clib
 
 from constants import *
 from config import *
@@ -14,10 +15,10 @@ def solveHeatEquation(GRID, t):
     Tnew = 0
 
     # Get mean snow density
-    if (GRID.get_node_density(0) > 830.):
-        snowRhoMean = snow_ice_threshold
+    if (GRID.get_node_density(0) > snow_ice_threshold):
+        snowRhoMean = ice_density
     else:
-        snowRho = [idx for idx in GRID.get_density() if idx <= 830.]
+        snowRho = [idx for idx in GRID.get_density() if idx <= snow_ice_threshold]
         snowRhoMean = sum(snowRho)/len(snowRho)
 
     # Calculate specific heat  [J Kg-1 K-1] depending on mean temperature domain

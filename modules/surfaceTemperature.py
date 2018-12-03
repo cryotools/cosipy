@@ -64,9 +64,9 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, LWin=None, N=
     # Water vapour at 2 m (hPa)
     Ea = (rH2 * Ew) / 100.0
 
-    # Calc incoming longwave radiation, if not available
+    # Calc incoming longwave radiation, if not available Ea has to be in Pa
     if LWin is None:
-        eps_cs = 0.23 + 0.433 * np.power(Ea/T2,1.0/8.0)
+        eps_cs = 0.23 + 0.433 * np.power(100*Ea/T2,1.0/8.0)
         eps_tot = eps_cs * (1 - np.power(N,2)) + 0.984 * np.power(N,2)
         Li = eps_tot * sigma * np.power(T2,4.0)
     else:
