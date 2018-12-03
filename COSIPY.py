@@ -93,9 +93,8 @@ def main():
     encoding = {var: comp for var in IO.get_result().data_vars}
     IO.get_result().to_netcdf(os.path.join(data_path,'output',output_netcdf), encoding=encoding)
 
-    if (restart == True):
-        encoding = {var: comp for var in IO.get_restart().data_vars}
-        IO.get_restart().to_netcdf(os.path.join(data_path,'restart','restart_'+timestamp+'.nc'), encoding=encoding)
+    encoding = {var: comp for var in IO.get_restart().data_vars}
+    IO.get_restart().to_netcdf(os.path.join(data_path,'restart','restart_'+timestamp+'.nc'), encoding=encoding)
     
     # Stop time measurement
     duration_run = datetime.now() - start_time
@@ -135,7 +134,8 @@ def main_body(cluster,IO,DATA,RESULT,RESTART,futures,nfutures):
         # Finally, do the calculations and print the progress
         progress(futures)
 
-        IO.get_grid_restart().close()
+        if (restart==True):
+            IO.get_grid_restart().close()
 
         print('\n')
         print('--------------------------------------------------------------')

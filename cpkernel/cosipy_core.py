@@ -9,6 +9,7 @@ from modules.heatEquation import solveHeatEquation
 from modules.penetratingRadiation import penetrating_radiation
 from modules.percolation_incl_refreezing import percolation
 from modules.roughness import updateRoughness
+from modules.densification import densification
 from modules.surfaceTemperature import update_surface_temperature
 from modules.radCor import correctRadiation
 
@@ -117,6 +118,9 @@ def cosipy_core(DATA, GRID_RESTART=None):
         # Update roughness length
         z0 = updateRoughness(GRID, hours_since_snowfall)
 
+        # Calculate new density to densification
+        densification(GRID)
+
         # Merge grid layers, if necessary
         GRID.update_grid(merging_level, merge_snow_threshold)
 
@@ -135,7 +139,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
                 = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], PRES[t], G[t], U2[t], N=N[t])
         
         # Surface fluxes [m w.e.q.]
-        if GRID.get_node_temperature(0) < zero_temperature:
+        if surface_temperature < zero_temperature:
             sublimation = max(latent_heat_flux / (1000.0 * lat_heat_sublimation), 0) * dt
             deposition = min(latent_heat_flux / (1000.0 * lat_heat_sublimation), 0) * dt
             evaporation = 0

@@ -15,8 +15,10 @@ surface_emission_coeff = 0.97           # surface emision coefficient [-]
 gravity_acceleration = 9.81             # acceleration of gravity (Braithwaite 1995) [m s-1]
 
 snow_ice_threshold = 900.0              # pore close of density [kg m^(-3)]
+snow_firn_threshold = 555.0               #
 threshold_for_snowheight = 800.0        # density threshold when layer is classified as snow
 ice_density = 917.                      # density of ice [kg m^(-3)]
+
 
 zero_temperature = 273.16               # Kelvin [K]
 water_density = 1000.0                  # density of water [kg m^(-3)]
@@ -37,6 +39,15 @@ roughness_ice = 1.7                     # surface roughness length for ice [mm] 
 roughness_firn = 4.0                    # surface roughness length for aged snow [mm] (Moelg etal. 2012, TC)
 
 density_fresh_snow = 250.               # density of freshly fallen snow [kg m-3]
+
+
+' Densification constants ' 
+
+K0   = 11    # rate factors [-]
+K1   = 575
+E0   = 10260 # activation energy
+E1   = 21400
+R    = 8.3144 # universal gas constant [J K-1 mol-1]
 
 ' MODEL CONSTANTS '
 

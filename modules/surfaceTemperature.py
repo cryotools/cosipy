@@ -64,7 +64,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, LWin=None, N=
     # Water vapour at 2 m (hPa)
     Ea = (rH2 * Ew) / 100.0
 
-    # Calc incoming longwave radiation, if not available Ea has to be in Pa
+    # Calc incoming longwave radiation, if not available Ea has to be in Pa (Konzelmann 1994)
     if LWin is None:
         eps_cs = 0.23 + 0.433 * np.power(100*Ea/T2,1.0/8.0)
         eps_tot = eps_cs * (1 - np.power(N,2)) + 0.984 * np.power(N,2)
@@ -79,7 +79,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, LWin=None, N=
     # Air density 
     rho = (p*100.0) / (287.058 * (T2 * (1 + 0.608 * q2)))
 
-    # Bulk Richardson number todo: Check if eq correct!
+    # Bulk Richardson number
     if (u2!=0):
         Ri = (9.81 * (T2 - zero_temperature) * 2.0) / (T2 * np.power(u2, 2))
     else:
