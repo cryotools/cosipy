@@ -8,18 +8,23 @@ slurm_use = False
 
 ## Simulation period
 time_start = '2018-05-25T00:00'
-time_end   = '2018-05-25T23:00'
+time_end   = '2018-06-05T10:00'
+time_start_str=(time_start[0:10]).replace('-','')
+time_end_str=(time_end[0:10]).replace('-','')
 
 ##  Input/Output files 
 data_path = './data'
 input_netcdf= 'Hintereisferner_input.nc'
-output_netcdf = 'Hintereisferner_output.nc'
+output_netcdf = 'Hintereisferner_output-'+time_start_str+'-'+time_end_str+'.nc'
 
 ## Write full fields
 full_field = False
 
 ## Restart
 restart = False
+
+### If total precipitation and snowfall in input data use total precipitation!
+force_use_TP = False
 
 ## Time step in the input files [s]
 dt = 3600                                           # 3600, 7200, 10800 [s] length of time step per iteration in seconds

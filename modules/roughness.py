@@ -6,8 +6,8 @@ def updateRoughness(GRID, evdiff):
     # Check whether snow or ice
     if (GRID.get_node_density(0) <= snow_ice_threshold):
     
-        # Roughness length
-        sigma = min(roughness_fresh_snow + 0.026 * evdiff, roughness_firn)
+        # Roughness length linear increase from 0.24 (fresh snow) to 4 (firn) in 60 days (1440 hours); (4-0.24)/1440 = 0.0026
+        sigma = min(roughness_fresh_snow + 0.0026 * evdiff, roughness_firn)
         
     else:
     

@@ -47,5 +47,5 @@ initial_snow_layer_heights = 0.1        # Initial snow layer heights
 initial_glacier_layer_heights = 1.0     # Initial glacier layer heights
 initial_glacier_height = 20.0           # total domain height (snow+glacier)
 
-initial_top_density_snowpack = 400.
-initial_botton_density_snowpack = 600.
+initial_top_density_snowpack = 400.     # Top density for inital snowpack
+initial_botton_density_snowpack = 600.  # Botton density for inital snowpack
