@@ -91,8 +91,9 @@ def main():
     comp = dict(zlib=True, complevel=9)
     
     encoding = {var: comp for var in IO.get_result().data_vars}
-    IO.get_result().to_netcdf(os.path.join(data_path,'output',output_netcdf), encoding=encoding)
-
+    #IO.get_result().to_netcdf(os.path.join(data_path,'output',output_netcdf.replace('.nc','_'+timestamp+'.nc')), encoding=encoding)
+    IO.get_result().to_netcdf(os.path.join(data_path, 'output', output_netcdf),encoding=encoding)
+    
     encoding = {var: comp for var in IO.get_restart().data_vars}
     IO.get_restart().to_netcdf(os.path.join(data_path,'restart','restart_'+timestamp+'.nc'), encoding=encoding)
     
@@ -102,9 +103,9 @@ def main():
     # Print out some information
     print("\n \n Total run duration in seconds %4.2f \n" % (duration_run.total_seconds()))
     if duration_run.total_seconds() >= 60 and duration_run.total_seconds() < 3600:
-        print(" Total run duration in minutes %4.2f \n\n" %(duration_run.total_seconds() / 60))
+        print("Total run duration in minutes %4.2f \n\n" %(duration_run.total_seconds() / 60))
     if duration_run.total_seconds() >= 3600:
-        print(" Total run duration in hours %4.2f \n\n" %(duration_run.total_seconds() / 3600))
+        print("Total run duration in hours %4.2f \n\n" %(duration_run.total_seconds() / 3600))
 
     print('--------------------------------------------------------------')
     print('\t SIMULATION WAS SUCCESSFUL')
@@ -132,10 +133,11 @@ def main_body(cluster,IO,DATA,RESULT,RESTART,futures,nfutures):
                 futures.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), IO.create_grid_restart().sel(lat=i,lon=j)))
 
         # Finally, do the calculations and print the progress
-        progress(futures)
+        #progress(futures)
 
         if (restart==True):
             IO.get_grid_restart().close()
+
 
         print('\n')
         print('--------------------------------------------------------------')

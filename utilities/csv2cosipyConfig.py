@@ -8,31 +8,28 @@
 #------------------------
 
 # Temperature
-T2_var = 'T2'
+T_var = 'T2'  
 
 # Relative humidity
-RH2_var = 'RH2'
+RH_var = 'RH2'   
 
 # Wind velocity
-U2_var = 'U2'
-
-# Incoming shortwave radiation
-G_var = 'G'
-
-# Pressure
-PRES_var = 'PRES'
+U_var = 'U2'     
 
 # Precipitation
-RRR_var = 'RRR'
+RRR_var = 'RRR' 
+
+# Incoming shortwave radiation
+G_var = 'G'   
+
+# Incoming longwave radiation
+LW_var = ''   
+
+# Pressure
+P_var = 'PRES'   
 
 # Cloud cover fraction
-N_var = 'N'
-
-# Snowfall
-SNOWFALL_var = 'SNOWFALL'
-
-
-
+N_var = 'N'   
 
 #------------------------
 # Radiation module 

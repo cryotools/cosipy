@@ -26,6 +26,8 @@ class IOClass:
         self.RESTART = None
         self.RESULT = None
 
+
+
     def create_data_file(self):
         """ Returns the data xarray """
     

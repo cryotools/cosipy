@@ -15,10 +15,8 @@ surface_emission_coeff = 0.97           # surface emision coefficient [-]
 gravity_acceleration = 9.81             # acceleration of gravity (Braithwaite 1995) [m s-1]
 
 snow_ice_threshold = 900.0              # pore close of density [kg m^(-3)]
-snow_firn_threshold = 555.0               #
 threshold_for_snowheight = 800.0        # density threshold when layer is classified as snow
 ice_density = 917.                      # density of ice [kg m^(-3)]
-
 
 zero_temperature = 273.16               # Kelvin [K]
 water_density = 1000.0                  # density of water [kg m^(-3)]
@@ -32,22 +30,13 @@ percolation_velocity = 0.0006            # percolation velocity for unsaturated 
 albedo_firn = 0.55                      # albedo of firn [-] (Moelg etal. 2012, TC)
 albedo_fresh_snow = 0.90                # albedo of fresh snow [-] (Moelg etal. 2012, TC)
 albedo_ice = 0.3                        # albedo of ice [-] (Moelg etal. 2012, TC)
-albedo_mod_snow_aging = 6               # effect of ageing on snow albedo [days] (Moelg etal. 2012, TC)
-albedo_mod_snow_depth = 8               # effect of snow depth on albedo [cm] (Moelg etal. 2012, TC)
+albedo_mod_snow_aging = 22               # effect of ageing on snow albedo [days] (Moelg etal. 2012, TC)
+albedo_mod_snow_depth = 2               # effect of snow depth on albedo [cm] (Moelg etal. 2012, TC)
 roughness_fresh_snow = 0.24             # surface roughness length for fresh snow [mm] (Moelg etal. 2012, TC)
 roughness_ice = 1.7                     # surface roughness length for ice [mm] (Moelg etal. 2012, TC)
 roughness_firn = 4.0                    # surface roughness length for aged snow [mm] (Moelg etal. 2012, TC)
 
-density_fresh_snow = 250.               # density of freshly fallen snow [kg m-3]
-
-
-' Densification constants ' 
-
-K0   = 11    # rate factors [-]
-K1   = 575
-E0   = 10260 # activation energy
-E1   = 21400
-R    = 8.3144 # universal gas constant [J K-1 mol-1]
+density_fresh_snow = 100.               # density of freshly fallen snow [kg m-3]
 
 ' MODEL CONSTANTS '
 
@@ -58,5 +47,6 @@ initial_snow_layer_heights = 0.1        # Initial snow layer heights
 initial_glacier_layer_heights = 1.0     # Initial glacier layer heights
 initial_glacier_height = 20.0           # total domain height (snow+glacier)
 
-initial_top_density_snowpack = 400.     # Top density for inital snowpack
-initial_botton_density_snowpack = 600.  # Botton density for inital snowpack
+
+initial_top_density_snowpack = 400.
+initial_botton_density_snowpack = 600.
