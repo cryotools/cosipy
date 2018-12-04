@@ -4,7 +4,7 @@ from cpkernel.io import *
 from scipy.optimize import minimize
 
 
-def  energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
+def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
 
     if x >= zero_temperature:
         Lv = lat_heat_vaporize
@@ -43,11 +43,14 @@ def  energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
     # Return residual of energy balance
     return np.abs(SWnet+Li+Lo-H-L-B)
 
-def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2, TS_upper, LWin=None):
-    """ This methods updates the surface temperature and returns the surface fluxes 
+
+
+
+def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, TS_upper, LWin=None, N=None):
+    """ This methods updates the surface temperature and returns the surface fluxes
        """
     # Saturation vapour pressure (hPa)
-    Ew = 6.112 * np.exp((17.67*(T2-273.16)) / ((T2-29.66)))
+    Ew = 6.112 * np.exp((17.62*(T2-273.16)) / ((T2-30.12)))
     
     # if T2>=zero_temperature:
     #    Ew = 6.1078 * np.exp((17.269388*(T2-273.16)) / ((T2-35.86)))
@@ -61,9 +64,9 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2, TS_upper, 
     # Water vapour at 2 m (hPa)
     Ea = (rH2 * Ew) / 100.0
 
-    # Calc incoming longwave radiation, if not available
+    # Calc incoming longwave radiation, if not available Ea has to be in Pa (Konzelmann 1994)
     if LWin is None:
-        eps_cs = 0.23 + 0.433 * np.power(Ea/T2,1.0/8.0)
+        eps_cs = 0.23 + 0.433 * np.power(100*Ea/T2,1.0/8.0)
         eps_tot = eps_cs * (1 - np.power(N,2)) + 0.984 * np.power(N,2)
         Li = eps_tot * sigma * np.power(T2,4.0)
     else:
@@ -76,7 +79,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2, TS_upper, 
     # Air density 
     rho = (p*100.0) / (287.058 * (T2 * (1 + 0.608 * q2)))
 
-    # Bulk Richardson number todo: Check if eq correct!
+    # Bulk Richardson number
     if (u2!=0):
         Ri = (9.81 * (T2 - zero_temperature) * 2.0) / (T2 * np.power(u2, 2))
     else:
@@ -108,7 +111,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2, TS_upper, 
     if GRID.get_total_snowheight() > 0.0:
         lam = 0.021 + 2.5 * (snowRhoMean/1000.0)**2.0
     else:
-        lam = 0.021 + 2.5 * (snowRhoMean / 1000.0) ** 2.0
+         lam = (0.3 * 2.9) + (0.18 * 0.57) + (0.52 * 0.025)
 
     res = minimize(energy_balance, GRID.get_node_temperature(0), method='L-BFGS-B', bounds=((240.0, TS_upper),),
                    tol=1e-8, args=(GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam))
@@ -147,5 +150,4 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, N, p, G, u2, TS_upper, 
     qdiff = q0-q2
 
     return res.fun, float(res.x), float(Li), float(Lo), float(H), float(L), float(B), float(SWnet), rho, Lv, Cs, q0, q2, qdiff, phi
-
 

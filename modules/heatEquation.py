@@ -22,15 +22,16 @@ def solveHeatEquation(GRID, t):
         snowRhoMean = sum(snowRho)/len(snowRho)
 
     # Calculate specific heat  [J Kg-1 K-1] depending on mean temperature domain
-    c_pi = 152.2 + 7.122 * np.mean(GRID.get_temperature())
-    # with static specific heat of ice
-    # c_pi = 152.2 + 7.122 * spec_heat_ice
-    
+    if GRID.get_total_snowheight() > 0.0:
+        c_pi = 152.2 + 7.122 * np.mean(GRID.get_temperature())
+    else:
+        c_pi = 2000000 / 1350  # volumetric heat divided by bulk density of soil
+
     # Calculate thermal conductivity [W m-1 K-1] from mean density
     if GRID.get_total_snowheight() > 0.0:
         lam = 0.021 + 2.5 * (snowRhoMean/1000.0)**2.0
     else:
-        lam = 0.021 + 2.5 * (snowRhoMean / 1000.0) ** 2.0
+        lam = (0.3 * 2.9) + (0.18 * 0.57) + (0.52 * 0.025)
 
     # Calculate thermal diffusivity [m2 s-1]
     K = lam / (snowRhoMean * c_pi)

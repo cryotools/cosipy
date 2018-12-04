@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 import time
 import logging
+from constants import *
 
 from config import * 
 from modules.radCor import correctRadiation
@@ -173,6 +174,33 @@ class IOClass:
         self.RESULT.coords['lat'] = self.DATA.coords['lat']
         self.RESULT.coords['lon'] = self.DATA.coords['lon']
 
+        self.RESULT.attrs['initial_snowheight'] = initial_snowheight
+        self.RESULT.attrs['initial_snow_layer_heights'] = initial_snow_layer_heights
+        self.RESULT.attrs['initial_glacier_layer_heights'] = initial_glacier_layer_heights
+        self.RESULT.attrs['initial_glacier_height'] = initial_glacier_height
+        self.RESULT.attrs['initial_top_density_snowpack'] = initial_top_density_snowpack
+        self.RESULT.attrs['initial_botton_density_snowpack'] = initial_botton_density_snowpack
+        self.RESULT.attrs['temperature_top'] = temperature_top
+        self.RESULT.attrs['temperature_bottom'] = temperature_bottom
+        self.RESULT.attrs['const_init_temp'] = const_init_temp
+        self.RESULT.attrs['merge_snow_threshold'] = merge_snow_threshold
+        self.RESULT.attrs['minimum_snow_height'] = minimum_snow_height
+        self.RESULT.attrs['density_fresh_snow'] = density_fresh_snow
+        self.RESULT.attrs['albedo_fresh_snow'] = albedo_fresh_snow
+        self.RESULT.attrs['albedo_firn'] = albedo_firn
+        self.RESULT.attrs['albedo_ice'] = albedo_ice
+        self.RESULT.attrs['albedo_mod_snow_aging'] = albedo_mod_snow_aging
+        self.RESULT.attrs['albedo_mod_snow_depth'] = albedo_mod_snow_depth
+        self.RESULT.attrs['roughness_fresh_snow'] = roughness_fresh_snow
+        self.RESULT.attrs['roughness_ice'] = roughness_ice
+        self.RESULT.attrs['roughness_firn'] = roughness_firn
+        self.RESULT.attrs['aging_factor_roughness'] = aging_factor_roughness
+        self.RESULT.attrs['surface_emission_coeff'] = surface_emission_coeff
+        self.RESULT.attrs['snow_ice_threshold'] = snow_ice_threshold
+        self.RESULT.attrs['snow_firn_threshold'] = snow_firn_threshold
+        self.RESULT.attrs['threshold_for_snowheight'] = threshold_for_snowheight
+        self.RESULT.attrs['liquid_water_fraction'] = liquid_water_fraction
+        self.RESULT.attrs['percolation_velocity'] = percolation_velocity
 
         self.add_variable_along_latlon(self.RESULT, self.DATA.HGT, 'HGT', 'm', 'Elevation')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'T2', 'K', 'Air temperature at 2 m')

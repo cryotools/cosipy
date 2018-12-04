@@ -26,6 +26,7 @@ operating system, please create a topic in the forum. $LINK$ <br> Model is teste
 * netcdf4
 * scipy
 * distributed
+* dask_jobqueue
 
 ## Input
 Some variables are optinal and for ussage it has to be specified in the config file.
@@ -47,71 +48,59 @@ Some variables are optinal and for ussage it has to be specified in the config f
 |Glacier mask|Mask|Boolean||
 |Elevation|HGT|m a.s.l.||
 
-
-
 # Quick tutorial
 ## Preprocessing
 COSiPY provides some utilities which can be used to create the required input file for the core run.
 ### Create needed combined static input file
 The following is the example in the "data/static/" folder. If the procedure does not work for your study area please try it first
-with the the example.
+with the example.
 #### Required packages and libaries:
 * gdal (e.g. in Debian-based Linux distributions package called gdal-bin)
 * cliamte date operators (e.g. in Debian-based Linux distributions package called cdo)
 * netCDF Operators (e.g. in Debian-based Linux distritutions package called nco)
-#### Needed static input files
-* Digital elevation model
+#### Needed input files
+* Digital elevation model, best in WGS84 - EPSG:4326.
 * Shapefile of glacier
-### Procedure:
-Convert digital elevation model (DEM) to lat lon:
+Both should be in WG84 EPSG:4326.
 
-```bash
+#### Procedure:
+In the utilities folder there is the script create_static_file_command_line.py. This script runs some commands in the command line.
+That's is the reason, that we can provide this script only for UNIX and MAC users at the moment. We are working on a Python were no UNIX command
+line is needed.
+(create_static_file.py).<br>
+The intermediate files 'dem.nc', 'aspect.nc', 'mask.nc' and 'slope.nc' are deleted automatically. First try to run the script
+and create the 'static.nc' file with the example "Rofental_DEM.tif" and 'HEF_Flaeche2018.shp'. If this works, try to change to
+your DEM and shapefile and adjust the area to which you want to shrink the DEM. The input data have to be in Lat/Lon
+WGS84-EPSG:4326 projection with the units degrees, that the script works correct. <br>
+Run the script with:
+```
+python create_static_files_with_command_line.py
+```
+Maybe the following commands are useful. You do not need them for the examples in the data/static folder.<br>
+The first can be used to aggreagte the DEM to a course spatial resolution.
+```
+gdalwarp -tr 0.01 0.01 -r average Hintereisferner_DEM.tif Hintereisferner_DEM_coarser.tif
+```
+The second can be used to reproject to EPSG 4326.
+```
 gdalwarp -t_srs EPSG:4326 dgm_hintereisferner.tif dgm_hintereisferner-lat_lon.tif
-```
-Subset your study area from the DEM with upper left x (longitude) and y (latitude) value and lower right x and y value:
-```bash
-gdal_translate -r cubicspline -projwin ulx uly lrx lry input.tif output.tif
-#example; small area of Hintereisferner
-gdal_translate -r cubicspline -projwin 10.70 46.85 10.85 46.75 Hintereis.tif HEF.tif
-```
-Calculate slope.  If horizontal unit degrees (e.g Lat/Long WGS84 projection), you can use scale=111120 if the vertical units are meters (or scale=370400 if they are in feet):
-```bash
-gdaldem slope -of NETCDF HEF.tif slope.nc -s 111120
-```
-Calculate aspect:
-```bash
-gdaldem aspect -of NETCDF HEF.tif aspect.nc
-```
-Create glacier mask with shapefile:
-```bash
-gdalwarp -of NETCDF -cutline HEF.shp HEF.tif mask.nc
-```
-Create NC-files from geoTiffs:
- ```bash
- gdal_translate -of NETCDF HEF.tif HEF.nc
- ```
-Rename variables in netCDF files:
-```bash
-ncrename -v Band1,HGT HEF_DEM_small.nc      # example if elevation is called Band1
-ncrename -v Band1,ASPECT aspect.nc          # example if aspect is called Band1
-ncrename -v Band1,SLOPE slope.nc            # example if slope is called Band1
-ncrename -v Band1,MASK mask.nc              # example if boolean mask is called Band1
-```
-Combine created netCDF files:
-```bash
-cdo merge *.nc static.nc
 ```
 ### Create input file with all needed static and dynamic 2D fields
 #### Needed files and parameters
 * static.nc file, created in step above
 * 1D fields of all required dynamic input files
-### Run script
-In the utilities folder there is a python script called cs2cosipy.py. This file has a configuration file called cs2cosipyConfig.py. The script can be uses to create 2D fiels from 1D fiels. <br>
+#### Procedure:
+There are two different preprocessing scripts in the utilities folder to create the needed gridded input data. One is especially desinged for the
+usage of csv file from a dataloger of a AWS station. This file is called campbell_scientific2cosipy.py with the corresponding configuration file 
+'campbell_scientific2cosipyConfig.py'.<br> 
+The 'csv2cosipy.py' sciprt with the corresponding configuration file 'csv2cosipyConfig.py' is a more gerneral file.<br>
+Very important: For the campbell_scientific2cosipy.py version the temperature has to be in degree Celsius.<br> This example is using
+the campbell scientific version.<br>
 For the solar radiation a model after Wohlfahrt et al. (2016; doi: 10.1016/j.agrformet.2016.05.012) is used. <br>
 For air temperature, relative humidity and precipitation constant lapse rates, which have to be set, are used. <br>
 Wind speed and cloud cover fraction kept constant for all gridpoint at on time stept.<br><br>
 The script needes:
-* the input file; for example a Campbell Scientific logger file (csv file) with all required dynamic input fiels
+* the input file; for example a Campbell Scientific logger file with all required dynamic input fiels
 * the file path (including the name) for the resulting COSIPY file, which will be used as input file for the core run
 * the path to the static file, created in the step above
 * the start and end date of the timespan
@@ -119,7 +108,13 @@ In the cs2cosipyConfig.py one has to define how the input variables are called i
 For the radiation module one has to set the timezone and the zenit threshold. <br> Furthermore, the station name has to be set, the altitude of the station, and the laps rates for temperature, relative humidity and precipitation.<br>
 If everything is set, configured and prepared, run the script:
 ```bash
-python cs2cosipy.py -c data/input_1D.dat -o input_core_run.nc -s ../data/static/static.nc -b 2010-01-01T00:00 -e 2010-12-31T23:00
+python campbell_scientific2cosipy.py -c ../data/input/008_station_hintereis_lf_toa5_cr3000_a_small.dat -o ../data/input/Hintereisferner_input.nc -s ../data/static/static.nc
+```
+The script takes all input timestamps which are in the -c input file. If you want only a specific period you can use the following 
+options at the end of the call.
+```
+python campbell_scientific2cosipy.py -c ../data/input/008_station_hintereis_lf_toa5_cr3000_a_small.dat -o 
+../data/input/Hintereisferner_input.nc -s ../data/static/static.nc -b 2018-06-01T00:00 -e 2018-06-02T00:00
 ```
 ## Core run
 ### Changes config.py and set everything for your specific need. See in config options.
@@ -137,7 +132,6 @@ python plot_cosipy_fields.py -f $OUTPUT_FILE -d $POINT_IN_TIME_OF_INTEREST -t 1
 python plot_cosipy_fields.py -h #for help
 ```
 # Model Structure
-
 ## Directories
 
 | Directory | Files | Content |
@@ -158,8 +152,6 @@ python plot_cosipy_fields.py -h #for help
 |         | radCor.py | Radiation model (topographic shading) |
 |         | roughness.py | Update of the roughness length |
 |         | surfaceTemperature.py | Solves the energy balance at the surface and calculates the surface temperature |
-
-
 ## Output
 Input variables are stored in output dataset as well.
 ### Dynamic 2D fields: 
