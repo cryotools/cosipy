@@ -28,6 +28,9 @@ force_use_TP = False
 ## Time step in the input files [s]
 dt = 3600                                           # 3600, 7200, 10800 [s] length of time step per iteration in seconds
 
+## Properties for debug
+debug_level = 0                                     # DEBUG levels: 0, 10, 20, 30
+
 ## Merging level
 merging = False
 density_threshold_merging = 5                       # If merging is true threshold for layer densities difference two layer
