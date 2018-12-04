@@ -59,7 +59,6 @@ class Grid:
         self.init_grid()
 
 
-
     def init_grid(self):
         """ Initialize the grid with according to the input data """
 
@@ -146,37 +145,20 @@ class Grid:
 
 
 
-    def update_grid(self, level, merge_snow_threshold):
-        """ Merge the similar layers according to certain criteria. Users can 
-        determine different levels: 
+    def update_grid(self, merge, threshold_temperature, threshold_density, merge_snow_threshold):
+        """ Merge the similar layers according to certain criteria. Users can determine different levels:
             
-            level 0 :   Layers are never merged
-            level 1 :   Layers are merged when density and T are similar
-            level 2 :   Layers are merged when density and T are very similar 
+            merging can be False or True
+            temperature threshold
+            density threshold
+            merge new snow threshold is minimum heihgt of snow layers
 
-            merge_snow_threshold :  Minimum height of snow layers
-            
         The iterative process starts from the upper grid point and goes through 
         all nodes. If two subsequent nodes are similar, the layers are merged. 
         In this case the next merging step starts again from the top. This loop
         is repeated until the last node is reached and all similar layers merged."""
 
         self.logger.debug('Update grid')
-
-        # Define the thresholds for merging levels
-        if level == 0:
-            merge = False
-        elif level == 1:
-            threshold_density = 5.
-            threshold_temperature = 0.05
-            merge = True
-        elif level == 2:
-            threshold_density = 10.
-            threshold_temperature = 0.1
-            merge = True
-        else:
-            print("Invalid merging level")
-            pass
 
         # Auxilary variables
         idx = self.number_nodes - 1
@@ -189,7 +171,7 @@ class Grid:
                     (np.abs(self.grid[idx].get_layer_temperature() - self.grid[idx-1].get_layer_temperature())
                 <= threshold_temperature) &
                     (self.grid[idx].get_layer_height() + self.grid[idx-1].get_layer_height() <= 0.5)):
-                
+
                 # Total height of both layer which are merged
                 total_height = self.grid[idx].get_layer_height() + self.grid[idx - 1].get_layer_height()
 
@@ -200,17 +182,14 @@ class Grid:
                 new_density = (self.grid[idx].get_layer_height() / total_height) * self.grid[idx].get_layer_density() + \
                           (self.grid[idx-1].get_layer_height() / total_height) * self.grid[idx - 1].get_layer_density()
 
-                # specific heat of ice (i) and air (p) [J kg-1 K-1] TODO: NEED TO BE CORRECTED
-                # c_i = spec_heat_air
-
                 # First calculate total energy
-                new_total_energy = (self.grid[idx].get_layer_height() * spec_heat_air *
+                new_total_energy = (self.grid[idx].get_layer_height() * spec_heat_ice *
                                     self.grid[idx].get_layer_density() * self.grid[idx].get_layer_temperature()) + \
-                                   (self.grid[idx-1].get_layer_height() * spec_heat_air *
+                                   (self.grid[idx-1].get_layer_height() * spec_heat_ice *
                                     self.grid[idx - 1].get_layer_density() * self.grid[idx - 1].get_layer_temperature())
                 
                 # Convert total energy to temperature according to the new density
-                new_temperature = new_total_energy/(spec_heat_air*new_density*new_height)
+                new_temperature = new_total_energy/(spec_heat_ice*new_density*new_height)
                    
                 # Todo: CHECK IF RIGHT!!!!!
                 new_liquid_water_content = self.grid[idx].get_layer_liquid_water_content() + self.grid[idx].get_layer_liquid_water_content()
@@ -264,17 +243,14 @@ class Grid:
                 new_density = (self.grid[0].get_layer_height() / total_height) * self.grid[0].get_layer_density() + \
                     (self.grid[1].get_layer_height() / total_height) * self.grid[1].get_layer_density()
 
-                # TODO: NEED TO BE CORRECTED
-                # spec_heat_air
-
                 # First calculate total energy
-                new_total_energy = (self.grid[0].get_layer_height() * spec_heat_air * self.grid[0].get_layer_density() *
+                new_total_energy = (self.grid[0].get_layer_height() * spec_heat_ice * self.grid[0].get_layer_density() *
                                     self.grid[0].get_layer_temperature()) + \
-                                   (self.grid[1].get_layer_height() * spec_heat_air * self.grid[1].get_layer_density() *
+                                   (self.grid[1].get_layer_height() * spec_heat_ice * self.grid[1].get_layer_density() *
                                     self.grid[1].get_layer_temperature())
                 
                 # Convert total energy to temperature according to the new density
-                new_temperature = new_total_energy/(spec_heat_air*new_density*new_height)
+                new_temperature = new_total_energy/(spec_heat_ice*new_density*new_height)
                 
                 # Todo: CHECK IF RIGHT!!!!!
                 new_liquid_water_content = self.grid[0].get_layer_liquid_water_content() + \

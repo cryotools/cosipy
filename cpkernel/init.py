@@ -2,7 +2,7 @@ import sys
 import numpy as np
 import xarray as xr
 import logging
-
+import math
 from constants import *
 from config import *
 from cpkernel.grid import *
@@ -40,9 +40,18 @@ def init_snowpack(DATA):
             layer_density[int(i)] = rho_top - density_gradient * i
     
     # Init temperature new
-    temperature_gradient = (DATA.T2[0] - temperature_bottom) / (initial_glacier_height // initial_glacier_layer_heights)
+    temperature_gradient = (temperature_top - temperature_bottom) / (initial_glacier_height // initial_glacier_layer_heights)
+
+    total_height = 0
+
     for i in np.arange(0 ,(initial_glacier_height // initial_glacier_layer_heights)):
-        layer_T[int(i)] = DATA.T2[0] - temperature_gradient * i
+
+        # Total height of overlying snowpack
+        if int(i) > 0:
+            total_height = total_height + layer_heights[int(i)]
+
+        # Exponential decay of
+        layer_T[int(i)] = float(temperature_bottom + (temperature_top - temperature_bottom) *  math.exp(const_init_temp * -total_height))
 
     # Initialize grid, the grid class contains all relevant grid information
     GRID = Grid(layer_heights, layer_density, layer_T, layer_LWC, layer_cc, layer_porosity, layer_vol, layer_refreeze, debug_level)

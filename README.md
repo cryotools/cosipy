@@ -26,6 +26,7 @@ operating system, please create a topic in the forum. $LINK$ <br> Model is teste
 * netcdf4
 * scipy
 * distributed
+* dask_jobqueue
 
 ## Input
 Some variables are optinal and for ussage it has to be specified in the config file.
@@ -90,11 +91,11 @@ gdalwarp -t_srs EPSG:4326 dgm_hintereisferner.tif dgm_hintereisferner-lat_lon.ti
 * 1D fields of all required dynamic input files
 #### Procedure:
 There are two different preprocessing scripts in the utilities folder to create the needed gridded input data. One is especially desinged for the
-usage of csv file from a dataloger of a AWS station. This file is called campbell_scientific2cosipy.py with the corresponding configuration file 
-'campbell_scientific2cosipyConfig.py'.<br> 
+usage of csv file from a dataloger of a AWS station. This file is called aws_logger2cosipy.py with the corresponding configuration file 
+'aws_logger2cosipyConfig.py'.<br> 
 The 'csv2cosipy.py' sciprt with the corresponding configuration file 'csv2cosipyConfig.py' is a more gerneral file.<br>
-Very important: For the campbell_scientific2cosipy.py version the temperature has to be in degree Celsius.<br> This example is using
-the campbell scientific version.<br>
+Very important: For the aws_logger2cosipy.py version the temperature has to be in degree Celsius.<br> This example is using
+the aws_logger version.<br>
 For the solar radiation a model after Wohlfahrt et al. (2016; doi: 10.1016/j.agrformet.2016.05.012) is used. <br>
 For air temperature, relative humidity and precipitation constant lapse rates, which have to be set, are used. <br>
 Wind speed and cloud cover fraction kept constant for all gridpoint at on time stept.<br><br>

@@ -11,7 +11,6 @@ from modules.percolation_incl_refreezing import percolation
 from modules.roughness import updateRoughness
 from modules.densification import densification
 from modules.surfaceTemperature import update_surface_temperature
-from modules.radCor import correctRadiation
 
 from cpkernel.init import *
 from cpkernel.io import *
@@ -19,7 +18,7 @@ from cpkernel.grid import *
 import cProfile
 
 def cosipy_core(DATA, GRID_RESTART=None):
-    
+
     ''' INITIALIZATION '''
     
     # Start logging
@@ -41,7 +40,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
 
     # Merge grid layers, if necessary
     logger.debug('Create local datasets')
-    GRID.update_grid(merging_level, merge_snow_threshold)
+    GRID.update_grid(merging, density_threshold_merging, temperature_threshold_merging, merge_snow_threshold)
 
     # hours since the last snowfall (albedo module)
     hours_since_snowfall = 0
@@ -87,7 +86,8 @@ def cosipy_core(DATA, GRID_RESTART=None):
     logger.debug('Start time loop')
     
     for t in np.arange(len(DATA.time)):
-        
+
+
         if (SNOWF is not None):
         # Snowfall is given in m
             SNOWFALL = SNOWF[t]
@@ -122,7 +122,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         densification(GRID)
 
         # Merge grid layers, if necessary
-        GRID.update_grid(merging_level, merge_snow_threshold)
+        GRID.update_grid(merging, temperature_threshold_merging, density_threshold_merging, merge_snow_threshold)
 
         # Solve the heat equation
         cpi = solveHeatEquation(GRID, dt)
@@ -162,9 +162,9 @@ def cosipy_core(DATA, GRID_RESTART=None):
 
         # Merge first layer, if too small (for model stability)
         GRID.merge_new_snow(merge_snow_threshold)
-        
-        # Account layer temperature due to penetrating SW radiation
-        penetrating_radiation(GRID, sw_radiation_net, dt)
+
+        # Account layer temperature due to penetrating SW radiation and subsurface melt
+        subsurface_melt = penetrating_radiation(GRID, sw_radiation_net, dt)
 
         # Percolation/Refreezing
         Q, water_refreezed, LWCchange  = percolation(GRID, melt, dt, debug_level)
@@ -174,7 +174,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
 
         # Calculate mass balance
         surface_mass_balance = SNOWFALL*(density_fresh_snow/ice_density) - melt - sublimation - deposition - evaporation - condensation 
-        internal_mass_balance = water_refreezed + LWCchange #+ subsurface_melt
+        internal_mass_balance = water_refreezed - subsurface_melt
         mass_balance = surface_mass_balance + internal_mass_balance
 
         internal_mass_balance2 = melt-Q  #+ subsurface_melt
@@ -202,7 +202,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         RESULT.CONDENSATION[t] = condensation
         RESULT.DEPOSITION[t] = deposition
         RESULT.surfM[t] = melt
-        #RESULT.subM[t] = subsurface_melt
+        RESULT.subM[t] = subsurface_melt
         RESULT.Q[t] = Q 
         RESULT.REFREEZE[t] = water_refreezed 
         RESULT.SNOWHEIGHT[t] = GRID.get_total_snowheight()

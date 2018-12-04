@@ -13,8 +13,6 @@ def densification(GRID):
 # % rho_snow   :: densitiy profile after densification    [m3/kg]
 # % h_diff     :: difference in height before and after densification [m]
 
-
-
 # Loop over all internal grid points
     ### get copy of layer heights and layer densities
     height_layers = GRID.get_height()
