@@ -15,10 +15,10 @@ temperature_top = 273.16                # Upper boudary conditation for inital t
 temperature_bottom = 268                # Lower boundary condition for inital tempeature profile (K)
 const_init_temp = 0.1                   # constant for init temperature profile used in exponential function (exponential decay)
 
-merge_snow_threshold = 0.01             # Minimum height of layer [m], is used if fresh fallen snow is added as a new
+merge_snow_threshold = 0.01             # (m) minimum height of layer, is used if fresh fallen snow is added as a new
                                         # layer or merged to the underlying layer
 
-minimum_snow_height = 0.01              # minimum height of last snowlayer on glacier
+minimum_snow_height = 0.01              # (m) minimum height of last snowlayer on glacier
                                         # If there is only one snow layer layer left this one is only merged if the height
                                         # is lower than the minimum_snow_height even is merge_new_snow_threshold is greater
 
