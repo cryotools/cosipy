@@ -33,7 +33,7 @@ def densification(GRID):
             density_temp[idxNode] = GRID.get_node_density(idxNode) + K1 * np.exp(-E1 / (R * GRID.get_node_temperature(idxNode))) \
                                     * weight * ((ice_density - GRID.get_node_density(idxNode)) / ice_density)
         else:
-            density_temp[idxNode] = ice_density
+            density_temp[idxNode] = soil_density
 
     GRID.set_height((GRID.get_density()/density_temp)*GRID.get_height())
     GRID.set_density(density_temp)

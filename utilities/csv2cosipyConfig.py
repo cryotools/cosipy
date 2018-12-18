@@ -45,8 +45,8 @@ zeni_thld = 86.0
 #------------------------
 # Interpolation arguments 
 #------------------------
-stationName = 'Halji'
-stationAlt = 5430
+stationName = 'Argog'
+stationAlt = 5263
 
 lapse_T    = -0.006  # Temp K per  m
 lapse_RH   = 0.001  # RH % per  m (0 to 1)

@@ -27,8 +27,8 @@ density_fresh_snow = 250.               # density of freshly fallen snow [kg m-3
 albedo_fresh_snow = 0.90                # albedo of fresh snow [-] (Moelg etal. 2012, TC)
 albedo_firn = 0.55                      # albedo of firn [-] (Moelg etal. 2012, TC)
 albedo_ice = 0.3                        # albedo of ice [-] (Moelg etal. 2012, TC)
-albedo_mod_snow_aging = 6               # effect of ageing on snow albedo [days] (Moelg etal. 2012, TC)
-albedo_mod_snow_depth = 8               # effect of snow depth on albedo [cm] (Moelg etal. 2012, TC)
+albedo_mod_snow_aging = 22              # effect of ageing on snow albedo [days] (Moelg etal. 2012, TC)
+albedo_mod_snow_depth = 2               # effect of snow depth on albedo [cm] (Moelg etal. 2012, TC)
 roughness_fresh_snow = 0.24             # surface roughness length for fresh snow [mm] (Moelg etal. 2012, TC)
 roughness_ice = 1.7                     # surface roughness length for ice [mm] (Moelg etal. 2012, TC)
 roughness_firn = 4.0                    # surface roughness length for aged snow [mm] (Moelg etal. 2012, TC)
@@ -48,6 +48,17 @@ percolation_velocity = 0.0006           # percolation velocity for unsaturated l
                                         # Martinec, J.: Meltwater percolation through an alpine snowpack, Avalanche
                                         # Formation, Movement and Effects, Proceedings of the Davos Symposium, 162, 1987.
 
+
+'SOIL CONTENT AND RATIOS'
+water_content = 0.18
+water_thermal_conductivity = 0.57
+
+mineral_content = 0.4
+mineral_thermal_conductivity = 2.9
+
+air_content = 0.42
+air_thermal_conductivity = 0.0025
+
 ' PHYSICAL CONSTANTS '
 
 lat_heat_melting = 3.34e5               # latent heat for melting [J kg-1]
@@ -56,11 +67,16 @@ lat_heat_sublimation = 2.834e6          # latent heat for sublimation [J kg-1]
 spec_heat_air = 1004.67                 # specific heat of air [J kg-1 K-1]
 spec_heat_ice = 2050.00                 # specific heat of ice [J Kg-1 K-1]
 sigma = 5.67e-8                         # Stefan-Bolzmann constant [W m-2 K-4]
-gravity_acceleration = 9.81             # acceleration of gravity (Braithwaite 1995) [m s-1]
+gravity_acceleration = 9.81            # acceleration of gravity (Braithwaite 1995) [m s-1]
+
+' SOIL CONSTANTS'
+volumetric_heat_soil = 2000000.          # Hillel 2004: Environmental Soil Physics: Fundamentals, Applications, and Environmental Considerations
+                                        # page 230
 
 ' MODEL CONSTANTS '
 water_density = 1000.0                  # density of water [kg m^(-3)]
 ice_density = 917.                      # density of ice [kg m^(-3)]
+soil_density = 1350.                    # density of ice [kg m^(-3)]
 
 zero_temperature = 273.16               # Kelvin [K]
 

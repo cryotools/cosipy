@@ -14,5 +14,7 @@ min_slurm_workers = 1     ### minimum jobs
 max_slurm_workers = 20    ### maximum jobs
 slurm_parameters = ['--qos=', '--job-name="Hintereisfener"','--account=',
                     '--output=',
-                    '--error='
+                    '--error=',
+		    '--partition=',
+                    '--time=23:00:00'
                     ]

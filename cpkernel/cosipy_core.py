@@ -92,7 +92,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
             SNOWFALL = SNOWF[t]
         else:
         # Rainfall is given as mm, so we convert to m snowheight
-            SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature)-2.5)*2.5)+1))
+            SNOWFALL = (RRR[t]/1000.0)*(water_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature)-2.5)*2.5)+1))
             if SNOWFALL<0.0:        
                 SNOWFALL = 0.0
 
@@ -102,7 +102,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
             GRID.merge_new_snow(merge_snow_threshold)
      
         # Calculate rain
-        RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density)
+        RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/water_density)
 
         # Get hours since last snowfall for the albedo calculations
         if SNOWFALL < 0.005:
@@ -188,7 +188,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         logger.debug('Write data into local result structure')
 
         # Calculate mass balance
-        surface_mass_balance = SNOWFALL*(density_fresh_snow/ice_density) - melt - sublimation - deposition - evaporation - condensation 
+        surface_mass_balance = SNOWFALL*(density_fresh_snow/water_density) - melt - sublimation - deposition - evaporation - condensation 
         internal_mass_balance = water_refreezed - subsurface_melt
         mass_balance = surface_mass_balance + internal_mass_balance
 
