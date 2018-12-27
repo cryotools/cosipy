@@ -31,9 +31,6 @@ N_var = 'N'
 # Snowfall
 SNOWFALL_var = 'SNOWFALL'
 
-
-
-
 #------------------------
 # Radiation module 
 #------------------------
@@ -49,8 +46,8 @@ zeni_thld = 86.0
 # Interpolation arguments 
 #------------------------
 stationName = 'Halji'
-stationAlt = 5430
+stationAlt = 5725
 
 lapse_T    = -0.006  # Temp K per  m
 lapse_RH   = 0.001  # RH % per  m (0 to 1)
-lapse_RRR  = 0.001   # RRR % per m (0 to 1)
+lapse_RRR  = 0.0001   # RRR % per m (0 to 1)

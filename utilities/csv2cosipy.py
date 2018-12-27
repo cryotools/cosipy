@@ -6,6 +6,8 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 import time
+import dateutil
+
 #np.warnings.filterwarnings('ignore')
 
 sys.path.append('../')
@@ -24,11 +26,12 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     print('Create input \n')
     print('Read input file %s' % (cs_file))
 
-    # Read Im Hinteren Eis Logger data
+    # Read data
+    date_parser = lambda x: dateutil.parser.parse(x, ignoretz=True)
     df = pd.read_csv(cs_file,
        delimiter=',', index_col=['TIMESTAMP'],
-        parse_dates=['TIMESTAMP'], na_values='NAN')
-    
+        parse_dates=['TIMESTAMP'], na_values='NAN',date_parser=date_parser)
+
     df[T2_var] = df[T2_var].apply(pd.to_numeric, errors='coerce')
     df[RH2_var] = df[RH2_var].apply(pd.to_numeric, errors='coerce')
     df[U2_var] = df[U2_var].apply(pd.to_numeric, errors='coerce')
@@ -75,32 +78,33 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     if(SNOWFALL_var in df):
         SNOWFALL = df[SNOWFALL_var]      # Incoming longwave radiation
         SNOWFALL_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
- 
+
     print('Interpolate CR file to grid')
     # Interpolate data (T, RH, RRR, U)  to grid using lapse rates
     for t in range(len(ds.time)):
-        T_interp[t,:,:] = (T2[t]) + (ds.HGT.values-stationAlt)*lapse_T 
-        RH_interp[t,:,:] = RH2[t] + (ds.HGT.values-stationAlt)*lapse_RH 
+        T_interp[t,:,:] = (T2[t]) + (ds.HGT.values-stationAlt)*lapse_T
+        RH_interp[t,:,:] = RH2[t] + (ds.HGT.values-stationAlt)*lapse_RH
         RRR_interp[t,:,:] = RRR[t]
         U_interp[t,:,:] = U2[t]
         N_interp[t, :, :] = N[t]
 
-        # Interpolate pressure using the barometric equation 
+        # Interpolate pressure using the barometric equation
         SLP = PRES[t]/np.power((1-(0.0065*stationAlt)/(288.15)), 5.255)
         P_interp[t,:,:] = SLP * np.power((1-(0.0065*ds.HGT.values)/(288.15)), 5.255)
 
         if (SNOWFALL_var in df):
             SNOWFALL_interp[t, :, :] = SNOWFALL[t]
 
+    print("T_inter after", np.min(T_interp))
     # Change aspect to south==0, east==negative, west==positive
     ds['ASPECT'] = np.mod(ds['ASPECT']+180.0, 360.0)
-    mask = ds['ASPECT'].where(ds['ASPECT']<=180.0) 
+    mask = ds['ASPECT'].where(ds['ASPECT']<=180.0)
     aspect = ds['ASPECT'].values
     aspect[aspect<180] = aspect[aspect<180]*-1.0
     aspect[aspect>=180] = 360.0 - aspect[aspect>=180]
     ds['ASPECT'] = (('lat','lon'),aspect)
     print(np.count_nonzero(~np.isnan(ds['MASK'].values)))
-    
+
     # Auxiliary variables
     mask = ds.MASK.values
     slope = ds.SLOPE.values
@@ -108,7 +112,7 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     lats = ds.lat.values
     lons = ds.lon.values
     sw = G.values
-   
+
     if radiationModule:
         print('Run the radiation module')
     else:
@@ -142,7 +146,7 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
         add_variable_2D(ds, SNOWFALL_interp, 'SNOWFALL', 'm', 'Snowfall')
 
     ds.to_netcdf(cosipy_file)
-    
+
     print('Input file created \n')
     print('-------------------------------------------')
 
@@ -171,6 +175,8 @@ def check(field, max, min):
     if np.nanmax(field) > max or np.nanmin(field) < min:
         print('\n\nWARNING! Please check the data, its seems they are out of a reasonalbe range %s MAX: %.2f MIN: %.2f \n' % (str.capitalize(field.name), np.nanmax(field), np.nanmin(field)))
 
+    if np.isnan((np.min(field.values))):
+        print('ERROR this does not work! %s VALUE: %.2f \n' % (str.capitalize(field.name), np.min(field.values)))
 
 if __name__ == "__main__":
     

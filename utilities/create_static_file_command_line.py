@@ -19,6 +19,9 @@ latitude_upper_left = '46.82'
 longitude_lower_right = '10.795'
 latitude_lower_right = '46.78'
 
+aggregate_degree = '0.0035'
+dem_path_tif_aggregate = static_folder + 'Hintereisferner_DEM_'+aggregate_degree+'.tif'
+
 ### intermediate files
 dem_path = static_folder + 'dem.nc'
 aspect_path = static_folder + 'aspect.nc'
@@ -28,12 +31,14 @@ slope_path = static_folder + 'slope.nc'
 ### path were the static.nc file is saved
 output_path = static_folder + 'static.nc'
 
-os.system('gdal_translate -r cubicspline -projwin ' + longitude_upper_left + ' ' + latitude_upper_left + ' ' +
-          longitude_lower_right + ' ' + latitude_lower_right + ' ' + dem_path_tif_to_shrink + ' ' + dem_path_tif)
-os.system('gdal_translate -of NETCDF ' + dem_path_tif + ' ' + dem_path)
+#os.system('gdal_translate -r cubicspline -projwin ' + longitude_upper_left + ' ' + latitude_upper_left + ' ' +
+          #longitude_lower_right + ' ' + latitude_lower_right + ' ' + dem_path_tif_to_shrink + ' ' + dem_path_tif)
+os.system('gdalwarp -tr ' + aggregate_degree + ' ' + aggregate_degree + ' -r average ' + dem_path_tif + ' ' + dem_path_tif_aggregate)
+os.system('gdal_translate -of NETCDF ' + dem_path_tif_aggregate  + ' ' + dem_path)
 os.system('gdaldem slope -of NETCDF ' + dem_path + ' ' + slope_path + ' -s 111120')
 os.system('gdaldem aspect -of NETCDF ' + dem_path + ' ' + aspect_path)
-os.system('gdalwarp -of NETCDF -cutline ' + shape_path + ' ' + dem_path_tif + ' ' + mask_path)
+os.system('gdalwarp -of NETCDF  --config GDALWARP_IGNORE_BAD_CUTLINE YES -cutline ' + shape_path + ' ' + dem_path_tif_aggregate  + ' ' + mask_path)
+#os.system('gdalwarp -of NETCDF -cutline ' + shape_path + ' ' + dem_path_tif + ' ' + mask_path)
 
 dem = xr.open_dataset(dem_path)
 aspect = xr.open_dataset(aspect_path)

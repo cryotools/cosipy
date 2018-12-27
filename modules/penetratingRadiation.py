@@ -2,7 +2,6 @@ import math
 import numpy as np
 from constants import *
 
-
 def penetrating_radiation(GRID, SWnet, dt):
     """ This methods calculates the surface energy balance """
 
