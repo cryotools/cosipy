@@ -23,7 +23,7 @@ def init_snowpack(DATA):
     number_layers = len(layer_heights)
 
     # Init properties
-    layer_density = ice_density * np.ones(len(layer_heights))
+    layer_density = soil_density * np.ones(len(layer_heights))
     layer_T = temperature_bottom * np.ones(len(layer_heights))
     layer_LWC = np.zeros(number_layers)
     layer_cc = np.zeros(number_layers)

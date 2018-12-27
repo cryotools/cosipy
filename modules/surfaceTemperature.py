@@ -111,7 +111,8 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, TS_upper, LWi
     if GRID.get_total_snowheight() > 0.0:
         lam = 0.021 + 2.5 * (snowRhoMean/1000.0)**2.0
     else:
-         lam = (0.3 * 2.9) + (0.18 * 0.57) + (0.52 * 0.025)
+        lam = (water_content * water_thermal_conductivity ** 0.5 + mineral_content * mineral_thermal_conductivity ** \
+               0.5 + air_content * air_thermal_conductivity ** 0.5) ** 2
 
     res = minimize(energy_balance, GRID.get_node_temperature(0), method='L-BFGS-B', bounds=((240.0, TS_upper),),
                    tol=1e-8, args=(GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam))
@@ -150,4 +151,3 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, TS_upper, LWi
     qdiff = q0-q2
 
     return res.fun, float(res.x), float(Li), float(Lo), float(H), float(L), float(B), float(SWnet), rho, Lv, Cs, q0, q2, qdiff, phi
-

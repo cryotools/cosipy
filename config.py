@@ -3,8 +3,8 @@
  Please make your changes here.
 """
 ## Simulation period
-time_start = '2018-05-25T00:00'
-time_end   = '2018-06-05T00:00'
+time_start = '2014-01-01T06:00'
+time_end   = '2014-10-30T23:00'
 time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
@@ -30,6 +30,9 @@ force_use_TP = True
 
 ## Time step in the input files [s]
 dt = 3600                                           # 3600, 7200, 10800 [s] length of time step per iteration in seconds
+
+## Properties for debug
+debug_level = 0                                     # DEBUG levels: 0, 10, 20, 30
 
 ## Merging level
 merging = False
