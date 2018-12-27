@@ -74,18 +74,20 @@ def main():
     #-----------------------------------------------
     if (slurm_use):
         with SLURMCluster(scheduler_port=port_monitoring, cores=cores, processes=processes, memory=memory,
-                         job_extra=slurm_parameters) as cluster:
+                          local_directory = 'dask-worker-space', job_extra=slurm_parameters) as cluster:
+            print(cluster.job_script())
             cluster.adapt(minimum=min_slurm_workers,maximum=max_slurm_workers)
-            main_body(cluster,IO,DATA,RESULT,RESTART,futures,nfutures)
+            main_body(cluster, IO, DATA, RESULT, RESTART, futures, nfutures)
 
     else:
-        with LocalCluster(scheduler_port=8786, n_workers=workers, threads_per_worker=1, silence_logs=True) as cluster:
+        with LocalCluster(scheduler_port=local_port, n_workers=workers, threads_per_worker=1, silence_logs=True) as cluster:
             main_body(cluster,IO,DATA,RESULT,RESTART,futures,nfutures)
 
     print('\n')
     print('--------------------------------------------------------------')
     print('Write results to netcdf')
     print('-------------------------------------------------------------- \n')
+
     # Write results and restart files
     timestamp = pd.to_datetime(str(IO.get_restart().time.values)).strftime('%Y-%m-%dT%H:%M:%S')
     comp = dict(zlib=True, complevel=9)

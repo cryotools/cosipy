@@ -285,16 +285,16 @@ class Grid:
 
         while remove:
                
-                # How much energy required to melt first layer
-                melt_required = self.get_node_height(0) * (self.get_node_density(0) / 1000.0)
+            # How much energy required to melt first layer
+            melt_required = self.get_node_height(0) * (self.get_node_density(0) / 1000.0)
 
-                # How much energy is left
-                melt_rest = melt - melt_required
+            # How much energy is left
+            melt_rest = melt - melt_required
 
-                # If not enough energy to remove first layer, first layers height is reduced by melt height
-                if melt_rest <= 0:
-                    self.set_node_height(0, self.get_node_height(0) - height_diff)
-                    remove = False
+            # If not enough energy to remove first layer, first layers height is reduced by melt height
+            if melt_rest <= 0:
+                self.set_node_height(0, self.get_node_height(0) - height_diff)
+                remove = False
 
                 # If entire layer is removed
                 else:

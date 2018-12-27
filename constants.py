@@ -27,8 +27,8 @@ density_fresh_snow = 250.               # density of freshly fallen snow [kg m-3
 albedo_fresh_snow = 0.90                # albedo of fresh snow [-] (Moelg etal. 2012, TC)
 albedo_firn = 0.55                      # albedo of firn [-] (Moelg etal. 2012, TC)
 albedo_ice = 0.3                        # albedo of ice [-] (Moelg etal. 2012, TC)
-albedo_mod_snow_aging = 6               # effect of ageing on snow albedo [days] (Moelg etal. 2012, TC)
-albedo_mod_snow_depth = 8               # effect of snow depth on albedo [cm] (Moelg etal. 2012, TC)
+albedo_mod_snow_aging = 22              # effect of ageing on snow albedo [days] (Moelg etal. 2012, TC)
+albedo_mod_snow_depth = 3               # effect of snow depth on albedo [cm] (Moelg etal. 2012, TC)
 roughness_fresh_snow = 0.24             # surface roughness length for fresh snow [mm] (Moelg etal. 2012, TC)
 roughness_ice = 1.7                     # surface roughness length for ice [mm] (Moelg etal. 2012, TC)
 roughness_firn = 4.0                    # surface roughness length for aged snow [mm] (Moelg etal. 2012, TC)
@@ -70,4 +70,3 @@ K1   = 575
 E0   = 10260                            # activation energy
 E1   = 21400
 R    = 8.3144                           # universal gas constant [J K-1 mol-1]
-

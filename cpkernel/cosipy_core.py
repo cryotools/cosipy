@@ -18,7 +18,7 @@ from cpkernel.grid import *
 import cProfile
 
 def cosipy_core(DATA, GRID_RESTART=None):
-    
+
     ''' INITIALIZATION '''
     
     # Start logging
@@ -86,10 +86,11 @@ def cosipy_core(DATA, GRID_RESTART=None):
     logger.debug('Start time loop')
     
     for t in np.arange(len(DATA.time)):
-        
+
         if (SNOWF is not None):
         # Snowfall is given in m
             SNOWFALL = SNOWF[t]
+
         else:
         # Rainfall is given as mm, so we convert to m snowheight
             SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature)-2.5)*2.5)+1))
@@ -130,7 +131,6 @@ def cosipy_core(DATA, GRID_RESTART=None):
             TS_upper = zero_temperature
         else:
             TS_upper = 400.16
-
 
         if LWin is not None:
             # Find new surface temperature

@@ -183,7 +183,7 @@ Subsurface melt|subM| m w.e.|
 Runoff|Q| m w.e.| 
 Refreezing|REFREEZE| m w.e.| 
 Snowheight|SNOWHEIGHT| m|
-Total domamin height|TOTALHEIGHT| m|  
+Total domain height|TOTALHEIGHT| m|  
 Surface temperature|TS| K| 
 Roughness length|Z0| m| 
 Albedo|ALBEDO| -| 
