@@ -3,7 +3,6 @@ import numpy as np
 from constants import *
 
 def penetrating_radiation(GRID, SWnet, dt):
-    """ This methods calculates the surface energy balance """
 
     # Total height of first layer
     total_height = GRID.get_node_height(0)

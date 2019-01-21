@@ -73,10 +73,13 @@ def main():
     # Create a client for distributed calculations
     #-----------------------------------------------
     if (slurm_use):
-        with SLURMCluster(scheduler_port=port_monitoring, cores=cores, processes=processes, memory=memory,
-                          local_directory = 'dask-worker-space', job_extra=slurm_parameters) as cluster:
+        with SLURMCluster(scheduler_port=port_monitoring,
+                          cores=cores, processes=processes,
+                          project=project, name=name,
+                          memory=str(memory_per_process * processes) + 'GB', local_directory='dask-worker-space',
+                          job_extra=extra_slurm_parameters) as cluster:
             print(cluster.job_script())
-            cluster.adapt(minimum=min_slurm_workers,maximum=max_slurm_workers)
+            cluster.scale(processes * nodes)
             main_body(cluster, IO, DATA, RESULT, RESTART, futures, nfutures)
 
     else:
@@ -87,6 +90,7 @@ def main():
     print('--------------------------------------------------------------')
     print('Write results to netcdf')
     print('-------------------------------------------------------------- \n')
+    start_writing = datetime.now()
 
     # Write results and restart files
     timestamp = pd.to_datetime(str(IO.get_restart().time.values)).strftime('%Y-%m-%dT%H:%M:%S')
@@ -100,9 +104,11 @@ def main():
     
     # Stop time measurement
     duration_run = datetime.now() - start_time
-    
+    duration_run_writing = datetime.now() - start_writing
+
     # Print out some information
     print("\n \n Total run duration in seconds %4.2f \n" % (duration_run.total_seconds()))
+    print("\n \n Needed time for writing restart and output in seconds %4.2f \n" % (duration_run_writing.total_seconds()))
     if duration_run.total_seconds() >= 60 and duration_run.total_seconds() < 3600:
         print(" Total run duration in minutes %4.2f \n\n" %(duration_run.total_seconds() / 60))
     if duration_run.total_seconds() >= 3600:

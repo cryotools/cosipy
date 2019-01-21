@@ -101,12 +101,12 @@ def cosipy_core(DATA, GRID_RESTART=None):
             # Add a new snow node on top
             GRID.add_node(SNOWFALL, density_fresh_snow, float(T2[t]), 0.0, 0.0, 0.0, 0.0, 0.0)
             GRID.merge_new_snow(merge_snow_threshold)
-     
+
         # Calculate rain
         RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density)
 
         # Get hours since last snowfall for the albedo calculations
-        if SNOWFALL < 0.005:
+        if SNOWFALL < minimum_snow_to_reset_albedo:
             hours_since_snowfall += dt / 3600.0
         else:
             hours_since_snowfall = 0
@@ -173,7 +173,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         logger.debug('Write data into local result structure')
 
         # Calculate mass balance
-        surface_mass_balance = SNOWFALL*(density_fresh_snow/ice_density) - melt - sublimation - deposition - evaporation - condensation 
+        surface_mass_balance = SNOWFALL * (density_fresh_snow / ice_density) - melt - sublimation - deposition - evaporation - condensation
         internal_mass_balance = water_refreezed - subsurface_melt
         mass_balance = surface_mass_balance + internal_mass_balance
 

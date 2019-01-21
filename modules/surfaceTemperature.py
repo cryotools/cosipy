@@ -23,7 +23,6 @@ def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
     # result is (hPa) and termpature in K!!!
     # Ew0 = 6.112 * np.exp((17.62*x)/(x+243.12))
 
-
     # Sensible heat flux
     H = rho * spec_heat_air * Cs * u2 * (x - T2) * phi
 
@@ -139,7 +138,6 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, LWin=None, N=
     # Ground heat flux
     B = -lam * ((2 * GRID.get_node_temperature(1) - (0.5 * ((3 * res.x) + GRID.get_node_temperature(2)))) /\
                 (GRID.get_node_height(0)))
-
     qdiff = q0-q2
 
     return res.fun, float(res.x), float(Li), float(Lo), float(H), float(L), float(B), float(SWnet), rho, Lv, Cs, q0, q2, qdiff, phi

@@ -45,7 +45,7 @@ Some variables are optinal and for ussage it has to be specified in the config f
 ### Static 2D fields:
 |Variable|Short Name|Unit|Comment|
 |---|---|---|---|
-|Glacier mask|Mask|Boolean||
+|Glacier mask|MASK|Boolean||
 |Elevation|HGT|m a.s.l.||
 
 # Quick tutorial
