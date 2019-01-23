@@ -204,6 +204,7 @@ class IOClass:
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'T2', 'K', 'Air temperature at 2 m')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'RH2', '%', 'Relative humidity at 2 m')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'U2', 'm s\u207b\xb9', 'Wind velocity at 2 m')
+        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'RRR', 'mm','Total precipiation')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'RAIN', 'mm', 'Liquid precipitation')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'SNOWFALL', 'm', 'Snowfall')
         self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'PRES', 'hPa', 'Atmospheric pressure')
@@ -317,6 +318,7 @@ class IOClass:
         self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'T2', 'K', 'Air temperature at 2 m')
         self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'RH2', '%', 'Relative humidity at 2 m')
         self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'U2', 'm s^-1', 'Wind velocity at 2 m')
+        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'RRR', 'mm', 'Total precipitation')
         self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'RAIN', 'mm', 'Liquid precipitation')
         self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'SNOWFALL', 'm', 'Snowfall')
         self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'PRES', 'hPa', 'Atmospheric pressure')
@@ -396,6 +398,7 @@ class IOClass:
         self.RESULT.T2.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.T2
         self.RESULT.RH2.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.RH2
         self.RESULT.U2.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.U2
+        self.RESULT.RRR.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.RRR
         self.RESULT.RAIN.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.RAIN
         self.RESULT.SNOWFALL.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.SNOWFALL
         self.RESULT.PRES.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.PRES

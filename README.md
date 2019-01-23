@@ -104,16 +104,16 @@ The script needes:
 * the file path (including the name) for the resulting COSIPY file, which will be used as input file for the core run
 * the path to the static file, created in the step above
 * the start and end date of the timespan
-In the cs2cosipyConfig.py one has to define how the input variables are called in the CS_FILE. <br> 
+In the aws_logger2cosipyConfig.py one has to define how the input variables are called in the CS_FILE. <br> 
 For the radiation module one has to set the timezone and the zenit threshold. <br> Furthermore, the station name has to be set, the altitude of the station, and the laps rates for temperature, relative humidity and precipitation.<br>
 If everything is set, configured and prepared, run the script:
 ```bash
-python campbell_scientific2cosipy.py -c ../data/input/008_station_hintereis_lf_toa5_cr3000_a_small.dat -o ../data/input/Hintereisferner_input.nc -s ../data/static/static.nc
+python aws_logger2cosipy.py -c ../data/input/008_station_hintereis_lf_toa5_cr3000_a_small.dat -o ../data/input/Hintereisferner_input.nc -s ../data/static/static.nc
 ```
 The script takes all input timestamps which are in the -c input file. If you want only a specific period you can use the following 
 options at the end of the call.
 ```
-python campbell_scientific2cosipy.py -c ../data/input/008_station_hintereis_lf_toa5_cr3000_a_small.dat -o 
+python aws_logger2cosipy.py -c ../data/input/008_station_hintereis_lf_toa5_cr3000_a_small.dat -o 
 ../data/input/Hintereisferner_input.nc -s ../data/static/static.nc -b 2018-06-01T00:00 -e 2018-06-02T00:00
 ```
 ## Core run

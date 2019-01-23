@@ -2,6 +2,7 @@ import numpy as np
 from constants import *
 from cpkernel.io import *
 from scipy.optimize import minimize
+import sys
 
 
 def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
@@ -12,8 +13,11 @@ def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
         Lv = lat_heat_sublimation
 
     # Saturation vapour pressure at the surface
-    Ew0 = 6.112 * np.exp((17.67*(x-273.16)) / ((x-29.66)))
-
+    if saturation_water_vapour_method == 'Sonntag90':
+        Ew0 = 6.112 * np.exp((17.67*(x-273.16)) / ((x-29.66)))
+    else:
+        print('Method for saturation water vapour ', saturation_water_vapour_method, ' not availalbe')
+        sys.exit()
     # if x>=zero_temperature:
     #     Ew0 = 6.1078 * np.exp((17.269388*(x-273.16)) / ((x-35.86)))
     # else:
@@ -46,8 +50,12 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, LWin=None, N=
     """ This methods updates the surface temperature and returns the surface fluxes
        """
     # Saturation vapour pressure (hPa)
-    Ew = 6.112 * np.exp((17.62*(T2-273.16)) / ((T2-30.12)))
-    
+
+    if saturation_water_vapour_method == 'Sonntag90':
+        Ew = 6.112 * np.exp((17.62 * (T2 - 273.16)) / ((T2 - 30.12)))
+    else:
+        print('Method for saturation water vapour ', saturation_water_vapour_method, ' not availalbe')
+        sys.exit()
     # if T2>=zero_temperature:
     #    Ew = 6.1078 * np.exp((17.269388*(T2-273.16)) / ((T2-35.86)))
     # else:

@@ -10,7 +10,7 @@ time_end_str=(time_end[0:10]).replace('-','')
 
 ##  Input/Output files
 data_path = './data'
-input_netcdf= 'Hintereisferner_input.nc'
+input_netcdf= 'Example_Input_file.nc'
 output_netcdf = 'Hintereisferner_output-'+time_start_str+'-'+time_end_str+'.nc'
 
 ## Set keyword to true if you want to use the job scheduler Slurm (own configuration file slurm_config.py)
@@ -26,7 +26,7 @@ full_field = False
 restart = False
 
 ## If total precipitation and snowfall in input data use total precipitation!
-force_use_TP = True
+force_use_TP = False
 
 ## Time step in the input files [s]
 dt = 3600                                           # 3600, 7200, 10800 [s] length of time step per iteration in seconds

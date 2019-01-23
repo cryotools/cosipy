@@ -64,6 +64,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
     else:
         SNOWF = None
         RRR = DATA.RRR.values
+
     if force_use_TP is True:
         SNOWF = None
 
@@ -127,16 +128,25 @@ def cosipy_core(DATA, GRID_RESTART=None):
         # Solve the heat equation
         cpi = solveHeatEquation(GRID, dt)
 
+        # Calculate net shortwave radiation
+        SWnet = G[t] * (1 - alpha)
+
+        # Account layer temperature due to penetrating SW radiation and subsurface melt
+        subsurface_melt, G_penetrating = penetrating_radiation(GRID, SWnet, dt)
+
+        # Calculate new incoming shortwave radiation
+        G_temp = G[t] - G_penetrating
+
         if LWin is not None:
             # Find new surface temperature
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
                 ground_heat_flux, sw_radiation_net, rho, Lv, Cs, q0, q2, qdiff, phi \
-                = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], PRES[t], G[t], U2[t], LWin=LWin[t])
+                = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], PRES[t], G_temp, U2[t], LWin=LWin[t])
         else:
             # Find new surface temperature
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
                 ground_heat_flux, sw_radiation_net, rho, Lv, Cs, q0, q2, qdiff, phi \
-                = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], PRES[t], G[t], U2[t], N=N[t])
+                = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], PRES[t], G_temp, U2[t], N=N[t])
         
         # Surface fluxes [m w.e.q.]
         if surface_temperature < zero_temperature:
@@ -163,9 +173,6 @@ def cosipy_core(DATA, GRID_RESTART=None):
         # Merge first layer, if too small (for model stability)
         GRID.merge_new_snow(merge_snow_threshold)
 
-        # Account layer temperature due to penetrating SW radiation and subsurface melt
-        subsurface_melt = penetrating_radiation(GRID, sw_radiation_net, dt)
-
         # Percolation/Refreezing
         Q, water_refreezed, LWCchange  = percolation(GRID, melt, dt, debug_level)
         
@@ -184,6 +191,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         RESULT.T2[t] = T2[t]
         RESULT.RH2[t] = RH2[t]
         RESULT.U2[t] = U2[t]
+        RESULT.RRR[t] = RRR[t]
         RESULT.RAIN[t] = RAIN
         RESULT.SNOWFALL[t] = SNOWFALL
         RESULT.PRES[t] = PRES[t]

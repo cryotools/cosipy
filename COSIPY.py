@@ -80,6 +80,7 @@ def main():
                           job_extra=extra_slurm_parameters) as cluster:
             print(cluster.job_script())
             cluster.scale(processes * nodes)
+            print("You are using SLURM!\n")
             main_body(cluster, IO, DATA, RESULT, RESTART, futures, nfutures)
 
     else:
