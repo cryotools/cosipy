@@ -4,8 +4,11 @@ from cpkernel.io import *
 from scipy.optimize import minimize
 import sys
 
+def default_method_EW(Temp):
+    Ew = 6.112 * np.exp((17.67*(Temp-273.16)) / ((Temp-29.66)))
+    return Ew
 
-def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
+def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam, SLOPE):
 
     if x >= zero_temperature:
         Lv = lat_heat_vaporize
@@ -14,10 +17,15 @@ def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
 
     # Saturation vapour pressure at the surface
     if saturation_water_vapour_method == 'Sonntag90':
-        Ew0 = 6.112 * np.exp((17.67*(x-273.16)) / ((x-29.66)))
+
+        Ew0 = default_method_EW(x)
+
     else:
-        print('Method for saturation water vapour ', saturation_water_vapour_method, ' not availalbe')
-        sys.exit()
+        print('Method for saturation water vapour ', saturation_water_vapour_method,
+              ' not availalbe using default method, using default')
+
+        Ew0 = default_method_EW(x)
+
     # if x>=zero_temperature:
     #     Ew0 = 6.1078 * np.exp((17.269388*(x-273.16)) / ((x-35.86)))
     # else:
@@ -28,13 +36,13 @@ def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
     # Ew0 = 6.112 * np.exp((17.62*x)/(x+243.12))
 
     # Sensible heat flux
-    H = rho * spec_heat_air * Cs * u2 * (x - T2) * phi
+    H = rho * spec_heat_air * Cs * u2 * (x - T2) * phi * np.cos(np.radians(SLOPE))
 
     # Mixing ratio at surface
     q0 = (100.0 * 0.622 * (Ew0 / (p - Ew0))) / 100.0
 
     # Latent heat flux
-    L = rho * Lv * Cs * u2 * (q0 - q2) * phi
+    L = rho * Lv * Cs * u2 * (q0 - q2) * phi * np.cos(np.radians(SLOPE))
 
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(x, 4.0)
@@ -46,16 +54,17 @@ def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam):
     # Return residual of energy balance
     return np.abs(SWnet+Li+Lo-H-L-B)
 
-def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, LWin=None, N=None):
+def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
     """ This methods updates the surface temperature and returns the surface fluxes
        """
     # Saturation vapour pressure (hPa)
 
     if saturation_water_vapour_method == 'Sonntag90':
-        Ew = 6.112 * np.exp((17.62 * (T2 - 273.16)) / ((T2 - 30.12)))
+        Ew = default_method_EW(T2)
     else:
-        print('Method for saturation water vapour ', saturation_water_vapour_method, ' not availalbe')
-        sys.exit()
+        print('Method for saturation water vapour ', saturation_water_vapour_method, ' not available, using default')
+        Ew = default_method_EW(T2)
+
     # if T2>=zero_temperature:
     #    Ew = 6.1078 * np.exp((17.269388*(T2-273.16)) / ((T2-35.86)))
     # else:
@@ -114,7 +123,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, LWin=None, N=
     lam = 0.021 + 2.5 * (snowRhoMean/1000.0)**2.0
    
     res = minimize(energy_balance, GRID.get_node_temperature(0), method='L-BFGS-B', bounds=((240.0, 273.16),),
-                   tol=1e-8, args=(GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam))
+                   tol=1e-8, args=(GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam, SLOPE))
  
     # Set surface temperature
     GRID.set_node_temperature(0, float(res.x))
@@ -125,7 +134,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, LWin=None, N=
         Lv = lat_heat_sublimation
 
     # Sensible heat flux
-    H = rho * spec_heat_air * Cs * u2 * (res.x - T2) * phi
+    H = rho * spec_heat_air * Cs * u2 * (res.x - T2) * phi * np.cos(np.radians(SLOPE))
 
     # Saturation vapour pressure at the surface
     Ew0 = 6.112 * np.exp((17.67*(res.x-273.16)) / ((res.x-29.66)))
@@ -138,7 +147,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, LWin=None, N=
     q0 = (100.0 * 0.622 * (Ew0/(p-Ew0))) / 100.0
 
     # Latent heat flux
-    L = rho * Lv * Cs * u2 * (q0-q2) * phi
+    L = rho * Lv * Cs * u2 * (q0-q2) * phi * np.cos(np.radians(SLOPE))
 
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(res.x, 4.0)

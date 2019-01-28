@@ -98,7 +98,7 @@ def main():
     comp = dict(zlib=True, complevel=9)
     
     encoding = {var: comp for var in IO.get_result().data_vars}
-    IO.get_result().to_netcdf(os.path.join(data_path,'output',output_netcdf), encoding=encoding)
+    IO.get_result().to_netcdf(os.path.join(data_path,'output',output_netcdf), encoding=encoding, mode = 'w')
 
     encoding = {var: comp for var in IO.get_restart().data_vars}
     IO.get_restart().to_netcdf(os.path.join(data_path,'restart','restart_'+timestamp+'.nc'), encoding=encoding)

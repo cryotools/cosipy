@@ -95,10 +95,8 @@ class Grid:
         # Increase node counter
         self.number_nodes += 1
 
-
-
     def remove_node(self, pos=None):
-        """ Removes the node at position pos from the node list """
+        """ Removes a node or a list of nodes at pos from the node list """
 
         self.logger.debug('Remove node')
 
@@ -109,12 +107,11 @@ class Grid:
             if pos is None:
                 self.grid.pop(0)
             else:
-                self.grid.pop(pos)
-            
+                for index in sorted(pos, reverse=True):
+                    del self.grid[index]
+
             # Decrease node counter
-            self.number_nodes -= 1
-
-
+            self.number_nodes -= len(pos)
 
     def split_node(self, pos):
         """ Split node at position pos """
@@ -198,7 +195,7 @@ class Grid:
                 self.update_node(idx, new_height, new_density, new_temperature, new_liquid_water_content, 0.0, 0.0, 0.0, 0.0)
 
                 # Remove the second layer
-                self.remove_node(idx-1)
+                self.remove_node([idx-1])
            
                 # Move to next layer 
                 idx -= 1
@@ -260,7 +257,7 @@ class Grid:
                 self.update_node(1, new_height, new_density, new_temperature, new_liquid_water_content, 0.0, 0.0, 0.0, 0.0)
 
                 # Remove the second layer
-                self.remove_node(0)
+                self.remove_node([0])
            
                 # Write merging steps if debug level is set >= 10
                 self.logger.debug("Merging new snow (merge_new_snow) ....")
@@ -298,11 +295,9 @@ class Grid:
 
             # If entire layer is removed
             else:
-                self.remove_node(0)
+                self.remove_node([0])
                 melt -= melt_required
                 remove = True
-
-
 
     def set_node_temperature(self, idx, temperature):
         """ Returns temperature of node idx """

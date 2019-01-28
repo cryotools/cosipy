@@ -54,7 +54,8 @@ def cosipy_core(DATA, GRID_RESTART=None):
     G = DATA.G.values
     U2 = DATA.U2.values
 
-    # Check whether snowfall data is availible 
+    ### Checks for optional input variables
+    # Check whether snowfall data is availible
     if ('SNOWFALL' in DATA) and ('RRR' in DATA):
         SNOWF = DATA.SNOWFALL.values
         RRR = DATA.RRR.values
@@ -77,6 +78,12 @@ def cosipy_core(DATA, GRID_RESTART=None):
     else:
         LWin = None
         N = DATA.N.values
+
+    if ('SLOPE' in DATA):
+        SLOPE = DATA.SLOPE.values
+
+    else:
+        SLOPE = 0.0
 
     # Profiling with bokeh
     cp = cProfile.Profile()
@@ -120,7 +127,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         z0 = updateRoughness(GRID, hours_since_snowfall)
 
         # Calculate new density to densification
-        densification(GRID)
+        densification(GRID,SLOPE)
 
         # Merge grid layers, if necessary
         GRID.update_grid(merging, temperature_threshold_merging, density_threshold_merging, merge_snow_threshold)
@@ -141,12 +148,12 @@ def cosipy_core(DATA, GRID_RESTART=None):
             # Find new surface temperature
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
                 ground_heat_flux, sw_radiation_net, rho, Lv, Cs, q0, q2, qdiff, phi \
-                = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], PRES[t], G_temp, U2[t], LWin=LWin[t])
+                = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], PRES[t], G_temp, U2[t], SLOPE, LWin=LWin[t])
         else:
             # Find new surface temperature
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
                 ground_heat_flux, sw_radiation_net, rho, Lv, Cs, q0, q2, qdiff, phi \
-                = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], PRES[t], G_temp, U2[t], N=N[t])
+                = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], PRES[t], G_temp, U2[t], SLOPE, N=N[t])
         
         # Surface fluxes [m w.e.q.]
         if surface_temperature < zero_temperature:

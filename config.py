@@ -45,7 +45,7 @@ temperature_threshold_merging = 0.05                # If mering is true threshol
 max_layers = 100
 
 ## CFL criteria
-c_stab = 0.5                                        
+c_stab = 0.5
 
-## Number of workers, if None all cores are used
+# Configuration if worker for local cluster (not slurm) Number of workers, if None all cores are used
 workers = None
