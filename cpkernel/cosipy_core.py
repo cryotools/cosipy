@@ -237,7 +237,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
             RESULT.LAYER_LWC[t, 0:GRID.get_number_layers()] = GRID.get_liquid_water_content()
             RESULT.LAYER_CC[t, 0:GRID.get_number_layers()] = GRID.get_cold_content()
             RESULT.LAYER_POROSITY[t, 0:GRID.get_number_layers()] = GRID.get_porosity()
-            RESULT.LAYER_VOL[t, 0:GRID.get_number_layers()] = GRID.get_vol_ice_content()
+            RESULT.LAYER_VOL[t, 0:GRID.get_number_layers()] = GRID.get_max_vol_ice_content()
             RESULT.LAYER_REFREEZE[t, 0:GRID.get_number_layers()] = GRID.get_refreeze()
 
     # TODO Restart
@@ -249,7 +249,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
     RESTART.LAYER_LWC[0:GRID.get_number_layers()] = GRID.get_liquid_water_content() 
     RESTART.LAYER_CC[0:GRID.get_number_layers()] = GRID.get_cold_content() 
     RESTART.LAYER_POROSITY[0:GRID.get_number_layers()] = GRID.get_porosity() 
-    RESTART.LAYER_VOL[0:GRID.get_number_layers()] = GRID.get_vol_ice_content() 
+    RESTART.LAYER_VOL[0:GRID.get_number_layers()] = GRID.get_max_vol_ice_content() 
     RESTART.LAYER_REFREEZE[0:GRID.get_number_layers()] = GRID.get_refreeze() 
 
     # Return results

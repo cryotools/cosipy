@@ -58,12 +58,12 @@ def percolation(GRID, water, t, debug_level):
             # Set porosity
             GRID.set_node_porosity(idxNode, 1-((GRID.get_node_density(idxNode)-theta_ret*(water_density))/ice_density))
     
-            # Set volumetic ice content
-            GRID.set_node_vol_ice_content(idxNode, theta_ret)
+            # Set maximum volumetic ice content
+            GRID.set_node_max_vol_ice_content(idxNode, theta_ret)
 
             if (idxNode==0):
-                x = LWCtmp[idxNode] * (1-GRID.get_node_vol_ice_content(idxNode))
-                xd = LWCtmp[idxNode+1] * (1-GRID.get_node_vol_ice_content(idxNode))
+                x = LWCtmp[idxNode] * (1-GRID.get_node_max_vol_ice_content(idxNode))
+                xd = LWCtmp[idxNode+1] * (1-GRID.get_node_max_vol_ice_content(idxNode))
                 dx = np.abs((GRID.get_node_height(idxNode+1) / 2.0) + (GRID.get_node_height(idxNode) / 2.0))
 
                 ux = 0
@@ -72,8 +72,8 @@ def percolation(GRID, water, t, debug_level):
 
             elif (idxNode==GRID.number_nodes-1):
                 
-                xu = LWCtmp[idxNode-1] * (1-GRID.get_node_vol_ice_content(idxNode))
-                x = LWCtmp[idxNode] * (1-GRID.get_node_vol_ice_content(idxNode))
+                xu = LWCtmp[idxNode-1] * (1-GRID.get_node_max_vol_ice_content(idxNode))
+                x = LWCtmp[idxNode] * (1-GRID.get_node_max_vol_ice_content(idxNode))
                 dx = np.abs((GRID.get_node_height(idxNode-1) / 2.0) + (GRID.get_node_height(idxNode) / 2.0))
 
                 ux = (xu-x)/dx
@@ -83,9 +83,9 @@ def percolation(GRID, water, t, debug_level):
             else:
                 # Percolation of water exceeding the max. retention
                 
-                xu = LWCtmp[idxNode-1] * (1-GRID.get_node_vol_ice_content(idxNode))
-                x = LWCtmp[idxNode] * (1-GRID.get_node_vol_ice_content(idxNode))
-                xd = LWCtmp[idxNode+1] * (1-GRID.get_node_vol_ice_content(idxNode))
+                xu = LWCtmp[idxNode-1] * (1-GRID.get_node_max_vol_ice_content(idxNode))
+                x = LWCtmp[idxNode] * (1-GRID.get_node_max_vol_ice_content(idxNode))
+                xd = LWCtmp[idxNode+1] * (1-GRID.get_node_max_vol_ice_content(idxNode))
                 dx1 = np.abs((GRID.get_node_height(idxNode-1) / 2.0) + (GRID.get_node_height(idxNode) / 2.0))
                 dx2 = np.abs((GRID.get_node_height(idxNode+1) / 2.0) + (GRID.get_node_height(idxNode) / 2.0))
 
