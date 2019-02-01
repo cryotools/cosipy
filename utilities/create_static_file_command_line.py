@@ -10,13 +10,12 @@ import os
 static_folder = '../data/static/'
 
 dem_path_tif_to_shrink = static_folder + 'Rofental_DEM.tif'
-dem_path_tif = static_folder + 'dgm_hintereisferner.tif'
-#dem_path_tif = static_folder + 'Hintereisferner_DEM.tif'
+dem_path_tif = static_folder + 'Hintereisferner_DEM.tif'
 shape_path = static_folder + 'HEF_Flaeche2018.shp'
 
 ### for shrinking the input DEM file to a smaller DEM
-longitude_upper_left = '10.71'
-latitude_upper_left = '46.92'
+longitude_upper_left = '10.72'
+latitude_upper_left = '46.82'
 longitude_lower_right = '10.795'
 latitude_lower_right = '46.78'
 

@@ -127,7 +127,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         z0 = updateRoughness(GRID, hours_since_snowfall)
 
         # Calculate new density to densification
-        densification(GRID,SLOPE)
+        # densification(GRID,SLOPE)
 
         # Merge grid layers, if necessary
         GRID.update_grid(merging, temperature_threshold_merging, density_threshold_merging, merge_snow_threshold, merge_max, split_max)

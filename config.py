@@ -3,8 +3,8 @@
  Please make your changes here.
 """
 ## Simulation period
-time_start = '2018-06-01T00:00'
-time_end   = '2018-06-01T08:00'
+time_start = '2018-05-25T00:00'
+time_end   = '2018-06-05T00:00'
 time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
@@ -44,7 +44,6 @@ temperature_threshold_merging = 0.05                # If mering is true threshol
 # How many mergings and splittings are allowed per time step
 merge_max = 2          
 split_max = 2 
-
 
 ## Max. number of layers, just for the restart file
 max_layers = 100
