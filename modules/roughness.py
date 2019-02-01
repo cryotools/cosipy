@@ -1,7 +1,18 @@
 from constants import *
 import sys
 
-def default_method(GRID, evdiff):
+def updateRoughness(GRID, evdiff):
+
+    if roughness_method == 'Moelg12':
+        sigma = method_Moelg(GRID, evdiff)
+
+    else:
+        print('Roughness parameterisation ', roughness_method, ' not available using default')
+        sigma = method_Moelg(GRID, evdiff)
+
+    return sigma
+
+def method_Moelg(GRID, evdiff):
 
     """ This method updates the roughness length (Moelg et al 2009, J.Clim.)"""
 
@@ -17,14 +28,3 @@ def default_method(GRID, evdiff):
         sigma = roughness_ice
 
     return (sigma / 1000)
-
-def updateRoughness(GRID, evdiff):
-
-    if roughness_method == 'Moelg12':
-        sigma = default_method(GRID, evdiff)
-
-    else:
-        print('Roughness parameterisation ', roughness_method, ' not available')
-        sigma = default_method(GRID, evdiff)
-
-    return sigma

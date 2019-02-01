@@ -3,7 +3,18 @@ import numpy as np
 from constants import *
 import sys
 
-def default_method(GRID, SWnet, dt):
+def penetrating_radiation(GRID, SWnet, dt):
+
+    if penetrating_method == 'Bintanja95':
+        subsurface_melt, Si = method_Bintanja(GRID, SWnet, dt)
+
+    else:
+        print('Penetrating radiation parameterisation ', penetrating_method, ' not available, using default')
+        subsurface_melt, Si = method_Bintanja(GRID, SWnet, dt)
+
+    return subsurface_melt, Si
+
+def method_Bintanja(GRID, SWnet, dt):
     # Total height of first layer
     total_height = 0.0
 
@@ -77,16 +88,5 @@ def default_method(GRID, SWnet, dt):
 
     # Remove layers which have been melted
     GRID.remove_node(list_of_layers_to_remove)
-
-    return subsurface_melt, Si
-
-def penetrating_radiation(GRID, SWnet, dt):
-
-    if penetrating_method == 'Bintanja95':
-        subsurface_melt, Si = default_method(GRID, SWnet, dt)
-
-    else:
-        print('Penetrating radiation parameterisation ', penetrating_method, ' not available, using default')
-        subsurface_melt, Si = default_method(GRID, SWnet, dt)
 
     return subsurface_melt, Si

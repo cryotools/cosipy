@@ -2,7 +2,20 @@ import numpy as np
 from constants import *
 import sys
 
-def default_method(GRID,SLOPE):
+def densification(GRID,SLOPE):
+    """ Densification of the snowpack
+    Args:
+        GRID    ::  GRID-Structure
+    """
+
+    if densification_method == 'Herron80':
+        method_Herron(GRID,SLOPE)
+
+    else:
+        print('ERROR: Densification parameterisation ', densification_method, ' not available, using defaul')
+        method_Herron(GRID,SLOPE)
+
+def method_Herron(GRID,SLOPE):
     # % Description: Densification through overburden pressure
     # % after Reijmer & Hock (2007) and Herron & Langway (1980)
     # % RETURNS:
@@ -19,7 +32,7 @@ def default_method(GRID,SLOPE):
         if idxNode == 0:
             weight = (GRID.get_node_height(idxNode) * 0.5 * GRID.get_node_density(idxNode))
         else:
-            weight = (np.nansum(height_layers[0:idxNode - 1] * density_temp[0:idxNode - 1]))
+            weight = (np.nansum(height_layers[0:idxNode] * density_temp[0:idxNode]))
 
         weight *= np.cos(np.radians(SLOPE))
 
@@ -37,16 +50,3 @@ def default_method(GRID,SLOPE):
 
     GRID.set_height((GRID.get_density() / density_temp) * GRID.get_height())
     GRID.set_density(density_temp)
-
-def densification(GRID,SLOPE):
-    """ Densification of the snowpack
-    Args:
-        GRID    ::  GRID-Structure
-    """
-
-    if densification_method == 'Herron80':
-        default_method(GRID,SLOPE)
-
-    else:
-        print('ERROR: Densification parameterisation ', densification_method, ' not available, using defaul')
-        default_method(GRID,SLOPE)

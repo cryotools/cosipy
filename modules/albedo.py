@@ -2,7 +2,19 @@ import numpy as np
 from constants import *
 import sys
 
-def default_method(GRID,evdiff):
+def updateAlbedo(GRID, evdiff):
+    """ This methods updates the albedo """
+
+    if albedo_method == 'Oerlemans98':
+        alphaMod = method_Oerlemans(GRID,evdiff)
+
+    else:
+        print('Albedo parameterisation ', albedo_method, ' not available, using default')
+        alphaMod = method_Oerlemans(GRID,evdiff)
+
+    return alphaMod
+
+def method_Oerlemans(GRID,evdiff):
     # Check if snow or ice
     if (GRID.get_node_density(0) <= snow_ice_threshold):
         # Get current snowheight from layer height
@@ -18,19 +30,6 @@ def default_method(GRID,evdiff):
         alphaMod = albedo_ice
 
     return alphaMod
-
-def updateAlbedo(GRID, evdiff):
-    """ This methods updates the albedo """
-
-    if albedo_method == 'Oerlemans98':
-        alphaMod = default_method(GRID,evdiff)
-
-    else:
-        print('Albedo parameterisation ', albedo_method, ' not available, using defaul')
-        alphaMod = default_method(GRID,evdiff)
-
-    return alphaMod
-
 
 ### idea; albedo decay like (Brock et al. 2000)? or?
 ### Schmidt et al 2017 >doi:10.5194/tc-2017-67, 2017 use the same albedo parameterisation from Oerlemans and Knap 1998 with a slight updated implementation of considering the surface temperature?

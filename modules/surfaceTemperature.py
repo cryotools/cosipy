@@ -4,10 +4,6 @@ from cpkernel.io import *
 from scipy.optimize import minimize
 import sys
 
-def default_method_EW(Temp):
-    Ew = 6.112 * np.exp((17.67*(Temp-273.16)) / ((Temp-29.66)))
-    return Ew
-
 def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam, SLOPE):
 
     if x >= zero_temperature:
@@ -18,13 +14,13 @@ def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam, SLOPE):
     # Saturation vapour pressure at the surface
     if saturation_water_vapour_method == 'Sonntag90':
 
-        Ew0 = default_method_EW(x)
+        Ew0 = method_EW_Sonntag(x)
 
     else:
         print('Method for saturation water vapour ', saturation_water_vapour_method,
               ' not availalbe using default method, using default')
 
-        Ew0 = default_method_EW(x)
+        Ew0 = method_EW_Sonntag(x)
 
     # if x>=zero_temperature:
     #     Ew0 = 6.1078 * np.exp((17.269388*(x-273.16)) / ((x-35.86)))
@@ -60,10 +56,10 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
     # Saturation vapour pressure (hPa)
 
     if saturation_water_vapour_method == 'Sonntag90':
-        Ew = default_method_EW(T2)
+        Ew = method_EW_Sonntag(T2)
     else:
         print('Method for saturation water vapour ', saturation_water_vapour_method, ' not available, using default')
-        Ew = default_method_EW(T2)
+        Ew = method_EW_Sonntag(T2)
 
     # if T2>=zero_temperature:
     #    Ew = 6.1078 * np.exp((17.269388*(T2-273.16)) / ((T2-35.86)))
@@ -159,3 +155,6 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
 
     return res.fun, float(res.x), float(Li), float(Lo), float(H), float(L), float(B), float(SWnet), rho, Lv, Cs, q0, q2, qdiff, phi
 
+def method_EW_Sonntag(Temp):
+    Ew = 6.112 * np.exp((17.67*(Temp-273.16)) / ((Temp-29.66)))
+    return Ew
