@@ -142,7 +142,7 @@ class Grid:
 
 
 
-    def update_grid(self, merge, threshold_temperature, threshold_density, merge_snow_threshold):
+    def update_grid(self, merge, threshold_temperature, threshold_density, merge_snow_threshold, merge_max, split_max):
         """ Merge the similar layers according to certain criteria. Users can determine different levels:
             
             merging can be False or True
@@ -157,11 +157,24 @@ class Grid:
 
         self.logger.debug('Update grid')
 
-        # Auxilary variables
-        idx = self.number_nodes - 1
+        # Define boolean for merging and splitting loop
+        if merge:
+            merge_bool = True
+            split_bool = True
+        else:
+            merge_bool = False
+            split_bool = False
+
+        #---------------------
+        # Merging 
+        #---------------------
         
+        # Auxilary variables
+        idx = 1 #self.number_nodes - 1
+        num_of_merging = 0
+
         # Iterate over grid and check for similarity
-        while merge:
+        while merge_bool:
             if ((np.abs(self.grid[idx].get_layer_density() - self.grid[idx-1].get_layer_density())
                 <= threshold_density) &
                     (np.abs(self.grid[idx-1].get_layer_density() - self.grid[idx-2].get_layer_density()) <= 100.) &
@@ -198,27 +211,64 @@ class Grid:
                 self.remove_node([idx-1])
            
                 # Move to next layer 
-                idx -= 1
+                idx += 1
+                #idx -= 1
+
+
+                # Stop merging if maximal number is reached
+                num_of_merging += 1
+                
+                if num_of_merging == merge_max:
+                    merge_bool = False
 
                 # Write merging steps if debug level is set >= 10
                 self.logger.debug("Merging (update_grid)....")
                 self.grid_info()
                 self.logger.debug("End merging .... \n")
             
-            # Split node, if temperature difference is 2.0 times the temperature threshold
-            elif ((np.abs(self.grid[idx].get_layer_density() - self.grid[idx-1].get_layer_density()) > 10.0*threshold_density) & 
-                  (np.abs(self.grid[idx].get_layer_temperature() - self.grid[idx-1].get_layer_temperature()) >= 10.0*threshold_temperature) & 
-                  (self.grid[idx].get_layer_height() > 2.5*merge_snow_threshold)):
-                self.split_node(idx)
-                idx -= 1
-
             else:
 
                 # Stop merging process, if iterated over entire grid
-                idx -= 1
+                #idx -= 1
+                idx += 1
 
-            if idx == 0:
-                merge = False
+            if idx == self.number_nodes-1: #0:
+                merge_bool = False
+            
+        #---------------------
+        # Splitting
+        #---------------------
+        
+        # Auxilary variables
+        idx = 1 #self.number_nodes - 1
+        num_of_split = 0
+        
+        while split_bool:
+            # Split node, if temperature difference is 2.0 times the temperature threshold
+            if ((np.abs(self.grid[idx].get_layer_density() - self.grid[idx-1].get_layer_density()) > 10.0*threshold_density) & 
+                  (np.abs(self.grid[idx].get_layer_temperature() - self.grid[idx-1].get_layer_temperature()) >= 10.0*threshold_temperature) & 
+                  (self.grid[idx].get_layer_height() > 2.5*merge_snow_threshold)):
+                self.split_node(idx)
+                #idx -= 1
+                
+                idx += 1
+                num_of_split += 1
+                
+                # Stop merging if maximal number is reached
+                if num_of_split == split_max:
+                    split_bool = False
+                
+                # Write splitting steps if debug level is set >= 10
+                self.logger.debug("Splitting (update_grid)....")
+                self.grid_info()
+                self.logger.debug("End splitting .... \n")
+            
+            else:
+                # Move to next layer
+                idx += 1
+
+            if idx == self.number_nodes-1: #0:
+                split_bool = False
 
 
 
