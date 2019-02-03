@@ -35,7 +35,7 @@ dt = 3600                                           # 3600, 7200, 10800 [s] leng
 debug_level = 0                                     # DEBUG levels: 0, 10, 20, 30
 
 ## Merging level
-merging = True 
+merging = False
 density_threshold_merging = 5                       # If merging is true threshold for layer densities difference two layer
                                                     # try: 5-10 (kg m^-3)
 temperature_threshold_merging = 0.05                # If mering is true threshold for layer temperatures to merge

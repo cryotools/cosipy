@@ -177,9 +177,9 @@ class Grid:
         while merge_bool:
             if ((np.abs(self.grid[idx].get_layer_density() - self.grid[idx-1].get_layer_density())
                 <= threshold_density) &
-                    (np.abs(self.grid[idx-1].get_layer_density() - self.grid[idx-2].get_layer_density()) <= 100.) &
-                    (np.abs(self.grid[idx].get_layer_temperature() - self.grid[idx-1].get_layer_temperature())
-                <= threshold_temperature) &
+                    (np.abs(self.grid[idx - 1].get_layer_density() - self.grid[idx - 2].get_layer_density()) <= 100.) &
+                    (np.abs(self.grid[idx].get_layer_temperature() - self.grid[idx - 1].get_layer_temperature())
+                          <= threshold_temperature) &
                     (self.grid[idx].get_layer_height() + self.grid[idx-1].get_layer_height() <= 0.5)):
 
                 # Total height of both layer which are merged
@@ -277,21 +277,28 @@ class Grid:
 
         self.logger.debug('Merge new snow')
 
-        ### Merge first layer if underlying layer is snow and height smaller the merge snow threshold
-        if (self.grid[1].get_layer_density() < snow_ice_threshold) & (self.grid[0].get_layer_height() <= height_diff):
+        ### Merge snow layers if thickness thinner threshold or if only one snow layer thinner minimum snow height
+        if ((self.grid[1].get_layer_density() < snow_ice_threshold) & (self.grid[0].get_layer_height() <= height_diff)) \
+            or ((self.grid[1].get_layer_density() >= snow_ice_threshold) & (self.grid[0].get_layer_height() < minimum_snow_height)):
 
-            # Total height of both layer which are merged
-            total_height = self.grid[0].get_layer_height() + self.grid[1].get_layer_height()
+            # If only one snowlayer left and smaller minimum snowheight transform layer to ice (enlarge density and reduce height
+            if ((self.grid[1].get_layer_density() >= snow_ice_threshold) & (self.grid[0].get_layer_height() < minimum_snow_height)):
+                height_first_layer_tmp = (self.grid[0].get_layer_density()/ice_density) * self.grid[0].get_layer_height()
+                density_first_layer_tmp = ice_density
+
+            else:
+                height_first_layer_tmp = self.grid[0].get_layer_height()
+                density_first_layer_tmp = self.grid[0].get_layer_density()
 
             # Add up height of the two layer
             new_height = self.grid[0].get_layer_height() + self.grid[1].get_layer_height()
 
             # Get the new density, weighted by the layer heights
-            new_density = (self.grid[0].get_layer_height() / total_height) * self.grid[0].get_layer_density() + \
-                          (self.grid[1].get_layer_height() / total_height) * self.grid[1].get_layer_density()
+            new_density = (height_first_layer_tmp / new_height) * density_first_layer_tmp + \
+                          (self.grid[1].get_layer_height() / new_height) * self.grid[1].get_layer_density()
 
             # First calculate total energy
-            new_total_energy = (self.grid[0].get_layer_height() * spec_heat_ice * self.grid[0].get_layer_density() *
+            new_total_energy = (height_first_layer_tmp * spec_heat_ice * density_first_layer_tmp *
                                 self.grid[0].get_layer_temperature()) + \
                                (self.grid[1].get_layer_height() * spec_heat_ice * self.grid[1].get_layer_density() *
                                 self.grid[1].get_layer_temperature())
@@ -299,7 +306,6 @@ class Grid:
             # Convert total energy to temperature according to the new density
             new_temperature = new_total_energy / (spec_heat_ice * new_density * new_height)
 
-            # Todo: CHECK IF RIGHT!!!!!
             new_liquid_water_content = self.grid[0].get_layer_liquid_water_content() + \
                                        self.grid[1].get_layer_liquid_water_content()
 
@@ -313,48 +319,6 @@ class Grid:
             self.logger.debug("Merging new snow (merge_new_snow) ....")
             self.grid_info()
             self.logger.debug("End merging .... \n")
-
-
-        ### Merge first layer if underlying layer is ice and height smaller merge minimum total snowheight
-        elif (self.grid[1].get_layer_density() >= snow_ice_threshold) & (self.grid[0].get_layer_height() < minimum_snow_height):
-
-                ### transform first layer to ice:
-                height_first_layer_temp = (self.grid[0].get_layer_density()/ice_density) * self.grid[0].get_layer_height()
-                density_first_layer_temp = ice_density
-
-                # Total height of both layer which are merged
-                total_height = height_first_layer_temp + self.grid[1].get_layer_height()
-
-                # Add up height of the two layer
-                new_height = height_first_layer_temp + self.grid[1].get_layer_height()
-
-                # Get the new density, weighted by the layer heights
-                new_density = (height_first_layer_temp / total_height) * density_first_layer_temp + \
-                    (self.grid[1].get_layer_height() / total_height) * self.grid[1].get_layer_density()
-
-                # First calculate total energy
-                new_total_energy = (height_first_layer_temp * spec_heat_ice * density_first_layer_temp *
-                                    self.grid[0].get_layer_temperature()) + \
-                                   (self.grid[1].get_layer_height() * spec_heat_ice * self.grid[1].get_layer_density() *
-                                    self.grid[1].get_layer_temperature())
-                
-                # Convert total energy to temperature according to the new density
-                new_temperature = new_total_energy/(spec_heat_ice*new_density*new_height)
-                
-                # Todo: CHECK IF RIGHT!!!!!
-                new_liquid_water_content = self.grid[0].get_layer_liquid_water_content() + \
-                                           self.grid[1].get_layer_liquid_water_content()
-
-                # Update node properties
-                self.update_node(1, new_height, new_density, new_temperature, new_liquid_water_content, 0.0, 0.0, 0.0, 0.0)
-
-                # Remove the second layer
-                self.remove_node([0])
-           
-                # Write merging steps if debug level is set >= 10
-                self.logger.debug("Merging new snow (merge_new_snow) ....")
-                self.grid_info()
-                self.logger.debug("End merging .... \n")
 
 
 
@@ -390,6 +354,8 @@ class Grid:
                 self.remove_node([0])
                 melt -= melt_required
                 remove = True
+
+
 
     def set_node_temperature(self, idx, temperature):
         """ Returns temperature of node idx """

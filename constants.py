@@ -11,7 +11,7 @@ roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
 
 ' Inital constants'
-initial_snowheight = 0.8                       # Inital snowheigt
+initial_snowheight = 0.8                        # Inital snowheigt
 initial_snow_layer_heights = 0.1                # Initial thickness of snow layers
 initial_glacier_height = 30.0                   # Inital glacier heigt without snowlayers
 initial_glacier_layer_heights = 1.              # Initial thickness of glacier ice layers
@@ -19,11 +19,11 @@ initial_glacier_layer_heights = 1.              # Initial thickness of glacier i
 initial_top_density_snowpack = 300.             # Top density for inital snowpack
 initial_botton_density_snowpack = 600.          # Botton density for inital snowpack
 
-temperature_top = 268.                          # Upper boudary conditation for inital temperature profile (K)
-temperature_bottom = 272.                       # Lower boundary condition for inital tempeature profile (K)
+temperature_top = 267.16                        # Upper boudary conditation for inital temperature profile (K)
+temperature_bottom = 271.                       # Lower boundary condition for inital tempeature profile (K)
 const_init_temp = 0.1                           # constant for init temperature profile used in exponential function (exponential decay)
 
-merge_snow_threshold = 0.1                     # (m) minimum height of layer, is used if fresh fallen snow is added as a new
+merge_snow_threshold = 0.1                      # (m) minimum height of layer, is used if fresh fallen snow is added as a new
                                                 # layer or merged to the underlying layer
 
 minimum_snow_height = 0.01                      # (m) minimum height of last snowlayer on glacier

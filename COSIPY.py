@@ -94,7 +94,7 @@ def main():
     start_writing = datetime.now()
 
     # Write results and restart files
-    timestamp = pd.to_datetime(str(IO.get_restart().time.values)).strftime('%Y-%m-%dT%H:%M:%S')
+    timestamp = pd.to_datetime(str(IO.get_restart().time.values)).strftime('%Y-%m-%dT%H-%M-%S')
     comp = dict(zlib=True, complevel=9)
     
     encoding = {var: comp for var in IO.get_result().data_vars}
