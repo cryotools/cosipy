@@ -1,7 +1,7 @@
 # IN PROGRESS
 ### ToDos in README:
 * Finish Quick tutorial
-* Finish Model strucute
+* Finish Model structure
 * describe config options
 * describe plot routines
 # Introduction ##
@@ -11,9 +11,9 @@ Tobias Sauter, tobias.sauter@fau.de <br>
 Anselm Arndt, anselm.arndt@geo.hu-berlin.de
 
 # Requirements
-## Packages and libaries
+## Packages and libraries
 ####Python 3
-Any Python 3 version on any operating system should work. If you think the reason of a problem might be your specific Python 3 version or your 
+Any Python 3 version on any operating system should work. If you think the reason for a problem might be your specific Python 3 version or your 
 operating system, please create a topic in the forum. $LINK$ <br> Model is tested and developed on:
   * Anaconda Distribution on max OS 
   * Python 3.6.5 on Ubuntu 18.04
@@ -52,32 +52,32 @@ Some variables are optinal and for ussage it has to be specified in the config f
 ## Preprocessing
 COSiPY provides some utilities which can be used to create the required input file for the core run.
 ### Create needed combined static input file
-The following is the example in the "data/static/" folder. If the procedure does not work for your study area please try it first
+The following is the example in the "data/static/" folder. If the procedure does not work for your study area, please try it first
 with the example.
 #### Required packages and libaries:
 * gdal (e.g. in Debian-based Linux distributions package called gdal-bin)
-* cliamte date operators (e.g. in Debian-based Linux distributions package called cdo)
+* climate date operators (e.g. in Debian-based Linux distributions package called cdo)
 * netCDF Operators (e.g. in Debian-based Linux distritutions package called nco)
 #### Needed input files
 * Digital elevation model, best in WGS84 - EPSG:4326.
-* Shapefile of glacier
+* Shapefile of the glacier
 Both should be in WG84 EPSG:4326.
 
 #### Procedure:
-In the utilities folder there is the script create_static_file_command_line.py. This script runs some commands in the command line.
-That's is the reason, that we can provide this script only for UNIX and MAC users at the moment. We are working on a Python were no UNIX command
+In the utilities folder, there is the script create_static_file_command_line.py. This script runs some commands in the command line.
+That's is the reason, that we can provide this script only for UNIX and MAC users at the moment. We are working on a version where no UNIX command
 line is needed.
 (create_static_file.py).<br>
-The intermediate files 'dem.nc', 'aspect.nc', 'mask.nc' and 'slope.nc' are deleted automatically. First try to run the script
+The intermediate files 'dem.nc', 'aspect.nc', 'mask.nc' and 'slope.nc' are deleted automatically. First, try to run the script
 and create the 'static.nc' file with the example "Rofental_DEM.tif" and 'HEF_Flaeche2018.shp'. If this works, try to change to
 your DEM and shapefile and adjust the area to which you want to shrink the DEM. The input data have to be in Lat/Lon
-WGS84-EPSG:4326 projection with the units degrees, that the script works correct. <br>
+WGS84-EPSG:4326 projection with the units degrees, that the script works correctly. <br>
 Run the script with:
 ```
 python create_static_files_with_command_line.py
 ```
 Maybe the following commands are useful. You do not need them for the examples in the data/static folder.<br>
-The first can be used to aggreagte the DEM to a course spatial resolution.
+The first can be used to aggreagate the DEM to a coarse spatial resolution.
 ```
 gdalwarp -tr 0.01 0.01 -r average Hintereisferner_DEM.tif Hintereisferner_DEM_coarser.tif
 ```
@@ -90,28 +90,27 @@ gdalwarp -t_srs EPSG:4326 dgm_hintereisferner.tif dgm_hintereisferner-lat_lon.ti
 * static.nc file, created in step above
 * 1D fields of all required dynamic input files
 #### Procedure:
-There are two different preprocessing scripts in the utilities folder to create the needed gridded input data. One is especially desinged for the
-usage of csv file from a dataloger of a AWS station. This file is called aws_logger2cosipy.py with the corresponding configuration file 
+There are two different preprocessing scripts in the utilities folder to create the needed gridded input data. One is especially desingned for the
+usage of csv file from a datalogger of an AWS station. This file is called aws_logger2cosipy.py with the corresponding configuration file 
 'aws_logger2cosipyConfig.py'.<br> 
-The 'csv2cosipy.py' sciprt with the corresponding configuration file 'csv2cosipyConfig.py' is a more gerneral file.<br>
+The 'csv2cosipy.py' script with the corresponding configuration file 'csv2cosipyConfig.py' is a more general file.<br>
 Very important: For the aws_logger2cosipy.py version the temperature has to be in degree Celsius.<br> This example is using
 the aws_logger version.<br>
-For the solar radiation a model after Wohlfahrt et al. (2016; doi: 10.1016/j.agrformet.2016.05.012) is used. <br>
+For the solar radiation, a model after Wohlfahrt et al. (2016; doi: 10.1016/j.agrformet.2016.05.012) is used. <br>
 For air temperature, relative humidity and precipitation constant lapse rates, which have to be set, are used. <br>
-Wind speed and cloud cover fraction kept constant for all gridpoint at on time stept.<br><br>
-The script needes:
-* the input file; for example a Campbell Scientific logger file with all required dynamic input fiels
+Wind speed and cloud cover fraction kept constant for all gridpoint at on time step.<br><br>
+The script needs:
+* the input file; for example a Campbell Scientific logger file with all required dynamic input fields
 * the file path (including the name) for the resulting COSIPY file, which will be used as input file for the core run
 * the path to the static file, created in the step above
 * the start and end date of the timespan
 In the aws_logger2cosipyConfig.py one has to define how the input variables are called in the CS_FILE. <br> 
-For the radiation module one has to set the timezone and the zenit threshold. <br> Furthermore, the station name has to be set, the altitude of the station, and the laps rates for temperature, relative humidity and precipitation.<br>
+For the radiation module, one has to set the timezone and the zenit threshold. <br> Furthermore, the station name has to be set, the altitude of the station, and the lapse rates for temperature, relative humidity and precipitation.<br>
 If everything is set, configured and prepared, run the script:
 ```bash
 python aws_logger2cosipy.py -c ../data/input/008_station_hintereis_lf_toa5_cr3000_a_small.dat -o ../data/input/Hintereisferner_input.nc -s ../data/static/static.nc
 ```
-The script takes all input timestamps which are in the -c input file. If you want only a specific period you can use the following 
-options at the end of the call.
+The script takes all input timestamps which are in the -c input file. If you want only a specific period, you can use the following options at the end of the call.
 ```
 python aws_logger2cosipy.py -c ../data/input/008_station_hintereis_lf_toa5_cr3000_a_small.dat -o 
 ../data/input/Hintereisferner_input.nc -s ../data/static/static.nc -b 2018-06-01T00:00 -e 2018-06-02T00:00
@@ -183,7 +182,7 @@ Subsurface melt|subM| m w.e.|
 Runoff|Q| m w.e.| 
 Refreezing|REFREEZE| m w.e.| 
 Snowheight|SNOWHEIGHT| m|
-Total domain height|TOTALHEIGHT| m|  
+Total domain height|TOTALHEIGHT| m|
 Surface temperature|TS| K| 
 Roughness length|Z0| m| 
 Albedo|ALBEDO| -| 
@@ -211,4 +210,4 @@ $TODO:LINK TO ISSUE SECTION WOULD BE BETTER$
 Please branch or fork your version, do not change the master.
 
 You are allowed to use and modify this code in a noncommercial manner and by
-appropriately citing the above mentioned developers.
+appropriately citing the above-mentioned developers.
