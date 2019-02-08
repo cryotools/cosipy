@@ -4,7 +4,7 @@
 """
 
 processes = 20	          				                    # grid points submitted in one sbatch script
-nodes = 1						                            # how many sbatach scripts are submitted
+nodes = 1					                            # how many sbatach scripts are submitted
 memory_per_process = 3					                    # memory per processes in GB
 project = ''                            					# equivalent to slurm parameter --account
 name = 'Test',                                              # equivalent to slurm parameter --job-name

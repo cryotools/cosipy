@@ -21,12 +21,12 @@ operating system, please create a topic in the forum. $LINK$ <br> Model is teste
   * Cluster Innsbruck
 
 #### Needed Python modules (with an Anaconda installation, they might be already installed):
-* numpy
 * xarray
+* dask-jobqueue
 * netcdf4
-* scipy
-* distributed
-* dask_jobqueue
+* numpy             (included in Anaconda)
+* scipy             (included in Anaconda)
+* distributed       (included in Anaconda) 
 
 ## Input
 Some variables are optinal and for ussage it has to be specified in the config file.

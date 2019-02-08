@@ -291,7 +291,7 @@ class Grid:
                 density_first_layer_tmp = self.grid[0].get_layer_density()
 
             # Add up height of the two layer
-            new_height = self.grid[0].get_layer_height() + self.grid[1].get_layer_height()
+            new_height = height_first_layer_tmp + self.grid[1].get_layer_height()
 
             # Get the new density, weighted by the layer heights
             new_density = (height_first_layer_tmp / new_height) * density_first_layer_tmp + \
