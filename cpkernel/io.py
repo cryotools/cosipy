@@ -9,10 +9,10 @@ import pandas as pd
 import numpy as np
 import time
 import logging
-from constants import *
-
-from config import * 
 from modules.radCor import correctRadiation
+from constants import *
+from config import * 
+
 
 class IOClass:
 
@@ -172,6 +172,20 @@ class IOClass:
         self.RESULT.coords['lat'] = self.DATA.coords['lat']
         self.RESULT.coords['lon'] = self.DATA.coords['lon']
 
+        self.RESULT.attrs['force_use_TP'] = str(force_use_TP)
+        self.RESULT.attrs['Time_step_input_file_seconds'] = dt
+        self.RESULT.attrs['merging'] = str(merging)
+        self.RESULT.attrs['density_threshold_merging'] = density_threshold_merging
+        self.RESULT.attrs['temperature_threshold_merging'] = temperature_threshold_merging
+        self.RESULT.attrs['merge_max'] = merge_max
+        self.RESULT.attrs['split_max'] = split_max
+        self.RESULT.attrs['c_stab'] = c_stab
+
+        self.RESULT.attrs['albedo_method'] = albedo_method
+        self.RESULT.attrs['densification_method'] = densification_method
+        self.RESULT.attrs['penetrating_method'] = penetrating_method
+        self.RESULT.attrs['roughness_method'] = roughness_method
+        self.RESULT.attrs['saturation_water_vapour_method'] = saturation_water_vapour_method
         self.RESULT.attrs['initial_snowheight'] = initial_snowheight
         self.RESULT.attrs['initial_snow_layer_heights'] = initial_snow_layer_heights
         self.RESULT.attrs['initial_glacier_layer_heights'] = initial_glacier_layer_heights
@@ -183,6 +197,7 @@ class IOClass:
         self.RESULT.attrs['const_init_temp'] = const_init_temp
         self.RESULT.attrs['merge_snow_threshold'] = merge_snow_threshold
         self.RESULT.attrs['minimum_snow_height'] = minimum_snow_height
+        self.RESULT.attrs['minimum_snow_to_reset_albedo'] = minimum_snow_to_reset_albedo
         self.RESULT.attrs['density_fresh_snow'] = density_fresh_snow
         self.RESULT.attrs['albedo_fresh_snow'] = albedo_fresh_snow
         self.RESULT.attrs['albedo_firn'] = albedo_firn
