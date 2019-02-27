@@ -146,6 +146,7 @@ class Grid:
 
         self.logger.debug('Split node')
 
+        
         self.grid.insert(pos+1, Node(self.get_node_height(pos)/2.0, self.get_node_density(pos), self.get_node_temperature(pos), self.get_node_liquid_water(pos)/2.0, self.get_node_ice_fraction(pos)))
         self.update_node(pos, self.get_node_height(pos)/2.0, self.get_node_temperature(pos), self.get_node_ice_fraction(pos), self.get_node_liquid_water(pos)/2.0)
         self.number_nodes += 1
@@ -199,13 +200,14 @@ class Grid:
                 if nlayers > 1:
                     
                     # Calc differences between a layer and the subsequent layer
-                    dT = np.diff(self.get_temperature()[0:nlayers+1])
-                    dRho = np.diff(self.get_density()[0:nlayers+1])
+                    dT = np.diff(self.get_temperature()[0:nlayers])
+                    dRho = np.diff(self.get_density()[0:nlayers])
 
                     # Sort the by differences in ascending order, and merge if criteria is met
                     ind = np.lexsort((abs(dRho),abs(dT)))
+                    
                     if (abs(dT[ind[0]])<threshold_temperature) & (abs(dRho[ind[0]])<threshold_density):
-                        self.merge_nodes(ind[i])
+                        self.merge_nodes(ind[0])
             
          
         #---------------------
@@ -237,7 +239,7 @@ class Grid:
                         # Sort the by differences in ascending order
                         ind = np.lexsort((abs(dT),abs(dRho),h))[::-1]
                    
-                        if (h[ind[0]]>max_snow_layer_height) & (abs(dT[ind[0]])>5*threshold_temperature) & (abs(dRho[ind[0]])>5*threshold_density):
+                        if (h[ind[0]]>2*merge_snow_threshold) & (abs(dT[ind[0]])>5*threshold_temperature) & (abs(dRho[ind[0]])>5*threshold_density):
                             self.split_node(ind[i])
 
                 #--------------------------------------
@@ -578,7 +580,7 @@ class Grid:
         total = 0
         snowheight = 0
         for i in range(self.number_nodes):
-            if (self.grid[i].get_layer_density()<threshold_for_snowheight):
+            if (self.grid[i].get_layer_density()<snow_ice_threshold):
                 snowheight = snowheight + self.grid[i].get_layer_height()
             total = total + self.grid[i].get_layer_height()
 
@@ -621,7 +623,7 @@ class Grid:
         
         nlayers = 0
         for i in range(self.number_nodes):
-            if (self.grid[i].get_layer_density()<threshold_for_snowheight):
+            if (self.grid[i].get_layer_density()<snow_ice_threshold):
                 nlayers = nlayers+1
         return nlayers
 

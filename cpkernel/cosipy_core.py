@@ -94,7 +94,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
     logger.debug('Start time loop')
    
     for t in np.arange(len(DATA.time)):
-
+        
         #--------------------------------------------
         # SNOWFALL [m]
         #--------------------------------------------
@@ -112,7 +112,6 @@ def cosipy_core(DATA, GRID_RESTART=None):
             # Add a new snow node on top
             GRID.add_node(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0)
             GRID.merge_new_snow(merge_snow_threshold)
-        
 
         #--------------------------------------------
         # RAINFALL 
@@ -147,7 +146,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         #--------------------------------------------
         # Calculate net shortwave radiation
         SWnet = G[t] * (1 - alpha)
-
+        
         # Penetrating SW radiation and subsurface melt
         subsurface_melt, G_penetrating = penetrating_radiation(GRID, SWnet, dt)
 
