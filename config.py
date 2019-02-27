@@ -3,8 +3,8 @@
  Please make your changes here.
 """
 ## Simulation period
-time_start = '2018-09-26T00:00'
-time_end   = '2018-09-27T00:00'
+time_start = '2018-09-25T00:00'
+time_end   = '2018-09-26T00:00'
 time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
@@ -23,7 +23,7 @@ local_port = 8786
 full_field = False
 
 ## Restart
-restart = True
+restart = False
 
 ## If total precipitation and snowfall in input data use total precipitation!
 force_use_TP = False
@@ -36,9 +36,9 @@ debug_level = 0                                     # DEBUG levels: 0, 10, 20, 3
 
 ## Merging level
 merging = True 
-density_threshold_merging = 20                       # If merging is true threshold for layer densities difference two layer
+density_threshold_merging = 50                       # If merging is true threshold for layer densities difference two layer
                                                     # try: 5-10 (kg m^-3)
-temperature_threshold_merging = 0.5                # If mering is true threshold for layer temperatures to merge
+temperature_threshold_merging = 0.8                # If mering is true threshold for layer temperatures to merge
                                                     # try: 0.05-0.1 (K)
 
 # How many mergings and splittings are allowed per time step
@@ -47,6 +47,10 @@ split_max = 2
 
 ## Max. number of layers, just for the restart file
 max_layers = 100
+
+## Max. height of snow layers
+max_snow_layer_height = 0.5
+max_glacier_layer_height = 0.8
 
 ## CFL criteria
 c_stab = 0.6

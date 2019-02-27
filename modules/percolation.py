@@ -27,8 +27,6 @@ def percolation(GRID, water, t, debug_level):
     # for consistency check
     total_start = np.sum(GRID.get_liquid_water())
 
-    #GRID.grid_info_screen()
-
     # Loop over all internal grid points for percolation 
     for idxNode in range(0, GRID.number_nodes-1, 1):
         

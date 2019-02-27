@@ -78,14 +78,15 @@ def main():
                           project=project, name=name,
                           memory=str(memory_per_process * processes) + 'GB', local_directory='dask-worker-space',
                           job_extra=extra_slurm_parameters) as cluster:
+            
             print(cluster.job_script())
-            cluster.scale(processes * nodes)
             print("You are using SLURM!\n")
-            main_body(cluster, IO, DATA, RESULT, RESTART, futures, nfutures)
+            cluster.scale(processes * nodes) 
+            run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures, nfutures)
 
     else:
         with LocalCluster(scheduler_port=local_port, n_workers=workers, threads_per_worker=1, silence_logs=True) as cluster:
-            main_body(cluster,IO,DATA,RESULT,RESTART,futures,nfutures)
+            run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures, nfutures)
 
     print('\n')
     print('--------------------------------------------------------------')
@@ -93,7 +94,9 @@ def main():
     print('-------------------------------------------------------------- \n')
     start_writing = datetime.now()
 
+    #-----------------------------------------------
     # Write results and restart files
+    #-----------------------------------------------
     timestamp = pd.to_datetime(str(IO.get_restart().time.values)).strftime('%Y-%m-%dT%H-%M-%S')
     comp = dict(zlib=True, complevel=9)
     
@@ -103,13 +106,18 @@ def main():
     encoding = {var: comp for var in IO.get_restart().data_vars}
     IO.get_restart().to_netcdf(os.path.join(data_path,'restart','restart_'+timestamp+'.nc'), encoding=encoding)
     
+    #-----------------------------------------------
     # Stop time measurement
+    #-----------------------------------------------
     duration_run = datetime.now() - start_time
     duration_run_writing = datetime.now() - start_writing
 
+    #-----------------------------------------------
     # Print out some information
+    #-----------------------------------------------
     print("\n \n Total run duration in seconds %4.2f \n" % (duration_run.total_seconds()))
     print("\n \n Needed time for writing restart and output in seconds %4.2f \n" % (duration_run_writing.total_seconds()))
+    
     if duration_run.total_seconds() >= 60 and duration_run.total_seconds() < 3600:
         print(" Total run duration in minutes %4.2f \n\n" %(duration_run.total_seconds() / 60))
     if duration_run.total_seconds() >= 3600:
@@ -122,7 +130,7 @@ def main():
 
 
 
-def main_body(cluster,IO,DATA,RESULT,RESTART,futures,nfutures):
+def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures, nfutures):
     
     with Client(cluster, processes=False) as client:
         print('--------------------------------------------------------------')
@@ -140,7 +148,6 @@ def main_body(cluster,IO,DATA,RESULT,RESTART,futures,nfutures):
             if ((mask==1) & (restart==False)):
                 nfutures = nfutures+1
                 futures.append(client.submit(cosipy_core, DATA.sel(lat=i, lon=j)))
-                break
             elif ((mask==1) & (restart==True)):
                 nfutures = nfutures+1
                 futures.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), IO.create_grid_restart().sel(lat=i,lon=j)))

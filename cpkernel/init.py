@@ -8,7 +8,6 @@ from config import *
 from cpkernel.grid import *
 
 def init_snowpack(DATA):
-    
     ''' INITIALIZATION '''
 
     logger = logging.getLogger(__name__)
@@ -26,10 +25,6 @@ def init_snowpack(DATA):
     layer_density = ice_density * np.ones(len(layer_heights))
     layer_T = temperature_bottom * np.ones(len(layer_heights))
     layer_liquid_water = np.zeros(number_layers)
-    layer_cc = np.zeros(number_layers)
-    layer_porosity = np.zeros(number_layers)
-    layer_vol = np.zeros(number_layers)
-    layer_refreeze = np.zeros(number_layers)
 
     if (initial_snowheight > 0.0):
         # Init density
@@ -65,9 +60,8 @@ def load_snowpack(GRID_RESTART):
 
     # Number of layers
     num_layers = np.int(GRID_RESTART.NLAYERS.values)
-    
+   
     # Init layer height
-    print(GRID_RESTART.LAYER_HEIGHT)
     layer_heights = GRID_RESTART.LAYER_HEIGHT[0:num_layers].values
     layer_density = GRID_RESTART.LAYER_RHO[0:num_layers].values
     layer_T = GRID_RESTART.LAYER_T[0:num_layers].values

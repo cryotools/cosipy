@@ -9,9 +9,10 @@ def refreezing(GRID):
     logger = logging.getLogger(__name__)
 
     # water refreezed
-    water_refreezed = 0
-    LWCref = 0
+    water_refreezed = 0.0
+    LWCref = 0.0
     
+    # Irreducible water when refreezed
     theta_r = 0.0
 
     total_start = np.sum(GRID.get_liquid_water())
@@ -45,21 +46,22 @@ def refreezing(GRID):
                 GRID.set_node_ice_fraction(idxNode, GRID.get_node_ice_fraction(idxNode)+dtheta_i)
        
             GRID.set_node_temperature(idxNode, GRID.get_node_temperature(idxNode)+dT)
-            GRID.set_node_refreeze(idxNode, dtheta_w) 
-            water_refreezed =  water_refreezed + dtheta_i*GRID.get_node_height(idxNode)        
         
         else:
             
             dtheta_i = 0
             dtheta_w = 0
-            GRID.set_node_refreeze(idxNode, dtheta_i*GRID.get_node_height(idxNode)) 
-            water_refreezed =  water_refreezed + dtheta_i*GRID.get_node_height(idxNode)        
+    
+    GRID.set_node_refreeze(idxNode, dtheta_i*GRID.get_node_height(idxNode)) 
+    water_refreezed =  water_refreezed - dtheta_w*GRID.get_node_height(idxNode)        
+    if (water_refreezed>0.0):
+        print(water_refreezed)
 
     total_end = np.sum(GRID.get_liquid_water())
     
     if (total_start-total_end-water_refreezed) > 1e-8:
         logger.error('Refreezing module is not mass consistent')
-        logger.error(total_start,total_end,water_refreezed)
+        logger.error('Water in the begin/end/refreezed: %2.7f /  %2.7f / %2.7f' % (total_start,total_end,water_refreezed))
     
     return water_refreezed
 
