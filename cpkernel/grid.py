@@ -195,14 +195,17 @@ class Grid:
                 # Get number of snow layers
                 nlayers = self.get_number_snow_layers()
 
-                # Calc differences between a layer and the subsequent layer
-                dT = np.diff(self.get_temperature()[0:nlayers+1])
-                dRho = np.diff(self.get_density()[0:nlayers+1])
+                # Check if there are at least two layers
+                if nlayers > 1:
+                    
+                    # Calc differences between a layer and the subsequent layer
+                    dT = np.diff(self.get_temperature()[0:nlayers+1])
+                    dRho = np.diff(self.get_density()[0:nlayers+1])
 
-                # Sort the by differences in ascending order, and merge if criteria is met
-                ind = np.lexsort((abs(dRho),abs(dT)))
-                if (abs(dT[ind[0]])<threshold_temperature) & (abs(dRho[ind[0]])<threshold_density):
-                    self.merge_nodes(ind[i])
+                    # Sort the by differences in ascending order, and merge if criteria is met
+                    ind = np.lexsort((abs(dRho),abs(dT)))
+                    if (abs(dT[ind[0]])<threshold_temperature) & (abs(dRho[ind[0]])<threshold_density):
+                        self.merge_nodes(ind[i])
             
          
         #---------------------

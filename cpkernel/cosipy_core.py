@@ -277,7 +277,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
             RESULT.LAYER_IRREDUCIBLE_WATER[t, 0:GRID.get_number_layers()] = GRID.get_irreducible_water_content()
             RESULT.LAYER_REFREEZE[t, 0:GRID.get_number_layers()] = GRID.get_refreeze()
 
-    # TODO Restart
+    # Restart
     logger.debug('Write restart data into local restart structure')
     RESTART['NLAYERS'] = GRID.get_number_layers()
     RESTART.LAYER_HEIGHT[0:GRID.get_number_layers()] = GRID.get_height() 
