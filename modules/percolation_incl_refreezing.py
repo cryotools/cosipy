@@ -2,8 +2,10 @@ import numpy as np
 from constants import *
 from config import *
 
-
 def percolation(GRID, water, t, debug_level):
+    return 0,0,0
+
+def percolation2(GRID, water, t, debug_level):
     """ Percolation and refreezing of melt water through the snow- and firn pack
 
     Args:
@@ -27,7 +29,7 @@ def percolation(GRID, water, t, debug_level):
     dt_stab = c_stab * min(hlayers) / percolation_velocity
 
     # set liquid water content of top layer (idx, LWCnew) in m
-    GRID.set_node_liquid_water_content(0, GRID.get_node_liquid_water_content(0)+float(water))
+    GRID.set_node_liquid_water_content(0, GRID.get_node_liquid_water(0)+float(water))
     
     # Percolation velocity
     pvel = percolation_velocity

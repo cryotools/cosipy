@@ -119,7 +119,11 @@ def main():
     print('\t SIMULATION WAS SUCCESSFUL')
     print('--------------------------------------------------------------')
 
+
+
+
 def main_body(cluster,IO,DATA,RESULT,RESTART,futures,nfutures):
+    
     with Client(cluster, processes=False) as client:
         print('--------------------------------------------------------------')
         print('\t Starting clients ... \n')
@@ -136,12 +140,13 @@ def main_body(cluster,IO,DATA,RESULT,RESTART,futures,nfutures):
             if ((mask==1) & (restart==False)):
                 nfutures = nfutures+1
                 futures.append(client.submit(cosipy_core, DATA.sel(lat=i, lon=j)))
+                break
             elif ((mask==1) & (restart==True)):
                 nfutures = nfutures+1
                 futures.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), IO.create_grid_restart().sel(lat=i,lon=j)))
 
         # Finally, do the calculations and print the progress
-        progress(futures)
+        #progress(futures)
 
         if (restart==True):
             IO.get_grid_restart().close()
@@ -156,6 +161,8 @@ def main_body(cluster,IO,DATA,RESULT,RESTART,futures,nfutures):
             restart_data = results[1]
             IO.write_results_future(result_data)
             IO.write_restart_future(restart_data)
+
+
 
 def start_logging():
     ''' Start the python logging'''

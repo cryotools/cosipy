@@ -59,10 +59,10 @@ def method_Bintanja(GRID, SWnet, dt):
             ### added from layer before
             available_energy += melt_surplus
 
-            GRID.set_node_liquid_water_content(idx, available_energy * dt / (1000 * lat_heat_melting))
+            GRID.set_node_liquid_water(idx, available_energy * dt / (1000 * lat_heat_melting))
 
             ### added from layer before
-            GRID.set_node_liquid_water_content(idx, GRID.get_node_liquid_water_content(idx) + LWC_surplus)
+            GRID.set_node_liquid_water(idx, GRID.get_node_liquid_water(idx) + LWC_surplus)
 
             subsurface_melt += available_energy * dt / (1000 * lat_heat_melting)
 
@@ -79,7 +79,7 @@ def method_Bintanja(GRID, SWnet, dt):
 
             else:
                 melt_surplus = subsurface_melt - melt_max
-                LWC_surplus = GRID.get_node_liquid_water_content(idx)
+                LWC_surplus = GRID.get_node_liquid_water(idx)
                 list_of_layers_to_remove.append(idx)
                 # print("remove layer")
 

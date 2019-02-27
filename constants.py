@@ -23,7 +23,7 @@ temperature_top = 267.16                        # Upper boudary conditation for 
 temperature_bottom = 271.                       # Lower boundary condition for inital tempeature profile (K)
 const_init_temp = 0.1                           # constant for init temperature profile used in exponential function (exponential decay)
 
-merge_snow_threshold = 0.1                      # (m) minimum height of layer, is used if fresh fallen snow is added as a new
+merge_snow_threshold = 0.01                      # (m) minimum height of layer, is used if fresh fallen snow is added as a new
                                                 # layer or merged to the underlying layer
 
 minimum_snow_height = 0.01                      # (m) minimum height of last snowlayer on glacier
@@ -64,12 +64,14 @@ lat_heat_vaporize = 2.5e6                       # latent heat for vaporization [
 lat_heat_sublimation = 2.834e6                  # latent heat for sublimation [J kg-1]
 spec_heat_air = 1004.67                         # specific heat of air [J kg-1 K-1]
 spec_heat_ice = 2050.00                         # specific heat of ice [J Kg-1 K-1]
+spec_heat_water = 4217.00                       # specific heat of water [J Kg-1 K-1]
 sigma = 5.67e-8                                 # Stefan-Bolzmann constant [W m-2 K-4]
 gravity_acceleration = 9.81                     # acceleration of gravity (Braithwaite 1995) [m s-1]
 
 ' MODEL CONSTANTS '
 water_density = 1000.0                          # density of water [kg m^(-3)]
 ice_density = 917.                              # density of ice [kg m^(-3)]
+air_density = 1.1                               # density of air [kg m^(-3)]
 
 zero_temperature = 273.16                       # Kelvin [K]
 

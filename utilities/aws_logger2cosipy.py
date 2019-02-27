@@ -170,6 +170,7 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     else:
         add_variable_2D(ds, N_interp, 'N', '%', 'Cloud cover fraction')
 
+    print('Write NetCDF file')
     ds.to_netcdf(cosipy_file)
     
     print('Input file created \n')

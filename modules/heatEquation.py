@@ -21,16 +21,11 @@ def solveHeatEquation(GRID, t):
         snowRho = [idx for idx in GRID.get_density() if idx <= snow_ice_threshold]
         snowRhoMean = sum(snowRho)/len(snowRho)
 
-    # Calculate specific heat  [J Kg-1 K-1] depending on mean temperature domain
-    c_pi = 152.2 + 7.122 * np.mean(GRID.get_temperature())
-    # with static specific heat of ice
-    # c_pi = 152.2 + 7.122 * spec_heat_ice
-    
     # Calculate thermal conductivity [W m-1 K-1] from mean density
-    lam = 0.021 + 2.5 * (snowRhoMean/1000.0)**2.0
+    lam = 0.021 + 2.5 * (min(GRID.get_density())/1000.0)**2.0
 
     # Calculate thermal diffusivity [m2 s-1]
-    K = lam / (snowRhoMean * c_pi)
+    K = lam / (min(GRID.get_density()) * min(GRID.get_specific_heat()))
 
     # Get snow layer heights    
     hlayers = GRID.get_height()
@@ -45,6 +40,15 @@ def solveHeatEquation(GRID, t):
 
         # Loop over all internal grid points
         for idxNode in range(1,GRID.number_nodes-1,1):
+
+            # Get specific heat of layer (air+water+ice)
+            cp = GRID.get_node_specific_heat(idxNode)
+    
+            # Calculate thermal conductivity [W m-1 K-1] from mean density
+            lam = 0.021 + 2.5 * (GRID.get_node_density(idxNode)/1000.0)**2.0
+    
+            # Calculate thermal diffusivity [m2 s-1]
+            K = lam / (GRID.get_node_density(idxNode) * cp)
 
             # Grid spacing            
             hk = ((hlayers[idxNode]/2.0)+(hlayers[idxNode-1]/2.0))
@@ -68,4 +72,3 @@ def solveHeatEquation(GRID, t):
         # Add the time step to current time
         curr_t = curr_t + dt_use
     
-    return c_pi
