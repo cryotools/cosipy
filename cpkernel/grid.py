@@ -240,7 +240,7 @@ class Grid:
                         ind = np.lexsort((abs(dT),abs(dRho),h))[::-1]
                    
                         if (h[ind[0]]>2*merge_snow_threshold) & (abs(dT[ind[0]])>5*threshold_temperature) & (abs(dRho[ind[0]])>5*threshold_density):
-                            self.split_node(ind[i])
+                            self.split_node(ind[0])
 
                 #--------------------------------------
                 # Guarantee that the first layer is not greater than 2 cm
