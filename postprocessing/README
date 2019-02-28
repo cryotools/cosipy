@@ -1,0 +1,4 @@
+
+Create simple distributed plots of one timestep
+
+python plot_cosipy_fields.py -f cosipy_outputfile -d timedate -t option

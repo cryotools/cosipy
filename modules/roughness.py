@@ -1,19 +1,30 @@
-from constants import snow_ice_threshold, roughness_fresh_snow, roughness_firn, roughness_ice
+from constants import *
+import sys
 
 def updateRoughness(GRID, evdiff):
+
+    if roughness_method == 'Moelg12':
+        sigma = method_Moelg(GRID, evdiff)
+
+    else:
+        print('Roughness parameterisation ', roughness_method, ' not available using default')
+        sigma = method_Moelg(GRID, evdiff)
+
+    return sigma
+
+def method_Moelg(GRID, evdiff):
+
     """ This method updates the roughness length (Moelg et al 2009, J.Clim.)"""
 
     # Check whether snow or ice
     if (GRID.get_node_density(0) <= snow_ice_threshold):
-    
-        # Roughness length
-        sigma = min(roughness_fresh_snow + 0.026 * evdiff, roughness_firn)
-        
+
+        # Roughness length linear increase from 0.24 (fresh snow) to 4 (firn) in 60 days (1440 hours); (4-0.24)/1440 = 0.0026
+        sigma = min(roughness_fresh_snow + aging_factor_roughness * evdiff, roughness_firn)
+
     else:
-    
+
         # Roughness length, set to ice
         sigma = roughness_ice
 
-
-    return sigma
-
+    return (sigma / 1000)

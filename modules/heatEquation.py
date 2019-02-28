@@ -1,8 +1,8 @@
 import numpy as np
+from numpy.distutils.command.install_clib import install_clib
 
 from constants import *
 from config import *
-
 
 def solveHeatEquation(GRID, t):
     """ Solves the heat equation on a non-uniform grid using
@@ -15,26 +15,29 @@ def solveHeatEquation(GRID, t):
     Tnew = 0
 
     # Get mean snow density
-    if (GRID.get_node_density(0) >= 830.):
-        snowRhoMean = snow_ice_threshold
+    if (GRID.get_node_density(0) > snow_ice_threshold):
+        snowRhoMean = ice_density
     else:
-        snowRho = [idx for idx in GRID.get_density() if idx <= 830.]
+        snowRho = [idx for idx in GRID.get_density() if idx <= snow_ice_threshold]
         snowRhoMean = sum(snowRho)/len(snowRho)
 
-    # Calculate specific heat  [J Kg-1 K-1] depending on density from mean density
-    c_pi = 152.2 + 7.122 * snowRhoMean 
+    # Calculate specific heat  [J Kg-1 K-1] depending on mean temperature domain
+    c_pi = 152.2 + 7.122 * np.mean(GRID.get_temperature())
+    # with static specific heat of ice
+    # c_pi = 152.2 + 7.122 * spec_heat_ice
     
     # Calculate thermal conductivity [W m-1 K-1] from mean density
     lam = 0.021 + 2.5 * (snowRhoMean/1000.0)**2.0
 
     # Calculate thermal diffusivity [m2 s-1]
     K = lam / (snowRhoMean * c_pi)
-    
+
+    # Get snow layer heights    
     hlayers = GRID.get_height()
 
     # Check stability criteria for diffusion
     dt_stab = c_stab * (min(hlayers)**2.0) / (K)
-   
+    
     while curr_t < t:
    
         # Get a copy of the GRID temperature profile
@@ -65,3 +68,4 @@ def solveHeatEquation(GRID, t):
         # Add the time step to current time
         curr_t = curr_t + dt_use
     
+    return c_pi

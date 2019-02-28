@@ -1,7 +1,7 @@
 class Node:
     """ This is the basic class which contains information of individual grid point. """
 
-    def __init__(self, height, density, temperature, liquid_water_content):
+    def __init__(self, height, density, temperature, liquid_water_content, cold_content, porosity, max_vol_ice_content, refreeze):
         """ Initialize the node with:
             loc                     :      location of the node 0 = lowest node
             height                  :      height of the layer [m]
@@ -14,6 +14,10 @@ class Node:
         self.density = density
         self.temperature = temperature
         self.liquid_water_content = liquid_water_content
+        self.cold_content = cold_content
+        self.porosity = porosity
+        self.max_vol_ice_content = max_vol_ice_content
+        self.refreeze = refreeze
 
     def __del__(self):
         """ Remove node """
@@ -36,6 +40,22 @@ class Node:
     def get_layer_liquid_water_content(self):
         """ Return the liquid water content of the layer """
         return self.liquid_water_content
+    
+    def get_layer_cold_content(self):
+        """ Return the liquid water content of the layer """
+        return self.cold_content
+    
+    def get_layer_porosity(self):
+        """ Return the porosity of the layer """
+        return self.porosity
+    
+    def get_layer_max_vol_ice_content(self):
+        """ Return the volumetric ice content of the layer """
+        return self.max_vol_ice_content
+    
+    def get_layer_refreeze(self):
+        """ Return the volumetric ice content of the layer """
+        return self.refreeze
 
     ''' SETTER FUNCTIONS '''
 
@@ -54,3 +74,19 @@ class Node:
     def set_layer_liquid_water_content(self, liquid_water_content):
         """ Set the liquid water content of the layer """
         self.liquid_water_content = liquid_water_content
+    
+    def set_layer_cold_content(self, cold_content):
+        """ Set the cold content of the layer """
+        self.cold_content = cold_content
+    
+    def set_layer_porosity(self, porosity):
+        """ Set the porosity of the layer """
+        self.porosity = porosity
+
+    def set_layer_max_vol_ice_content(self, max_vol_ice_content):
+        """ Set the volumetric ice content of the layer """
+        self.max_vol_ice_content = max_vol_ice_content
+
+    def set_layer_refreeze(self, refreeze):
+        """ Set the volumetric ice content of the layer """
+        self.refreeze = refreeze 

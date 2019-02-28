@@ -1,120 +1,213 @@
-# README #
+# IN PROGRESS
+### ToDos in README:
+* Finish Quick tutorial
+* Finish Model structure
+* describe config options
+* describe plot routines
+# Introduction ##
+COSIPY solves the energy balance at the surface and is coupled to an adaptive vertical multilayer snow and ice module.
+### Contact
+Tobias Sauter, tobias.sauter@fau.de <br>
+Anselm Arndt, anselm.arndt@geo.hu-berlin.de
 
-These are basic information about the python version of
-the 'COupled Snowpack and Ice surface energy and MAss balance glacier
-model' (COSIMA). The model is originally written and developed in
-Matlab code by Huintjes et al., (2015) and is available on [https://bitbucket.org/glaciermodel/cosima/src](https://bitbucket.org/glaciermodel/cosima/src) or @glaciermodel.
+# Requirements
+## Packages and libraries
+####Python 3
+Any Python 3 version on any operating system should work. If you think the reason for a problem might be your specific Python 3 version or your 
+operating system, please create a topic in the forum. $LINK$ <br> Model is tested and developed on:
+  * Anaconda Distribution on max OS 
+  * Python 3.6.5 on Ubuntu 18.04
+  * Anaconda 3 64-bit (Python 3.6.3) on CentOS Linux 7.4
+  * Cluster Innsbruck
 
-The Python translation and model improvement of COSIMA was done by
-@tsauter and @bjoesa under the umbrella of the Institute of
-Geography, Friedrich-Alexander-University Erlangen-Nuernberg.
+#### Needed Python modules (with an Anaconda installation, they might be already installed):
+* xarray
+* dask-jobqueue
+* netcdf4
+* numpy             (included in Anaconda)
+* scipy             (included in Anaconda)
+* distributed       (included in Anaconda) 
 
-The python version of the model is subsequently called >> COSIPY <<.
+## Input
+Some variables are optinal and for ussage it has to be specified in the config file.
+### Dynamic 2D fields: 
+|Variable|Short Name|Unit|Comment|
+|---|---|---|---|
+| Air pressure| PRES | hPa| |
+| Air temperature | T2 | K | |
+| Cloud cover | N | - | |
+| Relative humidity | RH2 | %/100 | |
+| Solar radiation | G | W m<sup>-2</sup> | |
+| Total precipitation | RRR | mm |  |
+| Wind speed | U2 | m s<sup>-1</sup> | |
+| Snowfall | SNOWFALL | m | optional, replaces RRR |
+| Incoming longwave radiation | LWin | W m<sup>-2</sup> | optional, replaces N |
+### Static 2D fields:
+|Variable|Short Name|Unit|Comment|
+|---|---|---|---|
+|Glacier mask|MASK|Boolean||
+|Elevation|HGT|m a.s.l.||
 
-The model is written in Python 3.6 and is tested on Anaconda2-4.4.0 64-bit
-distribution with additional packages.
+# Quick tutorial
+## Preprocessing
+COSiPY provides some utilities which can be used to create the required input file for the core run.
+### Create needed combined static input file
+The following is the example in the "data/static/" folder. If the procedure does not work for your study area, please try it first
+with the example.
+#### Required packages and libaries:
+* gdal (e.g. in Debian-based Linux distributions package called gdal-bin)
+* climate date operators (e.g. in Debian-based Linux distributions package called cdo)
+* netCDF Operators (e.g. in Debian-based Linux distritutions package called nco)
+#### Needed input files
+* Digital elevation model, best in WGS84 - EPSG:4326.
+* Shapefile of the glacier
+Both should be in WG84 EPSG:4326.
 
-For more information about the model physics please read:
-
-Huintjes, E., Sauter, T., Schröter, B., Maussion, F., Yang, W.,
- Kropáček, J., Buchroithner, M., Scherer, D., Kang, S. and
- Schneider, C.: Evaluation of a Coupled Snow and Energy Balance Model
- for Zhadang Glacier, Tibetan Plateau, Using Glaciological Measurements
- and Time-Lapse Photography, Arctic, Antarctic, and Alpine Research,
- 47(3), 573–590, doi:10.1657/AAAR0014-073, 2015.
-  
-Current version: 0.1 (Feb 2017)
-
-Current status: development
-
-### Structure and setup ###
-
-**input_COSIMA-example.mat** test data from Huintjes et al. (2015)
-
-**COSIPY.py** main model file -- this file has to be executed in your terminal:
-
+#### Procedure:
+In the utilities folder, there is the script create_static_file_command_line.py. This script runs some commands in the command line.
+That's is the reason, that we can provide this script only for UNIX and MAC users at the moment. We are working on a version where no UNIX command
+line is needed.
+(create_static_file.py).<br>
+The intermediate files 'dem.nc', 'aspect.nc', 'mask.nc' and 'slope.nc' are deleted automatically. First, try to run the script
+and create the 'static.nc' file with the example "Rofental_DEM.tif" and 'HEF_Flaeche2018.shp'. If this works, try to change to
+your DEM and shapefile and adjust the area to which you want to shrink the DEM. The input data have to be in Lat/Lon
+WGS84-EPSG:4326 projection with the units degrees, that the script works correctly. <br>
+Run the script with:
 ```
-#!python
-
-python COSIPY.py
+python create_static_files_with_command_line.py
 ```
-Hint: Have a look inside COSIPY.py, you can easily catch the model structure.
+Maybe the following commands are useful. You do not need them for the examples in the data/static folder.<br>
+The first can be used to aggreagate the DEM to a coarse spatial resolution.
+```
+gdalwarp -tr 0.01 0.01 -r average Hintereisferner_DEM.tif Hintereisferner_DEM_coarser.tif
+```
+The second can be used to reproject to EPSG 4326.
+```
+gdalwarp -t_srs EPSG:4326 dgm_hintereisferner.tif dgm_hintereisferner-lat_lon.tif
+```
+### Create input file with all needed static and dynamic 2D fields
+#### Needed files and parameters
+* static.nc file, created in step above
+* 1D fields of all required dynamic input files
+#### Procedure:
+There are two different preprocessing scripts in the utilities folder to create the needed gridded input data. One is especially desingned for the
+usage of csv file from a datalogger of an AWS station. This file is called aws_logger2cosipy.py with the corresponding configuration file 
+'aws_logger2cosipyConfig.py'.<br> 
+The 'csv2cosipy.py' script with the corresponding configuration file 'csv2cosipyConfig.py' is a more general file.<br>
+Very important: For the aws_logger2cosipy.py version the temperature has to be in degree Celsius.<br> This example is using
+the aws_logger version.<br>
+For the solar radiation, a model after Wohlfahrt et al. (2016; doi: 10.1016/j.agrformet.2016.05.012) is used. <br>
+For air temperature, relative humidity and precipitation constant lapse rates, which have to be set, are used. <br>
+Wind speed and cloud cover fraction kept constant for all gridpoint at on time step.<br><br>
+The script needs:
+* the input file; for example a Campbell Scientific logger file with all required dynamic input fields
+* the file path (including the name) for the resulting COSIPY file, which will be used as input file for the core run
+* the path to the static file, created in the step above
+* the start and end date of the timespan
+In the aws_logger2cosipyConfig.py one has to define how the input variables are called in the CS_FILE. <br> 
+For the radiation module, one has to set the timezone and the zenit threshold. <br> Furthermore, the station name has to be set, the altitude of the station, and the lapse rates for temperature, relative humidity and precipitation.<br>
+If everything is set, configured and prepared, run the script:
+```bash
+python aws_logger2cosipy.py -c ../data/input/008_station_hintereis_lf_toa5_cr3000_a_small.dat -o ../data/input/Hintereisferner_input.nc -s ../data/static/static.nc
+```
+The script takes all input timestamps which are in the -c input file. If you want only a specific period, you can use the following options at the end of the call.
+```
+python aws_logger2cosipy.py -c ../data/input/008_station_hintereis_lf_toa5_cr3000_a_small.dat -o 
+../data/input/Hintereisferner_input.nc -s ../data/static/static.nc -b 2018-06-01T00:00 -e 2018-06-02T00:00
+```
+## Core run
+### Changes config.py and set everything for your specific need. See in config options.
 
-**config.py** This is the only file where you make your individual adaptions:
+## Evaluation
 
-* path to the input data file (currently .mat; will change to NetCDF)
+## Restart
 
-* time index to start
+## Postprocessing
+Need the following python modules:
+* 
+In folder postprocessing. 
+```bash
+python plot_cosipy_fields.py -f $OUTPUT_FILE -d $POINT_IN_TIME_OF_INTEREST -t 1
+python plot_cosipy_fields.py -h #for help
+```
+# Model Structure
+## Directories
 
-* time index to stop, default: length of the time series
+| Directory | Files | Content |
+|---|---|---|
+|   | COSIPY.py | Main program |
+|---|---|---|
+|cpkernel | core_cosipy.py | Core of the model (time loop) |
+|         | grid.py | Grid structure, consists of a list of layer nodes (vertical snow profile) |
+|         | node.py | Node class handles the nformation of each layer |
+|         | init.py | Initialization of the snow cover |
+|         | io.py | Contains all input/output functions |
+|---|---|---|
+| modules | albedo.py | Albedo parametrization |
+|         | densification.py | Snowpack densification |
+|         | heatEquation.py | Solves the heat equation |
+|         | penetratingRadiation.py | Parametrization of the penetrating shortwave radiation |
+|         | percolation_incl_refreezing.py | Liquid water percolation and refreezing |
+|         | radCor.py | Radiation model (topographic shading) |
+|         | roughness.py | Update of the roughness length |
+|         | surfaceTemperature.py | Solves the energy balance at the surface and calculates the surface temperature |
+## Output
+Input variables are stored in output dataset as well.
+### Dynamic 2D fields: 
+|Variable|Short Name|Unit|Comment|
+|---|---|---|---|
+Air temperature at 2 m|T2|K
+Relative humidity at 2 m|RH2|%| 
+|Wind velocity at 2 m|U2| m s<sup>-1</sup>|
+Liquid precipitation|RAIN| mm|
+Snowfall|SNOWFALL| m| 
+Atmospheric pressure|PRES| hPa| 
+Cloud fraction|N| -| 
+Incoming shortwave radiation|G| W m<sup>-2</sup>| 
+Incoming longwave radiation|LWin| W m<sup>-2</sup>| 
+Outgoing longwave radiation|LWout|W m<sup>-2</sup>| 
+Sensible heat flux|H|W m<sup>-2</sup>| 
+Latent heat flux|LE|W m<sup>-2</sup>| 
+Ground heat flux|B|W m<sup>-2</sup>| 
+Available melt energy|ME|W m<sup>-2</sup>| 
+Total mass balance|MB| m w.e.| 
+Surface mass balance|surfMB| m w.e.| 
+Internal mass balance|intMB| m w.e.| 
+Evaporation|EVAPORATION| m w.e.| 
+Sublimation|SUBLIMATION| m w.e.| 
+Condensation|CONDENSATION| m w.e.| 
+Depostion|DEPOSITION| m w.e.| 
+Surface melt|surfM| m w.e.| 
+Subsurface melt|subM| m w.e.| 
+Runoff|Q| m w.e.| 
+Refreezing|REFREEZE| m w.e.| 
+Snowheight|SNOWHEIGHT| m|
+Total domain height|TOTALHEIGHT| m|
+Surface temperature|TS| K| 
+Roughness length|Z0| m| 
+Albedo|ALBEDO| -| 
+Number of layers|NLAYERS| -|
+### Static 2D fields:
+|Variable|Short Name|Unit|Comment|
+|---|---|---|---|
+|Glacier mask|Mask|Boolean||
+|Elevation|HGT|m a.s.l.||
 
-* length of the time step
+# Config options
+### describe everything possible!
 
-* information/debug level, default: 0
+# Open issues:
+$TODO:LINK TO ISSUE SECTION WOULD BE BETTER$
+* densification
+* subsurface melt (penetrating radiation)
 
-* layer merging level, default: 0 (no merging)
+# Planed parameterisations and included processes:
+* add heat flux from liquid precipitation
+* add liquid precipitation to surface melt
+* superimposed ice
 
-* Minimal height of layers, thin layers rise computing time
-
-* more variables ...
-
-**inputData.py** contains the routine to read the model forcing as variables
-
-**Constants.py** contains all variables which store applied constants
-
-**Grid.py** contains the functions to setup, read and modify the data Grid
-
-**Node.py** contains the functions to set, get and modify nodes in the Grid
-
-### PHYSICAL MODULES ###
-
-**albedo.py** updates the Albedo
-
-**roughness.py** updates the Roughness
-
-**heatEquationLagrange.py** solves the Heat Equation
-
-**surfaceTemperature.py** updates the Surface Temperature
-
-**penetratingRadiation.py** calculates the penetrating radiation into the
-                           snowpack
-
-**percofreeze.py** updates the liquid water content of each layer and
-                  calculates refreezing and runoff
-
-### Modules currently in development: ###
-
-percolation.py (percofreeze.py)
-
-densification.py
-
-results2nc.py
-
-### Model forcing ###
-
-* u2 = Wind speed (magnitude) [m/s]
-
-* G = Solar radiation at each time step [W m-2]
-
-* T2 = Air temperature (2m over ground) [K]
-
-* rH2 = Relative humidity (2m over ground)[%]
-
-* snowfall = Snowfall per time step [m]
-
-* p = Air Pressure [hPa]
-
-* N = Cloud cover [%/100]
-
-* sh = Initial snow height [m]
-
-### Contribution guidelines ###
-
+# 
 Please branch or fork your version, do not change the master.
 
 You are allowed to use and modify this code in a noncommercial manner and by
-appropriately citing the above mentioned developers.
-
-### Who do I talk to? ###
-
-Master maintainance: @bjoesa, bjoern.sass[at]fau.de
+appropriately citing the above-mentioned developers.
