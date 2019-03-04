@@ -127,7 +127,7 @@ class Grid:
         new_air_porosity = 1 - new_liquid_water_content - new_ice_fraction
         
         if abs(1-new_ice_fraction-new_air_porosity-new_liquid_water_content)>1e-8:
-            print('Merging is not mass consistent (%2.7f)' % (new_ice_fraction+new_air_porosity+new_liquid_water_content))
+            self.logger.error('Merging is not mass consistent (%2.7f)' % (new_ice_fraction+new_air_porosity+new_liquid_water_content))
        
         # Calc new temperature
         new_temperature = (self.grid[idx].get_layer_height()/new_height)*self.grid[idx].get_layer_temperature() + \
@@ -144,12 +144,24 @@ class Grid:
     def split_node(self, pos):
         """ Split node at position pos """
 
+        if np.max(self.get_temperature()) > 273.2:
+            self.logger.error('Split Node - Layer temperature exceeds 273.16 K')
+            self.logger.error('Beginning')
+            self.logger.error(self.get_temperature())
+            self.logger.error(self.get_density())
+        
         self.logger.debug('Split node')
 
         
         self.grid.insert(pos+1, Node(self.get_node_height(pos)/2.0, self.get_node_density(pos), self.get_node_temperature(pos), self.get_node_liquid_water(pos)/2.0, self.get_node_ice_fraction(pos)))
         self.update_node(pos, self.get_node_height(pos)/2.0, self.get_node_temperature(pos), self.get_node_ice_fraction(pos), self.get_node_liquid_water(pos)/2.0)
         self.number_nodes += 1
+        
+        if np.max(self.get_temperature()) > 273.2:
+            self.logger.error('Split Node - Layer temperature exceeds 273.16 K')
+            self.logger.error('After splitting')
+            self.logger.error(self.get_temperature())
+            self.logger.error(self.get_density())
 
 
 
@@ -171,7 +183,7 @@ class Grid:
             merging can be False or True
             temperature threshold
             density threshold
-            merge new snow threshold is minimum heihgt of snow layers
+            merge new snow threshold is minimum height of snow layers
 
         The iterative process starts from the upper grid point and goes through 
         all nodes. If two subsequent nodes are similar, the layers are merged. 
@@ -180,6 +192,12 @@ class Grid:
 
         self.logger.debug('--------------------------')
         self.logger.debug('Update grid')
+        
+        if np.max(self.get_temperature()) > 273.2:
+            self.logger.error('Update grid - Layer temperature exceeds 273.16 K')
+            self.logger.error('Beginning')
+            self.logger.error(self.get_temperature())
+            self.logger.error(self.get_density())
 
         #-------------------------------------------------------------------------
         # Merging 
@@ -189,6 +207,19 @@ class Grid:
         # (2) the temperature difference is smaller than the user defined threshold
         # (3) the new layer height does not exceed a height of 0.5 m
         #-------------------------------------------------------------------------
+        
+        # If fresh snow on glacier surface is too small, merge it with the glacier layer
+        self.merge_new_snow_with_glacier()
+       
+        process = 'None'
+
+        if np.max(self.get_temperature()) > 273.2:
+            self.logger.error('Update grid - Layer temperature exceeds 273.16 K')
+            self.logger.error('Step 1')
+            self.logger.error(self.get_temperature())
+            self.logger.error(self.get_density())
+        
+        # Do the merging 
         if merge:
             
             # Check for merging 
@@ -198,7 +229,9 @@ class Grid:
 
                 # Check if there are at least two layers
                 if nlayers > 1:
-                    
+                   
+                    process = 'Merge snow layers'  
+
                     # Calc differences between a layer and the subsequent layer
                     dT = np.diff(self.get_temperature()[0:nlayers])
                     dRho = np.diff(self.get_density()[0:nlayers])
@@ -208,7 +241,32 @@ class Grid:
                     
                     if (abs(dT[ind[0]])<threshold_temperature) & (abs(dRho[ind[0]])<threshold_density):
                         self.merge_nodes(ind[0])
-            
+      
+
+            if np.max(self.get_temperature()) > 273.2:
+                self.logger.error('Update grid - Layer temperature exceeds 273.16 K')
+                self.logger.error('Step 2')
+                self.logger.error(self.get_temperature())
+                self.logger.error(self.get_density())
+
+            # Merge first layer if < minimum_snow_height
+            if (self.get_number_snow_layers() > 1) & (self.grid[0].get_layer_height() < minimum_snow_height):
+                    process = 'merge first layer' 
+                    self.merge_nodes(0)
+
+            # We need to guarantee that the glacier layer thickness is not smaller than the user defined threshold  
+            if self.get_number_snow_layers() == 0:
+                for idx in range(self.get_number_layers()-1):
+                    if (self.get_node_height(idx) < merge_snow_threshold):
+                        process = 'merge glacier layers' 
+                        self.merge_nodes(idx)
+
+        if np.max(self.get_temperature()) > 273.2:
+            self.logger.error('Update grid - Layer temperature exceeds 273.16 K')
+            self.logger.error('Step 3')
+            self.logger.error(self.get_temperature())
+            self.logger.error(self.get_density())
+
          
         #---------------------
         # Splitting
@@ -228,7 +286,10 @@ class Grid:
                     nlayers = self.get_number_snow_layers()
    
                     # Check if there are still snow layers
-                    if nlayers > 0:
+                    if (nlayers > 0):
+                    
+                        process = 'Split snow layers'  
+                        
                         # Get layer heights
                         h = np.asarray(self.get_height()[0:nlayers])
     
@@ -239,14 +300,25 @@ class Grid:
                         # Sort the by differences in ascending order
                         ind = np.lexsort((abs(dT),abs(dRho),h))[::-1]
                    
-                        if (h[ind[0]]>2*merge_snow_threshold) & (abs(dT[ind[0]])>5*threshold_temperature) & (abs(dRho[ind[0]])>5*threshold_density):
+                        if (h[ind[0]]>2.0*merge_snow_threshold) & (abs(dT[ind[0]])>5*threshold_temperature) & (abs(dRho[ind[0]])>5*threshold_density):
                             self.split_node(ind[0])
 
+                if np.max(self.get_temperature()) > 273.2:
+                    self.logger.error('Update grid - Layer temperature exceeds 273.16 K')
+                    self.logger.error('Step 4')
+                    self.logger.error(self.get_temperature())
+                    self.logger.error(self.get_density())
                 #--------------------------------------
                 # Guarantee that the first layer is not greater than 2 cm
                 #--------------------------------------
                 while self.grid[0].get_layer_height() > 0.02:
+                    process = 'Split first layer'  
                     self.split_node(0)
+                if np.max(self.get_temperature()) > 273.2:
+                    self.logger.error('Update grid - Layer temperature exceeds 273.16 K')
+                    self.logger.error('Step 5')
+                    self.logger.error(self.get_temperature())
+                    self.logger.error(self.get_density())
 
                 #--------------------------------------
                 # Split mesh at glacier-snow interface
@@ -255,61 +327,92 @@ class Grid:
                 nlayers = self.get_number_snow_layers()
                
                 while self.grid[nlayers].get_layer_height() - self.grid[nlayers-1].get_layer_height() >= 0.02:
+                    process = 'Split snow-glacier interface'  
                     self.split_node(nlayers)                
-                
-
-
-
-    def merge_new_snow(self, height_diff):
-        """ Merge first layers according to certain criteria """
-
-        self.logger.debug('Merge new snow')
-
-        ### Merge snow layers if thickness thinner threshold or if only one snow layer thinner minimum snow height
-        if ((self.grid[1].get_layer_density() < snow_ice_threshold) & (self.grid[0].get_layer_height() <= height_diff)) \
-            or ((self.grid[1].get_layer_density() >= snow_ice_threshold) & (self.grid[0].get_layer_height() < minimum_snow_height)):
-
-            # If only one snow layer is left and is smaller than the minimum snowheight, merge to ice (reduct to ice density)
-            if ((self.grid[1].get_layer_density() >= snow_ice_threshold) & (self.grid[0].get_layer_height() < minimum_snow_height)):
-                height_first_layer_tmp = (self.grid[0].get_layer_density()/ice_density) * self.grid[0].get_layer_height()
-                density_first_layer_tmp = ice_density
-
-            else:
-                height_first_layer_tmp = self.grid[0].get_layer_height()
-                density_first_layer_tmp = self.grid[0].get_layer_density()
-
-            # Add up height of the two layer
-            new_height = height_first_layer_tmp + self.grid[1].get_layer_height()
             
-            # Update liquid water
-            new_liquid_water = self.grid[0].get_layer_liquid_water() + self.grid[1].get_layer_liquid_water()
 
-            # Update ice fraction
-            new_ice_fraction = (self.grid[0].get_layer_ice_fraction()*self.grid[0].get_layer_height() + \
-                                self.grid[1].get_layer_ice_fraction()*self.grid[1].get_layer_height()) / new_height
+            if np.max(self.get_temperature()) > 273.2:
+                self.logger.error('Update grid - Layer temperature exceeds 273.16 K')
+                self.logger.error(process)
+                self.logger.error(self.get_temperature())
+                self.logger.error(self.get_density())
 
-            # New volume fractions and density
-            new_liquid_water_content = new_liquid_water/new_height
-            new_air_porosity = 1 - new_liquid_water_content - new_ice_fraction
-            new_density = new_ice_fraction*ice_density + new_liquid_water_content*water_density + new_air_porosity*air_density
-            
-            if abs(1-new_ice_fraction-new_air_porosity-new_liquid_water_content)>1e-8:
-                print('Merging is not mass consistent (%2.7f)' % (new_ice_fraction+new_air_porosity+new_liquid_water_content))
-                
-            
-            # Calc new temperature
-            new_temperature = (self.grid[0].get_layer_height()/new_height)*self.grid[0].get_layer_temperature() + \
-                            (self.grid[1].get_layer_height()/new_height)*self.grid[1].get_layer_temperature()
+            if np.min(self.get_height()) < 0.01: 
+                self.logger.error('Layer height is smaller than the user defined minimum new_height')
+                self.logger.error(self.get_height())
 
 
+    def merge_new_snow_with_glacier(self):
+
+        if (self.grid[0].get_layer_density() < snow_ice_threshold) & (self.grid[1].get_layer_density() >= snow_ice_threshold) \
+           & (self.grid[0].get_layer_height() < minimum_snow_height):
             # Update node properties
-            self.update_node(1, new_height, new_temperature, new_ice_fraction, new_liquid_water)
-            
+            first_layer_height = self.grid[0].get_layer_height()*(self.grid[0].get_layer_density()/ice_density)
+            self.update_node(1, self.grid[1].get_layer_height()+first_layer_height, self.grid[1].get_layer_temperature(), self.grid[1].get_layer_ice_fraction(), 0.0)
+    
             # Remove the second layer
             self.remove_node([0])
 
             # Write merging steps if debug level is set >= 10
-            self.logger.debug("Merging new snow (merge_new_snow) ....")
+            self.logger.debug("Merging new snow to glacier ice (merge_new_snow) ....")
+            
+
+    #def merge_new_snow(self):
+    #    """ Merge first layers according to certain criteria """
+
+    #    self.logger.debug('Merge new snow')
+
+    #    ### Merge snow layers if thickness thinner threshold or if only one snow layer thinner minimum snow height
+    #    if ((self.grid[1].get_layer_density() < snow_ice_threshold) & (self.grid[0].get_layer_height() <= merge_snow_threshold)) \
+    #        or ((self.grid[1].get_layer_density() >= snow_ice_threshold) & (self.grid[0].get_layer_height() < minimum_snow_height)):
+
+    #        # If only one snow layer is left and is smaller than the minimum snowheight, merge to ice (reduct to ice density)
+    #        if ((self.grid[1].get_layer_density() >= snow_ice_threshold) & (self.grid[0].get_layer_height() < minimum_snow_height)):
+    #            height_first_layer_tmp = (self.grid[0].get_layer_density()/ice_density) * self.grid[0].get_layer_height()
+    #            density_first_layer_tmp = ice_density
+
+    #        else:
+    #            height_first_layer_tmp = self.grid[0].get_layer_height()
+    #            density_first_layer_tmp = self.grid[0].get_layer_density()
+
+    #        # Add up height of the two layer
+    #        new_height = height_first_layer_tmp + self.grid[1].get_layer_height()
+    #        
+    #        # Update liquid water
+    #        new_liquid_water = self.grid[0].get_layer_liquid_water() + self.grid[1].get_layer_liquid_water()
+
+    #        # Update ice fraction
+    #        new_ice_fraction = (self.grid[0].get_layer_ice_fraction()*self.grid[0].get_layer_height() + \
+    #                            self.grid[1].get_layer_ice_fraction()*self.grid[1].get_layer_height()) / new_height
+
+    #        # New volume fractions and density
+    #        new_liquid_water_content = new_liquid_water/new_height
+    #        new_air_porosity = 1 - new_liquid_water_content - new_ice_fraction
+    #        new_density = new_ice_fraction*ice_density + new_liquid_water_content*water_density + new_air_porosity*air_density
+    #        
+    #        if abs(1-new_ice_fraction-new_air_porosity-new_liquid_water_content)>1e-8:
+    #            self.logger.error('Merging is not mass consistent (%2.7f)' % (new_ice_fraction+new_air_porosity+new_liquid_water_content))
+    #            
+    #        
+    #        # Calc new temperature
+    #        new_temperature = (self.grid[0].get_layer_height()/new_height)*self.grid[0].get_layer_temperature() + \
+    #                        (self.grid[1].get_layer_height()/new_height)*self.grid[1].get_layer_temperature()
+    #        
+    #        if np.max(new_temperature) > 273.2:
+    #            self.logger.error('Merge new snow - Layer temperature exceeds 273.16 K')
+    #            self.logger.error('Step 1')
+    #            self.logger.error(new_temperature)
+    #            self.logger.error(new_density)
+
+
+    #        # Update node properties
+    #        self.update_node(1, new_height, new_temperature, new_ice_fraction, new_liquid_water)
+    #        
+    #        # Remove the second layer
+    #        self.remove_node([0])
+
+    #        # Write merging steps if debug level is set >= 10
+    #        self.logger.debug("Merging new snow (merge_new_snow) ....")
 
 
 
