@@ -1,5 +1,9 @@
 import numpy as np
 from numpy.distutils.command.install_clib import install_clib
+import logging
+
+from scipy import sparse
+from scipy.sparse.linalg import spsolve
 
 from constants import *
 from config import *
@@ -10,65 +14,68 @@ def solveHeatEquation(GRID, t):
     dt  ::  integration time
     
     """
-  
+    # start module logging
+    logger = logging.getLogger(__name__)
+
+      
+
     curr_t = 0
     Tnew = 0
 
-    # Get mean snow density
-    if (GRID.get_node_density(0) > snow_ice_threshold):
-        snowRhoMean = ice_density
-    else:
-        snowRho = [idx for idx in GRID.get_density() if idx <= snow_ice_threshold]
-        snowRhoMean = sum(snowRho)/len(snowRho)
+    nl = GRID.get_number_layers()
 
     # Calculate thermal conductivity [W m-1 K-1] from mean density
-    lam = 0.021 + 2.5 * (min(GRID.get_density())/1000.0)**2.0
+    lam = 0.021 + 2.5 * (np.asarray(GRID.get_density())/1000.0)**2.0
 
     # Calculate thermal diffusivity [m2 s-1]
-    K = lam / (min(GRID.get_density()) * min(GRID.get_specific_heat()))
-
+    K = lam / (np.asarray(GRID.get_density()) * np.asarray(GRID.get_specific_heat()))
+    
     # Get snow layer heights    
-    hlayers = GRID.get_height()
+    hlayers = np.asarray(GRID.get_height())
 
-    # Check stability criteria for diffusion
-    dt_stab = c_stab * (min(hlayers)**2.0) / (K)
+    diff = ((hlayers[0:nl-1]/2.0)+(hlayers[1:nl]/2.0))
+    hk = diff[0:nl-2] 
+    hk1 = diff[1:nl-1]
+    print(diff,hk, hk1)
+
+    # Lagrange coeffiecients
+    ak = 2.0 / (hk*(hk+hk1))
+    bk = -2.0 / (hk*hk1)
+    ck = 2.0 / (hk1*(hk+hk1))
+    print(ak,ck)
+    ak = np.append(0.0,ak)
+    ck = np.append(ck,0.0)
+    bk = np.append(1,bk)
+    bk = np.append(bk,1)
+
+    print('ak ',ak.size)
+    print('K ',K.size)
+    t = 1
+    # Introduce C for matrix
+    C1 = K[1:nl]*(t/ak)
+    C2 = 1+K*(t/bk)
+    C3 = K[0:nl-1]*(t/ck)
+
     
-    while curr_t < t:
-   
-        # Get a copy of the GRID temperature profile
-        Ttmp = np.copy(GRID.get_temperature())
+    # Create tridiagonal matrix
+    A = sparse.diags([C1, C2, C3], [-1,0,1],format='csc')
 
-        # Loop over all internal grid points
-        for idxNode in range(1,GRID.number_nodes-1,1):
+    # Correct matrix for BC
+    A[0,1] = 0; A[0,0] = 1
+    A[nl-1,nl-2] = 0; A[nl-1,nl-1] = 1
+    print(ak)
+    print(K)
+    print(A.todense())
+    np.savetxt('test.txt',A.todense(),fmt='%1.4e')
+    sys.exit()
 
-            # Get specific heat of layer (air+water+ice)
-            cp = GRID.get_node_specific_heat(idxNode)
-    
-            # Calculate thermal conductivity [W m-1 K-1] from mean density
-            lam = 0.021 + 2.5 * (GRID.get_node_density(idxNode)/1000.0)**2.0
-    
-            # Calculate thermal diffusivity [m2 s-1]
-            K = lam / (GRID.get_node_density(idxNode) * cp)
+    # Initial vector
+    b = np.asarray(GRID.get_temperature())
+    # Solve equation
+    x = spsolve(A,b)
 
-            # Grid spacing            
-            hk = ((hlayers[idxNode]/2.0)+(hlayers[idxNode-1]/2.0))
-            hk1 = ((hlayers[idxNode+1]/2.0)+(hlayers[idxNode]/2.0))
-            
-            # Lagrange coeffiecients
-            ak = 2.0 / (hk*(hk+hk1))
-            bk = -2.0 / (hk*hk1)
-            ck = 2.0 / (hk1*(hk+hk1))
+    print(x)
 
-            # Select appropriate time step
-            dt_use = min(dt_stab,t-curr_t)
 
-            # Calculate new temperatures
-            Tnew = Ttmp[idxNode] + (K * dt_use) * \
-                (ak * Ttmp[idxNode-1] + bk * Ttmp[idxNode] + ck * Ttmp[idxNode+1]) 
 
-            # Update GRID with new temperatures
-            GRID.set_node_temperature(idxNode, Tnew)
-
-        # Add the time step to current time
-        curr_t = curr_t + dt_use
     

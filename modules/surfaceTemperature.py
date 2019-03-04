@@ -53,8 +53,10 @@ def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam, SLOPE):
 def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
     """ This methods updates the surface temperature and returns the surface fluxes
        """
+    # start module logging
+    logger = logging.getLogger(__name__)
+        
     # Saturation vapour pressure (hPa)
-
     if saturation_water_vapour_method == 'Sonntag90':
         Ew = method_EW_Sonntag(T2)
     else:
@@ -152,6 +154,11 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
     B = -lam * ((2 * GRID.get_node_temperature(1) - (0.5 * ((3 * res.x) + GRID.get_node_temperature(2)))) /\
                 (GRID.get_node_height(0)))
     qdiff = q0-q2
+
+    if float(res.x)>273.16:
+        logger.error('Surface temperature exceeds 273.16 K')
+        logger.error(GRID.get_node_temperature(0))
+
 
     return res.fun, float(res.x), float(Li), float(Lo), float(H), float(L), float(B), float(SWnet), rho, Lv, Cs, q0, q2, qdiff, phi
 

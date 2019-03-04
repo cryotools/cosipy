@@ -14,6 +14,7 @@ def penetrating_radiation(GRID, SWnet, dt):
 
     return subsurface_melt, Si
 
+
 def method_Bintanja(GRID, SWnet, dt):
     # Total height of first layer
     total_height = 0.0
