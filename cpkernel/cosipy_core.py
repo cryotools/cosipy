@@ -94,7 +94,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
     logger.debug('Start time loop')
    
     for t in np.arange(len(DATA.time)):
-        
+        print(t) 
         #--------------------------------------------
         # SNOWFALL [m]
         #--------------------------------------------
@@ -111,7 +111,6 @@ def cosipy_core(DATA, GRID_RESTART=None):
         if SNOWFALL > 0.0:
             # Add a new snow node on top
             GRID.add_node(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0)
-            GRID.merge_new_snow(merge_snow_threshold)
 
         #--------------------------------------------
         # RAINFALL 
@@ -149,7 +148,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         
         # Penetrating SW radiation and subsurface melt
         subsurface_melt, G_penetrating = penetrating_radiation(GRID, SWnet, dt)
-
+        
         # Calculate residual incoming shortwave radiation (penetrating part removed)
         G_resid = G[t] - G_penetrating
 
@@ -191,13 +190,10 @@ def cosipy_core(DATA, GRID_RESTART=None):
         # Remove melt m w.e.q.
         GRID.remove_melt_energy(melt + sublimation + deposition + evaporation + condensation)
 
-        # Merge first layer, if too small (for model stability)
-        GRID.merge_new_snow(merge_snow_threshold)
-         
         #--------------------------------------------
         # Solve the heat equation
         #--------------------------------------------
-        solveHeatEquation(GRID, dt)
+        solveHeatEquation(GRID, T2[t], dt)
 
         #--------------------------------------------
         # Percolation

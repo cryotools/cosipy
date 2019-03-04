@@ -3,8 +3,10 @@
  Please make your changes here.
 """
 ## Simulation period
-time_start = '2009-04-27T01:00'
-time_end   = '2012-06-11T00:00'
+#time_start = '2009-04-27T01:00'
+time_start = '2009-01-01T00:00'
+#time_end   = '2012-06-11T00:00'
+time_end   = '2010-05-01T00:00'
 time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
@@ -20,7 +22,7 @@ slurm_use = False
 local_port = 8786
 
 ## Write full fields
-full_field = False
+full_field = True
 
 ## Restart
 restart = False

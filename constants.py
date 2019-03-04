@@ -13,7 +13,7 @@ saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
 ' Inital constants'
 initial_snowheight = 0.8                        # Inital snowheigt
 initial_snow_layer_heights = 0.1                # Initial thickness of snow layers
-initial_glacier_height = 30.0                   # Inital glacier heigt without snowlayers
+initial_glacier_height = 10.0                   # Inital glacier heigt without snowlayers
 initial_glacier_layer_heights = 1.              # Initial thickness of glacier ice layers
 
 initial_top_density_snowpack = 300.             # Top density for inital snowpack
