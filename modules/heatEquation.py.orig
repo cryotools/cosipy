@@ -1,6 +1,5 @@
 import numpy as np
 from numpy.distutils.command.install_clib import install_clib
-import logging
 
 from constants import *
 from config import *
@@ -11,17 +10,27 @@ def solveHeatEquation(GRID, t):
     dt  ::  integration time
     
     """
-    # start module logging
-    logger = logging.getLogger(__name__)
-
+  
     curr_t = 0
     Tnew = 0
 
+    # Get mean snow density
+    if (GRID.get_node_density(0) > snow_ice_threshold):
+        snowRhoMean = ice_density
+    else:
+        snowRho = [idx for idx in GRID.get_density() if idx <= snow_ice_threshold]
+        snowRhoMean = sum(snowRho)/len(snowRho)
+
+    # Calculate specific heat  [J Kg-1 K-1] depending on mean temperature domain
+    c_pi = 152.2 + 7.122 * np.mean(GRID.get_temperature())
+    # with static specific heat of ice
+    # c_pi = 152.2 + 7.122 * spec_heat_ice
+    
     # Calculate thermal conductivity [W m-1 K-1] from mean density
-    lam = 0.021 + 2.5 * (min(GRID.get_density())/1000.0)**2.0
+    lam = 0.021 + 2.5 * (snowRhoMean/1000.0)**2.0
 
     # Calculate thermal diffusivity [m2 s-1]
-    K = lam / (min(GRID.get_density()) * min(GRID.get_specific_heat()))
+    K = lam / (snowRhoMean * c_pi)
 
     # Get snow layer heights    
     hlayers = GRID.get_height()
@@ -36,15 +45,6 @@ def solveHeatEquation(GRID, t):
 
         # Loop over all internal grid points
         for idxNode in range(1,GRID.number_nodes-1,1):
-
-            # Get specific heat of layer (air+water+ice)
-            cp = GRID.get_node_specific_heat(idxNode)
-    
-            # Calculate thermal conductivity [W m-1 K-1] from mean density
-            lam = 0.021 + 2.5 * (GRID.get_node_density(idxNode)/1000.0)**2.0
-    
-            # Calculate thermal diffusivity [m2 s-1]
-            K = lam / (GRID.get_node_density(idxNode) * cp)
 
             # Grid spacing            
             hk = ((hlayers[idxNode]/2.0)+(hlayers[idxNode-1]/2.0))
@@ -65,11 +65,8 @@ def solveHeatEquation(GRID, t):
             # Update GRID with new temperatures
             GRID.set_node_temperature(idxNode, Tnew)
 
-        if max(GRID.get_temperature())>273.16:
-            logger.error('Temperature exceeds 273.16 K')
-            logger.error(Ttmp)
-            logger.error(GRID.get_temperature())
-
         # Add the time step to current time
         curr_t = curr_t + dt_use
     
+    return c_pi
+

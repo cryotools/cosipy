@@ -4,9 +4,9 @@
 """
 ## Simulation period
 #time_start = '2009-04-27T01:00'
-time_start = '2009-01-01T00:00'
+time_start = '2009-10-01T00:00'
 #time_end   = '2012-06-11T00:00'
-time_end   = '2010-05-01T00:00'
+time_end   = '2010-09-30T00:00'
 time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
@@ -38,9 +38,9 @@ debug_level = 0                                     # DEBUG levels: 0, 10, 20, 3
 
 ## Merging level
 merging = True 
-density_threshold_merging = 50                       # If merging is true threshold for layer densities difference two layer
+density_threshold_merging = 20                       # If merging is true threshold for layer densities difference two layer
                                                     # try: 5-10 (kg m^-3)
-temperature_threshold_merging = 0.8                # If mering is true threshold for layer temperatures to merge
+temperature_threshold_merging = 0.2                # If mering is true threshold for layer temperatures to merge
                                                     # try: 0.05-0.1 (K)
 
 # How many mergings and splittings are allowed per time step
@@ -55,7 +55,7 @@ max_snow_layer_height = 0.5
 max_glacier_layer_height = 0.8
 
 ## CFL criteria
-c_stab = 0.6
+c_stab = 0.5
 
 # Configuration if worker for local cluster (not slurm) Number of workers, if None all cores are used
 workers = 1

@@ -76,7 +76,7 @@ class Node:
 
     def get_layer_liquid_water_content(self):
         """ Return the liquid water [-] content of the layer """
-        return self.get_layer_liquid_water()/self.height
+        return self.get_layer_liquid_water()/self.get_layer_height()
     
     def get_layer_irreducible_water_content(self):
         """ Return the irreducible water content of the layer """

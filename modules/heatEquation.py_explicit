@@ -37,11 +37,9 @@ def solveHeatEquation(GRID, t):
         # Loop over all internal grid points
         for idxNode in range(1,GRID.number_nodes-1,1):
 
-            # Get mean specific heat of layer (air+water+ice)
-            cp = ( (GRID.get_node_specific_heat(idxNode-1)+GRID.get_node_specific_heat(idxNode)+GRID.get_node_specific_heat(idxNode+1))/3.0)
-            
-            # Get mean density
-            rho = ( (GRID.get_node_density(idxNode-1)+GRID.get_node_density(idxNode)+GRID.get_node_density(idxNode+1))/3.0)
+            # Get specific heat of layer (air+water+ice)
+            cp = ((GRID.get_node_specific_heat(idxNode-1)+GRID.get_node_specific_heat(idxNode)+GRID.get_node_specific_heat(idxNode+1)/3.0))
+            rho = ((GRID.get_node_density(idxNode-1)+GRID.get_node_density(idxNode)+GRID.get_node_density(idxNode+1)/3.0))
     
             # Calculate thermal conductivity [W m-1 K-1] from mean density
             lam = 0.021 + 2.5 * (rho/1000.0)**2.0

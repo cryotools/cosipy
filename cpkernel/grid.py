@@ -112,6 +112,8 @@ class Grid:
         with the new properties (height, liquid water content, ice fraction, temperature), while the node
         at idx+1 is deleted after merging"""
 
+        
+
         # New layer height by adding up the height of the two layers
         new_height = self.grid[idx].get_layer_height() + self.grid[idx+1].get_layer_height()
         
@@ -128,7 +130,7 @@ class Grid:
         
         if abs(1-new_ice_fraction-new_air_porosity-new_liquid_water_content)>1e-8:
             self.logger.error('Merging is not mass consistent (%2.7f)' % (new_ice_fraction+new_air_porosity+new_liquid_water_content))
-       
+            
         # Calc new temperature
         new_temperature = (self.grid[idx].get_layer_height()/new_height)*self.grid[idx].get_layer_temperature() + \
                             (self.grid[idx+1].get_layer_height()/new_height)*self.grid[idx+1].get_layer_temperature()
@@ -143,7 +145,7 @@ class Grid:
 
     def split_node(self, pos):
         """ Split node at position pos """
-
+        
         if np.max(self.get_temperature()) > 273.2:
             self.logger.error('Split Node - Layer temperature exceeds 273.16 K')
             self.logger.error('Beginning')
@@ -152,11 +154,31 @@ class Grid:
         
         self.logger.debug('Split node')
 
+        #print('------------START------------------')
+        #print(self.get_temperature())
+        #print(self.get_density())
+        #print(self.get_height())
+        dz = (self.get_node_height(pos)+self.get_node_height(pos+1))/2.0
+        Tgrad = (self.get_node_temperature(pos)-self.get_node_temperature(pos+1))/dz
+        IFgrad = (self.get_node_ice_fraction(pos)-self.get_node_ice_fraction(pos+1))/dz
+
+        new_temperature_1 = min(Tgrad*(dz-self.get_node_height(pos)/4.0) + self.get_node_temperature(pos+1), 273.16) 
+        new_temperature_2 = min(Tgrad*(dz+self.get_node_height(pos)/4.0) + self.get_node_temperature(pos+1), 273.16) 
+        new_IF_1 = min(IFgrad*(dz-self.get_node_height(pos)/4.0) + self.get_node_ice_fraction(pos+1), 1.0) 
+        new_IF_2 = min(IFgrad*(dz+self.get_node_height(pos)/4.0) + self.get_node_ice_fraction(pos+1), 1.0) 
         
-        self.grid.insert(pos+1, Node(self.get_node_height(pos)/2.0, self.get_node_density(pos), self.get_node_temperature(pos), self.get_node_liquid_water(pos)/2.0, self.get_node_ice_fraction(pos)))
-        self.update_node(pos, self.get_node_height(pos)/2.0, self.get_node_temperature(pos), self.get_node_ice_fraction(pos), self.get_node_liquid_water(pos)/2.0)
+        self.grid.insert(pos+1, Node(self.get_node_height(pos)/2.0, self.get_node_density(pos), new_temperature_1, self.get_node_liquid_water(pos)/2.0, new_IF_1))
+        self.update_node(pos, self.get_node_height(pos)/2.0, new_temperature_2, new_IF_2, self.get_node_liquid_water(pos)/2.0)
+       
+        #print(self.get_temperature())
+        #print(self.get_density())
+        #print(self.get_height())
+        #print('------------END------------------')
+
+        #self.grid.insert(pos+1, Node(self.get_node_height(pos)/2.0, self.get_node_density(pos), self.get_node_temperature(pos), self.get_node_liquid_water(pos)/2.0, self.get_node_ice_fraction(pos)))
+        #self.update_node(pos, self.get_node_height(pos)/2.0, self.get_node_temperature(pos), self.get_node_ice_fraction(pos), self.get_node_liquid_water(pos)/2.0)
         self.number_nodes += 1
-        
+
 
 
     def update_node(self, no, height, temperature, ice_fraction, liquid_water):
@@ -211,26 +233,35 @@ class Grid:
         
         # If fresh snow on glacier surface is too small, merge it with the glacier layer
         self.merge_new_snow_with_glacier()
-       
-        process = 'None'
-
+            
+        #-------------------------------------------------------------------------
+        # We need to check for snow and glacier seperately to avoid that snow and ice are merged
+        #-------------------------------------------------------------------------
+        #TODO change mimimum_snow_height to min_first_layer_height
+        # Merge first snow layer if < minimum_snow_height
+        #while (self.get_number_snow_layers() > 1) & (self.grid[0].get_layer_height() < 0.01):
+        #    self.merge_nodes(0)
+        
+        # Merge first glacier layer if < minimum_snow_height
+        #while (self.get_number_snow_layers() == 0) & (self.grid[0].get_layer_height() < 0.05):
+        #    self.merge_nodes(0)
+        
+        #-------------------------------------------------------------------------
+        # We need to guarantee that the snow/ice layer thickness is not smaller than the user defined threshold  
+        #-------------------------------------------------------------------------
+        # Get snow layer heights
+        while (min(self.get_height())<0.01):
+            idx = np.argmin(self.get_height())
+            if (self.get_node_height(idx) < 0.01) & (self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)<snow_ice_threshold):
+                self.merge_nodes(idx)
+            if (self.get_node_height(idx) < 0.01) & (self.get_node_density(idx)>=snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold):
+                self.merge_nodes(idx)
+            if (self.get_node_height(idx) < 0.01) & (self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold):
+                self.merge_snow_with_glacier(idx)
+        
         # Do the merging 
-        if merge:
+        if merge: 
            
-            #-------------------------------------------------------------------------
-            # We need to check for snow and glacier seperately to avoid that snow and ice are merged
-            #-------------------------------------------------------------------------
-            #TODO change mimimum_snow_height to min_first_layer_height
-            # Merge first snow layer if < minimum_snow_height
-            while (self.get_number_snow_layers() > 1) & (self.grid[0].get_layer_height() < 0.01):
-                self.merge_nodes(0)
-            
-            # Merge first glacier layer if < minimum_snow_height
-            while (self.get_number_snow_layers() == 0) & (self.grid[0].get_layer_height() < 0.01):
-                self.merge_nodes(0)
-            
-            #self.check('MERGE 1')
-
             #-------------------------------------------------------------------------
             # Check for merging due to density and temperature 
             #-------------------------------------------------------------------------
@@ -251,83 +282,63 @@ class Grid:
                     if (abs(dT[ind[0]])<threshold_temperature) & (abs(dRho[ind[0]])<threshold_density):
                         self.merge_nodes(ind[0])
 
-            #self.check('MERGE 2')
+            self.check('MERGE')
 
-            #-------------------------------------------------------------------------
-            # We need to guarantee that the snow/ice layer thickness is not smaller than the user defined threshold  
-            #-------------------------------------------------------------------------
-            # Get snow layer heights
-            while (min(self.get_height())<0.01):
-                idx = np.argmin(self.get_height())
-                if (self.get_node_height(idx) < 0.01) & (self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)<snow_ice_threshold):
-                    self.merge_nodes(idx)
-                if (self.get_node_height(idx) < 0.01) & (self.get_node_density(idx)>=snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold):
-                    self.merge_nodes(idx)
-                if (self.get_node_height(idx) < 0.01) & (self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold):
-                    self.merge_snow_with_glacier(idx)
-                print(self.get_height())
-                print(self.get_density())
-
-            self.check('MERGE 3')
-
-         
+     
         #---------------------
         # Splitting
         #---------------------
-        if merge: 
+        if False: 
 
             # Only split when maximum layers not reached
             if self.get_number_layers()<max_layers:
-
+                
                 #--------------------------------------
                 # Snow splitting
                 # Check for merging (user defined number of splittings) 
                 #--------------------------------------
-                for i in range(split_max):
+                #for i in range(split_max):
 
-                    # Get number of snow layers
-                    nlayers = self.get_number_snow_layers()
+                #    # Get number of snow layers
+                #    nlayers = self.get_number_snow_layers()
    
-                    # Check if there are still snow layers
-                    if (nlayers > 0):
-                    
-                        process = 'Split snow layers'  
-                        
-                        # Get layer heights
-                        h = np.asarray(self.get_height()[0:nlayers])
+                #    # Check if there are still snow layers
+                #    if (nlayers > 0):
+                #    
+                #        # Get layer heights
+                #        h = np.asarray(self.get_height()[0:nlayers])
     
-                        # Calc differences between a layer and the subsequent layer
-                        dT = np.diff(self.get_temperature()[0:nlayers+1])
-                        dRho = np.diff(self.get_density()[0:nlayers+1])
+                #        # Calc differences between a layer and the subsequent layer
+                #        dT = np.diff(self.get_temperature()[0:nlayers+1])
+                #        dRho = np.diff(self.get_density()[0:nlayers+1])
 
-                        # Sort the by differences in ascending order
-                        ind = np.lexsort((abs(dT),abs(dRho),h))[::-1]
-                   
-                        if (h[ind[0]]>2.0*0.01) & (abs(dT[ind[0]])>5*threshold_temperature) & (abs(dRho[ind[0]])>5*threshold_density):
-                            self.split_node(ind[0])
-
-                self.check('SPLIT 1')
+                #        # Sort the by differences in ascending order
+                #        ind = np.lexsort((abs(dT),abs(dRho),h))[::-1]
+                #   
+                #        if (h[ind[0]]>2.0*0.01) & (abs(dT[ind[0]])>5*threshold_temperature) & (abs(dRho[ind[0]])>5*threshold_density):
+                #            self.split_node(ind[0])
 
                 #--------------------------------------
                 # Guarantee that the first layer is not greater than 2 cm
                 #--------------------------------------
-                while self.grid[0].get_layer_height() > 0.02:
-                    process = 'Split first layer'  
-                    self.split_node(0)
-                
-                self.check('SPLIT 2')
+                if self.grid[0].get_layer_density() < snow_ice_threshold:
+                    while self.grid[0].get_layer_height() > 0.10:
+                        self.split_node(0)
+                else: 
+                    while self.grid[0].get_layer_height() > 0.10:
+                        self.split_node(0)
 
                 #--------------------------------------
                 # Split mesh at glacier-snow interface
                 #--------------------------------------
                 # Get number of snow layers
-                nlayers = self.get_number_snow_layers()
+                #nlayers = self.get_number_snow_layers()
                
-                while (self.grid[nlayers].get_layer_height() - self.grid[nlayers-1].get_layer_height() > 0.02) & (self.grid[nlayers].get_layer_height()>0.02):
-                    process = 'Split snow-glacier interface'  
-                    self.split_node(nlayers)                
+                #while (self.grid[nlayers].get_layer_height() - self.grid[nlayers-1].get_layer_height() > 0.02) & (self.grid[nlayers].get_layer_height()>0.02):
+                #    process = 'Split snow-glacier interface'  
+                #    self.split_node(nlayers)                
            
-                self.check('SPLIT 3')
+                self.check('SPLIT')
 
 
 

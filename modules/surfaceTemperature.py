@@ -35,10 +35,10 @@ def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam, SLOPE):
     Lo = -surface_emission_coeff * sigma * np.power(x, 4.0)
 
     # Ground heat flux
-    #B = -lam * ((2.0 * GRID.get_node_temperature(1) - (0.5 * ((3.0 * x) + GRID.get_node_temperature(2)))) /\
-    #           (GRID.get_node_height(0)))
-    B = -lam * ((2.0 * GRID.get_node_temperature(0) - (0.5 * ((3.0 * x) + GRID.get_node_temperature(1)))) /\
+    B = -lam * ((2.0 * GRID.get_node_temperature(1) - (0.5 * ((3.0 * x) + GRID.get_node_temperature(2)))) /\
                (GRID.get_node_height(0)))
+    #B = -lam * ((2.0 * GRID.get_node_temperature(0) - (0.5 * ((3.0 * x) + GRID.get_node_temperature(1)))) /\
+    #           (GRID.get_node_height(0)))
 
     # Return residual of energy balance
     return np.abs(SWnet+Li+Lo-H-L-B)
@@ -124,10 +124,10 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
     Lo = -surface_emission_coeff * sigma * np.power(res.x, 4.0)
 
     # Ground heat flux
-    #B = -lam * ((2 * GRID.get_node_temperature(1) - (0.5 * ((3 * res.x) + GRID.get_node_temperature(2)))) /\
-    #            (GRID.get_node_height(0)))
-    B = -lam * ((2.0 * GRID.get_node_temperature(0) - (0.5 * ((3.0 * res.x) + GRID.get_node_temperature(1)))) /\
-               (GRID.get_node_height(0)))
+    B = -lam * ((2 * GRID.get_node_temperature(1) - (0.5 * ((3 * res.x) + GRID.get_node_temperature(2)))) /\
+                (GRID.get_node_height(0)))
+    #B = -lam * ((2.0 * GRID.get_node_temperature(0) - (0.5 * ((3.0 * res.x) + GRID.get_node_temperature(1)))) /\
+    #           (GRID.get_node_height(0)))
     
     qdiff = q0-q2
 

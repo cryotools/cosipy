@@ -65,7 +65,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
     else:
         SNOWF = None
         RRR = DATA.RRR.values
-
+    
     if force_use_TP is True:
         SNOWF = None
 
@@ -94,7 +94,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
     logger.debug('Start time loop')
    
     for t in np.arange(len(DATA.time)):
-        print(t) 
+        
         #--------------------------------------------
         # SNOWFALL [m]
         #--------------------------------------------
@@ -111,7 +111,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         if SNOWFALL > 0.0:
             # Add a new snow node on top
             GRID.add_node(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0)
-
+        
         #--------------------------------------------
         # RAINFALL 
         #--------------------------------------------
@@ -132,14 +132,14 @@ def cosipy_core(DATA, GRID_RESTART=None):
 
         #--------------------------------------------
         # Update roughness length
-        z0 = updateRoughness(GRID, hours_since_snowfall)
         #--------------------------------------------
+        z0 = updateRoughness(GRID, hours_since_snowfall)
 
         #--------------------------------------------
         # Merge grid layers, if necessary
         #--------------------------------------------
         GRID.update_grid(merging, temperature_threshold_merging, density_threshold_merging, merge_snow_threshold, merge_max, split_max)
-
+        
         #--------------------------------------------
         # Surface Energy Balance 
         #--------------------------------------------
@@ -178,6 +178,11 @@ def cosipy_core(DATA, GRID_RESTART=None):
             condensation = min(latent_heat_flux / (1000.0 * lat_heat_vaporize), 0) * dt
 
         #--------------------------------------------
+        # Solve the heat equation
+        #--------------------------------------------
+        solveHeatEquation(GRID, dt)
+        
+        #--------------------------------------------
         # Melt process - mass changes of snowpack (melting, sublimation, deposition, evaporation, condensation)
         #--------------------------------------------
         # Melt energy in [W m^-2 or J s^-1 m^-2]
@@ -189,22 +194,17 @@ def cosipy_core(DATA, GRID_RESTART=None):
 
         # Remove melt m w.e.q.
         GRID.remove_melt_energy(melt + sublimation + deposition + evaporation + condensation)
-
-        #--------------------------------------------
-        # Solve the heat equation
-        #--------------------------------------------
-        solveHeatEquation(GRID, T2[t], dt)
-
+        
         #--------------------------------------------
         # Percolation
         #--------------------------------------------
-        Q  = percolation(GRID, melt, dt, debug_level) 
-        
+        #Q  = percolation(GRID, melt, dt, debug_level) 
+        Q=0
         #--------------------------------------------
         # Refreezing
         #--------------------------------------------
-        water_refreezed = refreezing(GRID)
-        
+        #water_refreezed = refreezing(GRID)
+        water_refreezed=0 
         #--------------------------------------------
         # Calculate new density to densification
         #--------------------------------------------
@@ -220,7 +220,6 @@ def cosipy_core(DATA, GRID_RESTART=None):
         internal_mass_balance2 = melt-Q  #+ subsurface_melt
         mass_balance_check = surface_mass_balance + internal_mass_balance2
 
-        
         # Write results
         logger.debug('Write data into local result structure')
 
