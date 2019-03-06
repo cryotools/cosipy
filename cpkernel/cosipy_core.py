@@ -94,7 +94,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
     logger.debug('Start time loop')
    
     for t in np.arange(len(DATA.time)):
-        
+        print(t)      
         #--------------------------------------------
         # SNOWFALL [m]
         #--------------------------------------------
@@ -107,6 +107,9 @@ def cosipy_core(DATA, GRID_RESTART=None):
             SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature)-2.5)*2.5)+1))
             if SNOWFALL<0.0:        
                 SNOWFALL = 0.0
+
+        # TODO DELETE
+        SNOWFALL=SNOWFALL*1.5
 
         if SNOWFALL > 0.0:
             # Add a new snow node on top
@@ -139,7 +142,8 @@ def cosipy_core(DATA, GRID_RESTART=None):
         # Merge grid layers, if necessary
         #--------------------------------------------
         GRID.update_grid(merging, temperature_threshold_merging, density_threshold_merging, merge_snow_threshold, merge_max, split_max)
-        
+        print(GRID.get_number_layers())
+
         #--------------------------------------------
         # Surface Energy Balance 
         #--------------------------------------------

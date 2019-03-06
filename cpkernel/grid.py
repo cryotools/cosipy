@@ -288,6 +288,13 @@ class Grid:
         #---------------------
         # Splitting
         #---------------------
+        if self.grid[0].get_layer_density() < snow_ice_threshold:
+            while self.grid[0].get_layer_height() > 0.05:
+                self.split_node(0)
+        else: 
+            while self.grid[0].get_layer_height() > 0.05:
+                self.split_node(0)
+        
         if False: 
 
             # Only split when maximum layers not reached
@@ -322,10 +329,10 @@ class Grid:
                 # Guarantee that the first layer is not greater than 2 cm
                 #--------------------------------------
                 if self.grid[0].get_layer_density() < snow_ice_threshold:
-                    while self.grid[0].get_layer_height() > 0.10:
+                    while self.grid[0].get_layer_height() > 0.02:
                         self.split_node(0)
                 else: 
-                    while self.grid[0].get_layer_height() > 0.10:
+                    while self.grid[0].get_layer_height() > 0.02:
                         self.split_node(0)
 
                 #--------------------------------------

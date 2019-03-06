@@ -6,7 +6,7 @@
 #time_start = '2009-04-27T01:00'
 time_start = '2009-10-01T00:00'
 #time_end   = '2012-06-11T00:00'
-time_end   = '2010-09-30T00:00'
+time_end   = '2009-12-30T00:00'
 time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
