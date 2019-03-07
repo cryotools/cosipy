@@ -22,7 +22,7 @@ slurm_use = False
 local_port = 8786
 
 ## Write full fields
-full_field = False
+full_field = True 
 
 ## Restart
 restart = False
@@ -50,7 +50,7 @@ merge_max = 2
 split_max = 2 
 
 ## Max. number of layers, just for the restart file
-max_layers = 100
+max_layers = 1000
 
 ## Max. height of snow layers
 max_snow_layer_height = 0.5

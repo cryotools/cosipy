@@ -314,14 +314,14 @@ class Grid:
         #-------------------------------------------------------------------------
         
         # Shift first layer
-        self.correct_first_layer(0.02)
+        self.correct_first_layer(0.01)
         self.log_profile()
 
         #-------------------------------------------------------------------------
         # We need to guarantee that the snow/ice layer thickness is not smaller than the user defined threshold  
         #-------------------------------------------------------------------------
         # Get snow layer heights
-        while (min(self.get_height())<0.02):
+        while (min(self.get_height())<0.008):
             idx = np.argmin(self.get_height())
             if (idx>0):
                 if (self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)<snow_ice_threshold):
