@@ -23,13 +23,13 @@ def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam, SLOPE):
         Ew0 = method_EW_Sonntag(x)
 
     # Sensible heat flux
-    H = rho * spec_heat_air * Cs * u2 * (x - T2) * phi * np.cos(np.radians(SLOPE))
+    H = rho * spec_heat_air * Cs * u2 * (T2-x) * phi * np.cos(np.radians(SLOPE))
 
     # Mixing ratio at surface
     q0 = (100.0 * 0.622 * (Ew0 / (p - Ew0))) / 100.0
 
     # Latent heat flux
-    L = rho * Lv * Cs * u2 * (q0 - q2) * phi * np.cos(np.radians(SLOPE))
+    L = rho * Lv * Cs * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
 
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(x, 4.0)
@@ -38,10 +38,10 @@ def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam, SLOPE):
     #B = -lam * ((2.0 * GRID.get_node_temperature(1) - (0.5 * ((3.0 * x) + GRID.get_node_temperature(2)))) /\
     #           (GRID.get_node_height(0))) * np.cos(np.radians(SLOPE))
    
-    B = -lam * (GRID.get_node_temperature(1)-x)/(GRID.get_node_depth(1)-GRID.get_node_depth(0))
+    B = lam * (GRID.get_node_temperature(1)-x)/(GRID.get_node_depth(1)-GRID.get_node_depth(0))
 
     # Return residual of energy balance
-    return np.abs(SWnet+Li+Lo-H-L-B)
+    return np.abs(SWnet+Li+Lo+H+L+B)
 
 def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
     """ This methods updates the surface temperature and returns the surface fluxes
@@ -110,7 +110,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
         Lv = lat_heat_sublimation
 
     # Sensible heat flux
-    H = rho * spec_heat_air * Cs * u2 * (res.x - T2) * phi * np.cos(np.radians(SLOPE))
+    H = rho * spec_heat_air * Cs * u2 * (T2-res.x) * phi * np.cos(np.radians(SLOPE))
 
     # Saturation vapour pressure at the surface
     Ew0 = 6.112 * np.exp((17.67*(res.x-273.16)) / ((res.x-29.66)))
@@ -119,7 +119,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
     q0 = (100.0 * 0.622 * (Ew0/(p-Ew0))) / 100.0
 
     # Latent heat flux
-    L = rho * Lv * Cs * u2 * (q0-q2) * phi * np.cos(np.radians(SLOPE))
+    L = rho * Lv * Cs * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
 
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(res.x, 4.0)
@@ -128,7 +128,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
     #B = -lam * ((2 * GRID.get_node_temperature(1) - (0.5 * ((3 * res.x) + GRID.get_node_temperature(2)))) /\
     #            (GRID.get_node_height(0))) * np.cos(np.radians(SLOPE))
 
-    B = -lam * (GRID.get_node_temperature(1)-res.x)/(GRID.get_node_depth(1)-GRID.get_node_depth(0))
+    B = lam * (GRID.get_node_temperature(1)-res.x)/(GRID.get_node_depth(1)-GRID.get_node_depth(0))
     #print('T2: %.2f \t T0: %.2f \t T1: %.2f \t SW: %.2f \t Li: %.2f \t Lo: %.2f \t H: %.2f \t LE: %.2f \t B: %.2f' % (T2,res.x,GRID.get_node_temperature(1),SWnet,Li,Lo,H,L,B))
 
     qdiff = q0-q2
@@ -138,6 +138,8 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
         logger.error(GRID.get_node_temperature(0))
 
     return res.fun, float(res.x), float(Li), float(Lo), float(H), float(L), float(B), float(SWnet), rho, Lv, Cs, q0, q2, qdiff, phi
+
+
 
 def method_EW_Sonntag(Temp):
     Ew = 6.112 * np.exp((17.67*(Temp-273.16)) / ((Temp-29.66)))

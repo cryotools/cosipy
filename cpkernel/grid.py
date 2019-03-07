@@ -153,12 +153,9 @@ class Grid:
         # After merging of fresh snow to the glacier the first layer can be large. To avoid a large first layer it is 
         # splitted until it is smaller than 0.1 m
         while self.grid[0].get_layer_height()>0.1:
+            print(self.grid[0].get_layer_height())
             self.split_node(0)
         
-        # The same for the second layer
-        #while self.grid[1].get_layer_height()>0.1:
-        #    self.split_node(1)
-
         # New layer height by adding up the height of the two layers
         total_height = self.grid[0].get_layer_height() + self.grid[1].get_layer_height()
   
@@ -225,6 +222,19 @@ class Grid:
         self.check('Adjust first layer') 
 
 
+    def log_profile(self):
+        """ Logarithmic remeshing """ 
+        bool = True
+        idx = 1
+        while (bool):
+            if (self.get_node_height(idx+1) > 2.0*(1.1*self.get_node_height(idx))):
+                self.split_node(idx+1)
+                idx = idx+1
+            if (idx <= self.get_number_layers()):
+                bool = False
+
+
+
     def split_node(self, pos):
         """ Split node at position pos """
         
@@ -237,11 +247,12 @@ class Grid:
         new_IF_1 = min(IFgrad*(dz-self.get_node_height(pos)/4.0) + self.get_node_ice_fraction(pos+1), 1.0) 
         new_IF_2 = min(IFgrad*(dz+self.get_node_height(pos)/4.0) + self.get_node_ice_fraction(pos+1), 1.0) 
         
-        #self.grid.insert(pos+1, Node(self.get_node_height(pos)/2.0, self.get_node_density(pos), new_temperature_1, self.get_node_liquid_water(pos)/2.0, new_IF_1))
-        #self.update_node(pos, self.get_node_height(pos)/2.0, new_temperature_2, new_IF_2, self.get_node_liquid_water(pos)/2.0)
+        self.grid.insert(pos+1, Node(self.get_node_height(pos)/2.0, self.get_node_density(pos), new_temperature_1, self.get_node_liquid_water(pos)/2.0, new_IF_1))
+        self.update_node(pos, self.get_node_height(pos)/2.0, new_temperature_2, new_IF_2, self.get_node_liquid_water(pos)/2.0)
         
-        self.grid.insert(pos+1, Node(self.get_node_height(pos)/2.0, self.get_node_density(pos), self.get_node_temperature(pos), self.get_node_liquid_water(pos)/2.0, self.get_node_ice_fraction(pos)))
-        self.update_node(pos, self.get_node_height(pos)/2.0, self.get_node_temperature(pos), self.get_node_ice_fraction(pos), self.get_node_liquid_water(pos)/2.0)
+        #self.grid.insert(pos+1, Node(self.get_node_height(pos)/2.0, self.get_node_density(pos), self.get_node_temperature(pos), self.get_node_liquid_water(pos)/2.0, self.get_node_ice_fraction(pos)))
+        #self.update_node(pos, self.get_node_height(pos)/2.0, self.get_node_temperature(pos), self.get_node_ice_fraction(pos), self.get_node_liquid_water(pos)/2.0)
+        
         self.number_nodes += 1
 
         self.check('Splitting')
@@ -304,6 +315,7 @@ class Grid:
         
         # Shift first layer
         self.correct_first_layer(0.02)
+        self.log_profile()
 
         #-------------------------------------------------------------------------
         # We need to guarantee that the snow/ice layer thickness is not smaller than the user defined threshold  
@@ -738,6 +750,15 @@ class Grid:
             else:
                 d = d + self.get_node_height(i-1)/2.0 + self.get_node_height(i)/2.0
         return d
+
+
+    def get_depth(self):
+        """ Returns depth profile """
+        d = []
+        for idx in range(self.number_nodes):
+            d.append(self.get_node_depth(idx))
+        return d
+
 
     def get_total_snowheight(self, verbose=False):
         """ Get the total snowheight (density<snow_ice_threshold)"""

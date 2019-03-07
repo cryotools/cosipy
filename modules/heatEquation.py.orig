@@ -32,6 +32,10 @@ def solveHeatEquation(GRID, t):
     if dt_stab<250:
         dt_stab = 180
 
+    if max(GRID.get_temperature())>273.2:
+        logger.error('Input temperature data exceeds 273.2 K')
+        logger.error(GRID.get_temperature())
+
     while curr_t < t:
    
         # Get a copy of the GRID temperature profile
@@ -62,11 +66,11 @@ def solveHeatEquation(GRID, t):
             # Update GRID with new temperatures
             GRID.set_node_temperature(idxNode, Tnew)
 
-        if max(GRID.get_temperature())>273.2:
-            logger.error('Temperature exceeds 273.2 K')
-            logger.error(Ttmp)
-            logger.error(GRID.get_temperature())
-
         # Add the time step to current time
         curr_t = curr_t + dt_use
     
+    if max(GRID.get_temperature())>273.2:
+       logger.error('Temperature exceeds 273.2 K')
+       logger.error(Ttmp)
+       logger.error(GRID.get_temperature())
+            

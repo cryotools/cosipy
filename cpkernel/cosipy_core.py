@@ -108,7 +108,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
                 SNOWFALL = 0.0
 
         ## TODO DELETE
-        SNOWFALL=SNOWFALL*1.5
+        SNOWFALL=SNOWFALL*snow_scaling
 
         if SNOWFALL > 0.0:
             # Add a new snow node on top
@@ -154,8 +154,10 @@ def cosipy_core(DATA, GRID_RESTART=None):
         SWnet = G[t] * (1 - alpha)
         
         # Penetrating SW radiation and subsurface melt
-        subsurface_melt, G_penetrating = penetrating_radiation(GRID, SWnet, dt)
-        
+        #subsurface_melt, G_penetrating = penetrating_radiation(GRID, SWnet, dt)
+        subsurface_melt=0
+        G_penetrating=0
+
         # Calculate residual incoming shortwave radiation (penetrating part removed)
         G_resid = G[t] - G_penetrating
 
@@ -189,8 +191,8 @@ def cosipy_core(DATA, GRID_RESTART=None):
         # Melt process - mass changes of snowpack (melting, sublimation, deposition, evaporation, condensation)
         #--------------------------------------------
         # Melt energy in [W m^-2 or J s^-1 m^-2]
-        melt_energy = max(0, sw_radiation_net + lw_radiation_in + lw_radiation_out - ground_heat_flux -
-                          sensible_heat_flux - latent_heat_flux) 
+        melt_energy = max(0, sw_radiation_net + lw_radiation_in + lw_radiation_out + ground_heat_flux +
+                          sensible_heat_flux + latent_heat_flux) 
 
         # Convert melt energy to m w.e.q.   
         melt = melt_energy * dt / (1000 * lat_heat_melting)  
@@ -201,13 +203,13 @@ def cosipy_core(DATA, GRID_RESTART=None):
         #--------------------------------------------
         # Percolation
         #--------------------------------------------
-        #Q  = percolation(GRID, melt, dt, debug_level) 
-        Q=0
+        Q  = percolation(GRID, melt, dt, debug_level) 
+        
         #--------------------------------------------
         # Refreezing
         #--------------------------------------------
-        #water_refreezed = refreezing(GRID)
-        water_refreezed=0 
+        water_refreezed = refreezing(GRID)
+        
         #--------------------------------------------
         # Calculate new density to densification
         #--------------------------------------------
@@ -263,16 +265,19 @@ def cosipy_core(DATA, GRID_RESTART=None):
             RESULT.N[t] = N[t]
 
         if full_field:
-            RESULT.LAYER_HEIGHT[t, 0:GRID.get_number_layers()] = GRID.get_height()
-            RESULT.LAYER_RHO[t, 0:GRID.get_number_layers()] = GRID.get_density()
-            RESULT.LAYER_T[t, 0:GRID.get_number_layers()] = GRID.get_temperature()
-            RESULT.LAYER_LWC[t, 0:GRID.get_number_layers()] = GRID.get_liquid_water_content()
-            RESULT.LAYER_CC[t, 0:GRID.get_number_layers()] = GRID.get_cold_content()
-            RESULT.LAYER_POROSITY[t, 0:GRID.get_number_layers()] = GRID.get_porosity()
-            RESULT.LAYER_LW[t, 0:GRID.get_number_layers()] = GRID.get_liquid_water()
-            RESULT.LAYER_ICE_FRACTION[t, 0:GRID.get_number_layers()] = GRID.get_ice_fraction()
-            RESULT.LAYER_IRREDUCIBLE_WATER[t, 0:GRID.get_number_layers()] = GRID.get_irreducible_water_content()
-            RESULT.LAYER_REFREEZE[t, 0:GRID.get_number_layers()] = GRID.get_refreeze()
+            if GRID.get_number_layers()>max_layers:
+                logger.error('Maximum number of layers reached')
+            else:
+                RESULT.LAYER_HEIGHT[t, 0:GRID.get_number_layers()] = GRID.get_height()
+                RESULT.LAYER_RHO[t, 0:GRID.get_number_layers()] = GRID.get_density()
+                RESULT.LAYER_T[t, 0:GRID.get_number_layers()] = GRID.get_temperature()
+                RESULT.LAYER_LWC[t, 0:GRID.get_number_layers()] = GRID.get_liquid_water_content()
+                RESULT.LAYER_CC[t, 0:GRID.get_number_layers()] = GRID.get_cold_content()
+                RESULT.LAYER_POROSITY[t, 0:GRID.get_number_layers()] = GRID.get_porosity()
+                RESULT.LAYER_LW[t, 0:GRID.get_number_layers()] = GRID.get_liquid_water()
+                RESULT.LAYER_ICE_FRACTION[t, 0:GRID.get_number_layers()] = GRID.get_ice_fraction()
+                RESULT.LAYER_IRREDUCIBLE_WATER[t, 0:GRID.get_number_layers()] = GRID.get_irreducible_water_content()
+                RESULT.LAYER_REFREEZE[t, 0:GRID.get_number_layers()] = GRID.get_refreeze()
 
     # Restart
     logger.debug('Write restart data into local restart structure')

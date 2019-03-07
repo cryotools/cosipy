@@ -27,28 +27,24 @@ def method_Bintanja(GRID, SWnet, dt):
     ### LWC push to next layer
     LWC_surplus = 0.0
 
+    
+    if GRID.get_node_density(0) <= snow_ice_threshold:
+        Si = float(SWnet)*0.1
+        depth = np.asarray(GRID.get_depth())
+        depth = np.insert(depth,0,0)
+        decay = np.exp(17.1*-depth)
+        E = Si*np.abs(np.diff(decay))
+    else:
+        Si = float(SWnet)*0.2
+        depth = np.asarray(GRID.get_depth())
+        depth = np.insert(depth,0,0)
+        decay = np.exp(2.5*-depth)
+        E = Si*np.abs(np.diff(decay))
+
+
     for idx in range(0, GRID.number_nodes - 1):
 
-        # Check, whether snow cover exits and penetrate SW radiation
-        if GRID.get_node_density(0) <= snow_ice_threshold:
-
-            # Calc penetrating SW fraction
-            Si = float(SWnet) * 0.1
-
-            # Total height of overlying snowpack
-            total_height = total_height + GRID.get_node_height(idx)
-
-            # Exponential decay of radiation
-            Tmp = float(Si * math.exp(17.1 * -total_height))
-
-        else:
-            Si = SWnet * 0.2
-
-            total_height = total_height + GRID.get_node_height(idx)
-
-            Tmp = float(Si * math.exp(2.5 * -total_height))
-
-        temperature_temp = float(GRID.get_node_temperature(idx) + (Tmp / (GRID.get_node_density(idx) * spec_heat_ice))
+        temperature_temp = float(GRID.get_node_temperature(idx) + (E[idx] / (GRID.get_node_density(idx) * spec_heat_ice))
                                  * (dt / GRID.get_node_height(idx)))
 
         list_of_layers_to_remove = []
@@ -83,7 +79,7 @@ def method_Bintanja(GRID, SWnet, dt):
                 list_of_layers_to_remove.append(idx)
 
         GRID.set_node_temperature(idx, np.minimum(zero_temperature, float(GRID.get_node_temperature(idx) + \
-                            (Tmp / (GRID.get_node_density(idx) * spec_heat_ice)) * (dt / GRID.get_node_height(idx)))))
+                            (E[idx] / (GRID.get_node_density(idx) * spec_heat_ice)) * (dt / GRID.get_node_height(idx)))))
 
     # Remove layers which have been melted
     GRID.remove_node(list_of_layers_to_remove)

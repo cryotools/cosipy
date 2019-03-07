@@ -22,7 +22,7 @@ slurm_use = False
 local_port = 8786
 
 ## Write full fields
-full_field = True
+full_field = False
 
 ## Restart
 restart = False
@@ -43,6 +43,8 @@ density_threshold_merging = 20                       # If merging is true thresh
 temperature_threshold_merging = 0.2                # If mering is true threshold for layer temperatures to merge
                                                     # try: 0.05-0.1 (K)
 
+snow_scaling = 1.5      # Scaling factor for snowfall
+
 # How many mergings and splittings are allowed per time step
 merge_max = 2          
 split_max = 2 
@@ -55,7 +57,7 @@ max_snow_layer_height = 0.5
 max_glacier_layer_height = 0.8
 
 ## CFL criteria
-c_stab = 0.6
+c_stab = 0.8
 
 # Configuration if worker for local cluster (not slurm) Number of workers, if None all cores are used
 workers = 1

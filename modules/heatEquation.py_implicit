@@ -56,7 +56,6 @@ def solveHeatEquation(GRID, t):
     # Solve equation
     x = spsolve(A,b)
 
-    #print(x)
 
 
     
