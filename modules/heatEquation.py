@@ -26,6 +26,7 @@ def solveHeatEquation(GRID, t):
 
     # Calculate thermal diffusivity [m2 s-1]
     K = np.asarray(GRID.get_thermal_diffusivity()) 
+    
     #hm = np.asarray(GRID.get_height()[0:nl-2])+np.asarray(GRID.get_height()[1:nl-1])+np.asarray(GRID.get_height()[2:nl])
     #Km = (GRID.get_height()[0:nl-2]*K[0:nl-2]+GRID.get_height()[1:nl-1]*K[1:nl-1]+GRID.get_height()[2:nl]*K[2:nl])/hm
     
