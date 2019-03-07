@@ -2,13 +2,8 @@ import numpy as np
 from numpy.distutils.command.install_clib import install_clib
 import logging
 
-from scipy import sparse
-from scipy.sparse.linalg import spsolve
-
 from constants import *
 from config import *
-
-import sys
 
 def solveHeatEquation(GRID, t):
     """ Solves the heat equation on a non-uniform grid using
@@ -22,59 +17,60 @@ def solveHeatEquation(GRID, t):
     curr_t = 0
     Tnew = 0
 
-    nl = GRID.get_number_layers()
-
     # Calculate thermal conductivity [W m-1 K-1] from mean density
-    lam = 0.021 + 2.5 * (np.asarray(GRID.get_density())/1000.0)**2.0
+    #lam = 0.021 + 2.5 * (np.asarray(GRID.get_density())/1000.0)**2.0
 
     # Calculate thermal diffusivity [m2 s-1]
-    K = lam / (np.asarray(GRID.get_density()) * np.asarray(GRID.get_specific_heat()))
-    Km = (K[0:nl-2]+K[1:nl-1]+K[2:nl])/3.0
-
+    K = GRID.get_thermal_diffusivity() #lam / (np.asarray(GRID.get_density()) * np.asarray(GRID.get_specific_heat()))
+    
     # Get snow layer heights    
     hlayers = np.asarray(GRID.get_height())
 
-    # Get grid spacing
-    diff = ((hlayers[0:nl-1]/2.0)+(hlayers[1:nl]/2.0))
-    hk = diff[0:nl-2] 
-    hk1 = diff[1:nl-1]
+    # Check stability criteria for diffusion
+    dt_stab = min(c_stab * ((hlayers)**2.0) / (K))
 
-    # Lagrange coeffiecients
-    ak = 2.0 / (hk*(hk+hk1))
-    bk = -2.0 / (hk*hk1)
-    ck = 2.0 / (hk1*(hk+hk1))
+    if dt_stab<250:
+        dt_stab = 180
 
-    # Introduce C for matrix
-    C1 = np.zeros(nl-1)
-    C2 = np.ones(nl)
-    C3 = np.zeros(nl-1)
+    if max(GRID.get_temperature())>273.2:
+        logger.error('Input temperature data exceeds 273.2 K')
+        logger.error(GRID.get_temperature())
 
-    #C1[0:nl-2] = K[1:nl-1]*(t/ak)
-    #C2[1:nl-1] = 1+K[1:nl-1]*(t/bk)
-    #C3[1:nl-1] = K[1:nl-1]*(t/ck)
-
-    # Derive diagonals 
-    ak = 2.0 / (hk*(hk+hk1))
-    bk = 2.0 / (hk*hk1)
-    ck = 2.0 / (hk1*(hk+hk1))
-    C1[0:nl-2] = -(2*Km*t)/(hk*(hk+hk1))
-    C2[1:nl-1] = 1+(2*Km*t)/(hk*hk1)
-    C3[1:nl-1] = -(2*Km*t)/(hk1*(hk+hk1))
-
-    # Create tridiagonal matrix
-    A = sparse.diags([C1, C2, C3], [-1,0,1], format='csc')
+    while curr_t < t:
    
-    # Correct matrix for BC
-    #A[0,1] = 0; A[0,0] = 1
-    #A[nl-1,nl-2] = 0; A[nl-1,nl-1] = 1
+        # Get a copy of the GRID temperature profile
+        Ttmp = np.copy(GRID.get_temperature())
 
-    # Initial vector
-    b = np.asarray(GRID.get_temperature())
+        # Loop over all internal grid points
+        for idxNode in range(1,GRID.number_nodes-1,1):
 
-    # Solve equation
-    x = spsolve(A,b)
+            # Calculate thermal diffusivity [m2 s-1]
+            K = GRID.get_node_thermal_diffusivity(idxNode) #lam / (rho * cp)
 
-    print(x)
+            # Grid spacing            
+            hk = ((hlayers[idxNode]/2.0)+(hlayers[idxNode-1]/2.0))
+            hk1 = ((hlayers[idxNode+1]/2.0)+(hlayers[idxNode]/2.0))
+            
+            # Lagrange coeffiecients
+            ak = 2.0 / (hk*(hk+hk1))
+            bk = -2.0 / (hk*hk1)
+            ck = 2.0 / (hk1*(hk+hk1))
 
+            # Select appropriate time step
+            dt_use = min(dt_stab,t-curr_t)
 
+            # Calculate new temperatures
+            Tnew = Ttmp[idxNode] + (K * dt_use) * \
+                (ak * Ttmp[idxNode-1] + bk * Ttmp[idxNode] + ck * Ttmp[idxNode+1]) 
+
+            # Update GRID with new temperatures
+            GRID.set_node_temperature(idxNode, Tnew)
+
+        # Add the time step to current time
+        curr_t = curr_t + dt_use
     
+    if max(GRID.get_temperature())>273.2:
+       logger.error('Temperature exceeds 273.2 K')
+       logger.error(Ttmp)
+       logger.error(GRID.get_temperature())
+            

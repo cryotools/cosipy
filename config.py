@@ -6,7 +6,7 @@
 #time_start = '2009-04-27T01:00'
 time_start = '2009-10-01T00:00'
 #time_end   = '2012-06-11T00:00'
-time_end   = '2009-12-30T00:00'
+time_end   = '2010-09-30T00:00'
 time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
@@ -37,7 +37,7 @@ dt = 3600                                           # 3600, 7200, 10800 [s] leng
 debug_level = 0                                     # DEBUG levels: 0, 10, 20, 30
 
 ## Merging level
-merging = True 
+merging = False
 density_threshold_merging = 20                       # If merging is true threshold for layer densities difference two layer
                                                     # try: 5-10 (kg m^-3)
 temperature_threshold_merging = 0.2                # If mering is true threshold for layer temperatures to merge
@@ -55,7 +55,7 @@ max_snow_layer_height = 0.5
 max_glacier_layer_height = 0.8
 
 ## CFL criteria
-c_stab = 0.5
+c_stab = 0.6
 
 # Configuration if worker for local cluster (not slurm) Number of workers, if None all cores are used
 workers = 1

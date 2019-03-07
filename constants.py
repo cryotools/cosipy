@@ -13,8 +13,8 @@ saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
 ' Inital constants'
 initial_snowheight = 0.8                        # Inital snowheigt
 initial_snow_layer_heights = 0.1                # Initial thickness of snow layers
-initial_glacier_height = 30.0                   # Inital glacier heigt without snowlayers
-initial_glacier_layer_heights = 1.              # Initial thickness of glacier ice layers
+initial_glacier_height = 20.0                   # Inital glacier heigt without snowlayers
+initial_glacier_layer_heights = 0.5              # Initial thickness of glacier ice layers
 
 initial_top_density_snowpack = 300.             # Top density for inital snowpack
 initial_botton_density_snowpack = 600.          # Botton density for inital snowpack
@@ -43,7 +43,7 @@ roughness_ice = 1.7                             # surface roughness length for i
 roughness_firn = 4.0                            # surface roughness length for aged snow [mm] (Moelg etal. 2012, TC)
 aging_factor_roughness = 0.0026                 # effect of ageing on roughness lenght (hours) 60 days from 0.24 to 4.0 => 0.0026
 
-surface_emission_coeff = 0.97                   # surface emision coefficient [-]
+surface_emission_coeff = 0.98                   # surface emision coefficient [-]
 
 snow_ice_threshold = 900.0                      # pore close of density [kg m^(-3)]
 snow_firn_threshold = 555.0                     #

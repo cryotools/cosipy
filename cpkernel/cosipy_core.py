@@ -39,7 +39,6 @@ def cosipy_core(DATA, GRID_RESTART=None):
 
     # Merge grid layers, if necessary
     logger.debug('Create local datasets')
-    GRID.update_grid(merging, density_threshold_merging, temperature_threshold_merging, merge_snow_threshold, merge_max, split_max)
 
     # hours since the last snowfall (albedo module)
     hours_since_snowfall = 0
@@ -94,7 +93,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
     logger.debug('Start time loop')
    
     for t in np.arange(len(DATA.time)):
-        print(t)      
+        print(t) 
         #--------------------------------------------
         # SNOWFALL [m]
         #--------------------------------------------
@@ -108,7 +107,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
             if SNOWFALL<0.0:        
                 SNOWFALL = 0.0
 
-        # TODO DELETE
+        ## TODO DELETE
         SNOWFALL=SNOWFALL*1.5
 
         if SNOWFALL > 0.0:
@@ -142,7 +141,11 @@ def cosipy_core(DATA, GRID_RESTART=None):
         # Merge grid layers, if necessary
         #--------------------------------------------
         GRID.update_grid(merging, temperature_threshold_merging, density_threshold_merging, merge_snow_threshold, merge_max, split_max)
-        print(GRID.get_number_layers())
+        
+        #--------------------------------------------
+        # Solve the heat equation
+        #--------------------------------------------
+        solveHeatEquation(GRID, dt)
 
         #--------------------------------------------
         # Surface Energy Balance 
@@ -181,10 +184,6 @@ def cosipy_core(DATA, GRID_RESTART=None):
             evaporation = max(latent_heat_flux / (1000.0 * lat_heat_vaporize), 0) * dt
             condensation = min(latent_heat_flux / (1000.0 * lat_heat_vaporize), 0) * dt
 
-        #--------------------------------------------
-        # Solve the heat equation
-        #--------------------------------------------
-        solveHeatEquation(GRID, dt)
         
         #--------------------------------------------
         # Melt process - mass changes of snowpack (melting, sublimation, deposition, evaporation, condensation)
