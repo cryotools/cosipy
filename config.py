@@ -3,12 +3,15 @@
  Please make your changes here.
 """
 ## Simulation period
-time_start = '2018-09-17T08:00'
-time_end   = '2019-02-12T12:00'
+time_start = '2009-04-27T01:00'
+time_end   = '2009-05-27T02:00'
 
 time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
+data_path = './data'
+input_netcdf= 'Zhadang_ERA5_2009_2012.nc'
+output_netcdf = 'Zhadang_ERA5_'+time_start_str+'-'+time_end_str+'.nc'
 
 ## Set keyword to true if you want to use the job scheduler Slurm (own configuration file slurm_config.py)
 slurm_use = False

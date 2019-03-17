@@ -3,6 +3,7 @@ venv/
 __pycache__/*
 modules/__pycache__/
 cpkernel/__pycache__/
+utilities/__pycache__/
 dask-worker-space/
 *pyc
 debug*
