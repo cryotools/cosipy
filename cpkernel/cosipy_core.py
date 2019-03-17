@@ -101,7 +101,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
 
         else:
         # , else convert rainfall [mm] to snowheight [m]
-            SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature)-2.5)*2.5)+1))
+            SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) / center_snow_transfer_function) * spread_transfer_function) + 1.0))
             if SNOWFALL<0.0:        
                 SNOWFALL = 0.0
 
@@ -113,9 +113,9 @@ def cosipy_core(DATA, GRID_RESTART=None):
             GRID.add_node(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0)
         
         #--------------------------------------------
-        # RAINFALL 
+        # RAINFALL = Total precipitation - SNOWFALL in mm w.e.
         #--------------------------------------------
-        RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density)
+        RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000
 
         #--------------------------------------------
         # Get hours since last snowfall for the albedo calculations
@@ -209,7 +209,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         #--------------------------------------------
         # Percolation
         #--------------------------------------------
-        Q  = percolation(GRID, melt, dt, debug_level) 
+        Q  = percolation(GRID, melt + condensation, dt, debug_level) 
         
         #--------------------------------------------
         # Refreezing
@@ -224,12 +224,14 @@ def cosipy_core(DATA, GRID_RESTART=None):
         #--------------------------------------------
         # Calculate mass balance
         #--------------------------------------------
-        surface_mass_balance = SNOWFALL * (density_fresh_snow / ice_density) - melt - sublimation - deposition - evaporation - condensation
+        surface_mass_balance = SNOWFALL * (density_fresh_snow / ice_density) - melt - sublimation - deposition - evaporation
         internal_mass_balance = water_refreezed - subsurface_melt
         mass_balance = surface_mass_balance + internal_mass_balance
 
         internal_mass_balance2 = melt-Q  #+ subsurface_melt
         mass_balance_check = surface_mass_balance + internal_mass_balance2
+
+        GRID.grid_check()
 
         # Write results
         logger.debug('Write data into local result structure')

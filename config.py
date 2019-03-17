@@ -10,7 +10,7 @@ time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
 data_path = './data'
-input_netcdf= 'Zhadang_ERA5_2009_2012.nc'
+input_netcdf= 'Zhadang_ERA5_2009.nc'
 output_netcdf = 'Zhadang_ERA5_'+time_start_str+'-'+time_end_str+'.nc'
 
 ## Set keyword to true if you want to use the job scheduler Slurm (own configuration file slurm_config.py)
@@ -40,8 +40,6 @@ density_threshold_merging = 20                      # If merging is true thresho
                                                     # try: 5-10 (kg m^-3)
 temperature_threshold_merging = 0.1                 # If mering is true threshold for layer temperatures to merge
                                                     # try: 0.05-0.1 (K)
-
-snow_scaling = 1.5      # Scaling factor for snowfall
 
 # How many mergings and splittings are allowed per time step
 merge_max = 2          

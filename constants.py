@@ -49,6 +49,8 @@ snow_ice_threshold = 900.0                      # pore close of density [kg m^(-
 snow_firn_threshold = 555.0                     #
 threshold_for_snowheight = 800.0                # density threshold when layer is classified as snow
 
+center_snow_transfer_function = 2.5             # center (50/50) when total precipitation is transfered to snow and rain
+spread_snow_transfer_function = 2.5             # 2: +-2.5; 2: +- 1.5; 3: +- 0.5
 
 liquid_water_fraction = 0.05                    # irreducible water content of a snow layer;
                                                 # fraction of total mass of the layer [%/100]
