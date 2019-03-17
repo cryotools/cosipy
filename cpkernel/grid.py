@@ -870,4 +870,22 @@ class Grid:
                   self.grid[i].get_layer_porosity(), self.grid[i].get_layer_refreeze()))
         print('\n\n')
 
+    def grid_check(self, level=1):
+        """ The function checks the grid
+            Args:
+                n   : nuber of nodes to plot (from top)
+        """
+        if level == 1:
+            #self.check_layer_property(self.get_height(), 'thickness', 1.01, -0.001)
+            #self.check_layer_property(self.get_temperature(), 'temperature', 273.2, 100.0)
+            self.check_layer_property(self.get_density(), 'density', 918, 100)
+            #self.check_layer_property(self.get_liquid_water_content(), 'LWC', 1.0, 0.0)
+            #self.check_layer_property(self.get_liquid_water(), 'LW', 1.0, 0.0)
+            #self.check_layer_property(self.get_cold_content(), 'CC', 1000, -10**8)
+            #self.check_layer_property(self.get_porosity(), 'Porosity', 0.8, -0.00001)
+            #self.check_layer_property(self.get_refreeze(), 'Refreezing', 0.5, 0.0)
 
+    def check_layer_property(self, property, name, maximum, minimum, n=-999, level=1):
+        if np.nanmax(property) > maximum or np.nanmin(property) < minimum:
+            print('%s max: %.2f min: %.2f' %(str.capitalize(name), np.nanmax(property), np.nanmin(property)))
+            os._exit()

@@ -41,20 +41,19 @@ def method_Bintanja(GRID, SWnet, dt):
         decay = np.exp(2.5*-depth)
         E = Si*np.abs(np.diff(decay))
 
+    list_of_layers_to_remove = []
 
     for idx in range(0, GRID.number_nodes - 1):
 
         temperature_temp = float(GRID.get_node_temperature(idx) + (E[idx] / (GRID.get_node_density(idx) * spec_heat_ice))
                                  * (dt / GRID.get_node_height(idx)))
 
-        list_of_layers_to_remove = []
-
         if temperature_temp > zero_temperature:
             available_energy = (temperature_temp - zero_temperature) * GRID.get_node_density(idx) * spec_heat_ice \
                                * (GRID.get_node_height(idx) / dt)
 
             ### added from layer before
-            available_energy += melt_surplus
+            #available_energy
 
 
             if (GRID.get_node_density(idx)<snow_ice_threshold):
@@ -64,20 +63,20 @@ def method_Bintanja(GRID, SWnet, dt):
                 GRID.set_node_liquid_water(idx, GRID.get_node_liquid_water(idx) + LWC_surplus)
 
             subsurface_melt += available_energy * dt / (1000 * lat_heat_melting)
+            melt = available_energy * dt / (1000 * lat_heat_melting) + melt_surplus
 
             # Hom much energy required to melt entire layer
             melt_max = GRID.get_node_height(idx) * (GRID.get_node_density(idx) / 1000)
 
-            if melt_max > subsurface_melt:
+            if melt_max > melt:
                 # Convert melt (m w.e.) to height (m)
-                height_remove = subsurface_melt / (GRID.get_node_density(idx) / 1000)
+                height_remove = melt / (GRID.get_node_density(idx) / 1000)
                 GRID.set_node_height(idx, GRID.get_node_height(idx) - height_remove)
-
             else:
-                melt_surplus = subsurface_melt - melt_max
+                melt_surplus = melt - melt_max
                 LWC_surplus = GRID.get_node_liquid_water(idx)
                 list_of_layers_to_remove.append(idx)
-
+                print("melted_layer\n")
         GRID.set_node_temperature(idx, np.minimum(zero_temperature, float(GRID.get_node_temperature(idx) + \
                             (E[idx] / (GRID.get_node_density(idx) * spec_heat_ice)) * (dt / GRID.get_node_height(idx)))))
 

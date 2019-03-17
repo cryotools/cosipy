@@ -93,11 +93,9 @@ def cosipy_core(DATA, GRID_RESTART=None):
     logger.debug('Start time loop')
    
     for t in np.arange(len(DATA.time)):
-        print(t) 
-        #--------------------------------------------
-        # SNOWFALL [m]
-        #--------------------------------------------
-        # if given in the input dataset use it
+
+        GRID.grid_check()
+
         if (SNOWF is not None):
             SNOWFALL = SNOWF[t]
 
@@ -108,7 +106,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
                 SNOWFALL = 0.0
 
         ## TODO DELETE
-        SNOWFALL=SNOWFALL*snow_scaling
+        SNOWFALL=SNOWFALL
 
         if SNOWFALL > 0.0:
             # Add a new snow node on top
@@ -154,9 +152,11 @@ def cosipy_core(DATA, GRID_RESTART=None):
         SWnet = G[t] * (1 - alpha)
         
         # Penetrating SW radiation and subsurface melt
-        #subsurface_melt, G_penetrating = penetrating_radiation(GRID, SWnet, dt)
-        subsurface_melt=0
-        G_penetrating=0
+        if SWnet > 0.0:
+            subsurface_melt, G_penetrating = penetrating_radiation(GRID, SWnet, dt)
+        else:
+            subsurface_melt = 0.0
+            G_penetrating = 0.0
 
         # Calculate residual incoming shortwave radiation (penetrating part removed)
         G_resid = G[t] - G_penetrating
@@ -176,15 +176,15 @@ def cosipy_core(DATA, GRID_RESTART=None):
         # Surface mass fluxes [m w.e.q.]
         #--------------------------------------------
         if surface_temperature < zero_temperature:
-            sublimation = max(latent_heat_flux / (1000.0 * lat_heat_sublimation), 0) * dt
-            deposition = min(latent_heat_flux / (1000.0 * lat_heat_sublimation), 0) * dt
+            sublimation = min(latent_heat_flux / (1000.0 * lat_heat_sublimation), 0) * dt
+            deposition = max(latent_heat_flux / (1000.0 * lat_heat_sublimation), 0) * dt
             evaporation = 0
             condensation = 0
         else:
             sublimation = 0
             deposition = 0
-            evaporation = max(latent_heat_flux / (1000.0 * lat_heat_vaporize), 0) * dt
-            condensation = min(latent_heat_flux / (1000.0 * lat_heat_vaporize), 0) * dt
+            evaporation = min(latent_heat_flux / (1000.0 * lat_heat_vaporize), 0) * dt
+            condensation = max(latent_heat_flux / (1000.0 * lat_heat_vaporize), 0) * dt
 
         
         #--------------------------------------------
@@ -199,7 +199,13 @@ def cosipy_core(DATA, GRID_RESTART=None):
 
         # Remove melt m w.e.q.
         GRID.remove_melt_energy(melt + sublimation + deposition + evaporation + condensation)
-        
+
+        if (t / 24).is_integer():
+            print(DATA.time.values[t])
+            print(GRID.get_number_layers())
+            print(GRID.get_total_height())
+            print(melt, '\n')
+
         #--------------------------------------------
         # Percolation
         #--------------------------------------------
@@ -239,8 +245,8 @@ def cosipy_core(DATA, GRID_RESTART=None):
         RESULT.G[t] = G[t]
         RESULT.LWin[t] = lw_radiation_in
         RESULT.LWout[t] = lw_radiation_out
-        RESULT.H[t] = -sensible_heat_flux
-        RESULT.LE[t] = -latent_heat_flux
+        RESULT.H[t] = sensible_heat_flux
+        RESULT.LE[t] = latent_heat_flux
         RESULT.B[t] = ground_heat_flux
         RESULT.ME[t] = melt_energy
         RESULT.MB[t] = mass_balance

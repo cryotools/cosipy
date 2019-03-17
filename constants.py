@@ -12,8 +12,8 @@ saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
 
 ' Inital constants'
 initial_snowheight = 0.8                        # Inital snowheigt
-initial_snow_layer_heights = 0.05                # Initial thickness of snow layers
-initial_glacier_height = 25.0                   # Inital glacier heigt without snowlayers
+initial_snow_layer_heights = 0.1                # Initial thickness of snow layers
+initial_glacier_height = 30.0                   # Inital glacier heigt without snowlayers
 initial_glacier_layer_heights = 1.0              # Initial thickness of glacier ice layers
 
 initial_top_density_snowpack = 300.             # Top density for inital snowpack
@@ -23,7 +23,7 @@ temperature_top = 267.16                        # Upper boudary conditation for 
 temperature_bottom = 271.                       # Lower boundary condition for inital tempeature profile (K)
 const_init_temp = 0.1                           # constant for init temperature profile used in exponential function (exponential decay)
 
-merge_snow_threshold = 0.01                      # (m) minimum height of layer, is used if fresh fallen snow is added as a new
+merge_snow_threshold = 0.1                      # (m) minimum height of layer, is used if fresh fallen snow is added as a new
                                                 # layer or merged to the underlying layer
 
 minimum_snow_height = 0.01                      # (m) minimum height of last snowlayer on glacier
@@ -43,7 +43,7 @@ roughness_ice = 1.7                             # surface roughness length for i
 roughness_firn = 4.0                            # surface roughness length for aged snow [mm] (Moelg etal. 2012, TC)
 aging_factor_roughness = 0.0026                 # effect of ageing on roughness lenght (hours) 60 days from 0.24 to 4.0 => 0.0026
 
-surface_emission_coeff = 0.98                   # surface emision coefficient [-]
+surface_emission_coeff = 0.97                   # surface emision coefficient [-]
 
 snow_ice_threshold = 900.0                      # pore close of density [kg m^(-3)]
 snow_firn_threshold = 555.0                     #

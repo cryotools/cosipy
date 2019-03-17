@@ -1,6 +1,8 @@
 .idea/
 venv/
 __pycache__/*
+modules/__pycache__/
+cpkernel/__pycache__/
 dask-worker-space/
 *pyc
 debug*
