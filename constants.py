@@ -20,20 +20,20 @@ initial_top_density_snowpack = 300.             # Top density for inital snowpac
 initial_botton_density_snowpack = 600.          # Botton density for inital snowpack
 
 temperature_top = 267.16                        # Upper boudary conditation for inital temperature profile (K)
-temperature_bottom = 271.                       # Lower boundary condition for inital tempeature profile (K)
+temperature_bottom = 270.                       # Lower boundary condition for inital tempeature profile (K)
 const_init_temp = 0.1                           # constant for init temperature profile used in exponential function (exponential decay)
 
 merge_snow_threshold = 0.1                      # (m) minimum height of layer, is used if fresh fallen snow is added as a new
                                                 # layer or merged to the underlying layer
 
-minimum_snow_height = 0.01                      # (m) minimum height of last snowlayer on glacier
+minimum_snow_height = 0.005                      # (m) minimum height of last snowlayer on glacier
                                                 # If there is only one snow layer layer left this one is only merged if the height
                                                 # is lower than the minimum_snow_height even is merge_new_snow_threshold is greater
-minimum_snow_to_reset_albedo = 0.01             # minimum snowfall to reset hours since last snowfall! Default was 0.005
+minimum_snow_to_reset_albedo = 0.005             # minimum snowfall to reset hours since last snowfall! Default was 0.005
 
 density_fresh_snow = 250.                       # density of freshly fallen snow [kg m-3]
 
-albedo_fresh_snow = 0.85                        # albedo of fresh snow [-] (Moelg etal. 2012, TC)
+albedo_fresh_snow = 0.90                        # albedo of fresh snow [-] (Moelg etal. 2012, TC)
 albedo_firn = 0.55                              # albedo of firn [-] (Moelg etal. 2012, TC)
 albedo_ice = 0.3                                # albedo of ice [-] (Moelg etal. 2012, TC)
 albedo_mod_snow_aging = 22                      # effect of ageing on snow albedo [days] (Moelg etal. 2012, TC)

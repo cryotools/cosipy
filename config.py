@@ -4,15 +4,11 @@
 """
 ## Simulation period
 time_start = '2018-09-17T08:00'
-time_end   = '2018-09-21T12:00'
-#2019-02-12T12:00
+time_end   = '2019-02-12T12:00'
 
 time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
-data_path = 'Hintereisferner/'
-input_netcdf= 'HEF_input.nc'
-output_netcdf = 'Hintereisferner_190314_01_scalled_snow_2_'+time_start_str+'-'+time_end_str+'.nc'
 
 ## Set keyword to true if you want to use the job scheduler Slurm (own configuration file slurm_config.py)
 slurm_use = False
@@ -21,7 +17,7 @@ slurm_use = False
 local_port = 8786
 
 ## Write full fields
-full_field = True 
+full_field = False
 
 ## Restart
 restart = False
@@ -36,10 +32,10 @@ dt = 3600                                           # 3600, 7200, 10800 [s] leng
 debug_level = 0                                     # DEBUG levels: 0, 10, 20, 30
 
 ## Merging level
-merging = False
-density_threshold_merging = 5                       # If merging is true threshold for layer densities difference two layer
+merging = True
+density_threshold_merging = 20                      # If merging is true threshold for layer densities difference two layer
                                                     # try: 5-10 (kg m^-3)
-temperature_threshold_merging = 0.05                # If mering is true threshold for layer temperatures to merge
+temperature_threshold_merging = 0.1                 # If mering is true threshold for layer temperatures to merge
                                                     # try: 0.05-0.1 (K)
 
 snow_scaling = 1.5      # Scaling factor for snowfall
@@ -49,7 +45,7 @@ merge_max = 2
 split_max = 2 
 
 ## Max. number of layers, just for the restart file
-max_layers = 200
+max_layers = 100
 
 ## Max. height of snow layers
 max_snow_layer_height = 0.5
