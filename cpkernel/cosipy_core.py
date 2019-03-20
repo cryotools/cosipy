@@ -101,7 +101,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
 
         else:
         # , else convert rainfall [mm] to snowheight [m]
-            SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) / center_snow_transfer_function) * spread_transfer_function) + 1.0))
+            SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) / center_snow_transfer_function) * spread_snow_transfer_function) + 1.0))
             if SNOWFALL<0.0:        
                 SNOWFALL = 0.0
 
