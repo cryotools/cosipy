@@ -18,7 +18,7 @@ def solveHeatEquation(GRID, t):
     """
     # start module logging
     logger = logging.getLogger(__name__)
-
+    
     nl = GRID.get_number_layers()
 
     # Calculate thermal diffusivity [m2 s-1]
