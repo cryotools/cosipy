@@ -40,10 +40,7 @@ def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, lam, SLOPE):
     H = rho * spec_heat_air * Cs * u2 * (T2-x) * phi * np.cos(np.radians(SLOPE))
 
     # Mixing ratio at surface
-    if (x>=273.15):
-        q0 = (100.0 * 0.622 * (Ew0 / (p - Ew0))) / 100.0
-    else:
-        q0 = (50.0 * 0.622 * (Ew0 / (p - Ew0))) / 100.0
+    q0 = (100.0 * 0.622 * (Ew0 / (p - Ew0))) / 100.0
     
     # Latent heat flux
     L = rho * Lv * Cs * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
@@ -140,13 +137,10 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
     H = rho * spec_heat_air * Cs * u2 * (T2-res.x) * phi * np.cos(np.radians(SLOPE))
 
     # Saturation vapour pressure at the surface
-    Ew0 = 6.112 * np.exp((17.67*(res.x-273.16)) / ((res.x-29.66)))
+    Ew0 = method_EW_Sonntag(res.x)
     
     # Mixing ratio at surface
-    if (res.x>=273.15):
-        q0 = (100.0 * 0.622 * (Ew0/(p-Ew0))) / 100.0
-    else:
-        q0 = (50.0 * 0.622 * (Ew0/(p-Ew0))) / 100.0
+    q0 = (100.0 * 0.622 * (Ew0/(p-Ew0))) / 100.0
 
     # Latent heat flux
     L = rho * Lv * Cs * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
@@ -180,5 +174,11 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
 
 
 def method_EW_Sonntag(Temp):
-    Ew = 6.112 * np.exp((17.67*(Temp-273.16)) / ((Temp-29.66)))
+    if Temp==273.16:
+        # over water
+        Ew = 6.112 * np.exp((17.67*(Temp-273.16)) / ((Temp-29.66)))
+    else:
+        # over ice
+        Ew = 6.112 * np.exp((22.46*(Temp-273.16)) / ((Temp-0.55)))
+
     return Ew
