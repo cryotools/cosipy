@@ -93,7 +93,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
     logger.debug('Start time loop')
    
     for t in np.arange(len(DATA.time)):
-
+        
         GRID.grid_check()
 
         if (SNOWF is not None):
@@ -101,12 +101,12 @@ def cosipy_core(DATA, GRID_RESTART=None):
 
         else:
         # , else convert rainfall [mm] to snowheight [m]
-            SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) / center_snow_transfer_function) * spread_transfer_function) + 1.0))
+            SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) / center_snow_transfer_function) * spread_snow_transfer_function) + 1.0))
             if SNOWFALL<0.0:        
                 SNOWFALL = 0.0
 
         ## TODO DELETE
-        SNOWFALL=SNOWFALL
+        SNOWFALL=SNOWFALL*1.5
 
         if SNOWFALL > 0.0:
             # Add a new snow node on top
@@ -143,7 +143,9 @@ def cosipy_core(DATA, GRID_RESTART=None):
         #--------------------------------------------
         # Solve the heat equation
         #--------------------------------------------
+        GRID.grid_check('Heat before')
         solveHeatEquation(GRID, dt)
+        GRID.grid_check('Heat after')
 
         #--------------------------------------------
         # Surface Energy Balance 
@@ -161,6 +163,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
         # Calculate residual incoming shortwave radiation (penetrating part removed)
         G_resid = G[t] - G_penetrating
 
+        GRID.grid_check('Surface before')
         if LWin is not None:
             # Find new surface temperature (LW is used from the input file)
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
@@ -172,6 +175,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
                 ground_heat_flux, sw_radiation_net, rho, Lv, Cs, q0, q2, qdiff, phi \
                 = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], PRES[t], G_resid, U2[t], SLOPE, N=N[t])
         
+        GRID.grid_check('Surface after')
         #--------------------------------------------
         # Surface mass fluxes [m w.e.q.]
         #--------------------------------------------
@@ -200,11 +204,11 @@ def cosipy_core(DATA, GRID_RESTART=None):
         # Remove melt m w.e.q.
         GRID.remove_melt_energy(melt + sublimation + deposition + evaporation + condensation)
 
-        if (t / 24).is_integer():
-            print(DATA.time.values[t])
-            print(GRID.get_number_layers())
-            print(GRID.get_total_height())
-            print(melt, '\n')
+        #if (t / 24).is_integer():
+        #    print(DATA.time.values[t])
+        #    print(GRID.get_number_layers())
+        #    print(GRID.get_total_height())
+        #    print(melt, '\n')
 
         #--------------------------------------------
         # Percolation
