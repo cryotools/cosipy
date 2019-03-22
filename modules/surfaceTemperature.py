@@ -103,7 +103,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
     # Bulk transfer coefficient 
     #Cs = np.power(0.41,2.0) / np.power(np.log(2.0/(z0)),2)
     z0t = z0/100
-    z0q = z0/100
+    z0q = z0/10
     Cs_t = np.power(0.41,2.0) / ( np.log(2.0/z0) * np.log(2.0/z0t) )
     Cs_q = np.power(0.41,2.0) / ( np.log(2.0/z0) * np.log(2.0/z0q) )
 
