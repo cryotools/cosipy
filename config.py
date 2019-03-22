@@ -47,7 +47,7 @@ merge_max = 2
 split_max = 2 
 
 ## Max. number of layers, just for the restart file
-max_layers = 100
+max_layers = 200
 
 ## Max. height of snow layers
 max_snow_layer_height = 0.5

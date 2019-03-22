@@ -126,6 +126,11 @@ def cosipy_core(DATA, GRID_RESTART=None):
             hours_since_snowfall = 0
 
         #--------------------------------------------
+        # Merge grid layers, if necessary
+        #--------------------------------------------
+        GRID.update_grid(merging, temperature_threshold_merging, density_threshold_merging, merge_snow_threshold, merge_max, split_max)
+        
+        #--------------------------------------------
         # Calculate albedo and roughness length changes if first layer is snow
         #--------------------------------------------
         alpha = updateAlbedo(GRID, hours_since_snowfall)
@@ -134,11 +139,6 @@ def cosipy_core(DATA, GRID_RESTART=None):
         # Update roughness length
         #--------------------------------------------
         z0 = updateRoughness(GRID, hours_since_snowfall)
-
-        #--------------------------------------------
-        # Merge grid layers, if necessary
-        #--------------------------------------------
-        GRID.update_grid(merging, temperature_threshold_merging, density_threshold_merging, merge_snow_threshold, merge_max, split_max)
         
         #--------------------------------------------
         # Solve the heat equation
@@ -163,12 +163,12 @@ def cosipy_core(DATA, GRID_RESTART=None):
         if LWin is not None:
             # Find new surface temperature (LW is used from the input file)
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
-                ground_heat_flux, sw_radiation_net, rho, Lv, Cs, q0, q2, qdiff, phi \
+                ground_heat_flux, sw_radiation_net, rho, Lv, Cs_t, Cs_q, q0, q2, qdiff, phi \
                 = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], PRES[t], G_resid, U2[t], SLOPE, LWin=LWin[t])
         else:
             # Find new surface temperature (LW is parametrized using cloud fraction)
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
-                ground_heat_flux, sw_radiation_net, rho, Lv, Cs, q0, q2, qdiff, phi \
+                ground_heat_flux, sw_radiation_net, rho, Lv, Cs_t, Cs_q, q0, q2, qdiff, phi \
                 = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], PRES[t], G_resid, U2[t], SLOPE, N=N[t])
         
         #--------------------------------------------
