@@ -3,14 +3,15 @@
  Please make your changes here.
 """
 ## Simulation period
-time_start = '2009-04-27T01:00'
-time_end   = '2009-05-27T02:00'
+time_start = '2009-05-01T00:00'
+time_end   = '2010-04-30T00:00'
 
 time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
 data_path = './data'
-input_netcdf= 'Zhadang_ERA5_2009.nc'
+input_netcdf= 'Zhadang_ERA5_2009-2010.nc'
+#input_netcdf= 'HEF_input.nc'
 output_netcdf = 'Zhadang_ERA5_'+time_start_str+'-'+time_end_str+'.nc'
 
 ## Set keyword to true if you want to use the job scheduler Slurm (own configuration file slurm_config.py)
@@ -46,14 +47,14 @@ merge_max = 2
 split_max = 2 
 
 ## Max. number of layers, just for the restart file
-max_layers = 100
+max_layers = 200
 
 ## Max. height of snow layers
 max_snow_layer_height = 0.5
 max_glacier_layer_height = 0.8
 
 ## CFL criteria
-c_stab = 0.5
+c_stab = 0.3
 
 # Configuration if worker for local cluster (not slurm) Number of workers, if None all cores are used
 workers = None

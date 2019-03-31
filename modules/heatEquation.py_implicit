@@ -26,8 +26,9 @@ def solveHeatEquation(GRID, t):
 
     # Calculate thermal diffusivity [m2 s-1]
     K = np.asarray(GRID.get_thermal_diffusivity()) 
-    hm = np.asarray(GRID.get_height()[0:nl-2])+np.asarray(GRID.get_height()[1:nl-1])+np.asarray(GRID.get_height()[2:nl])
-    Km = (GRID.get_height()[0:nl-2]*K[0:nl-2]+GRID.get_height()[1:nl-1]*K[1:nl-1]+GRID.get_height()[2:nl]*K[2:nl])/hm
+    
+    #hm = np.asarray(GRID.get_height()[0:nl-2])+np.asarray(GRID.get_height()[1:nl-1])+np.asarray(GRID.get_height()[2:nl])
+    #Km = (GRID.get_height()[0:nl-2]*K[0:nl-2]+GRID.get_height()[1:nl-1]*K[1:nl-1]+GRID.get_height()[2:nl]*K[2:nl])/hm
     
     # Get snow layer heights    
     hlayers = np.asarray(GRID.get_height())
@@ -43,9 +44,9 @@ def solveHeatEquation(GRID, t):
     C3 = np.zeros(nl-1)
 
     # Derive diagonals 
-    C1[0:nl-2] = -(2*Km*t)/(hk*(hk+hk1))
-    C2[1:nl-1] = 1+(2*Km*t)/(hk*hk1)
-    C3[1:nl-1] = -(2*Km*t)/(hk1*(hk+hk1))
+    C1[0:nl-2] = -(2*K[1:nl-1]*t)/(hk*(hk+hk1))
+    C2[1:nl-1] = 1+(2*K[1:nl-1]*t)/(hk*hk1)
+    C3[1:nl-1] = -(2*K[1:nl-1]*t)/(hk1*(hk+hk1))
     
     # Create tridiagonal matrix
     A = sparse.diags([C1, C2, C3], [-1,0,1], format='csc')

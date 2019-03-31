@@ -4,7 +4,7 @@ from cpkernel.io import *
 from scipy.optimize import minimize
 import sys
 
-def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, lam, SLOPE):
+def energy_balance(x, GRID, SWnet, rho, Cs_t, Cs_q, T2, u2, q2, p, Li, lam, SLOPE):
 
     if x >= zero_temperature:
         Lv = lat_heat_vaporize
@@ -37,22 +37,30 @@ def energy_balance(x, GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, lam, SLOPE):
         phi = 1
     
     # Sensible heat flux
-    H = rho * spec_heat_air * Cs * u2 * (T2-x) * phi * np.cos(np.radians(SLOPE))
+    H = rho * spec_heat_air * Cs_t * u2 * (T2-x) * phi * np.cos(np.radians(SLOPE))
 
     # Mixing ratio at surface
     q0 = (100.0 * 0.622 * (Ew0 / (p - Ew0))) / 100.0
-
+    
     # Latent heat flux
-    L = rho * Lv * Cs * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
+    L = rho * Lv * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
 
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(x, 4.0)
 
     # Ground heat flux
-    #B = lam * ((2.0 * GRID.get_node_temperature(1) - (0.5 * ((3.0 * x) + GRID.get_node_temperature(2)))) /\
-    #           (GRID.get_node_height(0))) * np.cos(np.radians(SLOPE))
+    #h = (GRID.get_node_depth(1)-GRID.get_node_depth(0))+(GRID.get_node_depth(2)-GRID.get_node_depth(1))
+    #B = lam * ((2 * GRID.get_node_temperature(1) - (0.5 * ((3 * x) + GRID.get_node_temperature(2)))) /\
+    #            (h)) * np.cos(np.radians(SLOPE))
+    #h = (GRID.get_node_depth(0))+(GRID.get_node_depth(1)-GRID.get_node_depth(0))
+    #B = lam * ((2 * GRID.get_node_temperature(0) - (0.5 * ((3 * x) + GRID.get_node_temperature(1)))) /\
+    #            (h))
+    hminus = GRID.get_node_depth(1)-GRID.get_node_depth(0)
+    hplus = GRID.get_node_depth(2)-GRID.get_node_depth(1)
+
+    B = (hminus/(hplus+hminus)) * ((GRID.get_node_temperature(2)-GRID.get_node_temperature(1))/hplus) + (hplus/(hplus+hminus))*((GRID.get_node_temperature(1)-x)/hminus)
    
-    B = lam * (GRID.get_node_temperature(1)-x)/(GRID.get_node_depth(1)-GRID.get_node_depth(0))
+    #B = lam * (GRID.get_node_temperature(2)-x)/(GRID.get_node_depth(2)-GRID.get_node_depth(0))
 
     # Return residual of energy balance
     return np.abs(SWnet+Li+Lo+H+L+B)
@@ -93,16 +101,19 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
     SWnet = G * (1-alpha)
 
     # Bulk transfer coefficient 
-    Cs = np.power(0.41,2.0) / np.power(np.log(2.0/(z0)),2)
-    
-    #hm = GRID.get_node_height(0)+GRID.get_node_height(1)+GRID.get_node_height(2)
+    #Cs = np.power(0.41,2.0) / np.power(np.log(2.0/(z0)),2)
+    z0t = z0/100
+    z0q = z0/10
+    Cs_t = np.power(0.41,2.0) / ( np.log(2.0/z0) * np.log(2.0/z0t) )
+    Cs_q = np.power(0.41,2.0) / ( np.log(2.0/z0) * np.log(2.0/z0q) )
+
     lam = GRID.get_node_thermal_conductivity(0) 
     
     #(GRID.get_node_height(0)*GRID.get_node_thermal_conductivity(0) + GRID.get_node_height(1)*GRID.get_node_thermal_conductivity(1) \
     #        + GRID.get_node_height(2)*GRID.get_node_thermal_conductivity(2))/hm
 
     res = minimize(energy_balance, GRID.get_node_temperature(0), method='L-BFGS-B', bounds=((220.0, 273.16),),
-                   tol=1e-8, args=(GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, lam, SLOPE))
+                   tol=1e-8, args=(GRID, SWnet, rho, Cs_t, Cs_q, T2, u2, q2, p, Li, lam, SLOPE))
  
     # Set surface temperature
     GRID.set_node_temperature(0, float(res.x))
@@ -127,25 +138,34 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
         Lv = lat_heat_sublimation
 
     # Sensible heat flux
-    H = rho * spec_heat_air * Cs * u2 * (T2-res.x) * phi * np.cos(np.radians(SLOPE))
+    H = rho * spec_heat_air * Cs_t * u2 * (T2-res.x) * phi * np.cos(np.radians(SLOPE))
 
     # Saturation vapour pressure at the surface
-    Ew0 = 6.112 * np.exp((17.67*(res.x-273.16)) / ((res.x-29.66)))
+    Ew0 = method_EW_Sonntag(res.x)
     
     # Mixing ratio at surface
     q0 = (100.0 * 0.622 * (Ew0/(p-Ew0))) / 100.0
 
     # Latent heat flux
-    L = rho * Lv * Cs * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
+    L = rho * Lv * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
 
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(res.x, 4.0)
 
     # Ground heat flux
+    #h = (GRID.get_node_depth(1)-GRID.get_node_depth(0))+(GRID.get_node_depth(2)-GRID.get_node_depth(1))
     #B = lam * ((2 * GRID.get_node_temperature(1) - (0.5 * ((3 * res.x) + GRID.get_node_temperature(2)))) /\
-    #            (GRID.get_node_height(0))) * np.cos(np.radians(SLOPE))
+    #            (h)) * np.cos(np.radians(SLOPE))
+    #h = (GRID.get_node_depth(0))+(GRID.get_node_depth(1)-GRID.get_node_depth(0))
+    #B = lam * ((2 * GRID.get_node_temperature(0) - (0.5 * ((3 * res.x) + GRID.get_node_temperature(1)))) /\
+    #            (h)) 
 
-    B = lam * (GRID.get_node_temperature(1)-res.x)/(GRID.get_node_depth(1)-GRID.get_node_depth(0))
+    hminus = GRID.get_node_depth(1)-GRID.get_node_depth(0)
+    hplus = GRID.get_node_depth(2)-GRID.get_node_depth(1)
+
+    B = (hminus/(hplus+hminus))*((GRID.get_node_temperature(2)-GRID.get_node_temperature(1))/hplus) + (hplus/(hplus+hminus))*((GRID.get_node_temperature(1)-res.x)/hminus)
+    
+    #B = lam * (GRID.get_node_temperature(2)-res.x)/(GRID.get_node_depth(2)-GRID.get_node_depth(0))
 
     qdiff = q0-q2
 
@@ -153,10 +173,16 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
         logger.error('Surface temperature exceeds 273.16 K')
         logger.error(GRID.get_node_temperature(0))
 
-    return res.fun, float(res.x), float(Li), float(Lo), float(H), float(L), float(B), float(SWnet), rho, Lv, Cs, q0, q2, qdiff, phi
+    return res.fun, float(res.x), float(Li), float(Lo), float(H), float(L), float(B), float(SWnet), rho, Lv, Cs_t, Cs_q, q0, q2, qdiff, phi
 
 
 
 def method_EW_Sonntag(Temp):
-    Ew = 6.112 * np.exp((17.67*(Temp-273.16)) / ((Temp-29.66)))
+    if Temp==273.16:
+        # over water
+        Ew = 6.112 * np.exp((17.67*(Temp-273.16)) / ((Temp-29.66)))
+    else:
+        # over ice
+        Ew = 6.112 * np.exp((22.46*(Temp-273.16)) / ((Temp-0.55)))
+
     return Ew
