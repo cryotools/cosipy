@@ -10,8 +10,7 @@ time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
 data_path = './data'
-input_netcdf= 'Zhadang_ERA5_2009-2010.nc'
-#input_netcdf= 'HEF_input.nc'
+input_netcdf= 'Zhadang_ERA5_2009.nc'
 output_netcdf = 'Zhadang_ERA5_'+time_start_str+'-'+time_end_str+'.nc'
 
 ## Set keyword to true if you want to use the job scheduler Slurm (own configuration file slurm_config.py)
@@ -48,10 +47,6 @@ split_max = 2
 
 ## Max. number of layers, just for the restart file
 max_layers = 200
-
-## Max. height of snow layers
-max_snow_layer_height = 0.5
-max_glacier_layer_height = 0.8
 
 ## CFL criteria
 c_stab = 0.3

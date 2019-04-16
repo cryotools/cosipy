@@ -47,17 +47,9 @@ surface_emission_coeff = 0.97                   # surface emision coefficient [-
 
 snow_ice_threshold = 900.0                      # pore close of density [kg m^(-3)]
 snow_firn_threshold = 555.0                     #
-threshold_for_snowheight = 800.0                # density threshold when layer is classified as snow
 
 center_snow_transfer_function = 2.5             # center (50/50) when total precipitation is transfered to snow and rain
 spread_snow_transfer_function = 2.5             # 2: +-2.5; 2: +- 1.5; 3: +- 0.5
-
-liquid_water_fraction = 0.05                    # irreducible water content of a snow layer;
-                                                # fraction of total mass of the layer [%/100]
-percolation_velocity = 0.0006                   # percolation velocity for unsaturated layers [m s-1] (0.06 cm s-1)
-                                                # how does it change with density?
-                                                # Martinec, J.: Meltwater percolation through an alpine snowpack, Avalanche
-                                                # Formation, Movement and Effects, Proceedings of the Davos Symposium, 162, 1987.
 
 ' PHYSICAL CONSTANTS '
 
@@ -68,7 +60,6 @@ spec_heat_air = 1004.67                         # specific heat of air [J kg-1 K
 spec_heat_ice = 2050.00                         # specific heat of ice [J Kg-1 K-1]
 spec_heat_water = 4217.00                       # specific heat of water [J Kg-1 K-1]
 sigma = 5.67e-8                                 # Stefan-Bolzmann constant [W m-2 K-4]
-gravity_acceleration = 9.81                     # acceleration of gravity (Braithwaite 1995) [m s-1]
 
 ' MODEL CONSTANTS '
 water_density = 1000.0                          # density of water [kg m^(-3)]

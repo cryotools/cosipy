@@ -211,9 +211,6 @@ class IOClass:
         self.RESULT.attrs['surface_emission_coeff'] = surface_emission_coeff
         self.RESULT.attrs['snow_ice_threshold'] = snow_ice_threshold
         self.RESULT.attrs['snow_firn_threshold'] = snow_firn_threshold
-        self.RESULT.attrs['threshold_for_snowheight'] = threshold_for_snowheight
-        self.RESULT.attrs['liquid_water_fraction'] = liquid_water_fraction
-        self.RESULT.attrs['percolation_velocity'] = percolation_velocity
 
         self.add_variable_along_latlon(self.RESULT, self.DATA.HGT, 'HGT', 'm', 'Elevation')
         self.add_variable_along_latlon(self.RESULT, self.DATA.MASK, 'MASK', 'boolean', 'Glacier mask')
