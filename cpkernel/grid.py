@@ -351,7 +351,7 @@ class Grid:
          
         
         # Do the merging 
-        if False: 
+        if Merge: 
            
             #-------------------------------------------------------------------------
             # Check for merging due to density and temperature 
@@ -364,18 +364,18 @@ class Grid:
                 if nlayers > 1:
                    
                     # Calc differences between a layer and the subsequent layer
-                    dT = np.diff(self.get_temperature()[0:nlayers])
-                    dRho = np.diff(self.get_density()[0:nlayers])
+                    dT = np.diff(self.get_temperature()[0:nlayers + 1])
+                    dRho = np.diff(self.get_density()[0:nlayers + 1])
 
                     # Sort the by differences in ascending order, and merge if criteria is met
                     ind = np.lexsort((abs(dRho),abs(dT)))
                     
-                    if ((ind[0]>=1) & abs(dT[ind[0]])<threshold_temperature) & (abs(dRho[ind[0]])<threshold_density):
+                    if ((ind[1]>=1) & (abs(dT[ind[0]])<threshold_temperature)) & (abs(dRho[ind[0]])<threshold_density):    
                         self.merge_nodes(ind[0])
 
             self.check('MERGE')
   
-        if False: 
+        if Merge: 
 
             # Only split when maximum layers not reached
             if self.get_number_layers()<max_layers:
@@ -390,7 +390,7 @@ class Grid:
                     nlayers = self.get_number_snow_layers()
    
                     # Check if there are still snow layers
-                    if (nlayers > 0):
+                    if nlayers > 0:
                     
                         # Get layer heights
                         h = np.asarray(self.get_height()[0:nlayers])
@@ -867,8 +867,8 @@ class Grid:
                 n   : nuber of nodes to plot (from top)
         """
         if level == 1:
-            #self.check_layer_property(self.get_height(), 'thickness', 1.01, -0.001)
-            #self.check_layer_property(self.get_temperature(), 'temperature', 273.2, 100.0)
+            self.check_layer_property(self.get_height(), 'thickness', 2.00, 0.005)
+            self.check_layer_property(self.get_temperature(), 'temperature', 273.2, 100.0)
             self.check_layer_property(self.get_density(), 'density', 918, 100)
             #self.check_layer_property(self.get_liquid_water_content(), 'LWC', 1.0, 0.0)
             #self.check_layer_property(self.get_liquid_water(), 'LW', 1.0, 0.0)
