@@ -148,11 +148,11 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures, nfutures):
             if ((mask==1) & (restart==False)):
                 nfutures = nfutures+1
                 futures.append(client.submit(cosipy_core, DATA.sel(lat=i, lon=j)))
-                break
+
             elif ((mask==1) & (restart==True)):
                 nfutures = nfutures+1
                 futures.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), IO.create_grid_restart().sel(lat=i,lon=j)))
-                break
+
         # Finally, do the calculations and print the progress
         #progress(futures)
 
