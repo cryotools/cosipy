@@ -351,7 +351,7 @@ class Grid:
          
         
         # Do the merging 
-        if Merge: 
+        if merge: 
            
             #-------------------------------------------------------------------------
             # Check for merging due to density and temperature 
