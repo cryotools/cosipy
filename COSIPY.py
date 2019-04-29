@@ -154,7 +154,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures, nfutures):
                 futures.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), IO.create_grid_restart().sel(lat=i,lon=j)))
 
         # Finally, do the calculations and print the progress
-        #progress(futures)
+        progress(futures)
 
         if (restart==True):
             IO.get_grid_restart().close()

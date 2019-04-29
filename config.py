@@ -4,7 +4,7 @@
 """
 ## Simulation period
 time_start = '2009-05-01T00:00'
-time_end   = '2010-04-30T00:00'
+time_end   = '2009-05-30T00:00'
 
 time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')

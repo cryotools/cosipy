@@ -375,7 +375,7 @@ class Grid:
 
             self.check('MERGE')
   
-        if Merge: 
+        if merge: 
 
             # Only split when maximum layers not reached
             if self.get_number_layers()<max_layers:
