@@ -18,7 +18,47 @@ from cpkernel.io import *
 from cpkernel.grid import *
 import cProfile
 
-def cosipy_core(DATA, GRID_RESTART=None):
+
+def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
+        
+    _RRR = np.full(len(DATA.time), np.nan)
+    _RAIN = np.full(len(DATA.time), np.nan)
+    _SNOWFALL = np.full(len(DATA.time), np.nan)
+    _LWin = np.full(len(DATA.time), np.nan)
+    _LWout = np.full(len(DATA.time), np.nan)
+    _H = np.full(len(DATA.time), np.nan)
+    _LE = np.full(len(DATA.time), np.nan)
+    _B = np.full(len(DATA.time), np.nan)
+    _MB = np.full(len(DATA.time), np.nan)
+    _surfMB = np.full(len(DATA.time), np.nan)
+    _Q = np.full(len(DATA.time), np.nan)
+    _SNOWHEIGHT = np.full(len(DATA.time), np.nan)
+    _TOTALHEIGHT = np.full(len(DATA.time), np.nan)
+    _TS = np.full(len(DATA.time), np.nan)
+    _ALBEDO = np.full(len(DATA.time), np.nan)
+    _ME = np.full(len(DATA.time), np.nan)
+    _intMB = np.full(len(DATA.time), np.nan)
+    _EVAPORATION = np.full(len(DATA.time), np.nan)
+    _SUBLIMATION = np.full(len(DATA.time), np.nan)
+    _CONDENSATION = np.full(len(DATA.time), np.nan)
+    _DEPOSITION = np.full(len(DATA.time), np.nan)
+    _REFREEZE = np.full(len(DATA.time), np.nan)
+    _NLAYERS = np.full(len(DATA.time), np.nan)
+    _subM = np.full(len(DATA.time), np.nan)
+    _Z0 = np.full(len(DATA.time), np.nan)
+    _surfM = np.full(len(DATA.time), np.nan)
+
+    _LAYER_HEIGHT = np.full((len(DATA.time),max_layers), np.nan)
+    _LAYER_RHO = np.full((len(DATA.time),max_layers), np.nan)
+    _LAYER_T = np.full((len(DATA.time),max_layers), np.nan)
+    _LAYER_LWC = np.full((len(DATA.time),max_layers), np.nan)
+    _LAYER_CC = np.full((len(DATA.time),max_layers), np.nan)
+    _LAYER_POROSITY = np.full((len(DATA.time),max_layers), np.nan)
+    _LAYER_LW = np.full((len(DATA.time),max_layers), np.nan)
+    _LAYER_ICE_FRACTION = np.full((len(DATA.time),max_layers), np.nan)
+    _LAYER_IRREDUCIBLE_WATER = np.full((len(DATA.time),max_layers), np.nan)
+    _LAYER_REFREEZE = np.full((len(DATA.time),max_layers), np.nan)
+
 
     # Start logging
     logger = logging.getLogger(__name__)
@@ -34,7 +74,6 @@ def cosipy_core(DATA, GRID_RESTART=None):
     # Create the local output datasets
     logger.debug('Create local datasets')
     IO = IOClass(DATA)
-    RESULT = IO.create_local_result_dataset()
     RESTART = IO.create_local_restart_dataset()
 
     # Merge grid layers, if necessary
@@ -43,7 +82,7 @@ def cosipy_core(DATA, GRID_RESTART=None):
     # hours since the last snowfall (albedo module)
     hours_since_snowfall = 0
 
-    #--------------------------------------------
+    
     # Get data from file
     #--------------------------------------------
     T2 = DATA.T2.values
@@ -58,7 +97,6 @@ def cosipy_core(DATA, GRID_RESTART=None):
     if ('SNOWFALL' in DATA) and ('RRR' in DATA):
         SNOWF = DATA.SNOWFALL.values
         RRR = DATA.RRR.values
-        print("You can select between total precipitation and snowfall (default)\n")
     elif ('SNOWFALL' in DATA):
         SNOWF = DATA.SNOWFALL.values
     else:
@@ -230,55 +268,46 @@ def cosipy_core(DATA, GRID_RESTART=None):
         logger.debug('Write data into local result structure')
 
         # Save results 
-        RESULT.T2[t] = T2[t]
-        RESULT.RH2[t] = RH2[t]
-        RESULT.U2[t] = U2[t]
-        RESULT.RRR[t] = RRR[t]
-        RESULT.RAIN[t] = RAIN
-        RESULT.SNOWFALL[t] = SNOWFALL
-        RESULT.PRES[t] = PRES[t]
-        RESULT.G[t] = G[t]
-        RESULT.LWin[t] = lw_radiation_in
-        RESULT.LWout[t] = lw_radiation_out
-        RESULT.H[t] = sensible_heat_flux
-        RESULT.LE[t] = latent_heat_flux
-        RESULT.B[t] = ground_heat_flux
-        RESULT.ME[t] = melt_energy
-        RESULT.MB[t] = mass_balance
-        RESULT.surfMB[t] = surface_mass_balance
-        RESULT.intMB[t] = internal_mass_balance
-        RESULT.EVAPORATION[t] = evaporation
-        RESULT.SUBLIMATION[t] = sublimation
-        RESULT.CONDENSATION[t] = condensation
-        RESULT.DEPOSITION[t] = deposition
-        RESULT.surfM[t] = melt
-        RESULT.subM[t] = subsurface_melt
-        RESULT.Q[t] = Q 
-        RESULT.REFREEZE[t] = water_refreezed 
-        RESULT.SNOWHEIGHT[t] = GRID.get_total_snowheight()
-        RESULT.TOTALHEIGHT[t] = GRID.get_total_height()
-        RESULT.TS[t] = surface_temperature
-        RESULT.ALBEDO[t] = alpha
-        RESULT.Z0[t] = z0
-        RESULT.NLAYERS[t] = GRID.get_number_layers()
-
-        if LWin is None:
-            RESULT.N[t] = N[t]
+        _RAIN[t] = RAIN
+        _SNOWFALL[t] = SNOWFALL
+        _LWin[t] = lw_radiation_in
+        _LWout[t] = lw_radiation_out
+        _H[t] = sensible_heat_flux
+        _LE[t] = latent_heat_flux
+        _B[t] = ground_heat_flux
+        _MB[t] = mass_balance
+        _surfMB[t] = surface_mass_balance
+        _Q[t] = Q 
+        _SNOWHEIGHT[t] = GRID.get_total_snowheight()
+        _TOTALHEIGHT[t] = GRID.get_total_height()
+        _TS[t] = surface_temperature
+        _ALBEDO[t] = alpha
+        _NLAYERS[t] = GRID.get_number_layers()
+        _ME[t] = melt_energy
+        _intMB[t] = internal_mass_balance
+        _EVAPORATION[t] = evaporation
+        _SUBLIMATION[t] = sublimation
+        _CONDENSATION[t] = condensation
+        _DEPOSITION[t] = deposition
+        _REFREEZE[t] = water_refreezed 
+        _subM[t] = subsurface_melt
+        _Z0[t] = z0
+        _surfM[t] = melt
 
         if full_field:
             if GRID.get_number_layers()>max_layers:
                 logger.error('Maximum number of layers reached')
-            else:
-                RESULT.LAYER_HEIGHT[t, 0:GRID.get_number_layers()] = GRID.get_height()
-                RESULT.LAYER_RHO[t, 0:GRID.get_number_layers()] = GRID.get_density()
-                RESULT.LAYER_T[t, 0:GRID.get_number_layers()] = GRID.get_temperature()
-                RESULT.LAYER_LWC[t, 0:GRID.get_number_layers()] = GRID.get_liquid_water_content()
-                RESULT.LAYER_CC[t, 0:GRID.get_number_layers()] = GRID.get_cold_content()
-                RESULT.LAYER_POROSITY[t, 0:GRID.get_number_layers()] = GRID.get_porosity()
-                RESULT.LAYER_LW[t, 0:GRID.get_number_layers()] = GRID.get_liquid_water()
-                RESULT.LAYER_ICE_FRACTION[t, 0:GRID.get_number_layers()] = GRID.get_ice_fraction()
-                RESULT.LAYER_IRREDUCIBLE_WATER[t, 0:GRID.get_number_layers()] = GRID.get_irreducible_water_content()
-                RESULT.LAYER_REFREEZE[t, 0:GRID.get_number_layers()] = GRID.get_refreeze()
+            else:                    
+                _LAYER_HEIGHT[t, 0:GRID.get_number_layers()] = GRID.get_height()
+                _LAYER_RHO[t, 0:GRID.get_number_layers()] = GRID.get_density()
+                _LAYER_T[t, 0:GRID.get_number_layers()] = GRID.get_temperature()
+                _LAYER_LWC[t, 0:GRID.get_number_layers()] = GRID.get_liquid_water_content()
+                _LAYER_CC[t, 0:GRID.get_number_layers()] = GRID.get_cold_content()
+                _LAYER_POROSITY[t, 0:GRID.get_number_layers()] = GRID.get_porosity()
+                _LAYER_LW[t, 0:GRID.get_number_layers()] = GRID.get_liquid_water()
+                _LAYER_ICE_FRACTION[t, 0:GRID.get_number_layers()] = GRID.get_ice_fraction()
+                _LAYER_IRREDUCIBLE_WATER[t, 0:GRID.get_number_layers()] = GRID.get_irreducible_water_content()
+                _LAYER_REFREEZE[t, 0:GRID.get_number_layers()] = GRID.get_refreeze()
 
     # Restart
     logger.debug('Write restart data into local restart structure')
@@ -288,5 +317,15 @@ def cosipy_core(DATA, GRID_RESTART=None):
     RESTART.LAYER_T[0:GRID.get_number_layers()] = GRID.get_temperature() 
     RESTART.LAYER_LW[0:GRID.get_number_layers()] = GRID.get_liquid_water() 
 
-    # Return results
-    return RESULT, RESTART
+    if full_field:
+        return (indY,indX,RESTART,_RAIN,_SNOWFALL,_LWin,_LWout,_H,_LE,_B, \
+            _MB,_surfMB,_Q,_SNOWHEIGHT,_TOTALHEIGHT,_TS,_ALBEDO,_NLAYERS, \
+            _ME,_intMB,_EVAPORATION,_SUBLIMATION,_CONDENSATION,_DEPOSITION,_REFREEZE, \
+            _subM,_Z0,_surfM, \
+            _LAYER_HEIGHT,_LAYER_RHO,_LAYER_T,_LAYER_LWC,_LAYER_CC,_LAYER_CC,_LAYER_POROSITY,_LAYER_LW,_LAYER_ICE_FRACTION, \
+            _LAYER_IRREDUCIBLE_WATER,_LAYER_REFREEZE)
+    else:
+        return (indY,indX,RESTART,_RAIN,_SNOWFALL,_LWin,_LWout,_H,_LE,_B, \
+            _MB,_surfMB,_Q,_SNOWHEIGHT,_TOTALHEIGHT,_TS,_ALBEDO,_NLAYERS, \
+            _ME,_intMB,_EVAPORATION,_SUBLIMATION,_CONDENSATION,_DEPOSITION,_REFREEZE, \
+            _subM,_Z0,_surfM)

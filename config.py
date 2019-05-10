@@ -3,21 +3,32 @@
  Please make your changes here.
 """
 ## Simulation period
-time_start = '2009-05-01T00:00'
-time_end   = '2010-04-30T00:00'
+time_start = '2014-01-14T00:00'
+time_end   = '2014-01-16T00:00'
+#time_start = '2009-01-16T00:00'
+#time_end   = '2009-01-17T00:00'
 
 time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
 data_path = './data'
-input_netcdf= 'Zhadang_ERA5_2009.nc'
-output_netcdf = 'Zhadang_ERA5_'+time_start_str+'-'+time_end_str+'.nc'
+input_netcdf= 'Greenland.nc'
+#input_netcdf= 'Zhadang_ERA5_2009.nc'
+output_netcdf = 'Greenland_'+time_start_str+'-'+time_end_str+'.nc'
+#output_netcdf = 'Zhandang_'+time_start_str+'-'+time_end_str+'.nc'
 
 ## Set keyword to true if you want to use the job scheduler Slurm (own configuration file slurm_config.py)
-slurm_use = False
+slurm_use = True 
 
 ## Port for local cluster
 local_port = 8786
+
+# Tile
+tile = True
+xstart = 0
+xend = 480
+ystart = 0
+yend = 480
 
 ## Write full fields
 full_field = False
@@ -52,4 +63,5 @@ max_layers = 200
 c_stab = 0.3
 
 # Configuration if worker for local cluster (not slurm) Number of workers, if None all cores are used
-workers = None
+workers = 1
+

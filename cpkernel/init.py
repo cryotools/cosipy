@@ -11,7 +11,24 @@ def init_snowpack(DATA):
     ''' INITIALIZATION '''
 
     logger = logging.getLogger(__name__)
+
+    ##--------------------------------------
+    ## Check for WRF data
+    ##--------------------------------------
+    if ('SNOWHEIGHT' in DATA):
+        initial_snowheight = DATA.SNOWHEIGHT
+
+    if ('SWE' in DATA):
+        rho_mean = (DATA.SWE.values/DATA.SNOWHEIGHT.values)*1000
+        initial_top_denisty_snowpack = rho_mean
+        initial_bottom_density_snowpack = rho_mean
+
+    if ('TSK' in DATA):
+        temperature_top = DATA.TSK.values       
     
+    #-------------------------------------- 
+    # Do the vertical interpolation
+    #-------------------------------------- 
     # Init layers
     if (initial_snowheight > 0.0):
         layer_heights =  np.ones(int(initial_snowheight // initial_snow_layer_heights)) * initial_snow_layer_heights
