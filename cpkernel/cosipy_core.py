@@ -32,7 +32,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
     else:
         GRID = load_snowpack(GRID_RESTART)
 
-    # Create the local output datasets
+    # Create the local datasets
     logger.debug('Create local datasets')
     IO = IOClass(DATA)
     RESTART = IO.create_local_restart_dataset()
@@ -104,9 +104,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
             SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) / center_snow_transfer_function) * spread_snow_transfer_function) + 1.0))
             if SNOWFALL<0.0:        
                 SNOWFALL = 0.0
-
-        ## TODO DELETE
-        SNOWFALL=SNOWFALL*1.5
 
         if SNOWFALL > 0.0:
             # Add a new snow node on top
@@ -279,4 +276,5 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
     RESTART.LAYER_T[0:GRID.get_number_layers()] = GRID.get_temperature() 
     RESTART.LAYER_LW[0:GRID.get_number_layers()] = GRID.get_liquid_water() 
 
+    # Return local lat/lon indices, and the local restart and io structures 
     return (indY,indX,RESTART,IO)

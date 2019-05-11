@@ -56,6 +56,8 @@ def main():
     #------------------------------------------ 
     IO = IOClass()
     DATA = IO.create_data_file() 
+    
+    # Create global result and restart datasets
     RESULT = IO.create_result_file() 
     RESTART = IO.create_restart_file() 
 
