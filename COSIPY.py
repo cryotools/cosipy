@@ -75,7 +75,7 @@ def main():
     if (slurm_use):
   
         with SLURMCluster(scheduler_port=port, cores=cores, processes=processes, memory=memory, shebang=shebang, name=name, queue=queue, job_extra=slurm_parameters) as cluster:
-            cluster.scale(slurm_scale)   
+            cluster.scale(processes*nodes)   
             print(cluster.job_script())
             print("You are using SLURM!\n")
             print(cluster)
@@ -142,7 +142,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
        
         # Get some information about the cluster/nodes
         total_grid_points = DATA.dims['south_north']*DATA.dims['west_east']
-        total_cores = cores*slurm_scale
+        total_cores = processes*nodes
         points_per_core = total_grid_points // total_cores
         print(total_grid_points, total_cores, points_per_core)
 
@@ -270,6 +270,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             ds[name].encoding['_FillValue'] = -9999
             return ds
 
+        print('Adding results to NetCDF file')
 
         #---------------------------------------
         # Add variables to output file 

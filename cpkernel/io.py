@@ -27,11 +27,12 @@ class IOClass:
         self.RESTART = None
         self.RESULT = None
 
-    #----------------------------------------------
-    # Creates the input data and reads the restart file, if necessary
-    #----------------------------------------------
+    #==============================================================================
+    # Creates the input data and reads the restart file, if necessary. The function
+    # returns the DATA xarray dataset which contains all input variables.
+    #==============================================================================
     def create_data_file(self):
-        """ Returns the data xarray """
+        """ Returns the DATA xarray dataset"""
     
         if (restart==True):
             print('--------------------------------------------------------------')
@@ -62,6 +63,16 @@ class IOClass:
 
 
    
+    #==============================================================================
+    # The functions create_result_file, create_restart_file, and create_grid_restart
+    # are three which create and return the following structures:
+    #
+    #   create_result_file  :: Creates and initializes the RESULT xarray dataset
+    #   create_restart_file :: Creates and initializes the RESTART xarray dataset
+    #   create_grid_restart :: Creates and initializes the GRID structure which 
+    #                          contains the layer state of the last time step. The
+    #                          last state is required for the restart option
+    #==============================================================================
     #----------------------------------------------
     # Creates the result xarray dataset
     #----------------------------------------------
@@ -78,7 +89,6 @@ class IOClass:
         self.init_restart_dataset()
         return self.RESTART
 
-
     #----------------------------------------------
     # Returns the restart dataset 
     #----------------------------------------------
@@ -86,6 +96,10 @@ class IOClass:
         return self.GRID_RESTART
 
 
+    #==============================================================================
+    # The init_data_dataset read the input NetCDF dataset and stores the data in
+    # an xarray. 
+    #==============================================================================
     #----------------------------------------------
     # Reads the input data into a xarray dataset 
     #----------------------------------------------
@@ -174,6 +188,11 @@ class IOClass:
         print('\n Glacier gridpoints: %s \n\n' %(np.nansum(self.DATA.MASK>=1)))
 
  
+    #==============================================================================
+    # The init_result_datasets creates the final dataset which stores the results
+    # from the individual cosipy runs. After the dataset has been filled with the
+    # runs from all workers the dataset is written to disc.
+    #==============================================================================
     #----------------------------------------------
     # Initializes the result xarray dataset
     #----------------------------------------------
@@ -264,18 +283,22 @@ class IOClass:
         return self.RESULT
    
 
+    #==============================================================================
+    # The next three functions initialize and write the local and global 
+    # restart datasets. The init_restart_dataset creates the global xarray dataset
+    # which contains the final restart variables. These variables are aggregated
+    # from the local restart datasets from each worker (node). Once the variables
+    # are aggregated they are written to a netcdf file (write_restart_future)
+    #==============================================================================
     #----------------------------------------------
     # Initializes the restart xarray dataset
     #----------------------------------------------
     def init_restart_dataset(self):
-        """ This function creates the result file 
-        Args:
-            
-            self.DATA    ::  self.DATA structure 
+        """ This function creates the restart file 
             
         Returns:
             
-            self.RESULT  ::  one-dimensional self.RESULT structure"""
+            self.RESTART  ::  xarray structure"""
         
         self.RESTART = xr.Dataset()
         self.RESTART.coords['time'] = self.DATA.coords['time'][-1]
@@ -300,7 +323,9 @@ class IOClass:
         return self.RESTART
    
 
- 
+    #----------------------------------------------
+    # Initializes the local restart xarray dataset
+    #----------------------------------------------
     def create_local_restart_dataset(self):
         """ This function creates the result dataset for a grid point 
         Args:
@@ -326,14 +351,17 @@ class IOClass:
         return self.RESTART
 
 
-
     #----------------------------------------------
     # Writes the last model state (layer characgeristics) into restart dataset 
     #----------------------------------------------
     def write_restart_future(self, results, y, x):
         """ Writes the restart file 
-        
-        RESULT      :: RESULT dataset
+       
+        Args:
+       
+        results     :: RESTART xarray dataset
+        y           :: y-index 
+        x           :: x-index
         
         """
 
@@ -344,6 +372,9 @@ class IOClass:
         self.RESTART.LAYER_LW.loc[dict(south_north=y, west_east=x, layer=np.arange(max_layers))] = results.LAYER_LW
     
 
+    #==============================================================================
+    # The following functions return the RESULT, RESTART and GRID structures
+    #==============================================================================
     #----------------------------------------------
     # Getter/Setter functions 
     #----------------------------------------------
@@ -356,9 +387,9 @@ class IOClass:
     def get_grid_restart(self):
         return self.GRID_RESTART
 
-    #---------------------------------------------------
-    # Auxiliary functions for writing variables
-    #--------------------------------------------------- 
+    #==============================================================================
+    # Auxiliary functions for writing variables to NetCDF files
+    #==============================================================================
     def add_variable_along_latlon(self, ds, var, name, units, long_name):
         """ This function self.adds missing variables to the self.DATA class """
         ds[name] = var

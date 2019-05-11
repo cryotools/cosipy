@@ -26,7 +26,7 @@ local_port = 8786
 # Tile
 tile = True
 xstart = 0
-xend = 480
+xend = 480 
 ystart = 0
 yend = 480
 

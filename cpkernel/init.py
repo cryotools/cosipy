@@ -16,7 +16,7 @@ def init_snowpack(DATA):
     ## Check for WRF data
     ##--------------------------------------
     if ('SNOWHEIGHT' in DATA):
-        initial_snowheight = DATA.SNOWHEIGHT
+        initial_snowheight = 0.5 #DATA.SNOWHEIGHT
 
     if ('SWE' in DATA):
         rho_mean = (DATA.SWE.values/DATA.SNOWHEIGHT.values)*1000

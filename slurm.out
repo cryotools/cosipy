@@ -1,0 +1,154 @@
+=== JOB_STATISTICS ===
+=== current date     : Fri May 10 22:50:07 CEST 2019
+= Job-ID             : 405228
+= Job-Name           : Test
+= Job-Command        : /tmp/tmp_66ltq4m.sh
+= Initial workdir    : /home/saturn/gwgk/gwgk01/cosipy_numpy
+= Queue/Partition    : work
+= Features           : (null)
+= Requested resources: cpu=20,mem=28G,node=1,billing=20 / 02:00:00
+= Used resources     : 01:51:25
+= Node list          : m0832
+= Subm/Elig/Start/End: 2019-05-10T20:58:17 / 2019-05-10T20:58:17 / 2019-05-10T20:58:40 / 2019-05-10T22:50:05
+= AccessKey          : 7f46c017
+======================
+=== JOB_STATISTICS ===
+=== current date     : Fri May 10 22:50:07 CEST 2019
+= Job-ID             : 405231
+= Job-Name           : Test
+= Job-Command        : /tmp/tmpejxwvkwc.sh
+= Initial workdir    : /home/saturn/gwgk/gwgk01/cosipy_numpy
+= Queue/Partition    : work
+= Features           : (null)
+= Requested resources: cpu=20,mem=28G,node=1,billing=20 / 02:00:00
+= Used resources     : 01:51:25
+= Node list          : m0103
+= Subm/Elig/Start/End: 2019-05-10T20:58:17 / 2019-05-10T20:58:17 / 2019-05-10T20:58:40 / 2019-05-10T22:50:05
+= AccessKey          : eadfb741
+======================
+=== JOB_STATISTICS ===
+=== current date     : === current date     : Fri May 10 22:50:07 CEST 2019
+= Job-ID             : 405222
+= Job-Name           : Test
+= Job-Command        : /tmp/tmpcf6wwdrb.sh
+= Initial workdir    : /home/saturn/gwgk/gwgk01/cosipy_numpy
+= Queue/Partition    : work
+= Features           : (null)
+= Requested resources: cpu=20,mem=28G,node=1,billing=20 / 02:00:00
+= Used resources     : 01:51:25
+= Node list          : m0652
+= Subm/Elig/Start/End: 2019-05-10T20:58:17 / 2019-05-10T20:58:17 / 2019-05-10T20:58:40 / 2019-05-10T22:50:05
+= AccessKey          : 222ca51a
+======================
+=== JOB_STATISTICS ===
+=== current date     : Fri May 10 22:50:07 CEST 2019
+= Job-ID             : 405226
+= Job-Name           : Test
+= Job-Command        : /tmp/tmpd12rrvdv.sh
+= Initial workdir    : /home/saturn/gwgk/gwgk01/cosipy_numpy
+= Queue/Partition    : work
+= Features           : (null)
+= Requested resources: cpu=20,mem=28G,node=1,billing=20 / 02:00:00
+= Used resources     : 01:51:25
+= Node list          : m0829
+= Subm/Elig/Start/End: 2019-05-10T20:58:17 / 2019-05-10T20:58:17 / 2019-05-10T20:58:40 / 2019-05-10T22:50:05
+= AccessKey          : 04440e1e
+======================
+=== JOB_STATISTICS ===
+=== current date     : Fri May 10 22:50:07 CEST 2019
+= Job-ID             : 405234
+= Job-Name           : Test
+= Job-Command        : /tmp/tmpbac_7nkr.sh
+= Initial workdir    : /home/saturn/gwgk/gwgk01/cosipy_numpy
+= Queue/Partition    : work
+= Features           : (null)
+= Requested resources: cpu=20,mem=28G,node=1,billing=20 / 02:00:00
+= Used resources     : 01:51:25
+= Node list          : m0106
+= Subm/Elig/Start/End: 2019-05-10T20:58:17 / 2019-05-10T20:58:17 / 2019-05-10T20:58:40 / 2019-05-10T22:50:05
+= AccessKey          : db248cfd
+======================
+=== JOB_STATISTICS ===
+=== current date     : Fri May 10 22:50:07 CEST 2019
+= Job-ID             : 405223
+= Job-Name           : Test
+= Job-Command        : /tmp/tmpbvn4sa25.sh
+= Initial workdir    : /home/saturn/gwgk/gwgk01/cosipy_numpy
+= Queue/Partition    : work
+= Features           : (null)
+= Requested resources: cpu=20,mem=28G,node=1,billing=20 / 02:00:00
+= Used resources     : 01:51:25
+= Node list          : m0653
+= Subm/Elig/Start/End: 2019-05-10T20:58:17 / 2019-05-10T20:58:17 / 2019-05-10T20:58:40 / 2019-05-10T22:50:05
+= AccessKey          : d1f4a3fb
+======================
+=== JOB_STATISTICS ===
+=== current date     : Fri May 10 22:50:07 CEST 2019
+= Job-ID             : 405235
+= Job-Name           : Test
+= Job-Command        : /tmp/tmp954mwq3_.sh
+= Initial workdir    : /home/saturn/gwgk/gwgk01/cosipy_numpy
+= Queue/Partition    : work
+= Features           : (null)
+= Requested resources: cpu=20,mem=28G,node=1,billing=20 / 02:00:00
+= Used resources     : 01:51:25
+= Node list          : m0107
+= Subm/Elig/Start/End: 2019-05-10T20:58:17 / 2019-05-10T20:58:17 / 2019-05-10T20:58:40 / 2019-05-10T22:50:05
+= AccessKey          : 28fc8a1c
+======================
+=== JOB_STATISTICS ===
+=== current date     : Fri May 10 22:50:07 CEST 2019
+= Job-ID             : 405236
+= Job-Name           : Test
+= Job-Command        : /tmp/tmpbqmf77fn.sh
+= Initial workdir    : /home/saturn/gwgk/gwgk01/cosipy_numpy
+= Queue/Partition    : work
+= Features           : (null)
+= Requested resources: cpu=20,mem=28G,node=1,billing=20 / 02:00:00
+= Used resources     : 01:51:25
+= Node list          : m0108
+= Subm/Elig/Start/End: 2019-05-10T20:58:17 / 2019-05-10T20:58:17 / 2019-05-10T20:58:40 / 2019-05-10T22:50:05
+= AccessKey          : 31f24aac
+======================
+=== JOB_STATISTICS ===
+=== current date     : Fri May 10 22:50:07 CEST 2019
+= Job-ID             : 405233
+= Job-Name           : Test
+= Job-Command        : /tmp/tmpvcc582d2.sh
+= Initial workdir    : /home/saturn/gwgk/gwgk01/cosipy_numpy
+= Queue/Partition    : work
+= Features           : (null)
+= Requested resources: cpu=20,mem=28G,node=1,billing=20 / 02:00:00
+= Used resources     : 01:51:25
+= Node list          : m0105
+= Subm/Elig/Start/End: 2019-05-10T20:58:17 / 2019-05-10T20:58:17 / 2019-05-10T20:58:40 / 2019-05-10T22:50:05
+= AccessKey          : 0ecc1528
+======================
+=== JOB_STATISTICS ===
+=== current date     : Fri May 10 22:50:07 CEST 2019
+= Job-ID             : 405230
+= Job-Name           : Test
+= Job-Command        : /tmp/tmp1y0nvso6.sh
+= Initial workdir    : /home/saturn/gwgk/gwgk01/cosipy_numpy
+= Queue/Partition    : work
+= Features           : (null)
+= Requested resources: cpu=20,mem=28G,node=1,billing=20 / 02:00:00
+= Used resources     : 01:51:25
+= Node list          : m0102
+= Subm/Elig/Start/End: 2019-05-10T20:58:17 / 2019-05-10T20:58:17 / 2019-05-10T20:58:40 / 2019-05-10T22:50:05
+= AccessKey          : 1907b1a0
+======================
+=== JOB_STATISTICS ===
+=== current date     : === current date     : Fri May 10 22:50:07 CEST 2019
+= Job-ID             : 405232
+= Job-Name           : Test
+= Job-Command        : /tmp/tmp7gfilocd.sh
+= Initial workdir    : /home/saturn/gwgk/gwgk01/cosipy_numpy
+= Queue/Partition    : work
+= Features           : (null)
+= Requested resources: cpu=20,mem=28G,node=1,billing=20 / 02:00:00
+= Used resources     : 01:51:25
+= Node list          : m0104
+= Subm/Elig/Start/End: 2019-05-10T20:58:17 / 2019-05-10T20:58:17 / 2019-05-10T20:58:40 / 2019-05-10T22:50:05
+= AccessKey          : fd1413c9
+======================
