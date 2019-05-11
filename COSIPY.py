@@ -82,7 +82,7 @@ def main():
             run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures)
 
     else:
-        with LocalCluster(scheduler_port=local_port, n_workers=1, threads_per_worker=20, silence_logs=True) as cluster:
+        with LocalCluster(scheduler_port=local_port, n_workers=1, threads_per_worker=8, silence_logs=True) as cluster:
             print(cluster)
             run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures)
 
@@ -157,163 +157,39 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
 
 
         #---------------------------------------
-        # Create the result arrays
-        #---------------------------------------
-        RAIN = np.full((DATA.dims['time'],ny,nx), np.nan)
-        SNOWFALL = np.full((DATA.dims['time'],ny,nx), np.nan)
-        LWin = np.full((DATA.dims['time'],ny,nx), np.nan)
-        LWout = np.full((DATA.dims['time'],ny,nx), np.nan)
-        H = np.full((DATA.dims['time'],ny,nx), np.nan)
-        LE = np.full((DATA.dims['time'],ny,nx), np.nan)
-        B = np.full((DATA.dims['time'],ny,nx), np.nan)
-        MB = np.full((DATA.dims['time'],ny,nx), np.nan)
-        surfMB = np.full((DATA.dims['time'],ny,nx), np.nan)
-        Q = np.full((DATA.dims['time'],ny,nx), np.nan)
-        SNOWHEIGHT = np.full((DATA.dims['time'],ny,nx), np.nan)
-        TOTALHEIGHT = np.full((DATA.dims['time'],ny,nx), np.nan)
-        TS = np.full((DATA.dims['time'],ny,nx), np.nan)
-        ALBEDO = np.full((DATA.dims['time'],ny,nx), np.nan)
-        NLAYERS = np.full((DATA.dims['time'],ny,nx), np.nan)
-        ME = np.full((DATA.dims['time'],ny,nx), np.nan)
-        intMB = np.full((DATA.dims['time'],ny,nx), np.nan)
-        EVAPORATION = np.full((DATA.dims['time'],ny,nx), np.nan)
-        SUBLIMATION = np.full((DATA.dims['time'],ny,nx), np.nan)
-        CONDENSATION = np.full((DATA.dims['time'],ny,nx), np.nan)
-        DEPOSITION = np.full((DATA.dims['time'],ny,nx), np.nan)
-        REFREEZE = np.full((DATA.dims['time'],ny,nx), np.nan)
-        subM = np.full((DATA.dims['time'],ny,nx), np.nan)
-        Z0 = np.full((DATA.dims['time'],ny,nx), np.nan)
-        surfM= np.full((DATA.dims['time'],ny,nx), np.nan)
-
-        if full_field:
-            LAYER_HEIGHT = np.full((DATA.dims['time'],ny,nx,max_layers), np.nan)
-            LAYER_RHO = np.full((DATA.dims['time'],ny,nx,max_layers), np.nan)
-            LAYER_T = np.full((DATA.dims['time'],ny,nx,max_layers), np.nan)
-            LAYER_LWC = np.full((DATA.dims['time'],ny,nx,max_layers), np.nan)
-            LAYER_CC = np.full((DATA.dims['time'],ny,nx,max_layers), np.nan)
-            LAYER_POROSITY = np.full((DATA.dims['time'],ny,nx,max_layers), np.nan)
-            LAYER_LW = np.full((DATA.dims['time'],ny,nx,max_layers), np.nan)
-            LAYER_ICE_FRACTION = np.full((DATA.dims['time'],ny,nx,max_layers), np.nan)
-            LAYER_IRREDUCIBLE_WATER = np.full((DATA.dims['time'],ny,nx,max_layers), np.nan)
-            LAYER_REFREEZE = np.full((DATA.dims['time'],ny,nx,max_layers), np.nan)
-
-
-        #---------------------------------------
         # Guarantee that restart file is closed
         #---------------------------------------
         if (restart==True):
             IO.get_grid_restart().close()
-       
+      
+        # Create numpy arrays which aggregates all local results
+        IO.create_global_result_arrays()
+
         #---------------------------------------
         # Assign local results to global 
         #---------------------------------------
         start_res = datetime.now()
         for future in as_completed(futures):
-                res = future.result() 
-                RAIN[:,res[0],res[1]] = res[3]
-                SNOWFALL[:,res[0],res[1]] = res[4]
-                LWin[:,res[0],res[1]] = res[5]
-                LWout[:,res[0],res[1]] = res[6]
-                H[:,res[0],res[1]] = res[7]
-                LE[:,res[0],res[1]] = res[8]
-                B[:,res[0],res[1]] = res[9]
-                MB[:,res[0],res[1]] = res[10]
-                surfMB[:,res[0],res[1]] = res[11]
-                Q[:,res[0],res[1]] = res[12]
-                SNOWHEIGHT[:,res[0],res[1]] = res[13]
-                TOTALHEIGHT[:,res[0],res[1]] = res[14]
-                TS[:,res[0],res[1]] = res[15]
-                ALBEDO[:,res[0],res[1]] = res[16]
-                NLAYERS[:,res[0],res[1]] = res[17]
-                ME[:,res[0],res[1]] = res[18]
-                intMB[:,res[0],res[1]] = res[19]
-                EVAPORATION[:,res[0],res[1]] = res[20]
-                SUBLIMATION[:,res[0],res[1]] = res[21]
-                CONDENSATION[:,res[0],res[1]] = res[22]
-                DEPOSITION[:,res[0],res[1]] = res[23]
-                REFREEZE[:,res[0],res[1]] = res[24]
-                subM[:,res[0],res[1]] = res[25]
-                Z0[:,res[0],res[1]] = res[26]
-                surfM[:,res[0],res[1]] = res[27]
 
-                if full_field:
-                    LAYER_HEIGHT[:,res[0],res[1],:] = res[28]
-                    LAYER_RHO[:,res[0],res[1],:] = res[29]
-                    LAYER_T[:,res[0],res[1],:] = res[30]
-                    LAYER_LWC[:,res[0],res[1],:] = res[31]
-                    LAYER_CC[:,res[0],res[1],:] = res[32]
-                    LAYER_POROSITY[:,res[0],res[1],:] = res[33]
-                    LAYER_LW[:,res[0],res[1],:] = res[34]
-                    LAYER_ICE_FRACTION[:,res[0],res[1],:] = res[35]
-                    LAYER_IRREDUCIBLE_WATER[:,res[0],res[1],:] = res[36]
-                    LAYER_REFREEZE[:,res[0],res[1],:] = res[37]
+                # Get the results from the workers
+                res = future.result() 
+
+                # res[0]::y  res[1]::x  res[2]::restart  res[3]::local_io
+                y = res[0]
+                x = res[1]
+                local_restart = res[2]
+                local_io = res[3]
+
+                # Copy the local results from worker to the global result array
+                IO.copy_local_to_global(local_io, y, x)
+                
+                # Write results to file
+                IO.write_results_to_file()
 
                 # Write the restart file
-                IO.write_restart_future(res[2],res[0],res[1])
+                IO.write_restart_future(local_restart,y,x)
 
-        #---------------------------------------
-        # Auxiliary function 
-        #---------------------------------------
-        def add_variable_along_latlontime(ds, var, name, units, long_name):
-            """ This function self.adds missing variables to the self.DATA class """
-            ds[name] = (('time','south_north','west_east'), var)
-            ds[name].attrs['units'] = units
-            ds[name].attrs['long_name'] = long_name
-            ds[name].encoding['_FillValue'] = -9999
-            return ds
-
-        def add_variable_along_latlonlayertime(ds, var, name, units, long_name):
-            """ This function self.adds missing variables to the self.DATA class """
-            ds[name] = (('time','south_north','west_east','layer'), var)
-            ds[name].attrs['units'] = units
-            ds[name].attrs['long_name'] = long_name
-            ds[name].encoding['_FillValue'] = -9999
-            return ds
-
-        print('Adding results to NetCDF file')
-
-        #---------------------------------------
-        # Add variables to output file 
-        #---------------------------------------
-        add_variable_along_latlontime(RESULT, RAIN, 'RAIN', 'mm', 'Liquid precipitation') 
-        add_variable_along_latlontime(RESULT, SNOWFALL, 'SNOWFALL', 'm', 'Snowfall') 
-        add_variable_along_latlontime(RESULT, LWin, 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation') 
-        add_variable_along_latlontime(RESULT, LWout, 'LWout', 'W m\u207b\xb2', 'Outgoing longwave radiation') 
-        add_variable_along_latlontime(RESULT, H, 'H', 'W m\u207b\xb2', 'Sensible heat flux') 
-        add_variable_along_latlontime(RESULT, LE, 'LE', 'W m\u207b\xb2', 'Latent heat flux') 
-        add_variable_along_latlontime(RESULT, B, 'B', 'W m\u207b\xb2', 'Ground heat flux') 
-        add_variable_along_latlontime(RESULT, surfMB, 'surfMB', 'm w.e.', 'Surface mass balance') 
-        add_variable_along_latlontime(RESULT, Q, 'Q', 'm w.e.', 'Runoff') 
-        add_variable_along_latlontime(RESULT, SNOWHEIGHT, 'SNOWHEIGHT', 'm', 'Snowheight') 
-        add_variable_along_latlontime(RESULT, TOTALHEIGHT, 'TOTALHEIGHT', 'm', 'Total domain height') 
-        add_variable_along_latlontime(RESULT, TS, 'TS', 'K', 'Surface temperature') 
-        add_variable_along_latlontime(RESULT, ALBEDO, 'ALBEDO', '-', 'Albedo') 
-        add_variable_along_latlontime(RESULT, NLAYERS, 'NLAYERS', '-', 'Number of layers') 
-        add_variable_along_latlontime(RESULT, ME, 'ME', 'W m\u207b\xb2', 'Available melt energy') 
-        add_variable_along_latlontime(RESULT, intMB, 'intMB', 'm w.e.', 'Internal mass balance') 
-        add_variable_along_latlontime(RESULT, EVAPORATION, 'EVAPORATION', 'm w.e.', 'Evaporation') 
-        add_variable_along_latlontime(RESULT, SUBLIMATION, 'SUBLIMATION', 'm w.e.', 'Sublimation') 
-        add_variable_along_latlontime(RESULT, CONDENSATION, 'CONDENSATION', 'm w.e.', 'Condensation') 
-        add_variable_along_latlontime(RESULT, DEPOSITION, 'DEPOSITION', 'm w.e.', 'Deposition') 
-        add_variable_along_latlontime(RESULT, REFREEZE, 'REFREEZE', 'm w.e.', 'Refreezing') 
-        add_variable_along_latlontime(RESULT, subM, 'subM', 'm w.e.', 'Subsurface melt') 
-        add_variable_along_latlontime(RESULT, Z0, 'Z0', 'm', 'Roughness length') 
-        add_variable_along_latlontime(RESULT, surfM, 'surfM', 'm w.e.', 'Surface melt') 
-       
-        if full_field:
-            add_variable_along_latlonlayertime(RESULT, LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Layer height') 
-            add_variable_along_latlonlayertime(RESULT, LAYER_RHO, 'LAYER_RHO', 'kg m^-3', 'Layer density') 
-            add_variable_along_latlonlayertime(RESULT, LAYER_T, 'LAYER_T', 'K', 'Layer temperature') 
-            add_variable_along_latlonlayertime(RESULT, LAYER_LWC, 'LAYER_LWC', 'kg m^-2', 'Liquid water content') 
-            add_variable_along_latlonlayertime(RESULT, LAYER_CC, 'LAYER_CC', 'J m^-2', 'Cold content') 
-            add_variable_along_latlonlayertime(RESULT, LAYER_POROSITY, 'LAYER_POROSITY', '-', 'Porosity') 
-            add_variable_along_latlonlayertime(RESULT, LAYER_LW, 'LAYER_LW', 'm w.e.', 'Liquid water') 
-            add_variable_along_latlonlayertime(RESULT, LAYER_ICE_FRACTION, 'LAYER_ICE_FRACTION', '-', 'Ice fraction') 
-            add_variable_along_latlonlayertime(RESULT, LAYER_IRREDUCIBLE_WATER, 'LAYER_IRREDUCIBLE_WATER', '-', 'Irreducible water') 
-            add_variable_along_latlonlayertime(RESULT, LAYER_REFREEZE, 'LAYER_REFREEZE', 'm w.e.', 'Refreezing') 
-
-
-
+        # Measure time
         end_res = datetime.now()-start_res 
         print("\n \n Needed time for save results to xarray in seconds %4.2f \n" % (end_res.total_seconds()))
         

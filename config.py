@@ -18,7 +18,7 @@ output_netcdf = 'Greenland_'+time_start_str+'-'+time_end_str+'.nc'
 #output_netcdf = 'Zhandang_'+time_start_str+'-'+time_end_str+'.nc'
 
 ## Set keyword to true if you want to use the job scheduler Slurm (own configuration file slurm_config.py)
-slurm_use = True 
+slurm_use = False 
 
 ## Port for local cluster
 local_port = 8786
@@ -26,9 +26,9 @@ local_port = 8786
 # Tile
 tile = True
 xstart = 0
-xend = 480 
+xend = 20 
 ystart = 0
-yend = 480
+yend = 20
 
 ## Write full fields
 full_field = False

@@ -26,6 +26,10 @@ class IOClass:
         self.DATA = DATA
         self.RESTART = None
         self.RESULT = None
+      
+        # If local IO class is initialized we need to get the dimensions of the dataset
+        if DATA is not None:
+            self.time = self.DATA.dims['time']
 
     #==============================================================================
     # Creates the input data and reads the restart file, if necessary. The function
@@ -58,6 +62,10 @@ class IOClass:
         #----------------------------------------------
         if tile:
             self.DATA = self.DATA.isel(south_north=slice(ystart,yend), west_east=slice(xstart,xend))
+        
+        self.ny = self.DATA.dims['south_north']
+        self.nx = self.DATA.dims['west_east']
+        self.time = self.DATA.dims['time']
         
         return self.DATA
 
@@ -121,7 +129,7 @@ class IOClass:
         self.DATA['time'] = np.sort(self.DATA['time'].values)
         start_interval=str(self.DATA.time.values[0])[0:16]
         end_interval = str(self.DATA.time.values[-1])[0:16]
-        time_steps = str(len(self.DATA.time))
+        time_steps = str(self.DATA.dims['time'])
         print('\n Maximum available time interval from %s until %s. Time steps: %s \n\n' % (start_interval, end_interval, time_steps))
 
         # Check if restart option is set
@@ -281,7 +289,202 @@ class IOClass:
         print('\n') 
         print('Output dataset ... ok')
         return self.RESULT
+  
+
+    #==============================================================================
+    # This function creates the global numpy arrays which store the variables.
+    # The global array is filled with the local results from the workers. Finally,
+    # the arrays are assigned to the RESULT dataset and is stored to disc (see COSIPY.py)
+    #==============================================================================
+    def create_global_result_arrays(self):
+
+        self.RAIN = np.full((self.time,self.ny,self.nx), np.nan)
+        self.SNOWFALL = np.full((self.time,self.ny,self.nx), np.nan)
+        self.LWin = np.full((self.time,self.ny,self.nx), np.nan)
+        self.LWout = np.full((self.time,self.ny,self.nx), np.nan)
+        self.H = np.full((self.time,self.ny,self.nx), np.nan)
+        self.LE = np.full((self.time,self.ny,self.nx), np.nan)
+        self.B = np.full((self.time,self.ny,self.nx), np.nan)
+        self.MB = np.full((self.time,self.ny,self.nx), np.nan)
+        self.surfMB = np.full((self.time,self.ny,self.nx), np.nan)
+        self.Q = np.full((self.time,self.ny,self.nx), np.nan)
+        self.SNOWHEIGHT = np.full((self.time,self.ny,self.nx), np.nan)
+        self.TOTALHEIGHT = np.full((self.time,self.ny,self.nx), np.nan)
+        self.TS = np.full((self.time,self.ny,self.nx), np.nan)
+        self.ALBEDO = np.full((self.time,self.ny,self.nx), np.nan)
+        self.NLAYERS = np.full((self.time,self.ny,self.nx), np.nan)
+        self.ME = np.full((self.time,self.ny,self.nx), np.nan)
+        self.intMB = np.full((self.time,self.ny,self.nx), np.nan)
+        self.EVAPORATION = np.full((self.time,self.ny,self.nx), np.nan)
+        self.SUBLIMATION = np.full((self.time,self.ny,self.nx), np.nan)
+        self.CONDENSATION = np.full((self.time,self.ny,self.nx), np.nan)
+        self.DEPOSITION = np.full((self.time,self.ny,self.nx), np.nan)
+        self.REFREEZE = np.full((self.time,self.ny,self.nx), np.nan)
+        self.subM = np.full((self.time,self.ny,self.nx), np.nan)
+        self.Z0 = np.full((self.time,self.ny,self.nx), np.nan)
+        self.surfM= np.full((self.time,self.ny,self.nx), np.nan)
+
+        if full_field:
+            self.LAYER_HEIGHT = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_RHO = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_T = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_LWC = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_CC = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_POROSITY = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_LW = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_ICE_FRACTION = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_IRREDUCIBLE_WATER = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_REFREEZE = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
    
+
+    #==============================================================================
+    # This function assigns the local results from the workers to the global
+    # numpy arrays. The y and x values are the lat/lon indices.
+    #==============================================================================
+    def copy_local_to_global(self, local_io, y, x):
+
+        self.RAIN[:,y,x] = local_io.local_RAIN
+        self.SNOWFALL[:,y,x] = local_io.local_SNOWFALL
+        self.LWin[:,y,x] = local_io.local_LWin
+        self.LWout[:,y,x] = local_io.local_LWout
+        self.H[:,y,x] = local_io.local_H
+        self.LE[:,y,x] = local_io.local_LE
+        self.B[:,y,x] = local_io.local_B
+        self.MB[:,y,x] = local_io.local_MB
+        self.surfMB[:,y,x] = local_io.local_surfMB
+        self.Q[:,y,x] = local_io.local_Q
+        self.SNOWHEIGHT[:,y,x] = local_io.local_SNOWHEIGHT
+        self.TOTALHEIGHT[:,y,x] = local_io.local_TOTALHEIGHT 
+        self.TS[:,y,x] = local_io.local_TS 
+        self.ALBEDO[:,y,x] = local_io.local_ALBEDO 
+        self.NLAYERS[:,y,x] = local_io.local_NLAYERS 
+        self.ME[:,y,x] = local_io.local_ME 
+        self.intMB[:,y,x] = local_io.local_intMB 
+        self.EVAPORATION[:,y,x] = local_io.local_EVAPORATION 
+        self.SUBLIMATION[:,y,x] = local_io.local_SUBLIMATION 
+        self.CONDENSATION[:,y,x] = local_io.local_CONDENSATION 
+        self.DEPOSITION[:,y,x] = local_io.local_DEPOSITION 
+        self.REFREEZE[:,y,x] = local_io.local_REFREEZE 
+        self.subM[:,y,x] = local_io.local_subM 
+        self.Z0[:,y,x] = local_io.local_Z0 
+        self.surfM[:,y,x] = local_io.local_surfM 
+
+        if full_field:
+            self.LAYER_HEIGHT[:,y,x,:] = local_io.local_LAYER_HEIGHT 
+            self.LAYER_RHO[:,y,x,:] = local_io.local_LAYER_RHO 
+            self.LAYER_T[:,y,x,:] = local_io.local_LAYER_T 
+            self.LAYER_LWC[:,y,x,:] = local_io.local_LAYER_LWC 
+            self.LAYER_CC[:,y,x,:] = local_io.local_LAYER_CC 
+            self.LAYER_POROSITY[:,y,x,:] = local_io.local_LAYER_POROSITY 
+            self.LAYER_LW[:,y,x,:] = local_io.local_LAYER_LW 
+            self.LAYER_ICE_FRACTION[:,y,x,:] = local_io.local_LAYER_ICE_FRACTION 
+            self.LAYER_IRREDUCIBLE_WATER[:,y,x,:] = local_io.local_LAYER_IRREDUCIBLE_WATER 
+            self.LAYER_REFREEZE[:,y,x,:] = local_io.local_LAYER_REFREEZE 
+        
+        
+    #==============================================================================
+    # This function adds the global numpy arrays to the RESULT dataset which will
+    # be written to disc.
+    #==============================================================================
+    def write_results_to_file(self):
+        self.add_variable_along_latlontime(self.RESULT, self.RAIN, 'RAIN', 'mm', 'Liquid precipitation') 
+        self.add_variable_along_latlontime(self.RESULT, self.SNOWFALL, 'SNOWFALL', 'm', 'Snowfall') 
+        self.add_variable_along_latlontime(self.RESULT, self.LWin, 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation') 
+        self.add_variable_along_latlontime(self.RESULT, self.LWout, 'LWout', 'W m\u207b\xb2', 'Outgoing longwave radiation') 
+        self.add_variable_along_latlontime(self.RESULT, self.H, 'H', 'W m\u207b\xb2', 'Sensible heat flux') 
+        self.add_variable_along_latlontime(self.RESULT, self.LE, 'LE', 'W m\u207b\xb2', 'Latent heat flux') 
+        self.add_variable_along_latlontime(self.RESULT, self.B, 'B', 'W m\u207b\xb2', 'Ground heat flux') 
+        self.add_variable_along_latlontime(self.RESULT, self.surfMB, 'surfMB', 'm w.e.', 'Surface mass balance') 
+        self.add_variable_along_latlontime(self.RESULT, self.Q, 'Q', 'm w.e.', 'Runoff') 
+        self.add_variable_along_latlontime(self.RESULT, self.SNOWHEIGHT, 'SNOWHEIGHT', 'm', 'Snowheight') 
+        self.add_variable_along_latlontime(self.RESULT, self.TOTALHEIGHT, 'TOTALHEIGHT', 'm', 'Total domain height') 
+        self.add_variable_along_latlontime(self.RESULT, self.TS, 'TS', 'K', 'Surface temperature') 
+        self.add_variable_along_latlontime(self.RESULT, self.ALBEDO, 'ALBEDO', '-', 'Albedo') 
+        self.add_variable_along_latlontime(self.RESULT, self.NLAYERS, 'NLAYERS', '-', 'Number of layers') 
+        self.add_variable_along_latlontime(self.RESULT, self.ME, 'ME', 'W m\u207b\xb2', 'Available melt energy') 
+        self.add_variable_along_latlontime(self.RESULT, self.intMB, 'intMB', 'm w.e.', 'Internal mass balance') 
+        self.add_variable_along_latlontime(self.RESULT, self.EVAPORATION, 'EVAPORATION', 'm w.e.', 'Evaporation') 
+        self.add_variable_along_latlontime(self.RESULT, self.SUBLIMATION, 'SUBLIMATION', 'm w.e.', 'Sublimation') 
+        self.add_variable_along_latlontime(self.RESULT, self.CONDENSATION, 'CONDENSATION', 'm w.e.', 'Condensation') 
+        self.add_variable_along_latlontime(self.RESULT, self.DEPOSITION, 'DEPOSITION', 'm w.e.', 'Deposition') 
+        self.add_variable_along_latlontime(self.RESULT, self.REFREEZE, 'REFREEZE', 'm w.e.', 'Refreezing') 
+        self.add_variable_along_latlontime(self.RESULT, self.subM, 'subM', 'm w.e.', 'Subsurface melt') 
+        self.add_variable_along_latlontime(self.RESULT, self.Z0, 'Z0', 'm', 'Roughness length') 
+        self.add_variable_along_latlontime(self.RESULT, self.surfM, 'surfM', 'm w.e.', 'Surface melt') 
+        
+        if full_field:
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Layer height') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_RHO, 'LAYER_RHO', 'kg m^-3', 'Layer density') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_T, 'LAYER_T', 'K', 'Layer temperature') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_LWC, 'LAYER_LWC', 'kg m^-2', 'Liquid water content') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_CC, 'LAYER_CC', 'J m^-2', 'Cold content') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_POROSITY, 'LAYER_POROSITY', '-', 'Porosity') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_LW, 'LAYER_LW', 'm w.e.', 'Liquid water') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_ICE_FRACTION, 'LAYER_ICE_FRACTION', '-', 'Ice fraction') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_IRREDUCIBLE_WATER, 'LAYER_IRREDUCIBLE_WATER', '-', 'Irreducible water') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_REFREEZE, 'LAYER_REFREEZE', 'm w.e.', 'Refreezing') 
+
+
+    #==============================================================================
+    # The init_local_result_arrays creates the local numpy arrays which store 
+    # the simulations results. These arrays are returned to the main module(COSIPY.py)
+    # where they are written to the RESULT xarray dataset.
+    #==============================================================================
+    def create_local_result_arrays(self):
+        self.local_RAIN = np.full(self.time, np.nan)
+        self.local_SNOWFALL = np.full(self.time, np.nan)
+        self.local_LWin = np.full(self.time, np.nan)
+        self.local_LWout = np.full(self.time, np.nan)
+        self.local_H = np.full(self.time, np.nan)
+        self.local_LE = np.full(self.time, np.nan)
+        self.local_B = np.full(self.time, np.nan)
+        self.local_MB = np.full(self.time, np.nan)
+        self.local_surfMB = np.full(self.time, np.nan)
+        self.local_Q = np.full(self.time, np.nan)
+        self.local_SNOWHEIGHT = np.full(self.time, np.nan)
+        self.local_TOTALHEIGHT = np.full(self.time, np.nan)
+        self.local_TS = np.full(self.time, np.nan)
+        self.local_ALBEDO = np.full(self.time, np.nan)
+        self.local_ME = np.full(self.time, np.nan)
+        self.local_intMB = np.full(self.time, np.nan)
+        self.local_EVAPORATION = np.full(self.time, np.nan)
+        self.local_SUBLIMATION = np.full(self.time, np.nan)
+        self.local_CONDENSATION = np.full(self.time, np.nan)
+        self.local_DEPOSITION = np.full(self.time, np.nan)
+        self.local_REFREEZE = np.full(self.time, np.nan)
+        self.local_NLAYERS = np.full(self.time, np.nan)
+        self.local_subM = np.full(self.time, np.nan)
+        self.local_Z0 = np.full(self.time, np.nan)
+        self.local_surfM = np.full(self.time, np.nan)
+
+        if full_field:
+            self.local_LAYER_HEIGHT = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_RHO = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_T = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_LWC = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_CC = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_POROSITY = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_LW = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_ICE_FRACTION = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_IRREDUCIBLE_WATER = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_REFREEZE = np.full((self.time,max_layers), np.nan)
+
+    # TODO: Make it Pythonian - Finish the getter/setter functions
+    @property
+    def RRR(self):
+        return self.__RRR
+    @property
+    def RAIN(self):
+        return self.__RAIN
+    
+    @RRR.setter
+    def RRR(self, x):
+        self.__RRR = x
+    @RAIN.setter
+    def RAIN(self, x):
+        self.__RAIN = x
+
+
 
     #==============================================================================
     # The next three functions initialize and write the local and global 
