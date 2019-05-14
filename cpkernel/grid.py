@@ -224,7 +224,8 @@ class Grid:
     
     
     def correct_layer(self, idx, min_height):
-        """ This function adjusts layer idx to a given height (min_height) by merging it with the subsequent layer. """    
+        """ This function adjusts layer idx to a given height (min_height). First, the layers below are merged until 
+            the height is sufficiently large to allow the adjustment. Then the layer is merged with the subsequent layer. """    
         
         # First split layers to be smaller 
         while self.get_node_height(idx)>2*min_height:
@@ -233,7 +234,7 @@ class Grid:
         # New layer height by adding up the height of the two layers
         total_height = self.get_node_height(idx) + self.get_node_height(idx+1)
 
-        # Merge layers until height of the layer is greater than the given height
+        # Merge subsequent layer with underlying layers until height of the layer is greater than the given height
         while ((total_height<min_height) & (idx+2<self.get_number_layers())):
             if (self.get_node_density(idx+1)<snow_ice_threshold) & (self.get_node_density(idx+2)<snow_ice_threshold):
                 self.merge_nodes(idx+1)
@@ -249,9 +250,6 @@ class Grid:
         # Only merge snow-snow or glacier-glacier
         if (total_height>min_height) & ((self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)<snow_ice_threshold)) | \
            ((self.get_node_density(idx)>=snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold)):
-            
-            ## Recalculate total height
-            total_height = self.get_node_height(idx) + self.get_node_height(idx+1)
             
             # Get new heights for layer 0 and 1
             h0 = min_height
@@ -297,11 +295,11 @@ class Grid:
 
     def log_profile(self):
         """ Logarithmic remeshing """ 
+
         bool = True
         idx = 1
         last_layer_height = first_layer_height
         
-        print(self.get_total_snowheight())
         while (bool):
             last_layer_height = layer_stretching*last_layer_height
             self.correct_layer(idx,last_layer_height)
@@ -310,12 +308,11 @@ class Grid:
                 bool = True
             else:
                 bool = False
-        
+       
+        # Adjust the last two layers. We simply sum up the last two layers if the sum is smaller than the required logarithmic height
         if (self.get_node_height(self.get_number_layers()-1) + self.get_node_height(self.get_number_layers()-2)) < last_layer_height:
             self.merge_nodes(self.get_number_layers()-2)
             
-        print(self.get_total_snowheight())
-
 
 
     def adaptive_profile(self):
