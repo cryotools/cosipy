@@ -1,10 +1,10 @@
 #!/bin/bash -l
 
 # The batch system should use the current directory as working directory.
-#SBATCH --job-name=SG
+#SBATCH --job-name=Greenland
 #SBATCH --nodes=1
 ##SBATCH --ntasks-per-node=20
-#SBATCH --time=02:00:00
+#SBATCH --time=04:00:00
 
 unset SLURM_EXPORT_ENV
 

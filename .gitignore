@@ -9,3 +9,4 @@ dask-worker-space/
 debug*
 info*
 error*
+*swp

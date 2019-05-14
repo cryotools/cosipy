@@ -227,8 +227,6 @@ class IOClass:
         self.RESULT.attrs['density_threshold_merging'] = density_threshold_merging
         self.RESULT.attrs['temperature_threshold_merging'] = temperature_threshold_merging
         self.RESULT.attrs['merge_max'] = merge_max
-        self.RESULT.attrs['split_max'] = split_max
-        self.RESULT.attrs['c_stab'] = c_stab
 
         self.RESULT.attrs['albedo_method'] = albedo_method
         self.RESULT.attrs['densification_method'] = densification_method
@@ -341,46 +339,90 @@ class IOClass:
     # This function assigns the local results from the workers to the global
     # numpy arrays. The y and x values are the lat/lon indices.
     #==============================================================================
-    def copy_local_to_global(self, local_io, y, x):
+#    def copy_local_to_global(self, local_io, y, x):
+#
+#        self.RAIN[:,y,x] = local_io.local_RAIN
+#        self.SNOWFALL[:,y,x] = local_io.local_SNOWFALL
+#        self.LWin[:,y,x] = local_io.local_LWin
+#        self.LWout[:,y,x] = local_io.local_LWout
+#        self.H[:,y,x] = local_io.local_H
+#        self.LE[:,y,x] = local_io.local_LE
+#        self.B[:,y,x] = local_io.local_B
+#        self.MB[:,y,x] = local_io.local_MB
+#        self.surfMB[:,y,x] = local_io.local_surfMB
+#        self.Q[:,y,x] = local_io.local_Q
+#        self.SNOWHEIGHT[:,y,x] = local_io.local_SNOWHEIGHT
+#        self.TOTALHEIGHT[:,y,x] = local_io.local_TOTALHEIGHT 
+#        self.TS[:,y,x] = local_io.local_TS 
+#        self.ALBEDO[:,y,x] = local_io.local_ALBEDO 
+#        self.NLAYERS[:,y,x] = local_io.local_NLAYERS 
+#        self.ME[:,y,x] = local_io.local_ME 
+#        self.intMB[:,y,x] = local_io.local_intMB 
+#        self.EVAPORATION[:,y,x] = local_io.local_EVAPORATION 
+#        self.SUBLIMATION[:,y,x] = local_io.local_SUBLIMATION 
+#        self.CONDENSATION[:,y,x] = local_io.local_CONDENSATION 
+#        self.DEPOSITION[:,y,x] = local_io.local_DEPOSITION 
+#        self.REFREEZE[:,y,x] = local_io.local_REFREEZE 
+#        self.subM[:,y,x] = local_io.local_subM 
+#        self.Z0[:,y,x] = local_io.local_Z0 
+#        self.surfM[:,y,x] = local_io.local_surfM 
+#
+#        if full_field:
+#            self.LAYER_HEIGHT[:,y,x,:] = local_io.local_LAYER_HEIGHT 
+#            self.LAYER_RHO[:,y,x,:] = local_io.local_LAYER_RHO 
+#            self.LAYER_T[:,y,x,:] = local_io.local_LAYER_T 
+#            self.LAYER_LWC[:,y,x,:] = local_io.local_LAYER_LWC 
+#            self.LAYER_CC[:,y,x,:] = local_io.local_LAYER_CC 
+#            self.LAYER_POROSITY[:,y,x,:] = local_io.local_LAYER_POROSITY 
+#            self.LAYER_LW[:,y,x,:] = local_io.local_LAYER_LW 
+#            self.LAYER_ICE_FRACTION[:,y,x,:] = local_io.local_LAYER_ICE_FRACTION 
+#            self.LAYER_IRREDUCIBLE_WATER[:,y,x,:] = local_io.local_LAYER_IRREDUCIBLE_WATER 
+#            self.LAYER_REFREEZE[:,y,x,:] = local_io.local_LAYER_REFREEZE 
+        
+    def copy_local_to_global(self,y,x,local_RAIN,local_SNOWFALL,local_LWin,local_LWout,local_H,local_LE,local_B,local_MB, \
+                             local_surfMB,local_Q,local_SNOWHEIGHT,local_TOTALHEIGHT,local_TS,local_ALBEDO, \
+                             local_NLAYERS,local_ME,local_intMB,local_EVAPORATION,local_SUBLIMATION,local_CONDENSATION, \
+                             local_DEPOSITION,local_REFREEZE,local_subM,local_Z0,local_surfM,local_LAYER_HEIGHT,local_LAYER_RHO, \
+                             local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY,local_LAYER_LW,local_LAYER_ICE_FRACTION, \
+                             local_LAYER_IRREDUCIBLE_WATER,local_LAYER_REFREEZE):
 
-        self.RAIN[:,y,x] = local_io.local_RAIN
-        self.SNOWFALL[:,y,x] = local_io.local_SNOWFALL
-        self.LWin[:,y,x] = local_io.local_LWin
-        self.LWout[:,y,x] = local_io.local_LWout
-        self.H[:,y,x] = local_io.local_H
-        self.LE[:,y,x] = local_io.local_LE
-        self.B[:,y,x] = local_io.local_B
-        self.MB[:,y,x] = local_io.local_MB
-        self.surfMB[:,y,x] = local_io.local_surfMB
-        self.Q[:,y,x] = local_io.local_Q
-        self.SNOWHEIGHT[:,y,x] = local_io.local_SNOWHEIGHT
-        self.TOTALHEIGHT[:,y,x] = local_io.local_TOTALHEIGHT 
-        self.TS[:,y,x] = local_io.local_TS 
-        self.ALBEDO[:,y,x] = local_io.local_ALBEDO 
-        self.NLAYERS[:,y,x] = local_io.local_NLAYERS 
-        self.ME[:,y,x] = local_io.local_ME 
-        self.intMB[:,y,x] = local_io.local_intMB 
-        self.EVAPORATION[:,y,x] = local_io.local_EVAPORATION 
-        self.SUBLIMATION[:,y,x] = local_io.local_SUBLIMATION 
-        self.CONDENSATION[:,y,x] = local_io.local_CONDENSATION 
-        self.DEPOSITION[:,y,x] = local_io.local_DEPOSITION 
-        self.REFREEZE[:,y,x] = local_io.local_REFREEZE 
-        self.subM[:,y,x] = local_io.local_subM 
-        self.Z0[:,y,x] = local_io.local_Z0 
-        self.surfM[:,y,x] = local_io.local_surfM 
+        self.RAIN[:,y,x] = local_RAIN
+        self.SNOWFALL[:,y,x] = local_SNOWFALL
+        self.LWin[:,y,x] = local_LWin
+        self.LWout[:,y,x] = local_LWout
+        self.H[:,y,x] = local_H
+        self.LE[:,y,x] = local_LE
+        self.B[:,y,x] = local_B
+        self.MB[:,y,x] = local_MB
+        self.surfMB[:,y,x] = local_surfMB
+        self.Q[:,y,x] = local_Q
+        self.SNOWHEIGHT[:,y,x] = local_SNOWHEIGHT
+        self.TOTALHEIGHT[:,y,x] = local_TOTALHEIGHT 
+        self.TS[:,y,x] = local_TS 
+        self.ALBEDO[:,y,x] = local_ALBEDO 
+        self.NLAYERS[:,y,x] = local_NLAYERS 
+        self.ME[:,y,x] = local_ME 
+        self.intMB[:,y,x] = local_intMB 
+        self.EVAPORATION[:,y,x] = local_EVAPORATION 
+        self.SUBLIMATION[:,y,x] = local_SUBLIMATION 
+        self.CONDENSATION[:,y,x] = local_CONDENSATION 
+        self.DEPOSITION[:,y,x] = local_DEPOSITION 
+        self.REFREEZE[:,y,x] = local_REFREEZE 
+        self.subM[:,y,x] = local_subM 
+        self.Z0[:,y,x] = local_Z0 
+        self.surfM[:,y,x] = local_surfM 
 
         if full_field:
-            self.LAYER_HEIGHT[:,y,x,:] = local_io.local_LAYER_HEIGHT 
-            self.LAYER_RHO[:,y,x,:] = local_io.local_LAYER_RHO 
-            self.LAYER_T[:,y,x,:] = local_io.local_LAYER_T 
-            self.LAYER_LWC[:,y,x,:] = local_io.local_LAYER_LWC 
-            self.LAYER_CC[:,y,x,:] = local_io.local_LAYER_CC 
-            self.LAYER_POROSITY[:,y,x,:] = local_io.local_LAYER_POROSITY 
-            self.LAYER_LW[:,y,x,:] = local_io.local_LAYER_LW 
-            self.LAYER_ICE_FRACTION[:,y,x,:] = local_io.local_LAYER_ICE_FRACTION 
-            self.LAYER_IRREDUCIBLE_WATER[:,y,x,:] = local_io.local_LAYER_IRREDUCIBLE_WATER 
-            self.LAYER_REFREEZE[:,y,x,:] = local_io.local_LAYER_REFREEZE 
-        
+            self.LAYER_HEIGHT[:,y,x,:] = local_LAYER_HEIGHT 
+            self.LAYER_RHO[:,y,x,:] = local_LAYER_RHO 
+            self.LAYER_T[:,y,x,:] = local_LAYER_T 
+            self.LAYER_LWC[:,y,x,:] = local_LAYER_LWC 
+            self.LAYER_CC[:,y,x,:] = local_LAYER_CC 
+            self.LAYER_POROSITY[:,y,x,:] = local_LAYER_POROSITY 
+            self.LAYER_LW[:,y,x,:] = local_LAYER_LW 
+            self.LAYER_ICE_FRACTION[:,y,x,:] = local_LAYER_ICE_FRACTION 
+            self.LAYER_IRREDUCIBLE_WATER[:,y,x,:] = local_LAYER_IRREDUCIBLE_WATER 
+            self.LAYER_REFREEZE[:,y,x,:] = local_LAYER_REFREEZE 
         
     #==============================================================================
     # This function adds the global numpy arrays to the RESULT dataset which will
@@ -471,18 +513,55 @@ class IOClass:
 
     # TODO: Make it Pythonian - Finish the getter/setter functions
     @property
-    def RRR(self):
-        return self.__RRR
-    @property
     def RAIN(self):
         return self.__RAIN
+    @property
+    def SNOWFALL(self):
+        return self.__SNOWFALL
+    @property
+    def LWin(self):
+        return self.__LWin
+    @property
+    def LWout(self):
+        return self.__LWout
+    @property
+    def H(self):
+        return self.__H
+    @property
+    def LE(self):
+        return self.__LE
+    @property
+    def B(self):
+        return self.__B
+    @property
+    def MB(self):
+        return self.__MB
     
-    @RRR.setter
-    def RRR(self, x):
-        self.__RRR = x
+    
     @RAIN.setter
     def RAIN(self, x):
         self.__RAIN = x
+    @SNOWFALL.setter
+    def SNOWFALL(self, x):
+        self.__SNOWFALL = x
+    @LWin.setter
+    def LWin(self, x):
+        self.__LWin = x
+    @LWout.setter
+    def LWout(self, x):
+        self.__LWout = x
+    @H.setter
+    def H(self, x):
+        self.__H = x
+    @LE.setter
+    def LE(self, x):
+        self.__LE = x
+    @B.setter
+    def B(self, x):
+        self.__B = x
+    @MB.setter
+    def MB(self, x):
+        self.__MB = x
 
 
 

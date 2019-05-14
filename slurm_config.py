@@ -9,8 +9,8 @@ cores = 1                                   # One grid point per core, do not ch
 processes = 20                                # grid points submitted in one sbatch script
 memory = '30GB'                               # memory per processes in GB
 project = 'Greenland'                         # equivalent to slurm parameter --account
-name = 'Test',                                # equivalent to slurm parameter --job-name
+name = 'Greeland',                                # equivalent to slurm parameter --job-name
 queue = 'work'
 nodes = 20                                   # processes multiplied by the number of workers
 shebang = '/bin/bash -l'
-slurm_parameters = ['--nodes=1','--error=slurm.err','--output=slurm.out','--time=02:00:00']
+slurm_parameters = ['--nodes=1','--error=slurm.err','--output=slurm.out','--time=04:00:00']
