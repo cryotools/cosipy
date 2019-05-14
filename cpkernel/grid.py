@@ -229,31 +229,27 @@ class Grid:
         # First split layers to be smaller 
         while self.get_node_height(idx)>2*min_height:
             self.split_node(idx)
-  
-        # Only merge snow-snow or glacier-glacier
-        if ((self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)<snow_ice_threshold)) | \
-           ((self.get_node_density(idx)>=snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold)):
-            
-            # New layer height by adding up the height of the two layers
+ 
+        # New layer height by adding up the height of the two layers
+        total_height = self.get_node_height(idx) + self.get_node_height(idx+1)
+
+        # Merge layers until height of the layer is greater than the given height
+        while ((total_height<min_height) & (idx+2<self.get_number_layers())):
+            if (self.get_node_density(idx+1)<snow_ice_threshold) & (self.get_node_density(idx+2)<snow_ice_threshold):
+                self.merge_nodes(idx+1)
+            elif (self.get_node_density(idx+1)>=snow_ice_threshold) & (self.get_node_density(idx+2)>=snow_ice_threshold):
+                self.merge_nodes(idx+1)
+            else:
+                break
+           
+            # Recalculate total height
             total_height = self.get_node_height(idx) + self.get_node_height(idx+1)
 
-            #print(total_height-min_height,idx)
-            # If the adjustment is greater than the second layer, the second layer is merged with the one below
-            while (total_height-min_height) <= 0.0:
-                #test = self.get_height()
-                #if (np.sum(test[idx:self.get_number_layers()]) > (total_height-min_height)):
-                #    print(idx,test,np.sum(test[idx:self.get_number_layers()]))
-                if (self.get_node_density(idx+1)<snow_ice_threshold) & (self.get_node_density(idx+2)<snow_ice_threshold):
-                    self.merge_nodes(idx+1)
-                if (self.get_node_density(idx+1)>=snow_ice_threshold) & (self.get_node_density(idx+2)>=snow_ice_threshold):
-                    self.merge_nodes(idx+1)
-                if (self.get_node_density(idx+1)<snow_ice_threshold) & (self.get_node_density(idx+2)>=snow_ice_threshold):
-                    self.merge_snow_with_glacier(idx+1)
+        
+        # Only merge snow-snow or glacier-glacier
+        if (total_height>min_height) & ((self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)<snow_ice_threshold)) | \
+           ((self.get_node_density(idx)>=snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold)):
             
-                # Recalculate total height
-                total_height = self.get_node_height(idx) + self.get_node_height(idx+1)
-
-            self.grid_info_screen()
             ## Recalculate total height
             total_height = self.get_node_height(idx) + self.get_node_height(idx+1)
             
@@ -296,8 +292,7 @@ class Grid:
             # Update node properties
             self.update_node(idx, h0, T0, if0, lw0)
             self.update_node(idx+1, h1, T1, if1, lw1)
-        else:
-            print(self.get_node_height(idx))
+
 
 
     def log_profile(self):
@@ -306,7 +301,7 @@ class Grid:
         idx = 1
         last_layer_height = first_layer_height
         
-        self.grid_info_screen()
+        print(self.get_total_snowheight())
         while (bool):
             last_layer_height = layer_stretching*last_layer_height
             self.correct_layer(idx,last_layer_height)
@@ -318,6 +313,8 @@ class Grid:
         
         if (self.get_node_height(self.get_number_layers()-1) + self.get_node_height(self.get_number_layers()-2)) < last_layer_height:
             self.merge_nodes(self.get_number_layers()-2)
+            
+        print(self.get_total_snowheight())
 
 
 

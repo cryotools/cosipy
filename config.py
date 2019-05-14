@@ -4,7 +4,7 @@
 """
 ## Simulation period
 time_start = '2014-01-14T00:00'
-time_end   = '2014-01-15T00:00'
+time_end   = '2014-01-16T00:00'
 #time_start = '2009-01-16T00:00'
 #time_end   = '2009-01-17T00:00'
 

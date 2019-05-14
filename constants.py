@@ -25,7 +25,7 @@ const_init_temp = 0.1                           # constant for init temperature 
 
 'Remeshing options'
 first_layer_height = 0.02                       # The first layer will always have the defined height (m)
-layer_stretching = 1.1                          # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous)
+layer_stretching = 1.2                          # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous)
 
 merge_snow_threshold = 0.1                      # (m) minimum height of layer, is used if fresh fallen snow is added as a new
                                                 # layer or merged to the underlying layer

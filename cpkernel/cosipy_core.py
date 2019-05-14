@@ -143,9 +143,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
             if SNOWFALL<0.0:        
                 SNOWFALL = 0.0
 
-        ## TODO DELETE
-        SNOWFALL=SNOWFALL*1.5
-
+        
         if SNOWFALL > 0.0:
             # Add a new snow node on top
             GRID.add_node(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0)
