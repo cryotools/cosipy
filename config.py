@@ -4,7 +4,7 @@
 """
 ## Simulation period
 time_start = '2014-01-14T00:00'
-time_end   = '2014-01-16T00:00'
+time_end   = '2014-01-15T00:00'
 #time_start = '2009-01-16T00:00'
 #time_end   = '2009-01-17T00:00'
 
@@ -26,9 +26,9 @@ local_port = 8786
 # Tile
 tile = True
 xstart = 0
-xend = 10 
+xend = 1 
 ystart = 0
-yend = 10
+yend = 1
 
 ## Remeshing (log_profile, adaptive_profile)
 remesh_method = 'log_profile'

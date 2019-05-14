@@ -221,18 +221,104 @@ class Grid:
         self.update_node(0, h0, T0, if0, lw0)
         self.update_node(1, h1, T1, if1, lw1)
 
+    
+    
+    def correct_layer(self, idx, min_height):
+        """ This function adjusts layer idx to a given height (min_height) by merging it with the subsequent layer. """    
+        
+        # First split layers to be smaller 
+        while self.get_node_height(idx)>2*min_height:
+            self.split_node(idx)
+  
+        # Only merge snow-snow or glacier-glacier
+        if ((self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)<snow_ice_threshold)) | \
+           ((self.get_node_density(idx)>=snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold)):
+            
+            # New layer height by adding up the height of the two layers
+            total_height = self.get_node_height(idx) + self.get_node_height(idx+1)
+
+            #print(total_height-min_height,idx)
+            # If the adjustment is greater than the second layer, the second layer is merged with the one below
+            while (total_height-min_height) <= 0.0:
+                #test = self.get_height()
+                #if (np.sum(test[idx:self.get_number_layers()]) > (total_height-min_height)):
+                #    print(idx,test,np.sum(test[idx:self.get_number_layers()]))
+                if (self.get_node_density(idx+1)<snow_ice_threshold) & (self.get_node_density(idx+2)<snow_ice_threshold):
+                    self.merge_nodes(idx+1)
+                if (self.get_node_density(idx+1)>=snow_ice_threshold) & (self.get_node_density(idx+2)>=snow_ice_threshold):
+                    self.merge_nodes(idx+1)
+                if (self.get_node_density(idx+1)<snow_ice_threshold) & (self.get_node_density(idx+2)>=snow_ice_threshold):
+                    self.merge_snow_with_glacier(idx+1)
+            
+                # Recalculate total height
+                total_height = self.get_node_height(idx) + self.get_node_height(idx+1)
+
+            self.grid_info_screen()
+            ## Recalculate total height
+            total_height = self.get_node_height(idx) + self.get_node_height(idx+1)
+            
+            # Get new heights for layer 0 and 1
+            h0 = min_height
+            h1 = total_height - min_height
+            
+            # How much height is gained by the first layer
+            change = min_height - self.get_node_height(idx)
+
+            # Update liquid water
+            total_lw = self.get_node_liquid_water(idx) + self.get_node_liquid_water(idx+1)
+            lw0 = (h0/total_height) * total_lw 
+            lw1 = (h1/total_height) * total_lw
+            
+            # Update ice fraction
+            total_if = self.get_node_ice_fraction(idx) + self.get_node_ice_fraction(idx+1)
+            if0 = (h0/total_height) * self.get_node_ice_fraction(idx) + (h1/total_height) *self.get_node_ice_fraction(idx+1)
+            if1 = self.get_node_ice_fraction(idx+1)
+
+            # Update temperature
+            if change>0.0:
+                T0 = (self.get_node_height(idx)/h0) * self.get_node_temperature(idx) + (change/h0) * self.get_node_temperature(idx+1)
+                T1 = self.get_node_temperature(idx+1)
+            else:
+                T0 = self.get_node_temperature(idx)
+                T1 = (self.get_node_height(idx+1)/h1) * self.get_node_temperature(idx+1) - (change/h1) * self.get_node_temperature(idx)
+ 
+            # New volume fractions and density
+            lwc0 = lw0/h0
+            lwc1 = lw1/h1
+            por0 = 1 - lwc0 - if0
+            por1 = 1 - lwc1 - if1
+       
+            # Check for consistency
+            if (abs(1-if0-por0-lwc0)>1e-8) | (abs(1-if1-por1-lwc1)>1e-8):
+                self.logger.error('Correct first layer is not mass consistent (%2.7f) [Layer 0]' % (if0,por0,lwc0))
+                self.logger.error('Correct first layer is not mass consistent (%2.7f) [Layer 1]' % (if0,por0,lwc0))
+            
+            # Update node properties
+            self.update_node(idx, h0, T0, if0, lw0)
+            self.update_node(idx+1, h1, T1, if1, lw1)
+        else:
+            print(self.get_node_height(idx))
+
 
     def log_profile(self):
         """ Logarithmic remeshing """ 
         bool = True
-        idx = 0
+        idx = 1
+        last_layer_height = first_layer_height
+        
+        self.grid_info_screen()
         while (bool):
-            if (self.get_node_height(idx+1) > 2.0*(layer_stretching*self.get_node_height(idx))):
-                self.split_node(idx+1) 
+            last_layer_height = layer_stretching*last_layer_height
+            self.correct_layer(idx,last_layer_height)
+            idx = idx+1
+            if (idx<self.get_number_layers()-3):
+                bool = True
             else:
-                idx = idx+1
-            if (idx <= self.get_number_layers()):
                 bool = False
+        
+        if (self.get_node_height(self.get_number_layers()-1) + self.get_node_height(self.get_number_layers()-2)) < last_layer_height:
+            self.merge_nodes(self.get_number_layers()-2)
+
 
 
     def adaptive_profile(self):
@@ -318,6 +404,7 @@ class Grid:
             self.logger.error(self.get_density())
 
 
+
     def update_grid(self):
         """ 
             The first step is to ensure that the first layer always has a
@@ -326,18 +413,22 @@ class Grid:
         
                 (i)  log_profile
                 (ii) adaptive_profile
+                (iii) None
 
             (i)  The log-profile algorithm arranges the mesh logarithmically.
                  The user gives a stretching factor (layer_stretching) that
                  determines the increase in layer heights. 
             
-            (II) The adjustment of the profile by means of the XX method is
+            (ii) The adjustment of the profile by means of the XX method is
                  done on the basis of the similarity of layers. Layers with very
                  similar states (temperature and density) are joined together. The
                  similarity is determined by user-specified threshold values
                  (temperature_threshold_merging, density_threshold_merging). In
                  addition, the maximum number of merging steps per time step
                  can be specified (merge_max).
+
+           (iii) This option only guarantees that layer are not smaller than the 
+                 user specific minimum layer height
         """
 
         self.logger.debug('--------------------------')
@@ -398,7 +489,7 @@ class Grid:
 
         # Convert melt (m w.e.q.) to m height
         height_diff = float(melt) / (self.get_node_density(0) / 1000.0)   # m (snow) - negative = melt
-
+        
         if height_diff != 0.0:
             remove = True
         else:
@@ -799,9 +890,9 @@ class Grid:
                           Irreducible water content [-]")
 
         for i in range(n):
-            self.logger.debug("%d %3.2f \t %3.2f \t %4.2f \t %2.7f \t %2.7f \t %10.4f \t %4.4f \t  %4.8f \t %2.7f" % (i, self.get_layer_height(i), self.get_layer_temperature(i),
-                  self.get_layer_density(i), self.get_layer_liquid_water_content(i), self.get_layer_liquid_water(i), self.get_layer_cold_content(i),
-                  self.get_layer_porosity(i), self.get_layer_refreeze(i), self.get_layer_irreducible_water_content(i)))
+            self.logger.debug("%d %3.2f \t %3.2f \t %4.2f \t %2.7f \t %2.7f \t %10.4f \t %4.4f \t  %4.8f \t %2.7f" % (i, self.get_node_height(i), self.get_node_temperature(i),
+                  self.get_node_density(i), self.get_node_liquid_water_content(i), self.get_node_liquid_water(i), self.get_node_cold_content(i),
+                  self.get_node_porosity(i), self.get_node_refreeze(i), self.get_node_irreducible_water_content(i)))
         self.logger.debug('\n\n')
 
 
@@ -817,9 +908,9 @@ class Grid:
         print("Node no. \t\t  Layer height [m] \t Temperature [K] \t Density [kg m^-3] \t LWC [-] \t LW [m] \t CC [J m^-2] \t Porosity [-] \t Refreezing [m w.e.]")
 
         for i in range(n):
-            print("%d %3.3f \t %3.2f \t %4.2f \t %2.7f \t %2.7f \t %10.4f \t %4.4f \t  %4.8f" % (i, self.get_layer_height(i), self.get_layer_temperature(i),
-                  self.get_layer_density(i), self.get_layer_liquid_water_content(i), self.get_layer_liquid_water(i), self.get_layer_cold_content(i),
-                  self.get_layer_porosity(i), self.get_layer_refreeze(i)))
+            print("%d %3.3f \t %3.2f \t %4.2f \t %2.7f \t %2.7f \t %10.4f \t %4.4f \t  %4.8f" % (i, self.get_node_height(i), self.get_node_temperature(i),
+                  self.get_node_density(i), self.get_node_liquid_water_content(i), self.get_node_liquid_water(i), self.get_node_cold_content(i),
+                  self.get_node_porosity(i), self.get_node_refreeze(i)))
         print('\n\n')
 
 
@@ -829,15 +920,15 @@ class Grid:
             Args:
                 n   : nuber of nodes to plot (from top)
         """
-        if level == 1:
-            self.check_layer_property(self.get_height(), 'thickness', 1.01, -0.001)
-            self.check_layer_property(self.get_temperature(), 'temperature', 273.2, 100.0)
-            self.check_layer_property(self.get_density(), 'density', 918, 100)
-            self.check_layer_property(self.get_liquid_water_content(), 'LWC', 1.0, 0.0)
-            self.check_layer_property(self.get_liquid_water(), 'LW', 1.0, 0.0)
-            #self.check_layer_property(self.get_cold_content(), 'CC', 1000, -10**8)
-            self.check_layer_property(self.get_porosity(), 'Porosity', 0.8, -0.00001)
-            self.check_layer_property(self.get_refreeze(), 'Refreezing', 0.5, 0.0)
+        #if level == 1:
+        #    self.check_layer_property(self.get_height(), 'thickness', 1.01, -0.001)
+        #    self.check_layer_property(self.get_temperature(), 'temperature', 273.2, 100.0)
+        #    self.check_layer_property(self.get_density(), 'density', 918, 100)
+        #    self.check_layer_property(self.get_liquid_water_content(), 'LWC', 1.0, 0.0)
+        #    self.check_layer_property(self.get_liquid_water(), 'LW', 1.0, 0.0)
+        #    #self.check_layer_property(self.get_cold_content(), 'CC', 1000, -10**8)
+        #    self.check_layer_property(self.get_porosity(), 'Porosity', 0.8, -0.00001)
+        #    self.check_layer_property(self.get_refreeze(), 'Refreezing', 0.5, 0.0)
 
 
 
