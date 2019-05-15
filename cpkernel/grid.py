@@ -218,8 +218,10 @@ class Grid:
             self.logger.error('Correct first layer is not mass consistent (%2.7f) [Layer 1]' % (if0,por0,lwc0))
 
         # Update node properties
+        print('before update node properties', self.get_node_density(0))
         self.update_node(0, h0, T0, if0, lw0)
         self.update_node(1, h1, T1, if1, lw1)
+        print('after update node properties', self.get_node_density(0))
 
     
     
@@ -230,10 +232,12 @@ class Grid:
         # First split layers to be smaller 
         while self.get_node_height(idx)>2*min_height:
             self.split_node(idx)
- 
+
+        self.grid_info_screen()
+
         # New layer height by adding up the height of the two layers
         total_height = self.get_node_height(idx) + self.get_node_height(idx+1)
-
+        
         # Merge subsequent layer with underlying layers until height of the layer is greater than the given height
         while ((total_height<min_height) & (idx+2<self.get_number_layers())):
             if (self.get_node_density(idx+1)<snow_ice_threshold) & (self.get_node_density(idx+2)<snow_ice_threshold):
@@ -352,18 +356,23 @@ class Grid:
     def split_node(self, pos):
         """ Split node at position pos """
         
-        dz = (self.get_node_height(pos)+self.get_node_height(pos+1))/2.0
-        Tgrad = (self.get_node_temperature(pos)-self.get_node_temperature(pos+1))/dz
-        IFgrad = (self.get_node_ice_fraction(pos)-self.get_node_ice_fraction(pos+1))/dz
+        #dz = (self.get_node_height(pos)+self.get_node_height(pos+1))/2.0
+        #Tgrad = (self.get_node_temperature(pos)-self.get_node_temperature(pos+1))/dz
+        #IFgrad = (self.get_node_ice_fraction(pos)-self.get_node_ice_fraction(pos+1))/dz
 
-        new_temperature_1 = min(Tgrad*(dz-self.get_node_height(pos)/4.0) + self.get_node_temperature(pos+1), 273.16) 
-        new_temperature_2 = min(Tgrad*(dz+self.get_node_height(pos)/4.0) + self.get_node_temperature(pos+1), 273.16) 
-        new_IF_1 = min(IFgrad*(dz-self.get_node_height(pos)/4.0) + self.get_node_ice_fraction(pos+1), 1.0) 
-        new_IF_2 = min(IFgrad*(dz+self.get_node_height(pos)/4.0) + self.get_node_ice_fraction(pos+1), 1.0) 
+        #new_temperature_1 = min(Tgrad*(dz-self.get_node_height(pos)/4.0) + self.get_node_temperature(pos+1), 273.16) 
+        #new_temperature_2 = min(Tgrad*(dz+self.get_node_height(pos)/4.0) + self.get_node_temperature(pos+1), 273.16) 
+        #new_IF_1 = min(IFgrad*(dz-self.get_node_height(pos)/4.0) + self.get_node_ice_fraction(pos+1), 1.0) 
+        #new_IF_2 = min(IFgrad*(dz+self.get_node_height(pos)/4.0) + self.get_node_ice_fraction(pos+1), 1.0) 
         
-        self.grid.insert(pos+1, Node(self.get_node_height(pos)/2.0, self.get_node_density(pos), new_temperature_1, self.get_node_liquid_water(pos)/2.0, new_IF_1))
-        self.update_node(pos, self.get_node_height(pos)/2.0, new_temperature_2, new_IF_2, self.get_node_liquid_water(pos)/2.0)
+        #self.grid.insert(pos+1, Node(self.get_node_height(pos)/2.0, self.get_node_density(pos), new_temperature_1, self.get_node_liquid_water(pos)/2.0, new_IF_1))
+        #self.update_node(pos, self.get_node_height(pos)/2.0, new_temperature_2, new_IF_2, self.get_node_liquid_water(pos)/2.0)
         
+        self.grid.insert(pos+1, Node(self.get_node_height(pos)/2.0, self.get_node_density(pos), self.get_node_temperature(pos), \
+                                     self.get_node_liquid_water(pos)/2.0, self.get_node_ice_fraction(pos)))
+        self.update_node(pos, self.get_node_height(pos)/2.0, self.get_node_temperature(pos), \
+                                     self.get_node_ice_fraction(pos), self.get_node_liquid_water(pos)/2.0)
+
         self.number_nodes += 1
 
 
@@ -432,8 +441,8 @@ class Grid:
         # Adjustment of the first layer to the user-defined height
         # (first_layer_height) 
         #-------------------------------------------------------------------------
-        self.correct_first_layer()
-
+        self.correct_layer(0,first_layer_height)
+        
         #-------------------------------------------------------------------------
         # Remeshing options
         #-------------------------------------------------------------------------
@@ -441,27 +450,28 @@ class Grid:
             self.log_profile()
         elif (remesh_method=='adaptive_profile'):
             self.adaptive_profile()
-    
-        #-------------------------------------------------------------------------
-        # We need to guarantee that the snow/ice layer thickness is not smaller
-        # than the user defined threshold  
-        #-------------------------------------------------------------------------
-        # Get snow layer heights
+        
+        ##-------------------------------------------------------------------------
+        ## We need to guarantee that the snow/ice layer thickness is not smaller
+        ## than the user defined threshold  
+        ##-------------------------------------------------------------------------
+        ## Get snow layer heights
         while (min(self.get_height())<0.02):
             idx = np.argmin(self.get_height())
-            if (idx>0):
+            if (idx>=0):
                 if (self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)<snow_ice_threshold):
                     self.merge_nodes(idx)
                 if (self.get_node_density(idx)>=snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold):
                     self.merge_nodes(idx)
                 if (self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold):
                     self.merge_snow_with_glacier(idx)
-      
-        self.check('Problem after merging')
+
+        #self.check('Problem after merging')
 
 
     def merge_snow_with_glacier(self, idx):
 
+        print('Merge with snow')
         if (self.get_node_density(idx) < snow_ice_threshold) & (self.get_node_density(idx+1) >= snow_ice_threshold):
 
             # Update node properties
