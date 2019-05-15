@@ -26,9 +26,9 @@ local_port = 8786
 # Tile
 tile = True
 xstart = 0
-xend = 1 
+xend = 20 
 ystart = 0
-yend = 1
+yend = 20
 
 ## Remeshing (log_profile, adaptive_profile)
 remesh_method = 'log_profile'

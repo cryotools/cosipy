@@ -218,10 +218,8 @@ class Grid:
             self.logger.error('Correct first layer is not mass consistent (%2.7f) [Layer 1]' % (if0,por0,lwc0))
 
         # Update node properties
-        print('before update node properties', self.get_node_density(0))
         self.update_node(0, h0, T0, if0, lw0)
         self.update_node(1, h1, T1, if1, lw1)
-        print('after update node properties', self.get_node_density(0))
 
     
     
@@ -232,8 +230,6 @@ class Grid:
         # First split layers to be smaller 
         while self.get_node_height(idx)>2*min_height:
             self.split_node(idx)
-
-        self.grid_info_screen()
 
         # New layer height by adding up the height of the two layers
         total_height = self.get_node_height(idx) + self.get_node_height(idx+1)
@@ -461,9 +457,9 @@ class Grid:
             if (idx>=0):
                 if (self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)<snow_ice_threshold):
                     self.merge_nodes(idx)
-                if (self.get_node_density(idx)>=snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold):
+                elif (self.get_node_density(idx)>=snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold):
                     self.merge_nodes(idx)
-                if (self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold):
+                elif (self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold):
                     self.merge_snow_with_glacier(idx)
 
         #self.check('Problem after merging')
@@ -471,7 +467,6 @@ class Grid:
 
     def merge_snow_with_glacier(self, idx):
 
-        print('Merge with snow')
         if (self.get_node_density(idx) < snow_ice_threshold) & (self.get_node_density(idx+1) >= snow_ice_threshold):
 
             # Update node properties
