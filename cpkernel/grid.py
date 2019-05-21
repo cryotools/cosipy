@@ -184,6 +184,9 @@ class Grid:
         # Get new heights for layer 0 and 1
         h0 = min_height
         h1 = total_height - min_height
+        print(total_height)
+        print(min_height)
+        print(h1)
 
         # How much height is gained by the first layer
         change = min_height - self.get_node_height(0)
@@ -248,8 +251,7 @@ class Grid:
 
         
         # Only merge snow-snow or glacier-glacier
-        if (total_height>min_height) & ((self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)<snow_ice_threshold)) | \
-           ((self.get_node_density(idx)>=snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold)):
+        if (total_height>min_height) & (((self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)<snow_ice_threshold) ) | ( (self.get_node_density(idx)>=snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold))):
             
             # Get new heights for layer 0 and 1
             h0 = min_height

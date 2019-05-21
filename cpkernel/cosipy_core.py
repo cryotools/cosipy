@@ -31,6 +31,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
     _B = np.full(len(DATA.time), np.nan)
     _MB = np.full(len(DATA.time), np.nan)
     _surfMB = np.full(len(DATA.time), np.nan)
+    _MB = np.full(len(DATA.time), np.nan)
     _Q = np.full(len(DATA.time), np.nan)
     _SNOWHEIGHT = np.full(len(DATA.time), np.nan)
     _TOTALHEIGHT = np.full(len(DATA.time), np.nan)
@@ -95,13 +96,14 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
     # Checks for optional input variables
     #--------------------------------------------
     if ('SNOWFALL' in DATA) and ('RRR' in DATA):
-        SNOWF = DATA.SNOWFALL.values
-        RRR = DATA.RRR.values
+        SNOWF = DATA.SNOWFALL.values * precipitation_scaling
+        RRR = DATA.RRR.values * precipitation_scaling
+        print("You can select between total precipitation and snowfall (default)\n")
     elif ('SNOWFALL' in DATA):
-        SNOWF = DATA.SNOWFALL.values
+        SNOWF = DATA.SNOWFALL.values * precipitation_scaling
     else:
         SNOWF = None
-        RRR = DATA.RRR.values
+        RRR = DATA.RRR.values * precipitation_scaling
     
     if force_use_TP is True:
         SNOWF = None
@@ -166,6 +168,19 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         #--------------------------------------------
         GRID.update_grid()
         
+        if (t / 240).is_integer():
+            print('\n\n\nAFTER UPDATE GRID!!!!!')
+            print(DATA.time.values[t])
+            print('Layer', GRID.get_number_layers())
+            SWE_profile = ( np.array(GRID.get_density()) * np.array(GRID.get_height())) / 1000
+            print('Height profile: ', GRID.get_height())
+            print('Density profile: ', GRID.get_density())
+            print("SWE", np.nansum(SWE_profile))
+            print('Snow_layer', GRID.get_number_snow_layers())
+            print("Domainhöhe", GRID.get_total_height(),'\n')
+            print('Snow height: ', GRID.get_total_snowheight(), '\n\n\n')
+
+
         #--------------------------------------------
         # Calculate albedo and roughness length changes if first layer is snow
         #--------------------------------------------
@@ -275,6 +290,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         _B[t] = ground_heat_flux
         _MB[t] = mass_balance
         _surfMB[t] = surface_mass_balance
+        _MB[t] = mass_balance
         _Q[t] = Q 
         _SNOWHEIGHT[t] = GRID.get_total_snowheight()
         _TOTALHEIGHT[t] = GRID.get_total_height()

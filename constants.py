@@ -12,36 +12,36 @@ saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
 
 ' Inital constants'
 initial_snowheight = 0.8                        # Inital snowheigt
-initial_snow_layer_heights = 0.05                # Initial thickness of snow layers
-initial_glacier_height = 20.0                   # Inital glacier heigt without snowlayers
-initial_glacier_layer_heights = 1.0              # Initial thickness of glacier ice layers
+initial_snow_layer_heights = 0.05               # Initial thickness of snow layers
+initial_glacier_height = 40.0                   # Inital glacier heigt without snowlayers
+initial_glacier_layer_heights = 1.0             # Initial thickness of glacier ice layers
 
 initial_top_density_snowpack = 300.             # Top density for inital snowpack
 initial_botton_density_snowpack = 600.          # Botton density for inital snowpack
 
-temperature_top = 267.16                        # Upper boudary conditation for inital temperature profile (K)
-temperature_bottom = 270.                       # Lower boundary condition for inital tempeature profile (K)
+temperature_top = 268.15                        # Upper boudary conditation for inital temperature profile (K)
+temperature_bottom = 270.15                       # Lower boundary condition for inital tempeature profile (K)
 const_init_temp = 0.1                           # constant for init temperature profile used in exponential function (exponential decay)
 
 'Remeshing options'
 first_layer_height = 0.02                       # The first layer will always have the defined height (m)
-layer_stretching = 1.4                          # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous)
+layer_stretching = 1.5                          # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
 
 merge_snow_threshold = 0.1                      # (m) minimum height of layer, is used if fresh fallen snow is added as a new
                                                 # layer or merged to the underlying layer
 
-minimum_snow_height = 0.005                      # (m) minimum height of last snowlayer on glacier
+minimum_snow_height = 0.01                      # (m) minimum height of last snowlayer on glacier
                                                 # If there is only one snow layer layer left this one is only merged if the height
                                                 # is lower than the minimum_snow_height even is merge_new_snow_threshold is greater
-minimum_snow_to_reset_albedo = 0.005             # minimum snowfall to reset hours since last snowfall! Default was 0.005
+minimum_snow_to_reset_albedo = 0.01             # minimum snowfall to reset hours since last snowfall! Default was 0.005
 
 density_fresh_snow = 250.                       # density of freshly fallen snow [kg m-3]
 
 albedo_fresh_snow = 0.90                        # albedo of fresh snow [-] (Moelg etal. 2012, TC)
 albedo_firn = 0.55                              # albedo of firn [-] (Moelg etal. 2012, TC)
 albedo_ice = 0.3                                # albedo of ice [-] (Moelg etal. 2012, TC)
-albedo_mod_snow_aging = 22                      # effect of ageing on snow albedo [days] (Moelg etal. 2012, TC)
-albedo_mod_snow_depth = 3                       # effect of snow depth on albedo [cm] (Moelg etal. 2012, TC)
+albedo_mod_snow_aging = 35.                     # effect of ageing on snow albedo [days] (Moelg etal. 2012, TC)
+albedo_mod_snow_depth = 1.                      # effect of snow depth on albedo [cm] (Moelg etal. 2012, TC)
 roughness_fresh_snow = 0.24                     # surface roughness length for fresh snow [mm] (Moelg etal. 2012, TC)
 roughness_ice = 1.7                             # surface roughness length for ice [mm] (Moelg etal. 2012, TC)
 roughness_firn = 4.0                            # surface roughness length for aged snow [mm] (Moelg etal. 2012, TC)
