@@ -7,7 +7,7 @@ import numpy as np
 import netCDF4
 import os
 
-static_folder = '../data/static/'
+static_folder = '../../data/static/'
 
 dem_path_tif = static_folder + 'DEM/n30_e090_3arc_v2.tif'
 dem_path_tif_temp = static_folder + 'DEM/DEM_temp.tif'
@@ -53,18 +53,18 @@ mask[mask>0]=1
 print(mask)
 
 ds = xr.Dataset()
-ds.coords['lon'] = dem.lon.values
-ds.lon.attrs['standard_name'] = 'lon'
-ds.lon.attrs['long_name'] = 'longitude'
-ds.lon.attrs['units'] = 'degrees_east'
+ds.coords['south_north'] = dem.lat.values
+ds.south_north.attrs['standard_name'] = 'south_north'
+ds.south_north.attrs['long_name'] = 'longitude'
+ds.south_north.attrs['units'] = 'degrees_east'
 
-ds.coords['lat'] = dem.lat.values
-ds.lat.attrs['standard_name'] = 'lat'
-ds.lat.attrs['long_name'] = 'latitude'
-ds.lat.attrs['units'] = 'degrees_north'
+ds.coords['west_east'] = dem.lon.values
+ds.west_east.attrs['standard_name'] = 'west_east'
+ds.west_east.attrs['long_name'] = 'latitude'
+ds.west_east.attrs['units'] = 'degrees_north'
 
 def insert_var(ds, var, name, units, long_name):
-    ds[name] = (('lat','lon'), var)
+    ds[name] = (('south_north','west_east'), var)
     ds[name].attrs['units'] = units
     ds[name].attrs['long_name'] = long_name
     ds[name].attrs['_FillValue'] = -9999
