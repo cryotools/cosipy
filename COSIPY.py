@@ -27,13 +27,14 @@
 import os
 from datetime import datetime
 from itertools import product
+import itertools
 
 import logging
 import yaml
 
 from config import *
 from slurm_config import *
-from cpkernel.cosipy_core import cosipy_core
+from cpkernel.cosipy_core import * 
 from cpkernel.io import *
 
 from distributed import Client, LocalCluster
@@ -45,16 +46,19 @@ import dask
 from tornado import gen
 from dask_jobqueue import SLURMCluster
 
+import cProfile
 
 def main():
 
     start_logging()
     
-    #------------------------------------------te logger with 'spam_application'
+    #------------------------------------------
     # Create input and output dataset
     #------------------------------------------ 
     IO = IOClass()
     DATA = IO.create_data_file() 
+    
+    # Create global result and restart datasets
     RESULT = IO.create_result_file() 
     RESTART = IO.create_restart_file() 
 
@@ -64,7 +68,6 @@ def main():
     
     # Auxiliary variables for futures
     futures = []
-    nfutures = 0
 
     # Measure time
     start_time = datetime.now()
@@ -73,20 +76,18 @@ def main():
     # Create a client for distributed calculations
     #-----------------------------------------------
     if (slurm_use):
-        with SLURMCluster(scheduler_port=port_monitoring,
-                          cores=cores, processes=processes,
-                          project=project, name=name,
-                          memory=str(memory_per_process * processes) + 'GB', local_directory='dask-worker-space',
-                          job_extra=extra_slurm_parameters) as cluster:
-            
+  
+        with SLURMCluster(scheduler_port=port, cores=cores, processes=processes, memory=memory, shebang=shebang, name=name, queue=queue, job_extra=slurm_parameters) as cluster:
+            cluster.scale(processes * nodes)   
             print(cluster.job_script())
             print("You are using SLURM!\n")
-            cluster.scale(processes * nodes) 
-            run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures, nfutures)
+            print(cluster)
+            run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures)
 
     else:
-        with LocalCluster(scheduler_port=local_port, n_workers=workers, threads_per_worker=1, silence_logs=True) as cluster:
-            run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures, nfutures)
+        with LocalCluster(scheduler_port=local_port, n_workers=1, threads_per_worker=1, silence_logs=True) as cluster:
+            print(cluster)
+            run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures)
 
     print('\n')
     print('--------------------------------------------------------------')
@@ -128,47 +129,83 @@ def main():
     print('--------------------------------------------------------------')
 
 
+def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
 
-
-def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures, nfutures):
-    
-    with Client(cluster, processes=False) as client:
+    with Client(cluster,processes=False) as client:
         print('--------------------------------------------------------------')
-        print('\t Starting clients ... \n')
-        print(client)
+        print('\t Starting clients and submit jobs ... \n')
         print('-------------------------------------------------------------- \n')
 
-        # Do only consider non-nan fields
-        DATA = DATA.where(DATA.MASK==1,drop=True)
+        print(cluster)
+        print(client)
 
-        # Go over the whole grid
-        for i,j in product(DATA.lat, DATA.lon):
-            mask = DATA.MASK.sel(lat=i, lon=j)
+        # Get dimensions of the whole domain
+        ny = DATA.dims['south_north']
+        nx = DATA.dims['west_east']
+
+        cp = cProfile.Profile()
+
+        # Get some information about the cluster/nodes
+        total_grid_points = DATA.dims['south_north']*DATA.dims['west_east']
+        total_cores = processes*nodes
+        points_per_core = total_grid_points // total_cores
+        print(total_grid_points, total_cores, points_per_core)
+
+        # Distribute data and model to workers
+        for y,x in product(range(DATA.dims['south_north']),range(DATA.dims['west_east'])):
+            mask = DATA.MASK.sel(south_north=y, west_east=x)
             # Provide restart grid if necessary
             if ((mask==1) & (restart==False)):
-                nfutures = nfutures+1
-                futures.append(client.submit(cosipy_core, DATA.sel(lat=i, lon=j)))
-
+                futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x))
             elif ((mask==1) & (restart==True)):
-                nfutures = nfutures+1
-                futures.append(client.submit(cosipy_core, DATA.sel(lat=i,lon=j), IO.create_grid_restart().sel(lat=i,lon=j)))
+                futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, GRID_RESTART=IO.create_grid_restart().sel(south_north=y, west_east=x)))
 
-        # Finally, do the calculations and print the progress
-        progress(futures)
 
+        #---------------------------------------
+        # Guarantee that restart file is closed
+        #---------------------------------------
         if (restart==True):
             IO.get_grid_restart().close()
+      
+        # Create numpy arrays which aggregates all local results
+        IO.create_global_result_arrays()
 
-        print('\n')
-        print('--------------------------------------------------------------')
-        print('Copy local results to global')
-        print('-------------------------------------------------------------- \n')
+        #---------------------------------------
+        # Assign local results to global 
+        #---------------------------------------
+        start_res = datetime.now()
         for future in as_completed(futures):
-            results = future.result()
-            result_data = results[0]
-            restart_data = results[1]
-            IO.write_results_future(result_data)
-            IO.write_restart_future(restart_data)
+
+                # Get the results from the workers
+#                res = future.result() 
+                indY,indX,local_restart,RAIN,SNOWFALL,LWin,LWout,H,LE,B,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,NLAYERS, \
+                                ME,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM, \
+                                LAYER_HEIGHT,LAYER_RHO,LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_LW,LAYER_ICE_FRACTION, \
+                                LAYER_IRREDUCIBLE_WATER,LAYER_REFREEZE = future.result()
+                
+                IO.copy_local_to_global(indY,indX,RAIN,SNOWFALL,LWin,LWout,H,LE,B,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,NLAYERS, \
+                                ME,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,LAYER_HEIGHT,LAYER_RHO, \
+                                LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_LW,LAYER_ICE_FRACTION,LAYER_IRREDUCIBLE_WATER,LAYER_REFREEZE)
+
+                # res[0]::y  res[1]::x  res[2]::restart  res[3]::local_io
+                #y = res[0]
+                #x = res[1]
+                #local_restart = res[2]
+                #local_io = res[3]
+
+                # Copy the local results from worker to the global result array
+                #IO.copy_local_to_global(local_io, y, x)
+                
+                # Write results to file
+                IO.write_results_to_file()
+
+                # Write the restart file
+                IO.write_restart_future(local_restart,y,x)
+
+        # Measure time
+        end_res = datetime.now()-start_res 
+        print("\n \n Needed time for save results to xarray in seconds %4.2f \n" % (end_res.total_seconds()))
+        
 
 
 

@@ -26,7 +26,9 @@ class Node:
         self.liquid_water = liquid_water
         
         if ice_fraction is None:
-            self.ice_fraction = snow_density/ice_density
+            # Remove weight of air from density
+            a = snow_density - (1-(snow_density/ice_density))*air_density
+            self.ice_fraction = a/ice_density
         else:
             self.ice_fraction = ice_fraction
 
@@ -76,7 +78,7 @@ class Node:
 
     def get_layer_liquid_water_content(self):
         """ Return the liquid water [-] content of the layer """
-        return self.get_layer_liquid_water()/self.get_layer_height()
+        return (self.get_layer_liquid_water()/1000.0) #/self.get_layer_height()
     
     def get_layer_irreducible_water_content(self):
         """ Return the irreducible water content of the layer """

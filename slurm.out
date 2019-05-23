@@ -1,0 +1,56 @@
+=== JOB_STATISTICS ===
+=== current date     : Mon May 13 15:19:23 CEST 2019
+= Job-ID             : 405729
+= Job-Name           : Greeland
+= Job-Command        : /tmp/tmpup94c8g7.sh
+= Initial workdir    : /home/saturn/gwgk/gwgk01/cosipy_numpy
+= Queue/Partition    : work
+= Features           : (null)
+= Requested resources: cpu=20,mem=28G,node=1,billing=20 / 04:00:00
+= Used resources     : 00:00:15
+= Node list          : m1062
+= Subm/Elig/Start/End: 2019-05-13T15:18:50 / 2019-05-13T15:18:50 / 2019-05-13T15:19:06 / 2019-05-13T15:19:21
+= AccessKey          : 65420832
+======================
+=== JOB_STATISTICS ===
+=== current date     : Mon May 13 15:19:23 CEST 2019
+= Job-ID             : 405731
+= Job-Name           : Greeland
+= Job-Command        : /tmp/tmpfh03ctxq.sh
+= Initial workdir    : /home/saturn/gwgk/gwgk01/cosipy_numpy
+= Queue/Partition    : work
+= Features           : (null)
+= Requested resources: cpu=20,mem=28G,node=1,billing=20 / 04:00:00
+= Used resources     : 00:00:15
+= Node list          : m1064
+= Subm/Elig/Start/End: 2019-05-13T15:18:50 / 2019-05-13T15:18:50 / 2019-05-13T15:19:06 / 2019-05-13T15:19:21
+= AccessKey          : 6f434072
+======================
+=== JOB_STATISTICS ===
+=== current date     : Mon May 13 15:19:23 CEST 2019
+= Job-ID             : 405730
+= Job-Name           : Greeland
+= Job-Command        : /tmp/tmp5trcg9f0.sh
+= Initial workdir    : /home/saturn/gwgk/gwgk01/cosipy_numpy
+= Queue/Partition    : work
+= Features           : (null)
+= Requested resources: cpu=20,mem=28G,node=1,billing=20 / 04:00:00
+= Used resources     : 00:00:15
+= Node list          : m1063
+= Subm/Elig/Start/End: 2019-05-13T15:18:50 / 2019-05-13T15:18:50 / 2019-05-13T15:19:06 / 2019-05-13T15:19:21
+= AccessKey          : 9848ad81
+======================
+=== JOB_STATISTICS ===
+=== current date     : Mon May 13 15:19:23 CEST 2019
+= Job-ID             : 405728
+= Job-Name           : Greeland
+= Job-Command        : /tmp/tmpra9y6gw5.sh
+= Initial workdir    : /home/saturn/gwgk/gwgk01/cosipy_numpy
+= Queue/Partition    : work
+= Features           : (null)
+= Requested resources: cpu=20,mem=28G,node=1,billing=20 / 04:00:00
+= Used resources     : 00:00:15
+= Node list          : m1061
+= Subm/Elig/Start/End: 2019-05-13T15:18:50 / 2019-05-13T15:18:50 / 2019-05-13T15:19:06 / 2019-05-13T15:19:21
+= AccessKey          : 952b57dd
+======================
