@@ -11,9 +11,6 @@ time_end   = '2012-06-11T00:00'
 time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
-precipitation_scaling = 2.0
-####/ 2.7
-
 data_path = '/home/anz/Seafile/work/io/Zhadang/'
 input_netcdf= 'Zhadang-190510-2009-2012_SF_measured.nc'
 #input_netcdf= 'HEF_input.nc'
