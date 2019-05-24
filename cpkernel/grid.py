@@ -10,18 +10,14 @@ import os
 
 class Grid:
 
-    def __init__(self, layer_heights, layer_densities, layer_temperatures, liquid_water, debug):
+    def __init__(self, layer_heights, layer_densities, layer_temperatures, liquid_water):
         """ Initialize numerical grid 
         
         Input:         
         layer_heights           : numpy array with the layer height
         layer_densities         : numpy array with density values for each layer
         layer_temperatures      : numpy array with temperature values for each layer
-        liquid_water            : numpy array with liquid water [m] for each layer
-    
-        
-
-        debug                   : Debug level (0, 10, 20, 30) """
+        liquid_water            : numpy array with liquid water [m] for each layer """
 
         # Start logging
         ''' Start the python logging'''
@@ -41,8 +37,7 @@ class Grid:
         self.layer_densities = layer_densities
         self.layer_temperatures = layer_temperatures
         self.liquid_water = liquid_water
-        self.debug = debug
-        
+
         # Number of total nodes
         self.number_nodes = len(layer_heights)
         

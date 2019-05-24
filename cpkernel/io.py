@@ -221,43 +221,46 @@ class IOClass:
         self.RESULT.coords['lon'] = self.DATA.coords['lon']
 
         # Attributes
-        self.RESULT.attrs['force_use_TP'] = str(force_use_TP)
+        self.RESULT.attrs['Remesh_method'] = remesh_method
+        self.RESULT.attrs['Start_from_restart_file'] = str(restart)
+        self.RESULT.attrs['Force_use_TP'] = str(force_use_TP)
         self.RESULT.attrs['Time_step_input_file_seconds'] = dt
-        self.RESULT.attrs['merging'] = str(merging)
-        self.RESULT.attrs['density_threshold_merging'] = density_threshold_merging
-        self.RESULT.attrs['temperature_threshold_merging'] = temperature_threshold_merging
-        self.RESULT.attrs['merge_max'] = merge_max
+        self.RESULT.attrs['Density_threshold_merging'] = density_threshold_merging
+        self.RESULT.attrs['Temperature_threshold_merging'] = temperature_threshold_merging
+        self.RESULT.attrs['Merge_max'] = merge_max
 
-        self.RESULT.attrs['albedo_method'] = albedo_method
-        self.RESULT.attrs['densification_method'] = densification_method
-        self.RESULT.attrs['penetrating_method'] = penetrating_method
-        self.RESULT.attrs['roughness_method'] = roughness_method
-        self.RESULT.attrs['saturation_water_vapour_method'] = saturation_water_vapour_method
-        self.RESULT.attrs['initial_snowheight'] = initial_snowheight
-        self.RESULT.attrs['initial_snow_layer_heights'] = initial_snow_layer_heights
-        self.RESULT.attrs['initial_glacier_layer_heights'] = initial_glacier_layer_heights
-        self.RESULT.attrs['initial_glacier_height'] = initial_glacier_height
-        self.RESULT.attrs['initial_top_density_snowpack'] = initial_top_density_snowpack
-        self.RESULT.attrs['initial_botton_density_snowpack'] = initial_botton_density_snowpack
-        self.RESULT.attrs['temperature_top'] = temperature_top
-        self.RESULT.attrs['temperature_bottom'] = temperature_bottom
-        self.RESULT.attrs['const_init_temp'] = const_init_temp
-        self.RESULT.attrs['merge_snow_threshold'] = merge_snow_threshold
-        self.RESULT.attrs['minimum_snow_height'] = minimum_snow_height
-        self.RESULT.attrs['minimum_snow_to_reset_albedo'] = minimum_snow_to_reset_albedo
-        self.RESULT.attrs['density_fresh_snow'] = density_fresh_snow
-        self.RESULT.attrs['albedo_fresh_snow'] = albedo_fresh_snow
-        self.RESULT.attrs['albedo_firn'] = albedo_firn
-        self.RESULT.attrs['albedo_ice'] = albedo_ice
-        self.RESULT.attrs['albedo_mod_snow_aging'] = albedo_mod_snow_aging
-        self.RESULT.attrs['albedo_mod_snow_depth'] = albedo_mod_snow_depth
-        self.RESULT.attrs['roughness_fresh_snow'] = roughness_fresh_snow
-        self.RESULT.attrs['roughness_ice'] = roughness_ice
-        self.RESULT.attrs['roughness_firn'] = roughness_firn
-        self.RESULT.attrs['aging_factor_roughness'] = aging_factor_roughness
-        self.RESULT.attrs['surface_emission_coeff'] = surface_emission_coeff
-        self.RESULT.attrs['snow_ice_threshold'] = snow_ice_threshold
-        self.RESULT.attrs['snow_firn_threshold'] = snow_firn_threshold
+        self.RESULT.attrs['Albedo_method'] = albedo_method
+        self.RESULT.attrs['Densification_method'] = densification_method
+        self.RESULT.attrs['Penetrating_method'] = penetrating_method
+        self.RESULT.attrs['Roughness_method'] = roughness_method
+        self.RESULT.attrs['Saturation_water_vapour_method'] = saturation_water_vapour_method
+        self.RESULT.attrs['Initial_snowheight'] = initial_snowheight
+        self.RESULT.attrs['Initial_snow_layer_heights'] = initial_snow_layer_heights
+        self.RESULT.attrs['Initial_glacier_layer_heights'] = initial_glacier_layer_heights
+        self.RESULT.attrs['Initial_glacier_height'] = initial_glacier_height
+        self.RESULT.attrs['Initial_top_density_snowpack'] = initial_top_density_snowpack
+        self.RESULT.attrs['Initial_botton_density_snowpack'] = initial_botton_density_snowpack
+        self.RESULT.attrs['Temperature_top'] = temperature_top
+        self.RESULT.attrs['Temperature_bottom'] = temperature_bottom
+        self.RESULT.attrs['Const_init_temp'] = const_init_temp
+        self.RESULT.attrs['First_layer_height_log_profile'] = first_layer_height
+        self.RESULT.attrs['Layer_stretching_log_profile'] = layer_stretching
+        self.RESULT.attrs['Minimum_snow_to_reset_albedo'] = minimum_snow_to_reset_albedo
+        self.RESULT.attrs['Density_fresh_snow'] = density_fresh_snow
+        self.RESULT.attrs['Albedo_fresh_snow'] = albedo_fresh_snow
+        self.RESULT.attrs['Albedo_firn'] = albedo_firn
+        self.RESULT.attrs['Albedo_ice'] = albedo_ice
+        self.RESULT.attrs['Albedo_mod_snow_aging'] = albedo_mod_snow_aging
+        self.RESULT.attrs['Albedo_mod_snow_depth'] = albedo_mod_snow_depth
+        self.RESULT.attrs['Roughness_fresh_snow'] = roughness_fresh_snow
+        self.RESULT.attrs['Roughness_ice'] = roughness_ice
+        self.RESULT.attrs['Roughness_firn'] = roughness_firn
+        self.RESULT.attrs['Aging_factor_roughness'] = aging_factor_roughness
+        self.RESULT.attrs['Surface_emission_coeff'] = surface_emission_coeff
+        self.RESULT.attrs['Snow_ice_threshold'] = snow_ice_threshold
+        self.RESULT.attrs['Snow_firn_threshold'] = snow_firn_threshold
+        self.RESULT.attrs['Center_snow_transfer_function'] = center_snow_transfer_function
+        self.RESULT.attrs['Spread_snow_transfer_function'] = spread_snow_transfer_function
 
         # Variables given by the input dataset
         self.add_variable_along_latlon(self.RESULT, self.DATA.HGT, 'HGT', 'm', 'Elevation')
@@ -295,7 +298,6 @@ class IOClass:
     # the arrays are assigned to the RESULT dataset and is stored to disc (see COSIPY.py)
     #==============================================================================
     def create_global_result_arrays(self):
-
         self.RAIN = np.full((self.time,self.ny,self.nx), np.nan)
         self.SNOWFALL = np.full((self.time,self.ny,self.nx), np.nan)
         self.LWin = np.full((self.time,self.ny,self.nx), np.nan)
@@ -339,46 +341,6 @@ class IOClass:
     # This function assigns the local results from the workers to the global
     # numpy arrays. The y and x values are the lat/lon indices.
     #==============================================================================
-#    def copy_local_to_global(self, local_io, y, x):
-#
-#        self.RAIN[:,y,x] = local_io.local_RAIN
-#        self.SNOWFALL[:,y,x] = local_io.local_SNOWFALL
-#        self.LWin[:,y,x] = local_io.local_LWin
-#        self.LWout[:,y,x] = local_io.local_LWout
-#        self.H[:,y,x] = local_io.local_H
-#        self.LE[:,y,x] = local_io.local_LE
-#        self.B[:,y,x] = local_io.local_B
-#        self.MB[:,y,x] = local_io.local_MB
-#        self.surfMB[:,y,x] = local_io.local_surfMB
-#        self.Q[:,y,x] = local_io.local_Q
-#        self.SNOWHEIGHT[:,y,x] = local_io.local_SNOWHEIGHT
-#        self.TOTALHEIGHT[:,y,x] = local_io.local_TOTALHEIGHT 
-#        self.TS[:,y,x] = local_io.local_TS 
-#        self.ALBEDO[:,y,x] = local_io.local_ALBEDO 
-#        self.NLAYERS[:,y,x] = local_io.local_NLAYERS 
-#        self.ME[:,y,x] = local_io.local_ME 
-#        self.intMB[:,y,x] = local_io.local_intMB 
-#        self.EVAPORATION[:,y,x] = local_io.local_EVAPORATION 
-#        self.SUBLIMATION[:,y,x] = local_io.local_SUBLIMATION 
-#        self.CONDENSATION[:,y,x] = local_io.local_CONDENSATION 
-#        self.DEPOSITION[:,y,x] = local_io.local_DEPOSITION 
-#        self.REFREEZE[:,y,x] = local_io.local_REFREEZE 
-#        self.subM[:,y,x] = local_io.local_subM 
-#        self.Z0[:,y,x] = local_io.local_Z0 
-#        self.surfM[:,y,x] = local_io.local_surfM 
-#
-#        if full_field:
-#            self.LAYER_HEIGHT[:,y,x,:] = local_io.local_LAYER_HEIGHT 
-#            self.LAYER_RHO[:,y,x,:] = local_io.local_LAYER_RHO 
-#            self.LAYER_T[:,y,x,:] = local_io.local_LAYER_T 
-#            self.LAYER_LWC[:,y,x,:] = local_io.local_LAYER_LWC 
-#            self.LAYER_CC[:,y,x,:] = local_io.local_LAYER_CC 
-#            self.LAYER_POROSITY[:,y,x,:] = local_io.local_LAYER_POROSITY 
-#            self.LAYER_LW[:,y,x,:] = local_io.local_LAYER_LW 
-#            self.LAYER_ICE_FRACTION[:,y,x,:] = local_io.local_LAYER_ICE_FRACTION 
-#            self.LAYER_IRREDUCIBLE_WATER[:,y,x,:] = local_io.local_LAYER_IRREDUCIBLE_WATER 
-#            self.LAYER_REFREEZE[:,y,x,:] = local_io.local_LAYER_REFREEZE 
-        
     def copy_local_to_global(self,y,x,local_RAIN,local_SNOWFALL,local_LWin,local_LWout,local_H,local_LE,local_B,local_MB, \
                              local_surfMB,local_Q,local_SNOWHEIGHT,local_TOTALHEIGHT,local_TS,local_ALBEDO, \
                              local_NLAYERS,local_ME,local_intMB,local_EVAPORATION,local_SUBLIMATION,local_CONDENSATION, \
@@ -563,8 +525,6 @@ class IOClass:
     @MB.setter
     def MB(self, x):
         self.__MB = x
-
-
 
     #==============================================================================
     # The next three functions initialize and write the local and global 

@@ -3,7 +3,7 @@ from constants import *
 from config import *
 import logging
 
-def percolation(GRID, water, t, debug_level):
+def percolation(GRID, water, t):
     """ Percolation and refreezing of melt water through the snow- and firn pack
 
     Args:

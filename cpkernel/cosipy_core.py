@@ -98,9 +98,10 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
     if ('SNOWFALL' in DATA) and ('RRR' in DATA):
         SNOWF = DATA.SNOWFALL.values 
         RRR = DATA.RRR.values 
-        print("You can select between total precipitation and snowfall (default)\n")
+
     elif ('SNOWFALL' in DATA):
         SNOWF = DATA.SNOWFALL.values
+
     else:
         SNOWF = None
         RRR = DATA.RRR.values
@@ -168,17 +169,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         #--------------------------------------------
         GRID.update_grid()
         
-        if (t / 240).is_integer():
-            print('\n\n\nAFTER UPDATE GRID!!!!!')
-            print(DATA.time.values[t])
-            print('Layer', GRID.get_number_layers())
-            SWE_profile = ( np.array(GRID.get_density()) * np.array(GRID.get_height())) / 1000
-            print('Height profile: ', GRID.get_height())
-            print('Density profile: ', GRID.get_density())
-            print("SWE", np.nansum(SWE_profile))
-            print('Snow_layer', GRID.get_number_snow_layers())
-            print("Domainhöhe", GRID.get_total_height(),'\n')
-            print('Snow height: ', GRID.get_total_snowheight(), '\n\n\n')
 
 
         #--------------------------------------------
@@ -253,7 +243,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         #--------------------------------------------
         # Percolation
         #--------------------------------------------
-        Q  = percolation(GRID, melt + condensation, dt, debug_level) 
+        Q  = percolation(GRID, melt + condensation, dt)
         
         #--------------------------------------------
         # Refreezing

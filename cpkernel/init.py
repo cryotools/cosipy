@@ -66,7 +66,7 @@ def init_snowpack(DATA):
         layer_T[int(i)] = float(temperature_bottom + (temperature_top - temperature_bottom) *  math.exp(const_init_temp * -total_height))
 
     # Initialize grid, the grid class contains all relevant grid information
-    GRID = Grid(layer_heights, layer_density, layer_T, layer_liquid_water, debug_level)
+    GRID = Grid(layer_heights, layer_density, layer_T, layer_liquid_water)
 
     return GRID
 
@@ -84,7 +84,7 @@ def load_snowpack(GRID_RESTART):
     layer_T = GRID_RESTART.LAYER_T[0:num_layers].values
     layer_LW = GRID_RESTART.LAYER_LW[0:num_layers].values
    
-    GRID = Grid(layer_heights, layer_density, layer_T, layer_LW, debug_level)
+    GRID = Grid(layer_heights, layer_density, layer_T, layer_LW)
 
     if np.isnan(layer_T).any():
         GRID.grid_info_screen()

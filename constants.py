@@ -27,12 +27,6 @@ const_init_temp = 0.1                           # constant for init temperature 
 first_layer_height = 0.02                       # The first layer will always have the defined height (m)
 layer_stretching = 1.5                          # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
 
-merge_snow_threshold = 0.1                      # (m) minimum height of layer, is used if fresh fallen snow is added as a new
-                                                # layer or merged to the underlying layer
-
-minimum_snow_height = 0.01                      # (m) minimum height of last snowlayer on glacier
-                                                # If there is only one snow layer layer left this one is only merged if the height
-                                                # is lower than the minimum_snow_height even is merge_new_snow_threshold is greater
 minimum_snow_to_reset_albedo = 0.01             # minimum snowfall to reset hours since last snowfall! Default was 0.005
 
 density_fresh_snow = 250.                       # density of freshly fallen snow [kg m-3]
