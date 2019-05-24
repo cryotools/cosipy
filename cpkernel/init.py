@@ -15,17 +15,21 @@ def init_snowpack(DATA):
     ##--------------------------------------
     ## Check for WRF data
     ##--------------------------------------
-#    if ('SNOWHEIGHT' in DATA):
-#        initial_snowheight = 0.5 #DATA.SNOWHEIGHT
-#
-#    if ('SWE' in DATA):
-#        rho_mean = (DATA.SWE.values/DATA.SNOWHEIGHT.values)*1000
-#        initial_top_denisty_snowpack = rho_mean
-#        initial_bottom_density_snowpack = rho_mean
-#
-#    if ('TSK' in DATA):
-#        temperature_top = DATA.TSK.values       
-    
+    if ('SNOWHEIGHT' in DATA):
+        initial_snowheight = 0.5 #DATA.SNOWHEIGHT
+    else:
+        initial_snowheight = initial_snowheight_constant
+
+    if ('SWE' in DATA):
+        rho_mean = (DATA.SWE.values/DATA.SNOWHEIGHT.values)*1000
+        initial_top_denisty_snowpack = rho_mean
+        initial_bottom_density_snowpack = rho_mean
+
+    if ('TSK' in DATA):
+        temperature_top = DATA.TSK.values       
+    else:
+        temperature_top = temperature_top_constant
+   
     #-------------------------------------- 
     # Do the vertical interpolation
     #-------------------------------------- 

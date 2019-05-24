@@ -11,7 +11,7 @@ roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
 
 ' Inital constants'
-initial_snowheight = 0.8                        # Inital snowheigt
+initial_snowheight_constant = 0.8                        # Inital snowheigt
 initial_snow_layer_heights = 0.05               # Initial thickness of snow layers
 initial_glacier_height = 40.0                   # Inital glacier heigt without snowlayers
 initial_glacier_layer_heights = 1.0             # Initial thickness of glacier ice layers
@@ -19,7 +19,7 @@ initial_glacier_layer_heights = 1.0             # Initial thickness of glacier i
 initial_top_density_snowpack = 300.             # Top density for inital snowpack
 initial_botton_density_snowpack = 600.          # Botton density for inital snowpack
 
-temperature_top = 268.15                        # Upper boudary conditation for inital temperature profile (K)
+temperature_top_constant = 268.15                        # Upper boudary conditation for inital temperature profile (K)
 temperature_bottom = 270.15                       # Lower boundary condition for inital tempeature profile (K)
 const_init_temp = 0.1                           # constant for init temperature profile used in exponential function (exponential decay)
 

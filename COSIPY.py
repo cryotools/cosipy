@@ -85,7 +85,7 @@ def main():
             run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures)
 
     else:
-        with LocalCluster(scheduler_port=local_port, n_workers=1, threads_per_worker=1, silence_logs=True) as cluster:
+        with LocalCluster(scheduler_port=local_port, n_workers=workers, threads_per_worker=1, silence_logs=True) as cluster:
             print(cluster)
             run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures)
 
@@ -160,6 +160,9 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             elif ((mask==1) & (restart==True)):
                 futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, GRID_RESTART=IO.create_grid_restart().sel(south_north=y, west_east=x)))
 
+
+        # Finally, do the calculations and print the progress
+        progress(futures)
 
         #---------------------------------------
         # Guarantee that restart file is closed

@@ -234,13 +234,13 @@ class IOClass:
         self.RESULT.attrs['Penetrating_method'] = penetrating_method
         self.RESULT.attrs['Roughness_method'] = roughness_method
         self.RESULT.attrs['Saturation_water_vapour_method'] = saturation_water_vapour_method
-        self.RESULT.attrs['Initial_snowheight'] = initial_snowheight
+        self.RESULT.attrs['Initial_snowheight'] = initial_snowheight_constant
         self.RESULT.attrs['Initial_snow_layer_heights'] = initial_snow_layer_heights
         self.RESULT.attrs['Initial_glacier_layer_heights'] = initial_glacier_layer_heights
         self.RESULT.attrs['Initial_glacier_height'] = initial_glacier_height
         self.RESULT.attrs['Initial_top_density_snowpack'] = initial_top_density_snowpack
         self.RESULT.attrs['Initial_botton_density_snowpack'] = initial_botton_density_snowpack
-        self.RESULT.attrs['Temperature_top'] = temperature_top
+        self.RESULT.attrs['Temperature_top'] = temperature_top_constant
         self.RESULT.attrs['Temperature_bottom'] = temperature_bottom
         self.RESULT.attrs['Const_init_temp'] = const_init_temp
         self.RESULT.attrs['First_layer_height_log_profile'] = first_layer_height

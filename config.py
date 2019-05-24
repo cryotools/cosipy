@@ -51,3 +51,6 @@ temperature_threshold_merging = 0.1                 # If mering is true threshol
 
 ## Max. number of layers, just for the restart file
 max_layers = 200
+
+# Configuration if worker for local cluster (not slurm) Number of workers, if None all cores are used
+workers = None

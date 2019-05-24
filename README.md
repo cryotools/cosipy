@@ -116,7 +116,7 @@ For the example just run:
 ```
 python COSIPY.py
 ```
-in the root folder of the source code. The example execute the model run for January 2009 and should take less than 10 minutes (approx 3 minutes).
+in the root folder of the source code. The example execute the model run for January 2009 and should take less than 10 minutes (approx 3 minutes or 1 minute with 4 cores).
 ## Evaluation
 
 ## Restart

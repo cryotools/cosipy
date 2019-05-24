@@ -41,11 +41,6 @@ class Grid:
         # Number of total nodes
         self.number_nodes = len(layer_heights)
         
-        # Print some information on initialized grid
-        if self.debug > 0:
-            print("Init grid with %d nodes \t" % self.number_nodes)
-            print("Total domain depth is %4.2f m \n" % np.sum(layer_heights))
-
         # Do the grid initialization
         self.init_grid()
 
