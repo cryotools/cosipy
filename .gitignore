@@ -10,3 +10,5 @@ debug*
 info*
 error*
 *swp
+slurm.err
+slurm.out
