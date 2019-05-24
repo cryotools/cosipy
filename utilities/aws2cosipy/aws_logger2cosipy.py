@@ -79,24 +79,24 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     P = df[PRES_var]        # Pressure
     
     # Create data arrays for the 2D fields
-    T_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
-    RH_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
-    RRR_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
-    U_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
-    G_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
-    P_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
+    T_interp = np.zeros([len(ds.time), len(ds.south_north), len(ds.west_east)])
+    RH_interp = np.zeros([len(ds.time), len(ds.south_north), len(ds.west_east)])
+    RRR_interp = np.zeros([len(ds.time), len(ds.south_north), len(ds.west_east)])
+    U_interp = np.zeros([len(ds.time), len(ds.south_north), len(ds.west_east)])
+    G_interp = np.zeros([len(ds.time), len(ds.south_north), len(ds.west_east)])
+    P_interp = np.zeros([len(ds.time), len(ds.south_north), len(ds.west_east)])
     
     if(LWin_var in df and N_var in df):
         LW = df[LWin_var]      # Incoming longwave radiation
-        LW_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
+        LW_interp = np.zeros([len(ds.time), len(ds.south_north), len(ds.west_east)])
         N = df[N_var]        # Cloud cover fraction
-        N_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
+        N_interp = np.zeros([len(ds.time), len(ds.south_north), len(ds.west_east)])
     elif(LWin_var in df and N_var not in df):
         LW = df[LWin_var]      # Incoming longwave radiation
-        LW_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
+        LW_interp = np.zeros([len(ds.time), len(ds.south_north), len(ds.west_east)])
     else:
-        LW_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
-        N_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
+        LW_interp = np.zeros([len(ds.time), len(ds.south_north), len(ds.west_east)])
+        N_interp = np.zeros([len(ds.time), len(ds.south_north), len(ds.west_east)])
  
     print('Interpolate CR file to grid')
     # Interpolate data (T, RH, RRR, U)  to grid using lapse rates
@@ -124,15 +124,15 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     aspect = ds['ASPECT'].values
     aspect[aspect<180] = aspect[aspect<180]*-1.0
     aspect[aspect>=180] = 360.0 - aspect[aspect>=180]
-    ds['ASPECT'] = (('lat','lon'),aspect)
+    ds['ASPECT'] = (('south_north','west_east'),aspect)
     print(np.count_nonzero(~np.isnan(ds['MASK'].values)))
     
     # Auxiliary variables
     mask = ds.MASK.values
     slope = ds.SLOPE.values
     aspect = ds.ASPECT.values
-    lats = ds.lat.values
-    lons = ds.lon.values
+    lats = ds.south_north.values
+    lons = ds.west_east.values
     sw = G.values
    
     if radiationModule:
@@ -143,8 +143,8 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     for t in range(len(ds.time)):
         doy = df.index[t].dayofyear
         hour = df.index[t].hour
-        for i in range(len(ds.lat)):
-            for j in range(len(ds.lon)):
+        for i in range(len(ds.south_north)):
+            for j in range(len(ds.west_east)):
                 if (mask[i,j]==1):
                     if radiationModule:
                         G_interp[t,i,j] = np.maximum(0.0, correctRadiation(lats[i],lons[j], timezone_lon, doy, hour, slope[i,j], aspect[i,j], sw[t], zeni_thld))
@@ -194,9 +194,9 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
 
 def add_variable_2D(ds, var, name, units, long_name):
     """ This function adds missing variables to the DATA class """
-    ds[name] = (('time','lat','lon'), var)
+    ds[name] = (('time','south_north','west_east'), var)
     ds[name].attrs['units'] = units
-    ds[name].attrs['long_name'] = long_name
+    ds[name].attrs['west_eastg_name'] = west_eastg_name
     return ds
 
 def check(field, max, min):
