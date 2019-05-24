@@ -18,7 +18,7 @@ from modules.radCor import correctRadiation
 import argparse
 
 def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
-    """ This function creates an input dataset from the Hintereisferner CR3000 Logger Dataset 
+    """ This function creates an input dataset from an offered csv file with input point data
         Here you need to define how to interpolate the data.
     """
 
@@ -233,12 +233,12 @@ def check(field, max, min):
 
 if __name__ == "__main__":
     
-    parser = argparse.ArgumentParser(description='Create 2D input file from CR-Logger file.')
-    parser.add_argument('-c', '-cs_file', dest='cs_file', help='Campbell Scientific logger file (see readme for file convention)')
+    parser = argparse.ArgumentParser(description='Create 2D input file from csv file.')
+    parser.add_argument('-c', '-csv_file', dest='csv_file', help='Csv file(see readme for file convention)')
     parser.add_argument('-o', '-cosipy_file', dest='cosipy_file', help='Name of the resulting COSIPY file')
     parser.add_argument('-s', '-static_file', dest='static_file', help='Static file containing DEM, Slope etc.')
     parser.add_argument('-b', '-start_date', dest='start_date', help='Start date')
     parser.add_argument('-e', '-end_date', dest='end_date', help='End date')
 
     args = parser.parse_args()
-    create_input(args.cs_file, args.cosipy_file, args.static_file, args.start_date, args.end_date) 
+    create_input(args.csv_file, args.cosipy_file, args.static_file, args.start_date, args.end_date) 

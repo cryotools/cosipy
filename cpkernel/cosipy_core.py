@@ -96,14 +96,14 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
     # Checks for optional input variables
     #--------------------------------------------
     if ('SNOWFALL' in DATA) and ('RRR' in DATA):
-        SNOWF = DATA.SNOWFALL.values * precipitation_scaling
-        RRR = DATA.RRR.values * precipitation_scaling
+        SNOWF = DATA.SNOWFALL.values 
+        RRR = DATA.RRR.values 
         print("You can select between total precipitation and snowfall (default)\n")
     elif ('SNOWFALL' in DATA):
-        SNOWF = DATA.SNOWFALL.values * precipitation_scaling
+        SNOWF = DATA.SNOWFALL.values
     else:
         SNOWF = None
-        RRR = DATA.RRR.values * precipitation_scaling
+        RRR = DATA.RRR.values
     
     if force_use_TP is True:
         SNOWF = None

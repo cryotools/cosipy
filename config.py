@@ -3,18 +3,17 @@
  Please make your changes here.
 """
 ## Simulation period
-time_start = '2009-04-27T01:00'
-time_end   = '2012-06-11T00:00'
+time_start = '2009-01-01T00:00'
+time_end   = '2009-01-31T00:00'
 
 ###2009-04-27T01:00 until 2012-06-11T00:00
 
 time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
-data_path = '/home/anz/Seafile/work/io/Zhadang/'
-input_netcdf= 'Zhadang-190510-2009-2012_SF_measured.nc'
-#input_netcdf= 'HEF_input.nc'
-output_netcdf = '20190522_Zhadang_log_scretching_1_5_scaling_'+str(precipitation_scaling)+'_changed_inital_temperatures_'+time_start_str+'-'+time_end_str+'.nc'
+data_path = './data/'
+input_netcdf= 'Zhadang_ERA5_2009.nc'
+output_netcdf = 'Zhadang_ERA5_output_'+time_start_str+'-'+time_end_str+'.nc'
 
 ## Set keyword to true if you want to use the job scheduler Slurm (own configuration file slurm_config.py)
 slurm_use = False 

@@ -75,12 +75,7 @@ Run the script with:
 ```
 python create_static_files_with_command_line.py
 ```
-Maybe the following commands are useful. You do not need them for the examples in the data/static folder.<br>
-The first can be used to aggreagate the DEM to a coarse spatial resolution.
-```
-gdalwarp -tr 0.01 0.01 -r average Hintereisferner_DEM.tif Hintereisferner_DEM_coarser.tif
-```
-The second can be used to reproject to EPSG 4326.
+Hint: to reproject the DEM to EPSG 4326 (not needed for the example in the source code):
 ```
 gdalwarp -t_srs EPSG:4326 dgm_hintereisferner.tif dgm_hintereisferner-lat_lon.tif
 ```
@@ -108,16 +103,20 @@ In the csv2cosipyConfig.py one has to define how the input variables are called 
 For the radiation module, one has to set the timezone and the zenit threshold. <br> Furthermore, the station name has to be set, the altitude of the station, and the lapse rates for temperature, relative humidity and precipitation.<br>
 If everything is set, configured and prepared, run the script:
 ```bash
+py csv2cosipy.py -c ../../data/input/Zhadang_ERA5_2009_2018.csv -o ../../data/input/Zhadang_ERA5_2009.nc -s ../../data/static/static.nc -b 20090101 -e 20091231
+```
+The script takes all input timestamps which are in the -c input file. If you want only a specific period. The -b and -e option are optional:
+```
 python csv2cosipy.py -c ../data/input/Zhadang_ERA5_2009_2018.csv -o ../data/input/Zhadang_ERA5_2009_2018.nc -s ../data/static/static.nc
-```
-The script takes all input timestamps which are in the -c input file. If you want only a specific period, you can use the following options at the end of the call.
-```
-python csv2cosipy.py -c ../data/input/Zhadang_ERA5_2009_2018.csv -o ../data/input/Zhadang_ERA5_2009_2012.nc -s ../data/static/static.nc -b 2009-01-01T00:00 -e 2013-01-01T00:00
 
 ```
 ## Core run
 ### Changes config.py and set everything for your specific need. See in config options.
-
+For the example just run:
+```
+python COSIPY.py
+```
+in the root folder of the source code. The example execute the model run for January 2009 and should take less than 10 minutes (approx 3 minutes).
 ## Evaluation
 
 ## Restart
