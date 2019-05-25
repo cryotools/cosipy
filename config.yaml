@@ -1,4 +1,0 @@
-logging:
-  distributed: error
-  distributed.client: error 
-  bokeh: error
