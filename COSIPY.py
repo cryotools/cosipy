@@ -78,7 +78,7 @@ def main():
     #-----------------------------------------------
     if (slurm_use):
   
-        with SLURMCluster(scheduler_port=port, cores=cores, processes=processes, memory=memory, shebang=shebang, name=name, queue=queue, job_extra=slurm_parameters) as cluster:
+        with SLURMCluster(scheduler_port=port, cores=cores, processes=processes, memory=str(memory_per_process * processes) + 'GB', name=name, job_extra=extra_slurm_parameters, local_directory='dask-worker-space') as cluster:
             cluster.scale(processes * nodes)   
             print(cluster.job_script())
             print("You are using SLURM!\n")
@@ -121,9 +121,9 @@ def main():
     print("\n \n Needed time for writing restart and output in seconds %4.2f \n" % (duration_run_writing.total_seconds()))
     
     if duration_run.total_seconds() >= 60 and duration_run.total_seconds() < 3600:
-        print(" Total run duration in minutes %4.2f \n\n" %(duration_run.total_seconds() / 60))
+        print("Total run duration in minutes %4.2f \n\n" %(duration_run.total_seconds() / 60))
     if duration_run.total_seconds() >= 3600:
-        print(" Total run duration in hours %4.2f \n\n" %(duration_run.total_seconds() / 3600))
+        print("Total run duration in hours %4.2f \n\n" %(duration_run.total_seconds() / 3600))
 
     print('--------------------------------------------------------------')
     print('\t SIMULATION WAS SUCCESSFUL')
