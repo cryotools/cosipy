@@ -11,7 +11,7 @@ cores = 1                                   # One grid point per core, do not ch
 
 ### example HU Berlin
 name = ''                                   # equivalent to slurm parameter --job-name
-memory = '3'                                # memory per processes in GB
+memory_per_process = 3                      # memory per processes in GB
 extra_slurm_parameters = [
                             '--qos=short',                      # Slurm quality of service
                             '--output=Output_test.output',      # Path slurm output file
