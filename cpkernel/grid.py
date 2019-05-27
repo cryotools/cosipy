@@ -496,14 +496,14 @@ class Grid:
                 self.set_node_height(0, self.get_node_height(0) - height_diff)
                 remove = False
 
-                # If entire layer is removed
+            # If entire layer is removed
+            else:
+                self.remove_node(0)
+                melt -= melt_required
+                if self.get_node_density(0) > 800:
+                    remove = False
                 else:
-                    self.remove_node(0)
-                    melt -= melt_required
-                    if self.get_node_density(0) > 800:
-                        remove = False
-                    else:
-                        remove = True
+                    remove = True
 
     
     #===============================================================================

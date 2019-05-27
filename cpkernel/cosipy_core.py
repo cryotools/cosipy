@@ -222,11 +222,13 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         #--------------------------------------------
         if surface_temperature < zero_temperature:
             if GRID.get_total_snowheight() > 0.0:
-                 sublimation = min(latent_heat_flux / (1000.0 * lat_heat_sublimation), 0) * dt
+                sublimation = min(latent_heat_flux / (1000.0 * lat_heat_sublimation), 0) * dt
                 deposition = max(latent_heat_flux / (1000.0 * lat_heat_sublimation), 0) * dt
             else:
-               evaporation = 0
-               condensation = 0
+                sublimation = 0
+                deposition = 0
+            evaporation = 0
+            condensation = 0
         else:
             sublimation = 0
             deposition = 0
