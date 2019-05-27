@@ -8,6 +8,6 @@ the following argument:
 -e :: The end date
 
 Example:
-python cs2cosipy.py -c ../data/input/008_station_hintereis_lf_toa5_cr3000_a_small.dat  -o test.nc -s ../data/static/static.nc  -b 2018-05-28 -e 2018-05-30
+python csv2cosipy.py -c ../data/input/Zhadang_ERA5_2000_2018.csv -o ../data/input/Zhadang_ERA5_201807.nc -s ../data/static/static.nc  -b 2018-07-01 -e 2018-07-31
 
 Additional arguments are given in the cs2cosipyConfig file.

@@ -1,33 +1,16 @@
+
 """
  This is the configuration file for usage of the slurm job scheduler.
- Please make your changes here.
-"""
+  Please make your changes here.
+  """
 
-port_monitoring = 8786
-
-cores = 1                  ### 1 gridpoint on one core is one job
-
-#################################
-###please adapt the following ###
-#################################
-
-### to submit every gridpoint as single sbatch job
-processes = 1             ### 1 process pro core
-memory = '3GB'
-min_slurm_workers = 1     ### minimum jobs
-max_slurm_workers = 5     ### maximum jobs
-
-### to use only one node with 20 processes
-#processes = 20            ### 1 process pro core
-#memory = '60GB'
-#min_slurm_workers = 1     ### minimum jobs
-#max_slurm_workers = 1     ### maximum jobs
-
-slurm_parameters = ['--qos=',
-                    '--job-name="Test"',
-                    '--account=',
-                    '--output=output.out',
-                    '--error=error.err',
-                    #'--partition=computehm',
-		            '--time=7-00:00:00'
-                    ]
+port = 8786
+cores = 1                                   # One grid point per core, do not change
+processes = 20                                # grid points submitted in one sbatch script
+memory = '30GB'                               # memory per processes in GB
+project = 'Greenland'                         # equivalent to slurm parameter --account
+name = 'Greeland',                                # equivalent to slurm parameter --job-name
+queue = 'work'
+nodes = 20                                   # processes multiplied by the number of workers
+shebang = '/bin/bash -l'
+slurm_parameters = ['--nodes=1','--error=slurm.err','--output=slurm.out','--time=04:00:00']

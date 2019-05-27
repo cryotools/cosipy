@@ -49,9 +49,17 @@ loggers:
         propagate: no
     cpkernel.grid:
         level: ERROR 
-        handlers: [debug_file_handler]
+        handlers: [error_file_handler]
+        propagate: no
+    modules.refreezing:
+        level: ERROR 
+        handlers: [error_file_handler]
+        propagate: no
+    modules.percolation:
+        level: ERROR 
+        handlers: [error_file_handler]
         propagate: no
 
 root:
-    level: DEBUG
+    level: ERROR
     handlers: [debug_file_handler, info_file_handler, error_file_handler]

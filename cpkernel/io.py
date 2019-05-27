@@ -9,10 +9,11 @@ import pandas as pd
 import numpy as np
 import time
 import logging
+from modules.radCor import correctRadiation
 from constants import *
 
 from config import * 
-from modules.radCor import correctRadiation
+
 
 class IOClass:
 
@@ -26,11 +27,17 @@ class IOClass:
         self.DATA = DATA
         self.RESTART = None
         self.RESULT = None
+      
+        # If local IO class is initialized we need to get the dimensions of the dataset
+        if DATA is not None:
+            self.time = self.DATA.dims['time']
 
-
-
+    #==============================================================================
+    # Creates the input data and reads the restart file, if necessary. The function
+    # returns the DATA xarray dataset which contains all input variables.
+    #==============================================================================
     def create_data_file(self):
-        """ Returns the data xarray """
+        """ Returns the DATA xarray dataset"""
     
         if (restart==True):
             print('--------------------------------------------------------------')
@@ -38,7 +45,7 @@ class IOClass:
             print('-------------------------------------------------------------- \n')
             
             # Load the restart file
-            timestamp = pd.to_datetime(time_start).strftime('%Y-%m-%dT%H:%M:%S')
+            timestamp = pd.to_datetime(time_start).strftime('%Y-%m-%dT%H-%M-%S')
             if (os.path.isfile(os.path.join(data_path, 'restart', 'restart_'+timestamp+'.nc')) & (time_start != time_end)):
                 self.GRID_RESTART = xr.open_dataset(os.path.join(data_path, 'restart', 'restart_'+timestamp+'.nc'))
                 self.restart_date = self.GRID_RESTART.time     # Get time of the last calculation
@@ -50,11 +57,34 @@ class IOClass:
         else:
             self.restart_date = None
             self.init_data_dataset()  # If no restart, read data according to the dates defined in the config.py
+
+        #----------------------------------------------
+        # Tile the data is desired
+        #----------------------------------------------
+        if tile:
+            self.DATA = self.DATA.isel(south_north=slice(ystart,yend), west_east=slice(xstart,xend))
+        
+        self.ny = self.DATA.dims['south_north']
+        self.nx = self.DATA.dims['west_east']
+        self.time = self.DATA.dims['time']
         
         return self.DATA
 
 
    
+    #==============================================================================
+    # The functions create_result_file, create_restart_file, and create_grid_restart
+    # are three which create and return the following structures:
+    #
+    #   create_result_file  :: Creates and initializes the RESULT xarray dataset
+    #   create_restart_file :: Creates and initializes the RESTART xarray dataset
+    #   create_grid_restart :: Creates and initializes the GRID structure which 
+    #                          contains the layer state of the last time step. The
+    #                          last state is required for the restart option
+    #==============================================================================
+    #----------------------------------------------
+    # Creates the result xarray dataset
+    #----------------------------------------------
     def create_result_file(self):
         """ Returns the data xarray """
         self.init_result_dataset()
@@ -62,18 +92,28 @@ class IOClass:
 
 
          
+    #----------------------------------------------
+    # Creates the restart xarray dataset
+    #----------------------------------------------
     def create_restart_file(self):
         """ Returns the data xarray """
         self.init_restart_dataset()
         return self.RESTART
 
-
-
+    #----------------------------------------------
+    # Returns the restart dataset 
+    #----------------------------------------------
     def create_grid_restart(self):
         return self.GRID_RESTART
 
 
-
+    #==============================================================================
+    # The init_data_dataset read the input NetCDF dataset and stores the data in
+    # an xarray. 
+    #==============================================================================
+    #----------------------------------------------
+    # Reads the input data into a xarray dataset 
+    #----------------------------------------------
     def init_data_dataset(self):
         """     
         PRES        ::   Air Pressure [hPa]
@@ -93,10 +133,10 @@ class IOClass:
 
         start_interval=str(self.DATA.time.values[0])[0:16]
         end_interval = str(self.DATA.time.values[-1])[0:16]
-        time_steps = str(len(self.DATA.time))
+        time_steps = str(self.DATA.dims['time'])
         print('\n Maximum available time interval from %s until %s. Time steps: %s \n\n' % (start_interval, end_interval, time_steps))
 
-        # Check if restart
+        # Check if restart option is set
         if self.restart_date is None:
             print('--------------------------------------------------------------')
             print('\t Integration from %s to %s' % (time_start, time_end))
@@ -123,11 +163,12 @@ class IOClass:
         print('--------------------------------------------------------------')
         print('Checking input data .... \n')
         
+        # Define a auxiliary function to check the validity of the data
         def check(field, max, min):
             '''Check the validity of the input data '''
             if np.nanmax(field) > max or np.nanmin(field) < min:
                 print('Please check the input data, its seems they are out of range %s MAX: %.2f MIN: %.2f \n' % (str.capitalize(field.name), np.nanmax(field), np.nanmin(field)))
-        
+        # Check if data is within valid bounds
         if ('T2' in self.DATA):
             print('Temperature data (T2) ... ok ')
             check(self.DATA.T2, 313.16, 243.16)
@@ -159,6 +200,14 @@ class IOClass:
         print('\n Glacier gridpoints: %s \n\n' %(np.nansum(self.DATA.MASK>=1)))
 
  
+    #==============================================================================
+    # The init_result_datasets creates the final dataset which stores the results
+    # from the individual cosipy runs. After the dataset has been filled with the
+    # runs from all workers the dataset is written to disc.
+    #==============================================================================
+    #----------------------------------------------
+    # Initializes the result xarray dataset
+    #----------------------------------------------
     def init_result_dataset(self):
         """ This function creates the result file 
         Args:
@@ -169,105 +218,334 @@ class IOClass:
             
             self.RESULT  ::  one-dimensional self.RESULT structure"""
         
+        # Coordinates
         self.RESULT = xr.Dataset()
         self.RESULT.coords['time'] = self.DATA.coords['time']
         self.RESULT.coords['lat'] = self.DATA.coords['lat']
         self.RESULT.coords['lon'] = self.DATA.coords['lon']
 
-        self.RESULT.attrs['initial_snowheight'] = initial_snowheight
-        self.RESULT.attrs['initial_snow_layer_heights'] = initial_snow_layer_heights
-        self.RESULT.attrs['initial_glacier_layer_heights'] = initial_glacier_layer_heights
-        self.RESULT.attrs['initial_glacier_height'] = initial_glacier_height
-        self.RESULT.attrs['initial_top_density_snowpack'] = initial_top_density_snowpack
-        self.RESULT.attrs['initial_botton_density_snowpack'] = initial_botton_density_snowpack
-        self.RESULT.attrs['temperature_top'] = temperature_top
-        self.RESULT.attrs['temperature_bottom'] = temperature_bottom
-        self.RESULT.attrs['const_init_temp'] = const_init_temp
-        self.RESULT.attrs['merge_snow_threshold'] = merge_snow_threshold
-        self.RESULT.attrs['minimum_snow_height'] = minimum_snow_height
-        self.RESULT.attrs['density_fresh_snow'] = density_fresh_snow
-        self.RESULT.attrs['albedo_fresh_snow'] = albedo_fresh_snow
-        self.RESULT.attrs['albedo_firn'] = albedo_firn
-        self.RESULT.attrs['albedo_ice'] = albedo_ice
-        self.RESULT.attrs['albedo_mod_snow_aging'] = albedo_mod_snow_aging
-        self.RESULT.attrs['albedo_mod_snow_depth'] = albedo_mod_snow_depth
-        self.RESULT.attrs['roughness_fresh_snow'] = roughness_fresh_snow
-        self.RESULT.attrs['roughness_ice'] = roughness_ice
-        self.RESULT.attrs['roughness_firn'] = roughness_firn
-        self.RESULT.attrs['aging_factor_roughness'] = aging_factor_roughness
-        self.RESULT.attrs['surface_emission_coeff'] = surface_emission_coeff
-        self.RESULT.attrs['snow_ice_threshold'] = snow_ice_threshold
-        self.RESULT.attrs['snow_firn_threshold'] = snow_firn_threshold
-        self.RESULT.attrs['threshold_for_snowheight'] = threshold_for_snowheight
-        self.RESULT.attrs['liquid_water_fraction'] = liquid_water_fraction
-        self.RESULT.attrs['percolation_velocity'] = percolation_velocity
+        # Attributes
+        self.RESULT.attrs['Remesh_method'] = remesh_method
+        self.RESULT.attrs['Start_from_restart_file'] = str(restart)
+        self.RESULT.attrs['Force_use_TP'] = str(force_use_TP)
+        self.RESULT.attrs['Time_step_input_file_seconds'] = dt
+        self.RESULT.attrs['Density_threshold_merging'] = density_threshold_merging
+        self.RESULT.attrs['Temperature_threshold_merging'] = temperature_threshold_merging
+        self.RESULT.attrs['Merge_max'] = merge_max
 
+        self.RESULT.attrs['Albedo_method'] = albedo_method
+        self.RESULT.attrs['Densification_method'] = densification_method
+        self.RESULT.attrs['Penetrating_method'] = penetrating_method
+        self.RESULT.attrs['Roughness_method'] = roughness_method
+        self.RESULT.attrs['Saturation_water_vapour_method'] = saturation_water_vapour_method
+        self.RESULT.attrs['Initial_snowheight'] = initial_snowheight_constant
+        self.RESULT.attrs['Initial_snow_layer_heights'] = initial_snow_layer_heights
+        self.RESULT.attrs['Initial_glacier_layer_heights'] = initial_glacier_layer_heights
+        self.RESULT.attrs['Initial_glacier_height'] = initial_glacier_height
+        self.RESULT.attrs['Initial_top_density_snowpack'] = initial_top_density_snowpack
+        self.RESULT.attrs['Initial_botton_density_snowpack'] = initial_botton_density_snowpack
+        self.RESULT.attrs['Temperature_top'] = temperature_top_constant
+        self.RESULT.attrs['Temperature_bottom'] = temperature_bottom
+        self.RESULT.attrs['Const_init_temp'] = const_init_temp
+        self.RESULT.attrs['First_layer_height_log_profile'] = first_layer_height
+        self.RESULT.attrs['Layer_stretching_log_profile'] = layer_stretching
+        self.RESULT.attrs['Minimum_snow_to_reset_albedo'] = minimum_snow_to_reset_albedo
+        self.RESULT.attrs['Density_fresh_snow'] = density_fresh_snow
+        self.RESULT.attrs['Albedo_fresh_snow'] = albedo_fresh_snow
+        self.RESULT.attrs['Albedo_firn'] = albedo_firn
+        self.RESULT.attrs['Albedo_ice'] = albedo_ice
+        self.RESULT.attrs['Albedo_mod_snow_aging'] = albedo_mod_snow_aging
+        self.RESULT.attrs['Albedo_mod_snow_depth'] = albedo_mod_snow_depth
+        self.RESULT.attrs['Roughness_fresh_snow'] = roughness_fresh_snow
+        self.RESULT.attrs['Roughness_ice'] = roughness_ice
+        self.RESULT.attrs['Roughness_firn'] = roughness_firn
+        self.RESULT.attrs['Aging_factor_roughness'] = aging_factor_roughness
+        self.RESULT.attrs['Surface_emission_coeff'] = surface_emission_coeff
+        self.RESULT.attrs['Snow_ice_threshold'] = snow_ice_threshold
+        self.RESULT.attrs['Snow_firn_threshold'] = snow_firn_threshold
+        self.RESULT.attrs['Center_snow_transfer_function'] = center_snow_transfer_function
+        self.RESULT.attrs['Spread_snow_transfer_function'] = spread_snow_transfer_function
+
+        # Variables given by the input dataset
         self.add_variable_along_latlon(self.RESULT, self.DATA.HGT, 'HGT', 'm', 'Elevation')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'T2', 'K', 'Air temperature at 2 m')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'RH2', '%', 'Relative humidity at 2 m')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'U2', 'm s\u207b\xb9', 'Wind velocity at 2 m')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'RAIN', 'mm', 'Liquid precipitation')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'SNOWFALL', 'm', 'Snowfall')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'PRES', 'hPa', 'Atmospheric pressure')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'N', '-', 'Cloud fraction')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'G', 'W m\u207b\xb2', 'Incoming shortwave radiation')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'LWout', 'W m\u207b\xb2', 'Outgoing longwave radiation')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'H', 'W m\u207b\xb2', 'Sensible heat flux')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'LE', 'W m\u207b\xb2', 'Latent heat flux')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'B', 'W m\u207b\xb2', 'Ground heat flux')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'ME', 'W m\u207b\xb2', 'Available melt energy')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'MB', 'm w.e.', 'Total mass balance')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'surfMB', 'm w.e.', 'Surface mass balance')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'intMB', 'm w.e.', 'Internal mass balance')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'EVAPORATION', 'm w.e.', 'Evaporation')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'SUBLIMATION', 'm w.e.', 'Sublimation')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'CONDENSATION', 'm w.e.', 'Condensation')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'DEPOSITION', 'm w.e.', 'Depostion')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'surfM', 'm w.e.', 'Surface melt')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'subM', 'm w.e.', 'Subsurface melt')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'Q', 'm w.e.', 'Runoff')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'REFREEZE', 'm w.e.', 'Refreezing')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'SNOWHEIGHT', 'm', 'Snowheight') 
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'TOTALHEIGHT', 'm', 'Total domain height')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'TS', 'K', 'Surface temperature')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'Z0', 'm', 'Roughness length')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'ALBEDO', '-', 'Albedo')
-        self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'NLAYERS', '-', 'Number of layers')
+        self.add_variable_along_latlon(self.RESULT, self.DATA.MASK, 'MASK', 'boolean', 'Glacier mask')
+        self.add_variable_along_latlontime(self.RESULT, self.DATA.T2, 'T2', 'K', 'Air temperature at 2 m')
+        self.add_variable_along_latlontime(self.RESULT, self.DATA.RH2, 'RH2', '%', 'Relative humidity at 2 m')
+        self.add_variable_along_latlontime(self.RESULT, self.DATA.U2, 'U2', 'm s\u207b\xb9', 'Wind velocity at 2 m')
+        self.add_variable_along_latlontime(self.RESULT, self.DATA.PRES, 'PRES', 'hPa', 'Atmospheric pressure')
+        self.add_variable_along_latlontime(self.RESULT, self.DATA.G, 'G', 'W m\u207b\xb2', 'Incoming shortwave radiation')
+        
+        if ('RRR' in self.DATA):
+            self.add_variable_along_latlontime(self.RESULT, self.DATA.RRR, 'RRR', 'mm','Total precipiation')
+        else:
+            self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'RRR', 'mm','Total precipiation')
+        
+        if ('SNOWFALL' in self.DATA):
+            self.add_variable_along_latlontime(self.RESULT, self.DATA.SNOWFALL, 'SNOWFALL', 'm', 'Snowfall')
        
-        if (full_field):
-            self.RESULT.coords['layer'] = np.arange(max_layers)
-             
-            self.add_variable_along_latlonlayertime(self.RESULT, np.full((self.RESULT.coords['time'].shape[0], self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESULT.coords['layer'].shape[0]),
-                                                                np.nan), 'LAYER_HEIGHT', 'm', 'Height of each layer')
-            self.add_variable_along_latlonlayertime(self.RESULT, np.full((self.RESULT.coords['time'].shape[0], self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESULT.coords['layer'].shape[0]),
-                                                                np.nan), 'LAYER_RHO', 'kg m^-3', 'Layer density')
-            self.add_variable_along_latlonlayertime(self.RESULT, np.full((self.RESULT.coords['time'].shape[0], self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESULT.coords['layer'].shape[0]),
-                                                                np.nan), 'LAYER_T', 'K', 'Layer temperature')
-            self.add_variable_along_latlonlayertime(self.RESULT, np.full((self.RESULT.coords['time'].shape[0], self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESULT.coords['layer'].shape[0]),
-                                                                np.nan), 'LAYER_LWC', 'kg m^-2', 'Liquid water content of layer')
-            self.add_variable_along_latlonlayertime(self.RESULT, np.full((self.RESULT.coords['time'].shape[0], self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESULT.coords['layer'].shape[0]),
-                                                                np.nan), 'LAYER_CC', 'J m^-2', 'Cold content of each layer')
-            self.add_variable_along_latlonlayertime(self.RESULT, np.full((self.RESULT.coords['time'].shape[0], self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESULT.coords['layer'].shape[0]),
-                                                                np.nan), 'LAYER_POROSITY', '-', 'Porosity of each layer')
-            self.add_variable_along_latlonlayertime(self.RESULT, np.full((self.RESULT.coords['time'].shape[0], self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESULT.coords['layer'].shape[0]),
-                                                                np.nan), 'LAYER_VOL', '-', 'Volumetic ice content of each layer')
-            self.add_variable_along_latlonlayertime(self.RESULT, np.full((self.RESULT.coords['time'].shape[0], self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESULT.coords['layer'].shape[0]),
-                                                                np.nan), 'LAYER_REFREEZE', 'm w.e.q.', 'Refreezing of each layer')
+        if ('N' in self.DATA):
+            self.add_variable_along_latlontime(self.RESULT, self.DATA.N, 'N', '-', 'Cloud fraction')
+        else:
+            self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'N', '-', 'Cloud fraction')
+        
+        if ('LWin' in self.DATA):
+            self.add_variable_along_latlontime(self.RESULT, self.DATA.LWin, 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation')
         
         print('\n') 
         print('Output dataset ... ok')
         return self.RESULT
+  
+
+    #==============================================================================
+    # This function creates the global numpy arrays which store the variables.
+    # The global array is filled with the local results from the workers. Finally,
+    # the arrays are assigned to the RESULT dataset and is stored to disc (see COSIPY.py)
+    #==============================================================================
+    def create_global_result_arrays(self):
+        self.RAIN = np.full((self.time,self.ny,self.nx), np.nan)
+        self.SNOWFALL = np.full((self.time,self.ny,self.nx), np.nan)
+        self.LWin = np.full((self.time,self.ny,self.nx), np.nan)
+        self.LWout = np.full((self.time,self.ny,self.nx), np.nan)
+        self.H = np.full((self.time,self.ny,self.nx), np.nan)
+        self.LE = np.full((self.time,self.ny,self.nx), np.nan)
+        self.B = np.full((self.time,self.ny,self.nx), np.nan)
+        self.MB = np.full((self.time,self.ny,self.nx), np.nan)
+        self.surfMB = np.full((self.time,self.ny,self.nx), np.nan)
+        self.Q = np.full((self.time,self.ny,self.nx), np.nan)
+        self.SNOWHEIGHT = np.full((self.time,self.ny,self.nx), np.nan)
+        self.TOTALHEIGHT = np.full((self.time,self.ny,self.nx), np.nan)
+        self.TS = np.full((self.time,self.ny,self.nx), np.nan)
+        self.ALBEDO = np.full((self.time,self.ny,self.nx), np.nan)
+        self.NLAYERS = np.full((self.time,self.ny,self.nx), np.nan)
+        self.ME = np.full((self.time,self.ny,self.nx), np.nan)
+        self.intMB = np.full((self.time,self.ny,self.nx), np.nan)
+        self.EVAPORATION = np.full((self.time,self.ny,self.nx), np.nan)
+        self.SUBLIMATION = np.full((self.time,self.ny,self.nx), np.nan)
+        self.CONDENSATION = np.full((self.time,self.ny,self.nx), np.nan)
+        self.DEPOSITION = np.full((self.time,self.ny,self.nx), np.nan)
+        self.REFREEZE = np.full((self.time,self.ny,self.nx), np.nan)
+        self.subM = np.full((self.time,self.ny,self.nx), np.nan)
+        self.Z0 = np.full((self.time,self.ny,self.nx), np.nan)
+        self.surfM= np.full((self.time,self.ny,self.nx), np.nan)
+
+        if full_field:
+            self.LAYER_HEIGHT = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_RHO = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_T = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_LWC = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_CC = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_POROSITY = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_LW = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_ICE_FRACTION = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_IRREDUCIBLE_WATER = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_REFREEZE = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+   
+
+    #==============================================================================
+    # This function assigns the local results from the workers to the global
+    # numpy arrays. The y and x values are the lat/lon indices.
+    #==============================================================================
+    def copy_local_to_global(self,y,x,local_RAIN,local_SNOWFALL,local_LWin,local_LWout,local_H,local_LE,local_B,local_MB, \
+                             local_surfMB,local_Q,local_SNOWHEIGHT,local_TOTALHEIGHT,local_TS,local_ALBEDO, \
+                             local_NLAYERS,local_ME,local_intMB,local_EVAPORATION,local_SUBLIMATION,local_CONDENSATION, \
+                             local_DEPOSITION,local_REFREEZE,local_subM,local_Z0,local_surfM,local_LAYER_HEIGHT,local_LAYER_RHO, \
+                             local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY,local_LAYER_LW,local_LAYER_ICE_FRACTION, \
+                             local_LAYER_IRREDUCIBLE_WATER,local_LAYER_REFREEZE):
+
+        self.RAIN[:,y,x] = local_RAIN
+        self.SNOWFALL[:,y,x] = local_SNOWFALL
+        self.LWin[:,y,x] = local_LWin
+        self.LWout[:,y,x] = local_LWout
+        self.H[:,y,x] = local_H
+        self.LE[:,y,x] = local_LE
+        self.B[:,y,x] = local_B
+        self.MB[:,y,x] = local_MB
+        self.surfMB[:,y,x] = local_surfMB
+        self.Q[:,y,x] = local_Q
+        self.SNOWHEIGHT[:,y,x] = local_SNOWHEIGHT
+        self.TOTALHEIGHT[:,y,x] = local_TOTALHEIGHT 
+        self.TS[:,y,x] = local_TS 
+        self.ALBEDO[:,y,x] = local_ALBEDO 
+        self.NLAYERS[:,y,x] = local_NLAYERS 
+        self.ME[:,y,x] = local_ME 
+        self.intMB[:,y,x] = local_intMB 
+        self.EVAPORATION[:,y,x] = local_EVAPORATION 
+        self.SUBLIMATION[:,y,x] = local_SUBLIMATION 
+        self.CONDENSATION[:,y,x] = local_CONDENSATION 
+        self.DEPOSITION[:,y,x] = local_DEPOSITION 
+        self.REFREEZE[:,y,x] = local_REFREEZE 
+        self.subM[:,y,x] = local_subM 
+        self.Z0[:,y,x] = local_Z0 
+        self.surfM[:,y,x] = local_surfM 
+
+        if full_field:
+            self.LAYER_HEIGHT[:,y,x,:] = local_LAYER_HEIGHT 
+            self.LAYER_RHO[:,y,x,:] = local_LAYER_RHO 
+            self.LAYER_T[:,y,x,:] = local_LAYER_T 
+            self.LAYER_LWC[:,y,x,:] = local_LAYER_LWC 
+            self.LAYER_CC[:,y,x,:] = local_LAYER_CC 
+            self.LAYER_POROSITY[:,y,x,:] = local_LAYER_POROSITY 
+            self.LAYER_LW[:,y,x,:] = local_LAYER_LW 
+            self.LAYER_ICE_FRACTION[:,y,x,:] = local_LAYER_ICE_FRACTION 
+            self.LAYER_IRREDUCIBLE_WATER[:,y,x,:] = local_LAYER_IRREDUCIBLE_WATER 
+            self.LAYER_REFREEZE[:,y,x,:] = local_LAYER_REFREEZE 
+        
+    #==============================================================================
+    # This function adds the global numpy arrays to the RESULT dataset which will
+    # be written to disc.
+    #==============================================================================
+    def write_results_to_file(self):
+        self.add_variable_along_latlontime(self.RESULT, self.RAIN, 'RAIN', 'mm', 'Liquid precipitation') 
+        self.add_variable_along_latlontime(self.RESULT, self.SNOWFALL, 'SNOWFALL', 'm', 'Snowfall') 
+        self.add_variable_along_latlontime(self.RESULT, self.LWin, 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation') 
+        self.add_variable_along_latlontime(self.RESULT, self.LWout, 'LWout', 'W m\u207b\xb2', 'Outgoing longwave radiation') 
+        self.add_variable_along_latlontime(self.RESULT, self.H, 'H', 'W m\u207b\xb2', 'Sensible heat flux') 
+        self.add_variable_along_latlontime(self.RESULT, self.LE, 'LE', 'W m\u207b\xb2', 'Latent heat flux') 
+        self.add_variable_along_latlontime(self.RESULT, self.B, 'B', 'W m\u207b\xb2', 'Ground heat flux') 
+        self.add_variable_along_latlontime(self.RESULT, self.surfMB, 'surfMB', 'm w.e.', 'Surface mass balance') 
+        self.add_variable_along_latlontime(self.RESULT, self.MB, 'MB', 'm w.e.', 'Mass balance') 
+        self.add_variable_along_latlontime(self.RESULT, self.Q, 'Q', 'm w.e.', 'Runoff') 
+        self.add_variable_along_latlontime(self.RESULT, self.SNOWHEIGHT, 'SNOWHEIGHT', 'm', 'Snowheight') 
+        self.add_variable_along_latlontime(self.RESULT, self.TOTALHEIGHT, 'TOTALHEIGHT', 'm', 'Total domain height') 
+        self.add_variable_along_latlontime(self.RESULT, self.TS, 'TS', 'K', 'Surface temperature') 
+        self.add_variable_along_latlontime(self.RESULT, self.ALBEDO, 'ALBEDO', '-', 'Albedo') 
+        self.add_variable_along_latlontime(self.RESULT, self.NLAYERS, 'NLAYERS', '-', 'Number of layers') 
+        self.add_variable_along_latlontime(self.RESULT, self.ME, 'ME', 'W m\u207b\xb2', 'Available melt energy') 
+        self.add_variable_along_latlontime(self.RESULT, self.intMB, 'intMB', 'm w.e.', 'Internal mass balance') 
+        self.add_variable_along_latlontime(self.RESULT, self.EVAPORATION, 'EVAPORATION', 'm w.e.', 'Evaporation') 
+        self.add_variable_along_latlontime(self.RESULT, self.SUBLIMATION, 'SUBLIMATION', 'm w.e.', 'Sublimation') 
+        self.add_variable_along_latlontime(self.RESULT, self.CONDENSATION, 'CONDENSATION', 'm w.e.', 'Condensation') 
+        self.add_variable_along_latlontime(self.RESULT, self.DEPOSITION, 'DEPOSITION', 'm w.e.', 'Deposition') 
+        self.add_variable_along_latlontime(self.RESULT, self.REFREEZE, 'REFREEZE', 'm w.e.', 'Refreezing') 
+        self.add_variable_along_latlontime(self.RESULT, self.subM, 'subM', 'm w.e.', 'Subsurface melt') 
+        self.add_variable_along_latlontime(self.RESULT, self.Z0, 'Z0', 'm', 'Roughness length') 
+        self.add_variable_along_latlontime(self.RESULT, self.surfM, 'surfM', 'm w.e.', 'Surface melt') 
+        
+        if full_field:
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Layer height') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_RHO, 'LAYER_RHO', 'kg m^-3', 'Layer density') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_T, 'LAYER_T', 'K', 'Layer temperature') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_LWC, 'LAYER_LWC', 'kg m^-2', 'Liquid water content') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_CC, 'LAYER_CC', 'J m^-2', 'Cold content') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_POROSITY, 'LAYER_POROSITY', '-', 'Porosity') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_LW, 'LAYER_LW', 'm w.e.', 'Liquid water') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_ICE_FRACTION, 'LAYER_ICE_FRACTION', '-', 'Ice fraction') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_IRREDUCIBLE_WATER, 'LAYER_IRREDUCIBLE_WATER', '-', 'Irreducible water') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_REFREEZE, 'LAYER_REFREEZE', 'm w.e.', 'Refreezing') 
+
+
+    #==============================================================================
+    # The init_local_result_arrays creates the local numpy arrays which store 
+    # the simulations results. These arrays are returned to the main module(COSIPY.py)
+    # where they are written to the RESULT xarray dataset.
+    #==============================================================================
+    def create_local_result_arrays(self):
+        self.local_RAIN = np.full(self.time, np.nan)
+        self.local_SNOWFALL = np.full(self.time, np.nan)
+        self.local_LWin = np.full(self.time, np.nan)
+        self.local_LWout = np.full(self.time, np.nan)
+        self.local_H = np.full(self.time, np.nan)
+        self.local_LE = np.full(self.time, np.nan)
+        self.local_B = np.full(self.time, np.nan)
+        self.local_MB = np.full(self.time, np.nan)
+        self.local_surfMB = np.full(self.time, np.nan)
+        self.local_Q = np.full(self.time, np.nan)
+        self.local_SNOWHEIGHT = np.full(self.time, np.nan)
+        self.local_TOTALHEIGHT = np.full(self.time, np.nan)
+        self.local_TS = np.full(self.time, np.nan)
+        self.local_ALBEDO = np.full(self.time, np.nan)
+        self.local_ME = np.full(self.time, np.nan)
+        self.local_intMB = np.full(self.time, np.nan)
+        self.local_EVAPORATION = np.full(self.time, np.nan)
+        self.local_SUBLIMATION = np.full(self.time, np.nan)
+        self.local_CONDENSATION = np.full(self.time, np.nan)
+        self.local_DEPOSITION = np.full(self.time, np.nan)
+        self.local_REFREEZE = np.full(self.time, np.nan)
+        self.local_NLAYERS = np.full(self.time, np.nan)
+        self.local_subM = np.full(self.time, np.nan)
+        self.local_Z0 = np.full(self.time, np.nan)
+        self.local_surfM = np.full(self.time, np.nan)
+
+        if full_field:
+            self.local_LAYER_HEIGHT = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_RHO = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_T = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_LWC = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_CC = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_POROSITY = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_LW = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_ICE_FRACTION = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_IRREDUCIBLE_WATER = np.full((self.time,max_layers), np.nan)
+            self.local_LAYER_REFREEZE = np.full((self.time,max_layers), np.nan)
+
+    # TODO: Make it Pythonian - Finish the getter/setter functions
+    @property
+    def RAIN(self):
+        return self.__RAIN
+    @property
+    def SNOWFALL(self):
+        return self.__SNOWFALL
+    @property
+    def LWin(self):
+        return self.__LWin
+    @property
+    def LWout(self):
+        return self.__LWout
+    @property
+    def H(self):
+        return self.__H
+    @property
+    def LE(self):
+        return self.__LE
+    @property
+    def B(self):
+        return self.__B
+    @property
+    def MB(self):
+        return self.__MB
     
+    
+    @RAIN.setter
+    def RAIN(self, x):
+        self.__RAIN = x
+    @SNOWFALL.setter
+    def SNOWFALL(self, x):
+        self.__SNOWFALL = x
+    @LWin.setter
+    def LWin(self, x):
+        self.__LWin = x
+    @LWout.setter
+    def LWout(self, x):
+        self.__LWout = x
+    @H.setter
+    def H(self, x):
+        self.__H = x
+    @LE.setter
+    def LE(self, x):
+        self.__LE = x
+    @B.setter
+    def B(self, x):
+        self.__B = x
+    @MB.setter
+    def MB(self, x):
+        self.__MB = x
+
+    #==============================================================================
+    # The next three functions initialize and write the local and global 
+    # restart datasets. The init_restart_dataset creates the global xarray dataset
+    # which contains the final restart variables. These variables are aggregated
+    # from the local restart datasets from each worker (node). Once the variables
+    # are aggregated they are written to a netcdf file (write_restart_future)
+    #==============================================================================
+    #----------------------------------------------
+    # Initializes the restart xarray dataset
+    #----------------------------------------------
     def init_restart_dataset(self):
-        """ This function creates the result file 
-        Args:
-            
-            self.DATA    ::  self.DATA structure 
+        """ This function creates the restart file 
             
         Returns:
             
-            self.RESULT  ::  one-dimensional self.RESULT structure"""
+            self.RESTART  ::  xarray structure"""
         
         self.RESTART = xr.Dataset()
         self.RESTART.coords['time'] = self.DATA.coords['time'][-1]
@@ -284,15 +562,7 @@ class IOClass:
         self.add_variable_along_latlonlayer(self.RESTART, np.full((self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESTART.coords['layer'].shape[0]),
                                                             np.nan), 'LAYER_T', 'K', 'Layer temperature')
         self.add_variable_along_latlonlayer(self.RESTART, np.full((self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESTART.coords['layer'].shape[0]),
-                                                            np.nan), 'LAYER_LWC', 'kg m^-2', 'Liquid water content of layer')
-        self.add_variable_along_latlonlayer(self.RESTART, np.full((self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESTART.coords['layer'].shape[0]),
-                                                            np.nan), 'LAYER_CC', 'J m^-2', 'Cold content of each layer')
-        self.add_variable_along_latlonlayer(self.RESTART, np.full((self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESTART.coords['layer'].shape[0]),
-                                                            np.nan), 'LAYER_POROSITY', '-', 'Porosity of each layer')
-        self.add_variable_along_latlonlayer(self.RESTART, np.full((self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESTART.coords['layer'].shape[0]),
-                                                            np.nan), 'LAYER_VOL', '-', 'Volumetic ice content of each layer')
-        self.add_variable_along_latlonlayer(self.RESTART, np.full((self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESTART.coords['layer'].shape[0]),
-                                                            np.nan), 'LAYER_REFREEZE', 'm w.e.q.', 'Refreezing of each layer')
+                                                            np.nan), 'LAYER_LW', 'm w.e.q.', 'Liquid water of layer')
         
         print('Restart ddataset ... ok \n')
         print('--------------------------------------------------------------\n')
@@ -300,67 +570,9 @@ class IOClass:
         return self.RESTART
    
 
- 
-    def create_local_result_dataset(self):
-        """ This function creates the result dataset for a grid point 
-        Args:
-            
-            self.DATA    ::  self.DATA structure 
-            
-        Returns:
-            
-            self.RESULT  ::  one-dimensional self.RESULT structure"""
-    
-        self.RESULT = xr.Dataset()
-        self.RESULT.coords['time'] = self.DATA.coords['time']
-        self.RESULT.coords['lat'] = self.DATA.coords['lat']
-        self.RESULT.coords['lon'] = self.DATA.coords['lon']
-
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'T2', 'K', 'Air temperature at 2 m')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'RH2', '%', 'Relative humidity at 2 m')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'U2', 'm s^-1', 'Wind velocity at 2 m')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'RAIN', 'mm', 'Liquid precipitation')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'SNOWFALL', 'm', 'Snowfall')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'PRES', 'hPa', 'Atmospheric pressure')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'N', '-', 'Cloud fraction')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'G', 'W m\u207b\xb2', 'Incoming shortwave radiation')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'LWout', 'W m\u207b\xb2', 'Outgoing longwave radiation')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'H', 'W m\u207b\xb2', 'Sensible heat flux')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'LE', 'W m\u207b\xb2', 'Latent heat flux')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'B', 'W m\u207b\xb2', 'Ground heat flux')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'ME', 'W m\u207b\xb2', 'Available melt energy')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'MB', 'm w.e.', 'Total mass balance')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'surfMB', 'm w.e.', 'Surface mass balance')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'intMB', 'm w.e.', 'Internal mass balance')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'EVAPORATION', 'm w.e.', 'Evaporation')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'SUBLIMATION', 'm w.e.', 'Sublimation')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'CONDENSATION', 'm w.e.', 'Condensation')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'DEPOSITION', 'm w.e.', 'Depostion')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'surfM', 'm w.e.', 'Surface melt')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'subM', 'm w.e.', 'Subsurface melt')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'Q', 'm w.e.', 'Runoff')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'REFREEZE', 'm w.e.', 'Refreezing')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'SNOWHEIGHT', 'm', 'Snowheight') 
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'TOTALHEIGHT', 'm', 'Total domain height') 
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'TS', 'K', 'Surface temperature')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'Z0', 'm', 'Roughness length')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'ALBEDO', '-', 'Albedo')
-        self.add_variable_along_time(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'NLAYERS', '-', 'Number of layers')
- 
-        if (full_field):
-            self.RESULT.coords['layer'] = np.arange(max_layers)
-            self.add_variable_along_layertime(self.RESULT, np.full((self.RESULT.coords['time'].shape[0], self.RESULT.coords['layer'].shape[0]), np.nan), 'LAYER_HEIGHT', 'm', 'Layer height')
-            self.add_variable_along_layertime(self.RESULT, np.full((self.RESULT.coords['time'].shape[0], self.RESULT.coords['layer'].shape[0]), np.nan), 'LAYER_RHO', 'kg m^-3', 'Density of layer')
-            self.add_variable_along_layertime(self.RESULT, np.full((self.RESULT.coords['time'].shape[0], self.RESULT.coords['layer'].shape[0]), np.nan), 'LAYER_T', 'K', 'Layer temperature')
-            self.add_variable_along_layertime(self.RESULT, np.full((self.RESULT.coords['time'].shape[0], self.RESULT.coords['layer'].shape[0]), np.nan), 'LAYER_LWC', 'kg m^-2', 'LWC of each layer')
-            self.add_variable_along_layertime(self.RESULT, np.full((self.RESULT.coords['time'].shape[0], self.RESULT.coords['layer'].shape[0]), np.nan), 'LAYER_CC', 'J m^-2', 'Cold content of each layer')
-            self.add_variable_along_layertime(self.RESULT, np.full((self.RESULT.coords['time'].shape[0], self.RESULT.coords['layer'].shape[0]), np.nan), 'LAYER_POROSITY', '-', 'Porosity of each layer')
-            self.add_variable_along_layertime(self.RESULT, np.full((self.RESULT.coords['time'].shape[0], self.RESULT.coords['layer'].shape[0]), np.nan), 'LAYER_VOL', '-', 'Volumetric ice content of each layer')
-            self.add_variable_along_layertime(self.RESULT, np.full((self.RESULT.coords['time'].shape[0], self.RESULT.coords['layer'].shape[0]), np.nan), 'LAYER_REFREEZE', 'm w.e.q.', 'Refreezing of each layer')
-    
-        return self.RESULT
-      
+    #----------------------------------------------
+    # Initializes the local restart xarray dataset
+    #----------------------------------------------
     def create_local_restart_dataset(self):
         """ This function creates the result dataset for a grid point 
         Args:
@@ -381,81 +593,38 @@ class IOClass:
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_HEIGHT', 'm', 'Layer height')
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_RHO', 'kg m^-3', 'Density of layer')
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_T', 'K', 'Layer temperature')
-        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_LWC', 'kg m^-2', 'LWC of each layer')
-        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_CC', 'J m^-2', 'Cold content of each layer')
-        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_POROSITY', '-', 'Porosity of each layer')
-        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_VOL', '-', 'Volumetric ice content of each layer')
-        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_REFREEZE', 'm w.e.q.', 'Refreezing of each layer')
+        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_LW', 'm w.e.q.', 'Liquid water of each layer')
     
         return self.RESTART
 
 
-    def write_results_future(self, results):
-        """ This function aggregates the point result 
-        
-        results         ::  List with the result from COSIPI
-        """
-        self.RESULT.T2.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.T2
-        self.RESULT.RH2.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.RH2
-        self.RESULT.U2.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.U2
-        self.RESULT.RAIN.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.RAIN
-        self.RESULT.SNOWFALL.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.SNOWFALL
-        self.RESULT.PRES.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.PRES
-        self.RESULT.N.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.N
-        self.RESULT.G.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.G
-        self.RESULT.LWin.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.LWin
-        self.RESULT.LWout.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.LWout
-        self.RESULT.H.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.H
-        self.RESULT.LE.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.LE
-        self.RESULT.B.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.B
-        self.RESULT.ME.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.ME
-        self.RESULT.MB.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.MB
-        self.RESULT.surfMB.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.surfMB
-        self.RESULT.intMB.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.intMB
-        self.RESULT.EVAPORATION.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.EVAPORATION
-        self.RESULT.SUBLIMATION.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.SUBLIMATION
-        self.RESULT.CONDENSATION.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.CONDENSATION
-        self.RESULT.DEPOSITION.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.DEPOSITION
-        self.RESULT.surfM.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.surfM
-        self.RESULT.subM.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.subM
-        self.RESULT.Q.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.Q
-        self.RESULT.REFREEZE.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.REFREEZE
-        self.RESULT.SNOWHEIGHT.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.SNOWHEIGHT
-        self.RESULT.TOTALHEIGHT.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.TOTALHEIGHT
-        self.RESULT.TS.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.TS
-        self.RESULT.Z0.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.Z0
-        self.RESULT.ALBEDO.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.ALBEDO
-        self.RESULT.NLAYERS.loc[dict(lon=results.lon.values, lat=results.lat.values)] = results.NLAYERS
-          
-        if full_field:
-            self.RESULT.LAYER_HEIGHT.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_HEIGHT
-            self.RESULT.LAYER_RHO.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_RHO
-            self.RESULT.LAYER_T.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_T
-            self.RESULT.LAYER_LWC.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_LWC
-            self.RESULT.LAYER_CC.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_CC
-            self.RESULT.LAYER_POROSITY.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_POROSITY
-            self.RESULT.LAYER_VOL.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_VOL
-            self.RESULT.LAYER_REFREEZE.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_REFREEZE
-
-
-    def write_restart_future(self, results):
+    #----------------------------------------------
+    # Writes the last model state (layer characgeristics) into restart dataset 
+    #----------------------------------------------
+    def write_restart_future(self, results, y, x):
         """ Writes the restart file 
-        
-        RESULT      :: RESULT dataset
+       
+        Args:
+       
+        results     :: RESTART xarray dataset
+        y           :: y-index 
+        x           :: x-index
         
         """
 
         self.RESTART['NLAYERS'] = results.NLAYERS.values
-        self.RESTART.LAYER_HEIGHT.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_HEIGHT
-        self.RESTART.LAYER_RHO.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_RHO
-        self.RESTART.LAYER_T.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_T
-        self.RESTART.LAYER_LWC.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_LWC
-        self.RESTART.LAYER_CC.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_CC
-        self.RESTART.LAYER_POROSITY.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_POROSITY
-        self.RESTART.LAYER_VOL.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_VOL
-        self.RESTART.LAYER_REFREEZE.loc[dict(lon=results.lon.values, lat=results.lat.values, layer=np.arange(max_layers))] = results.LAYER_REFREEZE
+        self.RESTART.LAYER_HEIGHT.loc[dict(south_north=y, west_east=x, layer=np.arange(max_layers))] = results.LAYER_HEIGHT
+        self.RESTART.LAYER_RHO.loc[dict(south_north=y, west_east=x, layer=np.arange(max_layers))] = results.LAYER_RHO
+        self.RESTART.LAYER_T.loc[dict(south_north=y, west_east=x, layer=np.arange(max_layers))] = results.LAYER_T
+        self.RESTART.LAYER_LW.loc[dict(south_north=y, west_east=x, layer=np.arange(max_layers))] = results.LAYER_LW
     
 
+    #==============================================================================
+    # The following functions return the RESULT, RESTART and GRID structures
+    #==============================================================================
+    #----------------------------------------------
+    # Getter/Setter functions 
+    #----------------------------------------------
     def get_result(self):
         return self.RESULT
 
@@ -465,9 +634,9 @@ class IOClass:
     def get_grid_restart(self):
         return self.GRID_RESTART
 
-    #---------------------------------------------------
-    # Auxiliary functions for writing variables
-    #--------------------------------------------------- 
+    #==============================================================================
+    # Auxiliary functions for writing variables to NetCDF files
+    #==============================================================================
     def add_variable_along_latlon(self, ds, var, name, units, long_name):
         """ This function self.adds missing variables to the self.DATA class """
         ds[name] = var
@@ -486,7 +655,7 @@ class IOClass:
     
     def add_variable_along_latlontime(self, ds, var, name, units, long_name):
         """ This function self.adds missing variables to the self.DATA class """
-        ds[name] = (('time','lat','lon'), var)
+        ds[name] = (('time','south_north','west_east'), var)
         ds[name].attrs['units'] = units
         ds[name].attrs['long_name'] = long_name
         ds[name].encoding['_FillValue'] = -9999
@@ -494,7 +663,7 @@ class IOClass:
     
     def add_variable_along_latlonlayertime(self, ds, var, name, units, long_name):
         """ This function self.adds missing variables to the self.DATA class """
-        ds[name] = (('time','lat','lon','layer'), var)
+        ds[name] = (('time','south_north','west_east','layer'), var)
         ds[name].attrs['units'] = units
         ds[name].attrs['long_name'] = long_name
         ds[name].encoding['_FillValue'] = -9999
@@ -502,7 +671,7 @@ class IOClass:
     
     def add_variable_along_latlonlayer(self, ds, var, name, units, long_name):
         """ This function self.adds missing variables to the self.DATA class """
-        ds[name] = (('lat','lon','layer'), var)
+        ds[name] = (('south_north','west_east','layer'), var)
         ds[name].attrs['units'] = units
         ds[name].attrs['long_name'] = long_name
         ds[name].encoding['_FillValue'] = -9999
