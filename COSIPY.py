@@ -68,7 +68,6 @@ def main():
     
     # Auxiliary variables for futures
     futures = []
-    nfutures = 0
 
     # Measure time
     start_time = datetime.now()
@@ -121,9 +120,9 @@ def main():
     print("\n \n Needed time for writing restart and output in seconds %4.2f \n" % (duration_run_writing.total_seconds()))
     
     if duration_run.total_seconds() >= 60 and duration_run.total_seconds() < 3600:
-        print("Total run duration in minutes %4.2f \n\n" %(duration_run.total_seconds() / 60))
+        print(" Total run duration in minutes %4.2f \n\n" %(duration_run.total_seconds() / 60))
     if duration_run.total_seconds() >= 3600:
-        print("Total run duration in hours %4.2f \n\n" %(duration_run.total_seconds() / 3600))
+        print(" Total run duration in hours %4.2f \n\n" %(duration_run.total_seconds() / 3600))
 
     print('--------------------------------------------------------------')
     print('\t SIMULATION WAS SUCCESSFUL')

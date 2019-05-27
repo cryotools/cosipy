@@ -81,7 +81,6 @@ class Grid:
         self.number_nodes += 1
 
 
-
     def remove_node(self, pos=None):
         """ Removes a node or a list of nodes at pos from the node list """
 
@@ -133,11 +132,6 @@ class Grid:
         # Remove the second layer
         self.remove_node([idx+1])
 
-        self.grid.insert(pos+1, Node(self.get_node_height(pos)/2.0, self.get_node_density(pos), self.get_node_temperature(pos), self.get_node_liquid_water_content(pos)/2.0,
-                         self.get_node_cold_content(pos)/2.0, self.get_node_porosity(pos), self.get_node_vol_ice_content(pos), self.get_node_refreeze(pos)/2.0))
-        self.update_node(pos, self.get_node_height(pos)/2.0 , self.get_node_density(pos), self.get_node_temperature(pos), self.get_node_liquid_water_content(pos)/2.0,
-                         self.get_node_cold_content(pos)/2.0, self.get_node_porosity(pos), self.get_node_vol_ice_content(pos), self.get_node_refreeze(pos)/2.0)
-        self.number_nodes += 1
 
    
     def correct_first_layer(self):
@@ -286,14 +280,7 @@ class Grid:
             self.update_node(idx, h0, T0, if0, lw0)
             self.update_node(idx+1, h1, T1, if1, lw1)
 
-                # Update node properties
-                self.update_node(idx, new_height, new_density, new_temperature, new_liquid_water_content, 0.0, 0.0, 0.0, 0.0)
 
-                # Remove the second layer
-                self.remove_node(idx-1)
-           
-                # Move to next layer 
-                idx -= 1
 
     def log_profile(self):
         """ Logarithmic remeshing """ 
@@ -316,8 +303,6 @@ class Grid:
             self.merge_nodes(self.get_number_layers()-2)
             
 
-                # Stop merging process, if iterated over entire grid
-                idx -= 1
 
     def adaptive_profile(self):
         """ Remesh according to certain layer state criteria"""
@@ -352,7 +337,6 @@ class Grid:
         self.check('MERGE')
         
 
-        self.logger.debug('Merge new snow')
 
     def split_node(self, pos):
         """ Split node at position pos """
@@ -376,21 +360,7 @@ class Grid:
 
         self.number_nodes += 1
 
-                # First calculate total energy
-                new_total_energy = (self.grid[0].get_layer_height() * spec_heat_ice * self.grid[0].get_layer_density() *
-                                    self.grid[0].get_layer_temperature()) + \
-                                   (self.grid[1].get_layer_height() * spec_heat_ice * self.grid[1].get_layer_density() *
-                                    self.grid[1].get_layer_temperature())
-                
-                # Convert total energy to temperature according to the new density
-                new_temperature = new_total_energy/(spec_heat_ice*new_density*new_height)
-                
-                # Todo: CHECK IF RIGHT!!!!!
-                new_liquid_water_content = self.grid[0].get_layer_liquid_water_content() + \
-                                           self.grid[1].get_layer_liquid_water_content()
 
-                # Update node properties
-                self.update_node(1, new_height, new_density, new_temperature, new_liquid_water_content, 0.0, 0.0, 0.0, 0.0)
 
     def update_node(self, no, height, temperature, ice_fraction, liquid_water):
         """ Update properties of a specific node """
@@ -589,7 +559,6 @@ class Grid:
         for idx in range(self.number_nodes):
             self.grid[idx].set_layer_liquid_water_content(liquid_water_content[idx])
 
-
     
     def set_node_ice_fraction(self, idx, ice_fraction):
         """ Set liquid ice_fraction of node idx """
@@ -602,33 +571,6 @@ class Grid:
             self.grid[idx].set_layer_ice_fraction(ice_fraction[idx])
 
 
-
-    def set_node_porosity(self, idx, porosity):
-        """ Set porosity of node idx """        
-        return self.grid[idx].set_layer_porosity(porosity)
-
-
-
-    def set_porosity(self, porosity):
-        """ Set the porosity profile """
-        for idx in range(self.number_nodes):
-            self.grid[idx].set_layer_porosity(porosity[idx])
-
-
-    
-    def set_node_vol_ice_content(self, idx, vol_ice_content):
-        """ Set volumetric ice content of node idx """        
-        return self.grid[idx].set_layer_vol_ice_content(vol_ice_content)
-
-
-
-    def set_vol_ice_content(self, vol_ice_content):
-        """ Set the volumetric ice content profile """
-        for idx in range(self.number_nodes):
-            self.grid[idx].set_layer_vol_ice_content(vol_ice_content[idx])
-
-
-    
     def set_node_refreeze(self, idx, refreeze):
         """ Set refreezing of node idx """        
         return self.grid[idx].set_layer_refreeze(refreeze)
@@ -648,7 +590,6 @@ class Grid:
         for idx in range(self.number_nodes):
             T.append(self.grid[idx].get_layer_temperature())
         return T
-
 
 
     def get_node_temperature(self, idx):
@@ -709,7 +650,6 @@ class Grid:
         for idx in range(self.number_nodes):
             rho.append(self.grid[idx].get_layer_density())
         return rho
-
 
 
     def get_node_liquid_water_content(self, idx):
@@ -824,7 +764,6 @@ class Grid:
         """ Returns refreezing of node idx """
         return self.grid[idx].get_layer_refreeze()
 
-
         
     def get_refreeze(self):
         """ Returns the refreezing profile """
@@ -933,7 +872,6 @@ class Grid:
             Args:
                 n   : nuber of nodes to plot (from top)
         """
-
         if (n==-999):
             n = self.number_nodes
         

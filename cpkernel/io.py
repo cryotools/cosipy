@@ -11,7 +11,6 @@ import time
 import logging
 from modules.radCor import correctRadiation
 from constants import *
-
 from config import * 
 
 
@@ -89,8 +88,6 @@ class IOClass:
         """ Returns the data xarray """
         self.init_result_dataset()
         return self.RESULT
-
-
          
     #----------------------------------------------
     # Creates the restart xarray dataset
@@ -130,7 +127,6 @@ class IOClass:
         # Open input dataset
         self.DATA = xr.open_dataset(os.path.join(data_path,'input',input_netcdf))
         self.DATA['time'] = np.sort(self.DATA['time'].values)
-
         start_interval=str(self.DATA.time.values[0])[0:16]
         end_interval = str(self.DATA.time.values[-1])[0:16]
         time_steps = str(self.DATA.dims['time'])

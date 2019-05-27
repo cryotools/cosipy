@@ -18,7 +18,6 @@ from cpkernel.io import *
 from cpkernel.grid import *
 import cProfile
 
-def cosipy_core(DATA, GRID_RESTART=None):
 
 def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         
@@ -76,12 +75,10 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
     # Create the local output datasets
     logger.debug('Create local datasets')
     IO = IOClass(DATA)
-    RESULT = IO.create_local_result_dataset()
     RESTART = IO.create_local_restart_dataset()
 
     # Merge grid layers, if necessary
     logger.debug('Create local datasets')
-    GRID.update_grid(merging, density_threshold_merging, temperature_threshold_merging, merge_snow_threshold)
 
     # hours since the last snowfall (albedo module)
     hours_since_snowfall = 0
@@ -141,7 +138,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         GRID.grid_check()
 
         if (SNOWF is not None):
-        # Snowfall is given in m
             SNOWFALL = SNOWF[t]
 
         else:

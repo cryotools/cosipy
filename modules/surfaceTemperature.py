@@ -65,7 +65,7 @@ def energy_balance(x, GRID, SWnet, rho, Cs_t, Cs_q, T2, u2, q2, p, Li, lam, SLOP
     # Return residual of energy balance
     return np.abs(SWnet+Li+Lo+H+L+B)
 
-def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
+def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, TS_upper, LWin=None, N=None):
     """ This methods updates the surface temperature and returns the surface fluxes
        """
     # start module logging
@@ -112,7 +112,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
     #(GRID.get_node_height(0)*GRID.get_node_thermal_conductivity(0) + GRID.get_node_height(1)*GRID.get_node_thermal_conductivity(1) \
     #        + GRID.get_node_height(2)*GRID.get_node_thermal_conductivity(2))/hm
 
-    res = minimize(energy_balance, GRID.get_node_temperature(0), method='L-BFGS-B', bounds=((220.0, 273.16),),
+    res = minimize(energy_balance, GRID.get_node_temperature(0), method='L-BFGS-B', bounds=((220.0, TS_upper),),
                    tol=1e-8, args=(GRID, SWnet, rho, Cs_t, Cs_q, T2, u2, q2, p, Li, lam, SLOPE))
  
     # Set surface temperature
@@ -132,33 +132,6 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
     else:
         phi = 1
     
-    # Total net shortwave radiation
-    SWnet = G * (1-alpha)
-
-    # Bulk transfer coefficient 
-    Cs = np.power(0.41,2.0) / np.power(np.log(2.0/(z0)),2)
-
-    # Get mean snow density
-    if (GRID.get_node_density(0) >= 830.):
-        #snowRhoMean = snow_ice_threshold
-        snowRhoMean = 1300.
-    else:
-        snowRho = [idx for idx in GRID.get_density() if idx <= 830.]
-        snowRhoMean = sum(snowRho)/len(snowRho)
-
-    # Calculate thermal conductivity [W m-1 K-1] from mean density
-    if GRID.get_total_snowheight() > 0.0:
-        lam = 0.021 + 2.5 * (snowRhoMean/1000.0)**2.0
-    else:
-        lam = (water_content * water_thermal_conductivity ** 0.5 + mineral_content * mineral_thermal_conductivity ** \
-               0.5 + air_content * air_thermal_conductivity ** 0.5) ** 2
-
-    res = minimize(energy_balance, GRID.get_node_temperature(0), method='L-BFGS-B', bounds=((240.0, TS_upper),),
-                   tol=1e-8, args=(GRID, SWnet, rho, Cs, T2, u2, q2, p, Li, phi, lam))
- 
-    # Set surface temperature
-    GRID.set_node_temperature(0, float(res.x))
-
     if res.x >= zero_temperature:
         Lv = lat_heat_vaporize
     else:

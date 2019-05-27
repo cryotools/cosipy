@@ -112,7 +112,6 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
         if (SNOWFALL_var in df):
             SNOWFALL_interp[t, :, :] = SNOWFALL[t]
 
-    print("T_inter after", np.min(T_interp))
     # Change aspect to south==0, east==negative, west==positive
     ds['ASPECT'] = np.mod(ds['ASPECT']+180.0, 360.0)
     mask = ds['ASPECT'].where(ds['ASPECT']<=180.0)
@@ -155,14 +154,6 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     RH_interp[RH_interp > 100.0] = 100.0
     RH_interp[RH_interp < 0.0] = 0.1
 
-    # Add arrays to dataset and write file
-    add_variable_2D(ds, T_interp, 'T2', 'K', 'Temperature at 2 m')
-    add_variable_2D(ds, RH_interp, 'RH2', '%', 'Relative humidity at 2 m')
-    add_variable_2D(ds, RRR_interp, 'RRR', 'mm', 'Total precipitation (liquid+solid)')
-    add_variable_2D(ds, U_interp, 'U2', 'm s\u207b\xb9', 'Wind velocity at 2 m')
-    add_variable_2D(ds, G_interp, 'G', 'W m\u207b\xb2', 'Incoming shortwave radiation')
-    add_variable_2D(ds, P_interp, 'PRES', 'hPa', 'Atmospheric Pressure')
-    add_variable_2D(ds, N_interp, 'N', '%', 'Cloud cover fraction')
 
     #-----------------------------------
     # Create dataset

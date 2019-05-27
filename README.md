@@ -21,7 +21,6 @@ operating system, please create a topic in the forum. $LINK$ <br> Model is teste
   * Cluster Innsbruck
 
 #### Needed Python modules (with an Anaconda installation, they might be already installed):
-* numpy
 * xarray
 * dask-jobqueue
 * netcdf4

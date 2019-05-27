@@ -7,23 +7,29 @@
 # Declare variable names 
 #------------------------
 
+# Pressure
+PRES_var = 'Press_Avg'   
+
 # Temperature
-T_var = 'AirTC_Avg'  
+T2_var = 'TC2_Avg'  
+
+# Cloud cover fraction
+N_var = 'tcc'   
 
 # Relative humidity
-RH_var = 'RH'   
-
-# Wind velocity
-U_var = 'WS_ms_S_WVT'     
-
-# Precipitation
-RRR_var = 'Rain_mm_Tot' 
+RH2_var = 'Hum_Avg'   
 
 # Incoming shortwave radiation
 G_var = 'SWin_Avg'   
 
+# Precipitation
+RRR_var = 'Rain_Tot' 
+
+# Wind velocity
+U2_var = 'Wspeed'     
+
 # Incoming longwave radiation
-LW_var = 'LWin_Avg'   
+LWin_var = 'LWinCor_Avg'
 
 # Pressure
 P_var = 'Press_Avg'   
