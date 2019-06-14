@@ -48,20 +48,11 @@ def energy_balance(x, GRID, SWnet, rho, Cs_t, Cs_q, T2, u2, q2, p, Li, lam, SLOP
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(x, 4.0)
 
-    # Ground heat flux
-    #h = (GRID.get_node_depth(1)-GRID.get_node_depth(0))+(GRID.get_node_depth(2)-GRID.get_node_depth(1))
-    #B = lam * ((2 * GRID.get_node_temperature(1) - (0.5 * ((3 * x) + GRID.get_node_temperature(2)))) /\
-    #            (h)) * np.cos(np.radians(SLOPE))
-    #h = (GRID.get_node_depth(0))+(GRID.get_node_depth(1)-GRID.get_node_depth(0))
-    #B = lam * ((2 * GRID.get_node_temperature(0) - (0.5 * ((3 * x) + GRID.get_node_temperature(1)))) /\
-    #            (h))
     hminus = GRID.get_node_depth(1)-GRID.get_node_depth(0)
     hplus = GRID.get_node_depth(2)-GRID.get_node_depth(1)
 
-    B = (hminus/(hplus+hminus)) * ((GRID.get_node_temperature(2)-GRID.get_node_temperature(1))/hplus) + (hplus/(hplus+hminus))*((GRID.get_node_temperature(1)-x)/hminus)
+    B = lam * (hminus/(hplus+hminus)) * ((GRID.get_node_temperature(2)-GRID.get_node_temperature(1))/hplus) + (hplus/(hplus+hminus))*((GRID.get_node_temperature(1)-x)/hminus)
    
-    #B = lam * (GRID.get_node_temperature(2)-x)/(GRID.get_node_depth(2)-GRID.get_node_depth(0))
-
     # Return residual of energy balance
     return np.abs(SWnet+Li+Lo+H+L+B)
 
@@ -109,9 +100,6 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
 
     lam = GRID.get_node_thermal_conductivity(0) 
     
-    #(GRID.get_node_height(0)*GRID.get_node_thermal_conductivity(0) + GRID.get_node_height(1)*GRID.get_node_thermal_conductivity(1) \
-    #        + GRID.get_node_height(2)*GRID.get_node_thermal_conductivity(2))/hm
-
     res = minimize(energy_balance, GRID.get_node_temperature(0), method='L-BFGS-B', bounds=((220.0, 273.16),),
                    tol=1e-8, args=(GRID, SWnet, rho, Cs_t, Cs_q, T2, u2, q2, p, Li, lam, SLOPE))
  
@@ -152,21 +140,11 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(res.x, 4.0)
 
-    # Ground heat flux
-    #h = (GRID.get_node_depth(1)-GRID.get_node_depth(0))+(GRID.get_node_depth(2)-GRID.get_node_depth(1))
-    #B = lam * ((2 * GRID.get_node_temperature(1) - (0.5 * ((3 * res.x) + GRID.get_node_temperature(2)))) /\
-    #            (h)) * np.cos(np.radians(SLOPE))
-    #h = (GRID.get_node_depth(0))+(GRID.get_node_depth(1)-GRID.get_node_depth(0))
-    #B = lam * ((2 * GRID.get_node_temperature(0) - (0.5 * ((3 * res.x) + GRID.get_node_temperature(1)))) /\
-    #            (h)) 
-
     hminus = GRID.get_node_depth(1)-GRID.get_node_depth(0)
     hplus = GRID.get_node_depth(2)-GRID.get_node_depth(1)
 
-    B = (hminus/(hplus+hminus))*((GRID.get_node_temperature(2)-GRID.get_node_temperature(1))/hplus) + (hplus/(hplus+hminus))*((GRID.get_node_temperature(1)-res.x)/hminus)
+    B = lam * (hminus/(hplus+hminus))*((GRID.get_node_temperature(2)-GRID.get_node_temperature(1))/hplus) + (hplus/(hplus+hminus))*((GRID.get_node_temperature(1)-res.x)/hminus)
     
-    #B = lam * (GRID.get_node_temperature(2)-res.x)/(GRID.get_node_depth(2)-GRID.get_node_depth(0))
-
     qdiff = q0-q2
 
     if float(res.x)>273.16:
