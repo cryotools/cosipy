@@ -125,7 +125,7 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     for t in range(len(dso.time)):
         T_interp[t,:,:] = (T2[t]) + (ds.HGT.values-stationAlt)*lapse_T
         RH_interp[t,:,:] = RH2[t] + (ds.HGT.values-stationAlt)*lapse_RH
-        RRR_interp[t,:,:] = RRR[t]
+        RRR_interp[t,:,:] = RRR[t] + (ds.HGT.values-stationAlt)*lapse_RRR
         U_interp[t,:,:] = U2[t]
 
         # Interpolate pressure using the barometric equation
@@ -133,7 +133,7 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
         P_interp[t,:,:] = SLP * np.power((1-(0.0065*ds.HGT.values)/(288.15)), 5.255)
 
         if (SNOWFALL_var in df):
-            SNOWFALL_interp[t, :, :] = SNOWFALL[t]
+            SNOWFALL_interp[t, :, :] = SNOWFALL[t] + (ds.HGT.values-stationAlt)*lapse_SNOWFALL
 
         if(LWin_var in df):
             LW_interp[t,:,:] = LW[t]

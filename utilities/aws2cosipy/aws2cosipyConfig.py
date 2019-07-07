@@ -51,6 +51,7 @@ zeni_thld = 85.0
 stationName = 'Hintereisferner'
 stationAlt = 2880.0
 
-lapse_T    = -0.006  # Temp K per  m
-lapse_RH   = 0.001  # RH % per  m (0 to 1)
-lapse_RRR  = 0.001   # RRR % per m (0 to 1)
+lapse_T         = -0.006  # Temp K per  m
+lapse_RH        = 0.001  # RH % per  m (0 to 1)
+lapse_RRR       = 0.001   # RRR % per m (0 to 1)
+lapse_SNOWFALL  = 0.001   # Snowfall % per m (0 to 1)
