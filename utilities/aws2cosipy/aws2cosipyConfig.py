@@ -11,10 +11,10 @@
 PRES_var = 'Press_Avg'   
 
 # Temperature
-T2_var = 'TC2_Avg'  
+T2_var = 'Tair_Avg_K'  
 
 # Cloud cover fraction
-N_var = 'tcc'   
+N_var = 'tcc'
 
 # Relative humidity
 RH2_var = 'Hum_Avg'   
@@ -31,6 +31,8 @@ U2_var = 'Wspeed'
 # Incoming longwave radiation
 LWin_var = 'LWinCor_Avg'
 
+# Snowfall
+SNOWFALL_var = 'SNOWFALL'
 
 #------------------------
 # Radiation module 
