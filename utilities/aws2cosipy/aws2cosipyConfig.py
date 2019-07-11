@@ -11,10 +11,10 @@
 PRES_var = 'Press_Avg'   
 
 # Temperature
-T2_var = 'TC2_Avg'  
+T2_var = 'Tair_Avg_K'  
 
 # Cloud cover fraction
-N_var = 'tcc'   
+N_var = 'tcc'
 
 # Relative humidity
 RH2_var = 'Hum_Avg'   
@@ -31,6 +31,8 @@ U2_var = 'Wspeed'
 # Incoming longwave radiation
 LWin_var = 'LWinCor_Avg'
 
+# Snowfall
+SNOWFALL_var = 'SNOWFALL'
 
 #------------------------
 # Radiation module 
@@ -49,6 +51,7 @@ zeni_thld = 85.0
 stationName = 'Hintereisferner'
 stationAlt = 2880.0
 
-lapse_T    = -0.006  # Temp K per  m
-lapse_RH   = 0.001  # RH % per  m (0 to 1)
-lapse_RRR  = 0.001   # RRR % per m (0 to 1)
+lapse_T         = -0.006  # Temp K per  m
+lapse_RH        = 0.001  # RH % per  m (0 to 1)
+lapse_RRR       = 0.001   # RRR % per m (0 to 1)
+lapse_SNOWFALL  = 0.001   # Snowfall % per m (0 to 1)

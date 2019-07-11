@@ -51,7 +51,7 @@ import cProfile
 def main():
 
     start_logging()
-    
+
     #------------------------------------------
     # Create input and output dataset
     #------------------------------------------ 
@@ -180,7 +180,6 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
         for future in as_completed(futures):
 
                 # Get the results from the workers
-#                res = future.result() 
                 indY,indX,local_restart,RAIN,SNOWFALL,LWin,LWout,H,LE,B,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,NLAYERS, \
                                 ME,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM, \
                                 LAYER_HEIGHT,LAYER_RHO,LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_LW,LAYER_ICE_FRACTION, \
@@ -190,15 +189,6 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                                 ME,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,LAYER_HEIGHT,LAYER_RHO, \
                                 LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_LW,LAYER_ICE_FRACTION,LAYER_IRREDUCIBLE_WATER,LAYER_REFREEZE)
 
-                # res[0]::y  res[1]::x  res[2]::restart  res[3]::local_io
-                #y = res[0]
-                #x = res[1]
-                #local_restart = res[2]
-                #local_io = res[3]
-
-                # Copy the local results from worker to the global result array
-                #IO.copy_local_to_global(local_io, y, x)
-                
                 # Write results to file
                 IO.write_results_to_file()
 

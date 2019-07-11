@@ -57,7 +57,7 @@ def createDEM_v1():
     unstructuredGrid.ShallowCopy(appendFilter.GetOutput())
 
     writer = vtk.vtkXMLUnstructuredGridWriter()
-    writer.SetFileName('cosima.vtu')
+    writer.SetFileName('cosipy.vtu')
     writer.SetInputData(unstructuredGrid)
     writer.Write()
 
@@ -90,14 +90,14 @@ def createDEM_v2():
     grid.SetCells(vtk.VTK_QUAD, cells)
     
     writer = vtk.vtkXMLUnstructuredGridWriter()
-    writer.SetFileName('cosima.vtu')
+    writer.SetFileName('cosipy.vtu')
     writer.SetInputData(grid)
     writer.Write()
    
 def add_scalar(var, timestamp):
 
     vtkFile = vtk.vtkXMLUnstructuredGridReader()
-    vtkFile.SetFileName('cosima.vtu')
+    vtkFile.SetFileName('cosipy.vtu')
     vtkFile.Update()
     
     # Find cellId by coordinates
@@ -135,7 +135,7 @@ def add_scalar(var, timestamp):
         vtkFile.GetOutput().GetPointData().GetArray('TS').InsertTuple1(pointId,data[i])
 
     writer = vtk.vtkXMLUnstructuredGridWriter()
-    writer.SetFileName('cosima_TS.vtu')
+    writer.SetFileName('cosipy_TS.vtu')
     writer.SetInputData(vtkFile.GetOutput())
     writer.Write()
 
@@ -215,7 +215,7 @@ def plotSurface(domain):
 
     writer = vtk.vtkPNGWriter()
     writer.SetInputConnection(renderLarge.GetOutputPort())
-    writer.SetFileName('cosima.png')
+    writer.SetFileName('cosipy.png')
     writer.Write()
 
 

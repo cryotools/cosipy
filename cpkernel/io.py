@@ -12,7 +12,7 @@ import logging
 from modules.radCor import correctRadiation
 from constants import *
 from config import * 
-
+import configparser
 
 class IOClass:
 
@@ -21,6 +21,12 @@ class IOClass:
 
         # start module logging
         self.logger = logging.getLogger(__name__)
+        
+        # Read variable list from file
+        config = configparser.ConfigParser()
+        config.read('output')
+        self.atm = config['vars']['atm']
+        self.internal = config['vars']['internal']
 
         # Initialize data
         self.DATA = DATA
@@ -298,31 +304,57 @@ class IOClass:
     # the arrays are assigned to the RESULT dataset and is stored to disc (see COSIPY.py)
     #==============================================================================
     def create_global_result_arrays(self):
-        self.RAIN = np.full((self.time,self.ny,self.nx), np.nan)
-        self.SNOWFALL = np.full((self.time,self.ny,self.nx), np.nan)
-        self.LWin = np.full((self.time,self.ny,self.nx), np.nan)
-        self.LWout = np.full((self.time,self.ny,self.nx), np.nan)
-        self.H = np.full((self.time,self.ny,self.nx), np.nan)
-        self.LE = np.full((self.time,self.ny,self.nx), np.nan)
-        self.B = np.full((self.time,self.ny,self.nx), np.nan)
-        self.MB = np.full((self.time,self.ny,self.nx), np.nan)
-        self.surfMB = np.full((self.time,self.ny,self.nx), np.nan)
-        self.Q = np.full((self.time,self.ny,self.nx), np.nan)
-        self.SNOWHEIGHT = np.full((self.time,self.ny,self.nx), np.nan)
-        self.TOTALHEIGHT = np.full((self.time,self.ny,self.nx), np.nan)
-        self.TS = np.full((self.time,self.ny,self.nx), np.nan)
-        self.ALBEDO = np.full((self.time,self.ny,self.nx), np.nan)
-        self.NLAYERS = np.full((self.time,self.ny,self.nx), np.nan)
-        self.ME = np.full((self.time,self.ny,self.nx), np.nan)
-        self.intMB = np.full((self.time,self.ny,self.nx), np.nan)
-        self.EVAPORATION = np.full((self.time,self.ny,self.nx), np.nan)
-        self.SUBLIMATION = np.full((self.time,self.ny,self.nx), np.nan)
-        self.CONDENSATION = np.full((self.time,self.ny,self.nx), np.nan)
-        self.DEPOSITION = np.full((self.time,self.ny,self.nx), np.nan)
-        self.REFREEZE = np.full((self.time,self.ny,self.nx), np.nan)
-        self.subM = np.full((self.time,self.ny,self.nx), np.nan)
-        self.Z0 = np.full((self.time,self.ny,self.nx), np.nan)
-        self.surfM= np.full((self.time,self.ny,self.nx), np.nan)
+
+        if ('RAIN' in self.atm):
+            self.RAIN = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('SNOWFALL' in self.atm):
+            self.SNOWFALL = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('LWin' in self.atm):
+            self.LWin = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('LWout' in self.atm):
+            self.LWout = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('H' in self.atm):
+            self.H = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('LE' in self.atm):
+            self.LE = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('B' in self.atm):
+            self.B = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('MB' in self.internal):
+            self.MB = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('surfMB' in self.internal):
+            self.surfMB = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('Q' in self.internal):
+            self.Q = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('SNOWHEIGHT' in self.internal):
+            self.SNOWHEIGHT = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('TOTALHEIGHT' in self.internal):
+            self.TOTALHEIGHT = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('TS' in self.atm):
+            self.TS = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('ALBEDO' in self.atm):
+            self.ALBEDO = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('NLAYERS' in self.internal):
+            self.NLAYERS = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('ME' in self.internal):
+            self.ME = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('intMB' in self.internal):
+            self.intMB = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('EVAPORATION' in self.internal):
+            self.EVAPORATION = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('SUBLIMATION' in self.internal):
+            self.SUBLIMATION = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('CONDENSATION' in self.internal):
+            self.CONDENSATION = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('DEPOSITION' in self.internal):
+            self.DEPOSITION = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('REFREEZE' in self.internal):
+            self.REFREEZE = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('subM' in self.internal):
+            self.subM = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('Z0' in self.atm):
+            self.Z0 = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('surfM' in self.internal):
+            self.surfM= np.full((self.time,self.ny,self.nx), np.nan)
 
         if full_field:
             self.LAYER_HEIGHT = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
@@ -348,31 +380,56 @@ class IOClass:
                              local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY,local_LAYER_LW,local_LAYER_ICE_FRACTION, \
                              local_LAYER_IRREDUCIBLE_WATER,local_LAYER_REFREEZE):
 
-        self.RAIN[:,y,x] = local_RAIN
-        self.SNOWFALL[:,y,x] = local_SNOWFALL
-        self.LWin[:,y,x] = local_LWin
-        self.LWout[:,y,x] = local_LWout
-        self.H[:,y,x] = local_H
-        self.LE[:,y,x] = local_LE
-        self.B[:,y,x] = local_B
-        self.MB[:,y,x] = local_MB
-        self.surfMB[:,y,x] = local_surfMB
-        self.Q[:,y,x] = local_Q
-        self.SNOWHEIGHT[:,y,x] = local_SNOWHEIGHT
-        self.TOTALHEIGHT[:,y,x] = local_TOTALHEIGHT 
-        self.TS[:,y,x] = local_TS 
-        self.ALBEDO[:,y,x] = local_ALBEDO 
-        self.NLAYERS[:,y,x] = local_NLAYERS 
-        self.ME[:,y,x] = local_ME 
-        self.intMB[:,y,x] = local_intMB 
-        self.EVAPORATION[:,y,x] = local_EVAPORATION 
-        self.SUBLIMATION[:,y,x] = local_SUBLIMATION 
-        self.CONDENSATION[:,y,x] = local_CONDENSATION 
-        self.DEPOSITION[:,y,x] = local_DEPOSITION 
-        self.REFREEZE[:,y,x] = local_REFREEZE 
-        self.subM[:,y,x] = local_subM 
-        self.Z0[:,y,x] = local_Z0 
-        self.surfM[:,y,x] = local_surfM 
+        if ('RAIN' in self.atm):
+            self.RAIN[:,y,x] = local_RAIN
+        if ('SNOWFALL' in self.atm):
+            self.SNOWFALL[:,y,x] = local_SNOWFALL
+        if ('LWin' in self.atm):
+            self.LWin[:,y,x] = local_LWin
+        if ('LWout' in self.atm):
+            self.LWout[:,y,x] = local_LWout
+        if ('H' in self.atm):
+            self.H[:,y,x] = local_H
+        if ('LE' in self.atm):
+            self.LE[:,y,x] = local_LE
+        if ('B' in self.atm):
+            self.B[:,y,x] = local_B
+        if ('surfMB' in self.internal):
+            self.surfMB[:,y,x] = local_surfMB
+        if ('MB' in self.internal):
+            self.MB[:,y,x] = local_MB
+        if ('Q' in self.internal):
+            self.Q[:,y,x] = local_Q
+        if ('SNOWHEIGHT' in self.internal):
+            self.SNOWHEIGHT[:,y,x] = local_SNOWHEIGHT
+        if ('TOTALHEIGHT' in self.internal):
+            self.TOTALHEIGHT[:,y,x] = local_TOTALHEIGHT 
+        if ('TS' in self.atm):
+            self.TS[:,y,x] = local_TS 
+        if ('ALBEDO' in self.atm):
+            self.ALBEDO[:,y,x] = local_ALBEDO 
+        if ('NLAYERS' in self.internal):
+            self.NLAYERS[:,y,x] = local_NLAYERS 
+        if ('ME' in self.internal):
+            self.ME[:,y,x] = local_ME 
+        if ('intMB' in self.internal):
+            self.intMB[:,y,x] = local_intMB 
+        if ('EVAPORATION' in self.internal):
+            self.EVAPORATION[:,y,x] = local_EVAPORATION 
+        if ('SUBLIMATION' in self.internal):
+            self.SUBLIMATION[:,y,x] = local_SUBLIMATION 
+        if ('CONDENSATION' in self.internal):
+            self.CONDENSATION[:,y,x] = local_CONDENSATION 
+        if ('DEPOSITION' in self.internal):
+            self.DEPOSITION[:,y,x] = local_DEPOSITION 
+        if ('REFREEZE' in self.internal):
+            self.REFREEZE[:,y,x] = local_REFREEZE 
+        if ('subM' in self.internal):
+            self.subM[:,y,x] = local_subM 
+        if ('Z0' in self.atm):
+            self.Z0[:,y,x] = local_Z0 
+        if ('surfM' in self.internal):
+            self.surfM[:,y,x] = local_surfM 
 
         if full_field:
             self.LAYER_HEIGHT[:,y,x,:] = local_LAYER_HEIGHT 
@@ -391,31 +448,56 @@ class IOClass:
     # be written to disc.
     #==============================================================================
     def write_results_to_file(self):
-        self.add_variable_along_latlontime(self.RESULT, self.RAIN, 'RAIN', 'mm', 'Liquid precipitation') 
-        self.add_variable_along_latlontime(self.RESULT, self.SNOWFALL, 'SNOWFALL', 'm', 'Snowfall') 
-        self.add_variable_along_latlontime(self.RESULT, self.LWin, 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation') 
-        self.add_variable_along_latlontime(self.RESULT, self.LWout, 'LWout', 'W m\u207b\xb2', 'Outgoing longwave radiation') 
-        self.add_variable_along_latlontime(self.RESULT, self.H, 'H', 'W m\u207b\xb2', 'Sensible heat flux') 
-        self.add_variable_along_latlontime(self.RESULT, self.LE, 'LE', 'W m\u207b\xb2', 'Latent heat flux') 
-        self.add_variable_along_latlontime(self.RESULT, self.B, 'B', 'W m\u207b\xb2', 'Ground heat flux') 
-        self.add_variable_along_latlontime(self.RESULT, self.surfMB, 'surfMB', 'm w.e.', 'Surface mass balance') 
-        self.add_variable_along_latlontime(self.RESULT, self.MB, 'MB', 'm w.e.', 'Mass balance') 
-        self.add_variable_along_latlontime(self.RESULT, self.Q, 'Q', 'm w.e.', 'Runoff') 
-        self.add_variable_along_latlontime(self.RESULT, self.SNOWHEIGHT, 'SNOWHEIGHT', 'm', 'Snowheight') 
-        self.add_variable_along_latlontime(self.RESULT, self.TOTALHEIGHT, 'TOTALHEIGHT', 'm', 'Total domain height') 
-        self.add_variable_along_latlontime(self.RESULT, self.TS, 'TS', 'K', 'Surface temperature') 
-        self.add_variable_along_latlontime(self.RESULT, self.ALBEDO, 'ALBEDO', '-', 'Albedo') 
-        self.add_variable_along_latlontime(self.RESULT, self.NLAYERS, 'NLAYERS', '-', 'Number of layers') 
-        self.add_variable_along_latlontime(self.RESULT, self.ME, 'ME', 'W m\u207b\xb2', 'Available melt energy') 
-        self.add_variable_along_latlontime(self.RESULT, self.intMB, 'intMB', 'm w.e.', 'Internal mass balance') 
-        self.add_variable_along_latlontime(self.RESULT, self.EVAPORATION, 'EVAPORATION', 'm w.e.', 'Evaporation') 
-        self.add_variable_along_latlontime(self.RESULT, self.SUBLIMATION, 'SUBLIMATION', 'm w.e.', 'Sublimation') 
-        self.add_variable_along_latlontime(self.RESULT, self.CONDENSATION, 'CONDENSATION', 'm w.e.', 'Condensation') 
-        self.add_variable_along_latlontime(self.RESULT, self.DEPOSITION, 'DEPOSITION', 'm w.e.', 'Deposition') 
-        self.add_variable_along_latlontime(self.RESULT, self.REFREEZE, 'REFREEZE', 'm w.e.', 'Refreezing') 
-        self.add_variable_along_latlontime(self.RESULT, self.subM, 'subM', 'm w.e.', 'Subsurface melt') 
-        self.add_variable_along_latlontime(self.RESULT, self.Z0, 'Z0', 'm', 'Roughness length') 
-        self.add_variable_along_latlontime(self.RESULT, self.surfM, 'surfM', 'm w.e.', 'Surface melt') 
+        if ('RAIN' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.RAIN, 'RAIN', 'mm', 'Liquid precipitation') 
+        if ('SNOWFALL' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.SNOWFALL, 'SNOWFALL', 'm', 'Snowfall') 
+        if ('LWin' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.LWin, 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation') 
+        if ('LWout' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.LWout, 'LWout', 'W m\u207b\xb2', 'Outgoing longwave radiation') 
+        if ('H' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.H, 'H', 'W m\u207b\xb2', 'Sensible heat flux') 
+        if ('LE' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.LE, 'LE', 'W m\u207b\xb2', 'Latent heat flux') 
+        if ('B' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.B, 'B', 'W m\u207b\xb2', 'Ground heat flux') 
+        if ('surfMB' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.surfMB, 'surfMB', 'm w.e.', 'Surface mass balance') 
+        if ('MB' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.MB, 'MB', 'm w.e.', 'Mass balance') 
+        if ('Q' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.Q, 'Q', 'm w.e.', 'Runoff') 
+        if ('SNOWHEIGHT' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.SNOWHEIGHT, 'SNOWHEIGHT', 'm', 'Snowheight') 
+        if ('TOTALHEIGHT' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.TOTALHEIGHT, 'TOTALHEIGHT', 'm', 'Total domain height') 
+        if ('TS' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.TS, 'TS', 'K', 'Surface temperature') 
+        if ('ALBEDO' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.ALBEDO, 'ALBEDO', '-', 'Albedo') 
+        if ('NLAYERS' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.NLAYERS, 'NLAYERS', '-', 'Number of layers') 
+        if ('ME' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.ME, 'ME', 'W m\u207b\xb2', 'Available melt energy') 
+        if ('intMB' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.intMB, 'intMB', 'm w.e.', 'Internal mass balance') 
+        if ('EVAPORATION' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.EVAPORATION, 'EVAPORATION', 'm w.e.', 'Evaporation') 
+        if ('SUBLIMATION' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.SUBLIMATION, 'SUBLIMATION', 'm w.e.', 'Sublimation') 
+        if ('CONDENSATION' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.CONDENSATION, 'CONDENSATION', 'm w.e.', 'Condensation') 
+        if ('DEPOSITION' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.DEPOSITION, 'DEPOSITION', 'm w.e.', 'Deposition') 
+        if ('REFREEZE' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.REFREEZE, 'REFREEZE', 'm w.e.', 'Refreezing') 
+        if ('subM' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.subM, 'subM', 'm w.e.', 'Subsurface melt') 
+        if ('Z0' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.Z0, 'Z0', 'm', 'Roughness length') 
+        if ('surfM' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.surfM, 'surfM', 'm w.e.', 'Surface melt') 
         
         if full_field:
             self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Layer height') 
