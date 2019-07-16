@@ -36,7 +36,7 @@ def method_Essery_empirical(GRID,SLOPE):
 
     # Loop over all internal snow nodes
     for idxNode in range(0,GRID.get_number_snow_layers() - 1 , 1):
-         density_temp[idxNode]=(GRID.get_node_density(idxNode) - density_max) * np.exp(-dt*tau) + density_max
+         density_temp[idxNode]=(GRID.get_node_density(idxNode) - density_max) * np.exp(-dt/tau) + density_max
 
     # Update grid
     GRID.set_ice_fraction(GRID.get_height() / ((GRID.get_density() / density_temp) * GRID.get_height()) * GRID.get_ice_fraction())

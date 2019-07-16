@@ -18,7 +18,6 @@ def plot_profile(filename, pdate, lat, lon):
  
     depth = np.append(0,np.cumsum(DATA.LAYER_HEIGHT.values))
     rho = np.append(DATA.LAYER_RHO[0],DATA.LAYER_RHO.values)
-    print(depth,rho)
     plt.step(rho,depth)
     ax = plt.gca()
     ax.invert_yaxis()
