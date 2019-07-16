@@ -11,9 +11,9 @@ roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
 
 ' Inital constants'
-initial_snowheight_constant = 0.8               # Inital snowheigt
+initial_snowheight_constant = 1.0               # Inital snowheigt
 initial_snow_layer_heights = 0.05               # Initial thickness of snow layers
-initial_glacier_height = 40.0                   # Inital glacier heigt without snowlayers
+initial_glacier_height = 10.0                   # Inital glacier heigt without snowlayers
 initial_glacier_layer_heights = 1.0             # Initial thickness of glacier ice layers
 
 initial_top_density_snowpack = 300.             # Top density for inital snowpack
@@ -25,11 +25,11 @@ const_init_temp = 0.1                           # constant for init temperature 
 
 'Remeshing options'
 first_layer_height = 0.02                       # The first layer will always have the defined height (m)
-layer_stretching = 1.5                          # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
+layer_stretching = 1.15                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
 
 minimum_snow_to_reset_albedo = 0.01             # minimum snowfall to reset hours since last snowfall! Default was 0.005
 
-density_fresh_snow = 250.                       # density of freshly fallen snow [kg m-3]
+density_fresh_snow = 150.                       # density of freshly fallen snow [kg m-3]
 
 albedo_fresh_snow = 0.90                        # albedo of fresh snow [-] (Moelg etal. 2012, TC)
 albedo_firn = 0.55                              # albedo of firn [-] (Moelg etal. 2012, TC)

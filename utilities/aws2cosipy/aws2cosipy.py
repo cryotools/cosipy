@@ -66,7 +66,9 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     df[U2_var] = df[U2_var].apply(pd.to_numeric, errors='coerce')
     df[G_var] = df[G_var].apply(pd.to_numeric, errors='coerce')
     df[PRES_var] = df[PRES_var].apply(pd.to_numeric, errors='coerce')
-    df[RRR_var] = df[RRR_var].apply(pd.to_numeric, errors='coerce')
+    
+    if (RRR_var in df):
+        df[RRR_var] = df[RRR_var].apply(pd.to_numeric, errors='coerce')
 
     if (PRES_var not in df):
         df[PRES_var] = 660.00
@@ -90,19 +92,21 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     U2 = df[U2_var]         # Wind velocity
     G = df[G_var]           # Incoming shortwave radiation
     PRES = df[PRES_var]     # Pressure
-    RRR = df[RRR_var]       # Precipitation
 
     #-----------------------------------
     # Create numpy arrays for the 2D fields
     #-----------------------------------
     T_interp = np.zeros([len(dso.time), len(ds.south_north), len(ds.west_east)])
     RH_interp = np.zeros([len(dso.time), len(ds.south_north), len(ds.west_east)])
-    RRR_interp = np.zeros([len(dso.time), len(ds.south_north), len(ds.west_east)])
     U_interp = np.zeros([len(dso.time), len(ds.south_north), len(ds.west_east)])
     G_interp = np.zeros([len(dso.time), len(ds.south_north), len(ds.west_east)])
     P_interp = np.zeros([len(dso.time), len(ds.south_north), len(ds.west_east)])
     LWin_interp = np.zeros([len(dso.time), len(ds.south_north), len(ds.west_east)])
     N_interp = np.zeros([len(dso.time), len(ds.south_north), len(ds.west_east)])
+    
+    if (RRR_var in df):
+        RRR = df[RRR_var]       # Precipitation
+        RRR_interp = np.zeros([len(dso.time), len(ds.south_north), len(ds.west_east)])
 
     if(SNOWFALL_var in df):
         SNOWFALL = df[SNOWFALL_var]      # Incoming longwave radiation
@@ -125,13 +129,15 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     for t in range(len(dso.time)):
         T_interp[t,:,:] = (T2[t]) + (ds.HGT.values-stationAlt)*lapse_T
         RH_interp[t,:,:] = RH2[t] + (ds.HGT.values-stationAlt)*lapse_RH
-        RRR_interp[t,:,:] = RRR[t] + (ds.HGT.values-stationAlt)*lapse_RRR
         U_interp[t,:,:] = U2[t]
 
         # Interpolate pressure using the barometric equation
         SLP = PRES[t]/np.power((1-(0.0065*stationAlt)/(288.15)), 5.255)
         P_interp[t,:,:] = SLP * np.power((1-(0.0065*ds.HGT.values)/(288.15)), 5.255)
 
+        if (RRR_var in df):
+            RRR_interp[t,:,:] = RRR[t] + (ds.HGT.values-stationAlt)*lapse_RRR
+        
         if (SNOWFALL_var in df):
             SNOWFALL_interp[t, :, :] = SNOWFALL[t] + (ds.HGT.values-stationAlt)*lapse_SNOWFALL
 
@@ -140,7 +146,6 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
         
         if(N_var in df):
             N_interp[t,:,:] = LW[t]
-        print(LW_interp)
 
     # Change aspect to south==0, east==negative, west==positive
     ds['ASPECT'] = np.mod(ds['ASPECT']+180.0, 360.0)
@@ -193,10 +198,12 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     add_variable_along_latlon(dso, ds.MASK.values, 'MASK', 'boolean', 'Glacier mask')
     add_variable_along_timelatlon(dso, T_interp, 'T2', 'K', 'Temperature at 2 m')
     add_variable_along_timelatlon(dso, RH_interp, 'RH2', '%', 'Relative humidity at 2 m')
-    add_variable_along_timelatlon(dso, RRR_interp, 'RRR', 'mm', 'Total precipitation (liquid+solid)')
     add_variable_along_timelatlon(dso, U_interp, 'U2', 'm s\u207b\xb9', 'Wind velocity at 2 m')
     add_variable_along_timelatlon(dso, G_interp, 'G', 'W m\u207b\xb2', 'Incoming shortwave radiation')
     add_variable_along_timelatlon(dso, P_interp, 'PRES', 'hPa', 'Atmospheric Pressure')
+    
+    if (RRR_var in df):
+        add_variable_along_timelatlon(dso, RRR_interp, 'RRR', 'mm', 'Total precipitation (liquid+solid)')
     
     if(SNOWFALL_var in df):
         add_variable_along_timelatlon(dso, SNOWFALL_interp, 'SNOWFALL', 'm', 'Snowfall')
