@@ -5,13 +5,13 @@
 
 'Choose parameterisations'
 albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98'
-densification_method = 'Herron80'               # possibilities: 'Herron80'
+densification_method = 'Essery2013_empirical'   # possibilities: 'Essery2013_empirical','Essery2013_physical'
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
 roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
 
 ' Inital constants'
-initial_snowheight_constant = 0.8                        # Inital snowheigt
+initial_snowheight_constant = 0.8               # Inital snowheigt
 initial_snow_layer_heights = 0.05               # Initial thickness of snow layers
 initial_glacier_height = 40.0                   # Inital glacier heigt without snowlayers
 initial_glacier_layer_heights = 1.0             # Initial thickness of glacier ice layers

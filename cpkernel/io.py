@@ -27,6 +27,7 @@ class IOClass:
         config.read('output')
         self.atm = config['vars']['atm']
         self.internal = config['vars']['internal']
+        self.full = config['vars']['full']
 
         # Initialize data
         self.DATA = DATA
@@ -357,16 +358,26 @@ class IOClass:
             self.surfM= np.full((self.time,self.ny,self.nx), np.nan)
 
         if full_field:
-            self.LAYER_HEIGHT = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            self.LAYER_RHO = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            self.LAYER_T = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            self.LAYER_LWC = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            self.LAYER_CC = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            self.LAYER_POROSITY = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            self.LAYER_LW = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            self.LAYER_ICE_FRACTION = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            self.LAYER_IRREDUCIBLE_WATER = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            self.LAYER_REFREEZE = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            if ('HEIGHT' in self.full):
+                self.LAYER_HEIGHT = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            if ('RHO' in self.full):
+                self.LAYER_RHO = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            if ('T' in self.full):
+                self.LAYER_T = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            if ('LWC' in self.full):
+                self.LAYER_LWC = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            if ('CC' in self.full):
+                self.LAYER_CC = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            if ('POROSITY' in self.full):
+                self.LAYER_POROSITY = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            if ('LW' in self.full):
+                self.LAYER_LW = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            if ('ICE_FRACTION' in self.full):
+                self.LAYER_ICE_FRACTION = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            if ('IRREDUCIBLE_WATER' in self.full):
+                self.LAYER_IRREDUCIBLE_WATER = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            if ('REFREEZE' in self.full):
+                self.LAYER_REFREEZE = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
    
 
     #==============================================================================
@@ -432,17 +443,28 @@ class IOClass:
             self.surfM[:,y,x] = local_surfM 
 
         if full_field:
-            self.LAYER_HEIGHT[:,y,x,:] = local_LAYER_HEIGHT 
-            self.LAYER_RHO[:,y,x,:] = local_LAYER_RHO 
-            self.LAYER_T[:,y,x,:] = local_LAYER_T 
-            self.LAYER_LWC[:,y,x,:] = local_LAYER_LWC 
-            self.LAYER_CC[:,y,x,:] = local_LAYER_CC 
-            self.LAYER_POROSITY[:,y,x,:] = local_LAYER_POROSITY 
-            self.LAYER_LW[:,y,x,:] = local_LAYER_LW 
-            self.LAYER_ICE_FRACTION[:,y,x,:] = local_LAYER_ICE_FRACTION 
-            self.LAYER_IRREDUCIBLE_WATER[:,y,x,:] = local_LAYER_IRREDUCIBLE_WATER 
-            self.LAYER_REFREEZE[:,y,x,:] = local_LAYER_REFREEZE 
+            if ('HEIGHT' in self.full):
+                self.LAYER_HEIGHT[:,y,x,:] = local_LAYER_HEIGHT 
+            if ('RHO' in self.full):
+                self.LAYER_RHO[:,y,x,:] = local_LAYER_RHO 
+            if ('T' in self.full):
+                self.LAYER_T[:,y,x,:] = local_LAYER_T 
+            if ('LWC' in self.full):
+                self.LAYER_LWC[:,y,x,:] = local_LAYER_LWC 
+            if ('CC' in self.full):
+                self.LAYER_CC[:,y,x,:] = local_LAYER_CC 
+            if ('POROSITY' in self.full):
+                self.LAYER_POROSITY[:,y,x,:] = local_LAYER_POROSITY 
+            if ('LW' in self.full):
+                self.LAYER_LW[:,y,x,:] = local_LAYER_LW 
+            if ('ICE_FRACTION' in self.full):
+                self.LAYER_ICE_FRACTION[:,y,x,:] = local_LAYER_ICE_FRACTION 
+            if ('IRREDUCIBLE_WATER' in self.full):
+                self.LAYER_IRREDUCIBLE_WATER[:,y,x,:] = local_LAYER_IRREDUCIBLE_WATER 
+            if ('REFREEZE' in self.full):
+                self.LAYER_REFREEZE[:,y,x,:] = local_LAYER_REFREEZE 
         
+
     #==============================================================================
     # This function adds the global numpy arrays to the RESULT dataset which will
     # be written to disc.
@@ -500,16 +522,26 @@ class IOClass:
             self.add_variable_along_latlontime(self.RESULT, self.surfM, 'surfM', 'm w.e.', 'Surface melt') 
         
         if full_field:
-            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Layer height') 
-            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_RHO, 'LAYER_RHO', 'kg m^-3', 'Layer density') 
-            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_T, 'LAYER_T', 'K', 'Layer temperature') 
-            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_LWC, 'LAYER_LWC', 'kg m^-2', 'Liquid water content') 
-            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_CC, 'LAYER_CC', 'J m^-2', 'Cold content') 
-            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_POROSITY, 'LAYER_POROSITY', '-', 'Porosity') 
-            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_LW, 'LAYER_LW', 'm w.e.', 'Liquid water') 
-            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_ICE_FRACTION, 'LAYER_ICE_FRACTION', '-', 'Ice fraction') 
-            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_IRREDUCIBLE_WATER, 'LAYER_IRREDUCIBLE_WATER', '-', 'Irreducible water') 
-            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_REFREEZE, 'LAYER_REFREEZE', 'm w.e.', 'Refreezing') 
+            if ('HEIGHT' in self.full):
+                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Layer height') 
+            if ('RHO' in self.full):
+                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_RHO, 'LAYER_RHO', 'kg m^-3', 'Layer density') 
+            if ('T' in self.full):
+                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_T, 'LAYER_T', 'K', 'Layer temperature') 
+            if ('LWC' in self.full):
+                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_LWC, 'LAYER_LWC', 'kg m^-2', 'Liquid water content') 
+            if ('CC' in self.full):
+                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_CC, 'LAYER_CC', 'J m^-2', 'Cold content') 
+            if ('POROSITY' in self.full):
+                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_POROSITY, 'LAYER_POROSITY', '-', 'Porosity') 
+            if ('LW' in self.full):
+                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_LW, 'LAYER_LW', 'm w.e.', 'Liquid water') 
+            if ('ICE_FRACTION' in self.full):
+                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_ICE_FRACTION, 'LAYER_ICE_FRACTION', '-', 'Ice fraction') 
+            if ('IRREDUCIBLE_WATER' in self.full):
+                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_IRREDUCIBLE_WATER, 'LAYER_IRREDUCIBLE_WATER', '-', 'Irreducible water') 
+            if ('REFREEZE' in self.full):
+                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_REFREEZE, 'LAYER_REFREEZE', 'm w.e.', 'Refreezing') 
 
 
     #==============================================================================

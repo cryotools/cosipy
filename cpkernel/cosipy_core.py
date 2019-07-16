@@ -253,7 +253,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         #--------------------------------------------
         # Calculate new density to densification
         #--------------------------------------------
-        # densification(GRID,SLOPE)
+        densification(GRID,SLOPE)
 
         #--------------------------------------------
         # Calculate mass balance

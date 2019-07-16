@@ -30,7 +30,7 @@ yend = 20
 remesh_method = 'log_profile'
 
 ## Write full fields
-full_field = False
+full_field = True
 
 ## Restart, set to true if you want to start from restart file
 restart = False
