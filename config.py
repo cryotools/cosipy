@@ -3,8 +3,8 @@
  Please make your changes here.
 """
 ## Simulation period
-time_start = '2009-04-01T00:00'
-time_end   = '2009-06-06T00:00'
+time_start = '2009-01-01T00:00'
+time_end   = '2009-12-31T00:00'
 
 time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')

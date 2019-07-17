@@ -36,11 +36,24 @@ def method_Essery_empirical(GRID,SLOPE):
 
     # Loop over all internal snow nodes
     for idxNode in range(0,GRID.get_number_snow_layers() - 1 , 1):
-         density_temp[idxNode]=(GRID.get_node_density(idxNode) - density_max) * np.exp(-dt/tau) + density_max
+        # No densification if density is above defined maximum density
+        if (GRID.get_node_density(idxNode)<density_max):
+            density_temp[idxNode]=(GRID.get_node_density(idxNode) - density_max) * np.exp(-dt/tau) + density_max
+                
+            # Calc changes in volumetric fractions of ice and water
+            # No water in layer
+            if (GRID.get_node_liquid_water_content(idxNode)==0.0):
+                dtheta_i = (density_temp[idxNode]-GRID.get_node_density(idxNode))/ice_density
+                dtheta_w = 0.0
+            # layer contains water
+            else:
+                dtheta_i = ((density_temp[idxNode]-GRID.get_node_density(idxNode))/2.0)/ice_density
+                dtheta_w = ((density_temp[idxNode]-GRID.get_node_density(idxNode))/2.0)/water_density
 
-    # Update grid
-    GRID.set_ice_fraction(GRID.get_height() / ((GRID.get_density() / density_temp) * GRID.get_height()) * GRID.get_ice_fraction())
-    GRID.set_liquid_water(GRID.get_height() / ((GRID.get_density() / density_temp) * GRID.get_height()) * GRID.get_liquid_water())
+            # Set new fractions
+            GRID.set_node_ice_fraction(idxNode, (1+dtheta_i) * GRID.get_node_ice_fraction(idxNode))
+            GRID.set_node_liquid_water_content(idxNode, (1+dtheta_w) * GRID.get_node_liquid_water_content(idxNode))
+
     GRID.set_height((GRID.get_density() / density_temp) * GRID.get_height())
 
 
@@ -92,10 +105,21 @@ def method_Essery_physical(GRID,SLOPE):
         k3 = rhs(GRID.get_node_density(idxNode) + dt * k2 / 2., weight, GRID.get_node_temperature(idxNode))
         k4 = rhs(GRID.get_node_density(idxNode) + dt * k3, weight, GRID.get_node_temperature(idxNode))
         density_temp[idxNode] = GRID.get_node_density(idxNode) + (dt / 6.) * (k1 + 2 * k2 + 2 * k3 + k4)
+        
+        # Calc changes in volumetric fractions of ice and water
+        # No water in layer
+        if (GRID.get_node_liquid_water_content(idxNode)==0.0):
+            dtheta_i = (density_temp[idxNode]-GRID.get_node_density(idxNode))/ice_density
+            dtheta_w = 0.0
+        # layer contains water
+        else:
+            dtheta_i = ((density_temp[idxNode]-GRID.get_node_density(idxNode))/2.0)/ice_density
+            dtheta_w = ((density_temp[idxNode]-GRID.get_node_density(idxNode))/2.0)/water_density
 
-    # Update grid
-    GRID.set_ice_fraction(GRID.get_height() / ((GRID.get_density() / density_temp) * GRID.get_height()) * GRID.get_ice_fraction())
-    GRID.set_liquid_water(GRID.get_height() / ((GRID.get_density() / density_temp) * GRID.get_height()) * GRID.get_liquid_water())
+        # Set new fractions
+        GRID.set_node_ice_fraction(idxNode, (1+dtheta_i) * GRID.get_node_ice_fraction(idxNode))
+        GRID.set_node_liquid_water_content(idxNode, (1+dtheta_w) * GRID.get_node_liquid_water_content(idxNode))
+
     GRID.set_height((GRID.get_density() / density_temp) * GRID.get_height())
 
 
