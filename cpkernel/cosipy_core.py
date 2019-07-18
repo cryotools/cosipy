@@ -151,7 +151,11 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         #--------------------------------------------
         # RAINFALL = Total precipitation - SNOWFALL in mm w.e.
         #--------------------------------------------
-        RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000
+        if (RRR is not None):
+            RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000
+        else:
+            # if now RRR is provided
+            RAIN = 0.0
 
         #--------------------------------------------
         # Get hours since last snowfall for the albedo calculations
@@ -166,8 +170,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         #--------------------------------------------
         GRID.update_grid()
         
-
-
         #--------------------------------------------
         # Calculate albedo and roughness length changes if first layer is snow
         #--------------------------------------------
@@ -334,8 +336,3 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
             _subM,_Z0,_surfM, \
             _LAYER_HEIGHT,_LAYER_RHO,_LAYER_T,_LAYER_LWC,_LAYER_CC,_LAYER_POROSITY,_LAYER_LW,_LAYER_ICE_FRACTION, \
             _LAYER_IRREDUCIBLE_WATER,_LAYER_REFREEZE)
-    #else:
-    #    return (indY,indX,RESTART,_RAIN,_SNOWFALL,_LWin,_LWout,_H,_LE,_B, \
-    #        _MB,_surfMB,_Q,_SNOWHEIGHT,_TOTALHEIGHT,_TS,_ALBEDO,_NLAYERS, \
-    #        _ME,_intMB,_EVAPORATION,_SUBLIMATION,_CONDENSATION,_DEPOSITION,_REFREEZE, \
-    #        _subM,_Z0,_surfM)
