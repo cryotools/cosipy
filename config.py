@@ -3,15 +3,15 @@
  Please make your changes here.
 """
 ## Simulation period
-time_start = '2009-01-01T00:00'
-time_end   = '2009-12-31T00:00'
+time_start = '2019-01-01T00:00'
+time_end   = '2019-03-31T00:00'
 
 time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
 data_path = './data/'
-input_netcdf= 'Zhadang_ERA5_2009.nc'
-output_netcdf = 'Zhadang_ERA5_output_'+time_start_str+'-'+time_end_str+'.nc'
+input_netcdf= 'HEF.nc'
+output_netcdf = 'HEF_output_'+time_start_str+'-'+time_end_str+'.nc'
 
 ## Set keyword to true if you want to use the job scheduler Slurm (own configuration file slurm_config.py)
 slurm_use = False
@@ -53,4 +53,4 @@ temperature_threshold_merging = 0.1                 # If mering is true threshol
 max_layers = 200
 
 # Configuration if worker for local cluster (not slurm) Number of workers, if None all cores are used
-workers = None
+workers = 1 #None

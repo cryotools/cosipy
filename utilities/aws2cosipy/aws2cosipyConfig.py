@@ -11,7 +11,8 @@
 PRES_var = 'Press_Avg'   
 
 # Temperature
-T2_var = 'Tair_Avg_K'  
+T2_var = 'Tair_Avg'  
+in_K = False
 
 # Cloud cover fraction
 N_var = 'tcc'
@@ -44,6 +45,13 @@ timezone_lon = 15.0
 
 # Zenit threshold (>threshold == zenit)
 zeni_thld = 85.0
+
+#------------------------
+# Point model 
+#------------------------
+point_model = True
+plon = 10.74643
+plat = 46.79241
 
 #------------------------
 # Interpolation arguments 

@@ -131,7 +131,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
     # TIME LOOP 
     #--------------------------------------------
     logger.debug('Start time loop')
-   
+    a = 0.0 
     for t in np.arange(len(DATA.time)):
         
         GRID.grid_check()
@@ -169,7 +169,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         # Merge grid layers, if necessary
         #--------------------------------------------
         GRID.update_grid()
-        
+
         #--------------------------------------------
         # Calculate albedo and roughness length changes if first layer is snow
         #--------------------------------------------
@@ -184,6 +184,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         # Solve the heat equation
         #--------------------------------------------
         solveHeatEquation(GRID, dt)
+
         #--------------------------------------------
         # Surface Energy Balance 
         #--------------------------------------------
@@ -225,7 +226,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
             evaporation = min(latent_heat_flux / (1000.0 * lat_heat_vaporize), 0) * dt
             condensation = max(latent_heat_flux / (1000.0 * lat_heat_vaporize), 0) * dt
 
-        
         #--------------------------------------------
         # Melt process - mass changes of snowpack (melting, sublimation, deposition, evaporation, condensation)
         #--------------------------------------------
@@ -235,14 +235,14 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
 
         # Convert melt energy to m w.e.q.   
         melt = melt_energy * dt / (1000 * lat_heat_melting)  
-
+       
         # Remove melt m w.e.q.
-        GRID.remove_melt_energy(melt + sublimation + deposition + evaporation + condensation)
-
+        GRID.remove_melt_energy(melt - sublimation - deposition - evaporation)
+    
         #--------------------------------------------
         # Percolation
         #--------------------------------------------
-        Q  = percolation(GRID, melt + condensation, dt)
+        Q  = percolation(GRID, melt - condensation, dt)
         
         #--------------------------------------------
         # Refreezing
