@@ -57,6 +57,10 @@ lat_heat_sublimation = 2.834e6                  # latent heat for sublimation [J
 spec_heat_air = 1004.67                         # specific heat of air [J kg-1 K-1]
 spec_heat_ice = 2050.00                         # specific heat of ice [J Kg-1 K-1]
 spec_heat_water = 4217.00                       # specific heat of water [J Kg-1 K-1]
+k_i = 2.25                                      # thermal conductivity ice [W m^1 K^-1]
+k_w = 0.6089                                    # thermal conductivity water [W m^1 K^-1]
+k_a = 0.026                                     # thermal conductivity air [W m^1 K^-1]
+
 sigma = 5.67e-8                                 # Stefan-Bolzmann constant [W m-2 K-4]
 
 ' MODEL CONSTANTS '

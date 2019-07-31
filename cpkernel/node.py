@@ -99,12 +99,8 @@ class Node:
         return 1-self.get_layer_ice_fraction()
    
     def get_layer_thermal_conductivity(self):
-        """ Return the thermal conductivity of the layer Sturm et al. (1997) and Paterson (1994)"""
-        if self.get_layer_density()<156.0:
-            keff = 0.023 + 0.234e-3*self.get_layer_density()
-        elif (self.get_layer_density()>=156.0):
-            keff = 0.138 - 1.01e-3*self.get_layer_density() + 3.233e-6*(self.get_layer_density()**2)
-        return keff
+        """ Return the volumetic weighted thermal conductivity of the layer Sturm et al. (1997) and Paterson (1994)"""
+        return self.get_layer_ice_fraction()*k_i + self.get_layer_air_porosity()*k_a + self.get_layer_liquid_water_content()*k_w
 
     def get_layer_thermal_diffusivity(self):
         """ Returns the thermal diffusivity of the layer"""
