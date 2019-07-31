@@ -20,22 +20,22 @@ def refreezing(GRID):
     # Loop over all internal grid points for percolation 
     for idxNode in range(0, GRID.number_nodes-1, 1):
      
-        if ((zero_temperature-GRID.get_node_temperature(idxNode)>1e-3) & (GRID.get_node_liquid_water_content(idxNode)>theta_r)):
-
+        if ((GRID.get_node_temperature(idxNode)-zero_temperature<1e-3) & (GRID.get_node_liquid_water_content(idxNode)>theta_r)):
+        
             # Temperature difference between layer and freezing tempeature
-            dT = zero_temperature - GRID.get_node_temperature(idxNode)
+            dT = GRID.get_node_temperature(idxNode) - zero_temperature
 
             # Compute conversion factor A
-            A = (GRID.get_node_specific_heat(idxNode)*GRID.get_node_density(idxNode))/(ice_density*lat_heat_melting)
+            A = (spec_heat_ice*ice_density)/(water_density*lat_heat_melting)
 
             # Changes in volumetric contents
-            dtheta_i = A * dT
-            dtheta_w = -(ice_density/water_density)*dtheta_i
- 
+            dtheta_w = A * dT * GRID.get_node_ice_fraction(idxNode)
+            dtheta_i = (water_density/ice_density) * -dtheta_w
+
             # Check if enough water water to refreeze
             if ((GRID.get_node_liquid_water_content(idxNode)+dtheta_w) < theta_r):
-                dtheta_w = -abs(GRID.get_node_liquid_water_content(idxNode) - theta_r)
-                dtheta_i = -(water_density/ice_density) * dtheta_w
+                dtheta_w = theta_r - GRID.get_node_liquid_water_content(idxNode)
+                dtheta_i = (water_density/ice_density) * -dtheta_w
                 dT       = dtheta_i / A
             
             if ((GRID.get_node_ice_fraction(idxNode)+dtheta_i+theta_r) >= 1.0):

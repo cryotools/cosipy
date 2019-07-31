@@ -181,11 +181,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         z0 = updateRoughness(GRID, hours_since_snowfall)
         
         #--------------------------------------------
-        # Solve the heat equation
-        #--------------------------------------------
-        solveHeatEquation(GRID, dt)
-
-        #--------------------------------------------
         # Surface Energy Balance 
         #--------------------------------------------
         # Calculate net shortwave radiation
@@ -238,7 +233,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
        
         # Remove melt m w.e.q.
         GRID.remove_melt_energy(melt - sublimation - deposition - evaporation)
-    
+        
         #--------------------------------------------
         # Percolation
         #--------------------------------------------
@@ -248,6 +243,11 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         # Refreezing
         #--------------------------------------------
         water_refreezed = refreezing(GRID)
+        
+        #--------------------------------------------
+        # Solve the heat equation
+        #--------------------------------------------
+        solveHeatEquation(GRID, dt)
         
         #--------------------------------------------
         # Calculate new density to densification
