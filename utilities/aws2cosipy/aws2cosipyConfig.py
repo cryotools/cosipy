@@ -11,7 +11,7 @@
 PRES_var = 'Press_Avg'   
 
 # Temperature
-T2_var = 'Tair_Avg'  
+T2_var = 'TC1_Avg'  
 in_K = False
 
 # Cloud cover fraction
@@ -38,7 +38,7 @@ SNOWFALL_var = 'SNOWFALL'
 #------------------------
 # Radiation module 
 #------------------------
-radiationModule = True 
+radiationModule = False 
 
 # Time zone
 timezone_lon = 15.0
@@ -50,8 +50,9 @@ zeni_thld = 85.0
 # Point model 
 #------------------------
 point_model = True
-plon = 10.74643
-plat = 46.79241
+plon = 10.7779
+plat = 46.807984
+hgt = 2970 
 
 #------------------------
 # Interpolation arguments 

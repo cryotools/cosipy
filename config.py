@@ -3,15 +3,15 @@
  Please make your changes here.
 """
 ## Simulation period
-time_start = '2009-01-01T00:00'
-time_end   = '2009-03-31T00:00'
+time_start = '2018-09-17T08:00'
+time_end   = '2019-06-06T12:00'
 
 time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
 data_path = './data/'
-input_netcdf= 'Zhadang_ERA5_2009.nc'
-output_netcdf = 'Zhadang_output_'+time_start_str+'-'+time_end_str+'.nc'
+input_netcdf= 'hef_pit01.nc'
+output_netcdf = 'hef_pit01_output_'+time_start_str+'-'+time_end_str+'.nc'
 
 ## Set keyword to true if you want to use the job scheduler Slurm (own configuration file slurm_config.py)
 slurm_use = False
@@ -36,7 +36,7 @@ full_field = True
 restart = False
 
 ## If total precipitation and snowfall in input data use total precipitation!
-force_use_TP = False
+force_use_TP = True
 
 ## Time step in the input files [s]
 dt = 3600                                           # 3600, 7200, 10800 [s] length of time step per iteration in seconds

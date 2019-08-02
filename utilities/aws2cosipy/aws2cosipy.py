@@ -39,6 +39,10 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
        delimiter=',', index_col=['TIMESTAMP'],
         parse_dates=['TIMESTAMP'], na_values='NAN',date_parser=date_parser)
 
+    print(df[pd.isnull(df).any(axis=1)])
+    df = df.fillna(method='ffill')
+    print(df[pd.isnull(df).any(axis=1)])
+
     if (LWin_var not in df):
         df[LWin_var] = np.nan
     if (N_var not in df):
@@ -69,13 +73,16 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     #-----------------------------------
     # Load static data
     #-----------------------------------
-    print('Read static file %s \n' % (static_file))
-    ds = xr.open_dataset(static_file)
-
     dso = xr.Dataset()
+    if (static_file):
+        print('Read static file %s \n' % (static_file))
+        ds = xr.open_dataset(static_file)
+        ds = ds.sel(south_north=plat,west_east=plon,method='nearest')
+        x, y = np.meshgrid(ds.west_east, ds.south_north)
+    else:
+        x, y = np.meshgrid(plon, plat)
 
-    ds = ds.sel(south_north=plat,west_east=plon,method='nearest')
-    x, y = np.meshgrid(ds.west_east, ds.south_north)
+
     dso.coords['time'] = (('time'), df.index.values)
     dso.coords['lat'] = (('south_north','west_east'), y)
     dso.coords['lon'] = (('south_north','west_east'), x)
@@ -132,22 +139,25 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
         N = df[N_var].values        # Cloud cover fraction
 
     # Change aspect to south==0, east==negative, west==positive
-    ds['ASPECT'] = np.mod(ds['ASPECT']+180.0, 360.0)
-    mask = ds['ASPECT'].where(ds['ASPECT']<=180.0)
-    aspect = ds['ASPECT'].values
-    aspect[aspect<180] = aspect[aspect<180]*-1.0
-    aspect[aspect>=180] = 360.0 - aspect[aspect>=180]
-    #ds['ASPECT'] = (('south_north','west_east'),aspect)
-    ds['ASPECT'] = aspect
-    print(('Number of glacier cells: %i') % (np.count_nonzero(~np.isnan(ds['MASK'].values))))
+    if (static_file):
+        ds['ASPECT'] = np.mod(ds['ASPECT']+180.0, 360.0)
+        mask = ds['ASPECT'].where(ds['ASPECT']<=180.0)
+        aspect = ds['ASPECT'].values
+        aspect[aspect<180] = aspect[aspect<180]*-1.0
+        aspect[aspect>=180] = 360.0 - aspect[aspect>=180]
+        #ds['ASPECT'] = (('south_north','west_east'),aspect)
+        ds['ASPECT'] = aspect
+        
+        # Auxiliary variables
+        mask = ds.MASK.values
+        slope = ds.SLOPE.values
+        aspect = ds.ASPECT.values
+    else:
+        # Auxiliary variables
+        mask = 1 
+        slope = 0
+        aspect = 0
 
-    # Auxiliary variables
-    mask = ds.MASK.values
-    slope = ds.SLOPE.values
-    aspect = ds.ASPECT.values
-    south_norths = ds.south_north.values
-    west_easts = ds.west_east.values
-    sw = G
 
     #-----------------------------------
     # Check bounds for relative humidity 
@@ -158,10 +168,10 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     #-----------------------------------
     # Add variables to file 
     #-----------------------------------
-    add_variable_along_point(dso, ds.HGT.values, 'HGT', 'm', 'Elevation')
-    add_variable_along_point(dso, ds.ASPECT.values, 'ASPECT', 'degrees', 'Aspect of slope')
-    add_variable_along_point(dso, ds.SLOPE.values, 'SLOPE', 'degrees', 'Terrain slope')
-    add_variable_along_point(dso, ds.MASK.values, 'MASK', 'boolean', 'Glacier mask')
+    add_variable_along_point(dso, hgt, 'HGT', 'm', 'Elevation')
+    add_variable_along_point(dso, aspect, 'ASPECT', 'degrees', 'Aspect of slope')
+    add_variable_along_point(dso, slope, 'SLOPE', 'degrees', 'Terrain slope')
+    add_variable_along_point(dso, mask, 'MASK', 'boolean', 'Glacier mask')
     add_variable_along_timelatlon_point(dso, T2, 'T2', 'K', 'Temperature at 2 m')
     add_variable_along_timelatlon_point(dso, RH2, 'RH2', '%', 'Relative humidity at 2 m')
     add_variable_along_timelatlon_point(dso, U2, 'U2', 'm s\u207b\xb9', 'Wind velocity at 2 m')
@@ -451,7 +461,7 @@ def check(field, max, min):
     '''Check the validity of the input data '''
     if np.nanmax(field) > max or np.nanmin(field) < min:
         print('\n\nWARNING! Please check the data, its seems they are out of a reasonalbe range %s MAX: %.2f MIN: %.2f \n' % (str.capitalize(field.name), np.nanmax(field), np.nanmin(field)))
-
+     
     if np.isnan((np.min(field.values))):
         print('ERROR this does not work! %s VALUE: %.2f \n' % (str.capitalize(field.name), np.min(field.values)))
 
