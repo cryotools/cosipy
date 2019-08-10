@@ -11,7 +11,7 @@ time_end_str=(time_end[0:10]).replace('-','')
 
 data_path = './data/'
 input_netcdf= 'hef_pit01.nc'
-output_netcdf = 'hef_pit01_output_'+time_start_str+'-'+time_end_str+'.nc'
+output_netcdf = 'hef_pit01_adapt_'+time_start_str+'-'+time_end_str+'.nc'
 
 ## Set keyword to true if you want to use the job scheduler Slurm (own configuration file slurm_config.py)
 slurm_use = False
@@ -27,7 +27,7 @@ ystart = 0
 yend = 20
 
 ## Remeshing (log_profile or adaptive_profile)
-remesh_method = 'log_profile'
+remesh_method = 'adaptive_profile'
 
 ## Write full fields
 full_field = True 
@@ -42,7 +42,7 @@ force_use_TP = True
 dt = 3600                                           # 3600, 7200, 10800 [s] length of time step per iteration in seconds
 
 # How many mergings are allowed per time step
-merge_max = 1
+merge_max = 5
 
 density_threshold_merging = 20                      # If merging is true threshold for layer densities difference two layer
                                                     # try: 5-10 (kg m^-3)

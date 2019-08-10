@@ -82,7 +82,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
 
     # hours since the last snowfall (albedo module)
     hours_since_snowfall = 0
-
     
     # Get data from file
     #--------------------------------------------
@@ -126,36 +125,31 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
 
     # Profiling with bokeh
     cp = cProfile.Profile()
-    
+   
     #--------------------------------------------
     # TIME LOOP 
     #--------------------------------------------
     logger.debug('Start time loop')
     for t in np.arange(len(DATA.time)):
-        
         GRID.grid_check()
 
         if (SNOWF is not None):
             SNOWFALL = SNOWF[t]
         else:
         # , else convert rainfall [mm] to snowheight [m]
+            density_fresh_snow = np.maximum(109.0+6.0*(T2[t]-273.16)+26.0*np.sqrt(U2[t]),50.0)
             SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) / center_snow_transfer_function) * spread_snow_transfer_function) + 1.0))
+            RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000
+            
             if SNOWFALL<minimum_snowfall_threshold:        
                 SNOWFALL = 0.0
-        
+                RAIN = 0.0
+            
+
         if SNOWFALL > 0.0:
             # Add a new snow node on top
-            GRID.add_node(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0)
+           GRID.add_node(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0)
         
-        #--------------------------------------------
-        # RAINFALL = Total precipitation - SNOWFALL in mm w.e.
-        #--------------------------------------------
-        if (RRR is not None):
-            RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000
-        else:
-            # if now RRR is provided
-            RAIN = 0.0
-
         #--------------------------------------------
         # Get hours since last snowfall for the albedo calculations
         #--------------------------------------------
@@ -168,7 +162,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         # Merge grid layers, if necessary
         #--------------------------------------------
         GRID.update_grid()
-
+        
         #--------------------------------------------
         # Calculate albedo and roughness length changes if first layer is snow
         #--------------------------------------------
@@ -242,7 +236,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         # Refreezing
         #--------------------------------------------
         water_refreezed = refreezing(GRID)
-        
+
         #--------------------------------------------
         # Solve the heat equation
         #--------------------------------------------
@@ -251,7 +245,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         #--------------------------------------------
         # Calculate new density to densification
         #--------------------------------------------
-        densification(GRID,SLOPE)
+        #densification(GRID,SLOPE)
 
         #--------------------------------------------
         # Calculate mass balance

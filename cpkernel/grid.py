@@ -133,137 +133,44 @@ class Grid:
         self.remove_node([idx+1])
 
 
-   
-    def correct_first_layer(self):
-        """ This function guarantees that the first layer has the defined height. """    
-       
-        min_height = first_layer_height
 
-        # If only one thin layer on ice, merge snow with the first layer
-        if (self.get_node_height(0)<min_height):
-            if (self.get_node_density(0)<snow_ice_threshold) & (self.get_node_density(1)<snow_ice_threshold):
-                self.merge_nodes(0)
-            if (self.get_node_density(0)>=snow_ice_threshold) & (self.get_node_density(1)>=snow_ice_threshold):
-                self.merge_nodes(0)
-            if (self.get_node_density(0)<snow_ice_threshold) & (self.get_node_density(1)>=snow_ice_threshold):
-                self.merge_snow_with_glacier(0)
-
-        # After merging fresh snow, the first layer can be large. To avoid a large first layer it is 
-        # splitted until it is smaller than 0.1 m
-        while self.get_node_height(0)>0.1:
-            self.split_node(0)
-        
-        # New layer height by adding up the height of the two layers
-        total_height = self.get_node_height(0) + self.get_node_height(1)
-  
-        # If the adjustment is greater than the second layer, the second layer is merged with the one below
-        while (total_height-min_height) <= 0.0:
-            if (self.get_node_density(1)<snow_ice_threshold) & (self.get_node_density(2)<snow_ice_threshold):
-                self.merge_nodes(1)
-            if (self.get_node_density(1)>=snow_ice_threshold) & (self.get_node_density(2)>=snow_ice_threshold):
-                self.merge_nodes(1)
-            if (self.get_node_density(1)<snow_ice_threshold) & (self.get_node_density(2)>=snow_ice_threshold):
-                self.merge_snow_with_glacier(1)
-
-            # Recalculate total height
-            total_height = self.get_node_height(0) + self.get_node_height(1)
-
-        ## Recalculate total height
-        total_height = self.get_node_height(0) + self.get_node_height(1)
-        
-        # Get new heights for layer 0 and 1
-        h0 = min_height
-        h1 = total_height - min_height
-
-        # How much height is gained by the first layer
-        change = min_height - self.get_node_height(0)
-
-        # Update liquid water
-        total_lw = self.get_node_liquid_water(0) + self.get_node_liquid_water(1)
-        lw0 = (h0/total_height) * total_lw 
-        lw1 = (h1/total_height) * total_lw
-        
-        # Update ice fraction
-        total_if = self.get_node_ice_fraction(0) + self.get_node_ice_fraction(1)
-        if0 = (h0/total_height) * self.get_node_ice_fraction(0) + (h1/total_height) *self.get_node_ice_fraction(1)
-        if1 = self.get_node_ice_fraction(1)
-
-        # Update temperature
-        if change>0.0:
-            T0 = (self.get_node_height(0)/h0) * self.get_node_temperature(0) + (change/h0) * self.get_node_temperature(1)
-            T1 = self.get_node_temperature(1)
-        else:
-            T0 = self.get_node_temperature(0)
-            T1 = (self.get_node_height(1)/h1) * self.get_node_temperature(1) - (change/h1) * self.get_node_temperature(0)
- 
-        # New volume fractions and density
-        lwc0 = lw0/h0
-        lwc1 = lw1/h1
-        por0 = 1 - lwc0 - if0
-        por1 = 1 - lwc1 - if1
-       
-        # Check for consistency
-        if (abs(1-if0-por0-lwc0)>1e-8) | (abs(1-if1-por1-lwc1)>1e-8):
-            self.logger.error('Correct first layer is not mass consistent (%2.7f) [Layer 0]' % (if0,por0,lwc0))
-            self.logger.error('Correct first layer is not mass consistent (%2.7f) [Layer 1]' % (if0,por0,lwc0))
-
-        # Update node properties
-        self.update_node(0, h0, T0, if0, lw0)
-        self.update_node(1, h1, T1, if1, lw1)
-
-    
-    
     def correct_layer(self, idx, min_height):
         """ This function adjusts layer idx to a given height (min_height). First, the layers below are merged until 
             the height is sufficiently large to allow the adjustment. Then the layer is merged with the subsequent layer. """    
         
-        # First split layers to be smaller 
-        while self.get_node_height(idx)>2*min_height:
-            self.split_node(idx)
-
         # New layer height by adding up the height of the two layers
-        total_height = self.get_node_height(idx) + self.get_node_height(idx+1)
-        
+        total_height = self.get_node_height(idx)
+       
         # Merge subsequent layer with underlying layers until height of the layer is greater than the given height
-        while ((total_height<min_height) & (idx+2<self.get_number_layers())):
-            if (self.get_node_density(idx+1)<snow_ice_threshold) & (self.get_node_density(idx+2)<snow_ice_threshold):
-                self.merge_nodes(idx+1)
-            elif (self.get_node_density(idx+1)>=snow_ice_threshold) & (self.get_node_density(idx+2)>=snow_ice_threshold):
-                self.merge_nodes(idx+1)
+        while ((total_height<min_height) & (idx+1<self.get_number_layers())):
+            if (self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)<snow_ice_threshold):
+                self.merge_nodes(idx)
+            elif (self.get_node_density(idx)>=snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold):
+                self.merge_nodes(idx)
             else:
                 break
            
             # Recalculate total height
-            total_height = self.get_node_height(idx) + self.get_node_height(idx+1)
+            total_height = self.get_node_height(idx)
 
-        
-        # Only merge snow-snow or glacier-glacier
-        if (total_height>min_height) & (((self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)<snow_ice_threshold) ) | ( (self.get_node_density(idx)>=snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold))):
+        # Only merge snow-snow or glacier-glacier, and if the height is greater than the minimum height
+        if (total_height>min_height):
             
             # Get new heights for layer 0 and 1
             h0 = min_height
             h1 = total_height - min_height
             
-            # How much height is gained by the first layer
-            change = min_height - self.get_node_height(idx)
-
             # Update liquid water
-            total_lw = self.get_node_liquid_water(idx) + self.get_node_liquid_water(idx+1)
-            lw0 = (h0/total_height) * total_lw 
-            lw1 = (h1/total_height) * total_lw
+            lw0 = (h0/total_height) * self.get_node_liquid_water(idx) 
+            lw1 = (h1/total_height) * self.get_node_liquid_water(idx) 
             
             # Update ice fraction
-            total_if = self.get_node_ice_fraction(idx) + self.get_node_ice_fraction(idx+1)
-            if0 = (h0/total_height) * self.get_node_ice_fraction(idx) + (h1/total_height) *self.get_node_ice_fraction(idx+1)
-            if1 = self.get_node_ice_fraction(idx+1)
+            if0 = self.get_node_ice_fraction(idx)
+            if1 = self.get_node_ice_fraction(idx)
 
-            # Update temperature
-            if change>0.0:
-                T0 = (self.get_node_height(idx)/h0) * self.get_node_temperature(idx) + (change/h0) * self.get_node_temperature(idx+1)
-                T1 = self.get_node_temperature(idx+1)
-            else:
-                T0 = self.get_node_temperature(idx)
-                T1 = (self.get_node_height(idx+1)/h1) * self.get_node_temperature(idx+1) - (change/h1) * self.get_node_temperature(idx)
+            # Temperature
+            T0 = self.get_node_temperature(idx)
+            T1 = self.get_node_temperature(idx)
  
             # New volume fractions and density
             lwc0 = lw0/h0
@@ -273,38 +180,71 @@ class Grid:
        
             # Check for consistency
             if (abs(1-if0-por0-lwc0)>1e-8) | (abs(1-if1-por1-lwc1)>1e-8):
-                self.logger.error('Correct first layer is not mass consistent (%2.7f) [Layer 0]' % (if0,por0,lwc0))
-                self.logger.error('Correct first layer is not mass consistent (%2.7f) [Layer 1]' % (if0,por0,lwc0))
+                self.logger.error('Correct layer is not mass consistent (%2.7f) [Layer 0]' % (if0,por0,lwc0))
+                self.logger.error('Correct layer is not mass consistent (%2.7f) [Layer 1]' % (if0,por0,lwc0))
             
             # Update node properties
             self.update_node(idx, h0, T0, if0, lw0)
-            self.update_node(idx+1, h1, T1, if1, lw1)
+            self.grid.insert(idx+1, Node(h1, self.get_node_density(idx), T1, lw1, if1))
+
+            self.number_nodes += 1
 
 
 
     def log_profile(self):
         """ Logarithmic remeshing """ 
 
-        bool = True
-        idx = 1
-        last_layer_height = first_layer_height
         
-        while (bool):
-            last_layer_height = layer_stretching*last_layer_height
-            self.correct_layer(idx,last_layer_height)
-            idx = idx+1
-            if (idx<self.get_number_layers()-3):
-                bool = True
-            else:
-                bool = False
+        last_layer_height = first_layer_height 
        
-        # Adjust the last two layers. We simply sum up the last two layers if the sum is smaller than the required logarithmic height
-        if (self.get_node_height(self.get_number_layers()-1) + self.get_node_height(self.get_number_layers()-2)) < last_layer_height:
-            self.merge_nodes(self.get_number_layers()-2)
+        # Total snowheight
+        hsnow = self.get_total_snowheight()
+
+        # How much snow is not remeshed
+        hrest = hsnow
+
+        idx = 0
+        while (idx < self.get_number_snow_layers()):
+        
+            if (hrest>=last_layer_height):
+                # Correct first layer
+                self.correct_layer(idx,last_layer_height)
+                
+                hrest = hrest - last_layer_height
+            
+                # Height for the next layer
+                last_layer_height = layer_stretching*last_layer_height
+
+            elif ((hrest<last_layer_height) & (idx>0)):
+                self.merge_nodes(idx-1)
+                
+            idx = idx+1
             
 
 
-    def adaptive_profile(self):
+        hrest = self.get_total_height()-self.get_total_snowheight()
+
+        idx = self.get_number_snow_layers()
+        # Loop over glacier
+        while (idx < self.get_number_layers()):
+
+            if (hrest>=last_layer_height):
+                # Correct first layer
+                self.correct_layer(idx,last_layer_height)
+                
+                hrest = hrest - last_layer_height
+            
+                # Height for the next layer
+                last_layer_height = layer_stretching*last_layer_height
+
+            elif ((hrest<last_layer_height)):
+                self.merge_nodes(idx-1)
+            
+            idx = idx+1
+
+
+
+    def adaptive_profile(self): 
         """ Remesh according to certain layer state criteria"""
         
         #-------------------------------------------------------------------------
@@ -318,6 +258,10 @@ class Grid:
         #-------------------------------------------------------------------------
         # Check for merging due to density and temperature 
         #-------------------------------------------------------------------------
+        
+        # Correct first layer
+#        self.correct_layer(0 ,first_layer_height)
+
         for i in range(merge_max):
             # Get number of snow layers
             nlayers = self.get_number_snow_layers()
@@ -334,25 +278,14 @@ class Grid:
                 if ( (ind[0]>=1) & (abs(dT[ind[0]])<temperature_threshold_merging) & (abs(dRho[ind[0]])<density_threshold_merging) ):
                     self.merge_nodes(ind[0])
 
+        print(self.grid_info_screen())
+
         self.check('MERGE')
         
 
 
     def split_node(self, pos):
-        """ Split node at position pos """
-        
-        #dz = (self.get_node_height(pos)+self.get_node_height(pos+1))/2.0
-        #Tgrad = (self.get_node_temperature(pos)-self.get_node_temperature(pos+1))/dz
-        #IFgrad = (self.get_node_ice_fraction(pos)-self.get_node_ice_fraction(pos+1))/dz
-
-        #new_temperature_1 = min(Tgrad*(dz-self.get_node_height(pos)/4.0) + self.get_node_temperature(pos+1), 273.16) 
-        #new_temperature_2 = min(Tgrad*(dz+self.get_node_height(pos)/4.0) + self.get_node_temperature(pos+1), 273.16) 
-        #new_IF_1 = min(IFgrad*(dz-self.get_node_height(pos)/4.0) + self.get_node_ice_fraction(pos+1), 1.0) 
-        #new_IF_2 = min(IFgrad*(dz+self.get_node_height(pos)/4.0) + self.get_node_ice_fraction(pos+1), 1.0) 
-        
-        #self.grid.insert(pos+1, Node(self.get_node_height(pos)/2.0, self.get_node_density(pos), new_temperature_1, self.get_node_liquid_water(pos)/2.0, new_IF_1))
-        #self.update_node(pos, self.get_node_height(pos)/2.0, new_temperature_2, new_IF_2, self.get_node_liquid_water(pos)/2.0)
-        
+        """ Split node at position pos """ 
         self.grid.insert(pos+1, Node(self.get_node_height(pos)/2.0, self.get_node_density(pos), self.get_node_temperature(pos), \
                                      self.get_node_liquid_water(pos)/2.0, self.get_node_ice_fraction(pos)))
         self.update_node(pos, self.get_node_height(pos)/2.0, self.get_node_temperature(pos), \
@@ -423,35 +356,13 @@ class Grid:
         self.logger.debug('Update grid')
         
         #-------------------------------------------------------------------------
-        # Adjustment of the first layer to the user-defined height
-        # (first_layer_height) 
-        #-------------------------------------------------------------------------
-        self.correct_layer(0,first_layer_height)
-        
-        #-------------------------------------------------------------------------
         # Remeshing options
         #-------------------------------------------------------------------------
         if (remesh_method=='log_profile'):
             self.log_profile()
         elif (remesh_method=='adaptive_profile'):
             self.adaptive_profile()
-        
-        ##-------------------------------------------------------------------------
-        ## We need to guarantee that the snow/ice layer thickness is not smaller
-        ## than the user defined threshold  
-        ##-------------------------------------------------------------------------
-        ## Get snow layer heights
-        while (min(self.get_height())<0.02):
-            idx = np.argmin(self.get_height())
-            if (idx>=0):
-                if (self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)<snow_ice_threshold):
-                    self.merge_nodes(idx)
-                elif (self.get_node_density(idx)>=snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold):
-                    self.merge_nodes(idx)
-                elif (self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold):
-                    self.merge_snow_with_glacier(idx)
 
-        #self.check('Problem after merging')
 
 
     def merge_snow_with_glacier(self, idx):
