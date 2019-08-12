@@ -27,7 +27,7 @@ ystart = 0
 yend = 20
 
 ## Remeshing (log_profile or adaptive_profile)
-remesh_method = 'adaptive_profile'
+remesh_method = 'log_profile'
 
 ## Write full fields
 full_field = True 
@@ -53,4 +53,4 @@ temperature_threshold_merging = 0.1                 # If mering is true threshol
 max_layers = 200
 
 # Configuration if worker for local cluster (not slurm) Number of workers, if None all cores are used
-workers = None
+workers = 1#None

@@ -72,11 +72,17 @@ def method_Boone(GRID,SLOPE):
             # Set new fractions
             GRID.set_node_ice_fraction(idxNode, (1+dtheta_i) * GRID.get_node_ice_fraction(idxNode))
             GRID.set_node_liquid_water_content(idxNode, (1+dtheta_w) * GRID.get_node_liquid_water_content(idxNode))  
+
             GRID.set_node_height(idxNode, (GRID.get_node_density(idxNode) / (new_rho+rho[idxNode])) * GRID.get_node_height(idxNode))
+           
+            print(GRID.get_node_height(idxNode)/height[idxNode],GRID.get_node_height(idxNode),height[idxNode])
             print(GRID.get_node_density(idxNode)/(new_rho+rho[idxNode])) 
+            
             if (GRID.get_node_ice_fraction(idxNode)+GRID.get_node_liquid_water_content(idxNode)+GRID.get_node_porosity(idxNode)>1.0):
                 print('Fraction > 1: %.5f' % (GRID.get_node_ice_fraction(idxNode)+GRID.get_node_liquid_water_content(idxNode)+GRID.get_node_porosity(idxNode)))
     
+
+
 
 def method_Essery_empirical(GRID,SLOPE):
     """ Description: Densification through overburden pressure

@@ -40,7 +40,12 @@ class Grid:
 
         # Number of total nodes
         self.number_nodes = len(layer_heights)
-        
+
+        # TOBI
+        self.new_snow_height = 0.0      # meter snow accumulation
+        self.new_snow_timestamp = 0.0   # seconds since snowfall 
+        self.old_snow_timestamp = 0.0   # snow age below fresh snow layer
+
         # Do the grid initialization
         self.init_grid()
 
@@ -58,7 +63,8 @@ class Grid:
 
 
 
-    def add_node(self, height, density, temperature, liquid_water):
+    # TOBI
+    def add_fresh_snow(self, height, density, temperature, liquid_water, timestamp):
         """ Add a new node at the beginning of the node list (upper layer) """
 
         self.logger.debug('Add  node')
@@ -69,6 +75,8 @@ class Grid:
         # Increase node counter
         self.number_nodes += 1
 
+        # Keep track of fresh snow properties (height and timestamp)
+        self.set_fresh_snow_props(height, timestamp)
 
 
     def add_node_idx(self, idx, height, density, temperature, liquid_water):
@@ -278,7 +286,7 @@ class Grid:
                 if ( (ind[0]>=1) & (abs(dT[ind[0]])<temperature_threshold_merging) & (abs(dRho[ind[0]])<density_threshold_merging) ):
                     self.merge_nodes(ind[0])
 
-        print(self.grid_info_screen())
+        #print(self.grid_info_screen())
 
         self.check('MERGE')
         
@@ -363,6 +371,9 @@ class Grid:
         elif (remesh_method=='adaptive_profile'):
             self.adaptive_profile()
 
+        # if first layer becomes very small, remove it
+        if (self.get_node_height(0)<minimum_snow_layer_height):
+            self.remove_node([0])
 
 
     def merge_snow_with_glacier(self, idx):
@@ -380,14 +391,14 @@ class Grid:
 
 
 
-    def remove_melt_energy(self, melt):
+    def remove_melt_weq(self, melt, idx=0):
 
         """ If melting occurs, the function reduces the height of the first layer """
 
         self.logger.debug('Remove melt energy')        
 
         # Convert melt (m w.e.q.) to m height
-        height_diff = float(melt) / (self.get_node_density(0) / 1000.0)   # m (snow) - negative = melt
+        height_diff = float(melt) / (self.get_node_density(idx) / 1000.0)   # m (snow) - negative = melt
         
         if height_diff != 0.0:
             remove = True
@@ -397,30 +408,57 @@ class Grid:
         while remove:
                
             # How much energy required to melt first layer
-            melt_required = self.get_node_height(0) * (self.get_node_density(0) / 1000.0)
+            melt_required = self.get_node_height(idx) * (self.get_node_density(idx) / 1000.0)
 
             # How much energy is left
             melt_rest = melt - melt_required
 
             # If not enough energy to remove first layer, first layers height is reduced by melt height
             if melt_rest <= 0:
-                self.set_node_height(0, self.get_node_height(0) - height_diff)
+                self.set_node_height(idx, self.get_node_height(idx) - height_diff)
                 remove = False
 
             # If entire layer is removed
             else:
-                self.remove_node([0])
+                self.remove_node([idx])
                 melt -= melt_required
+                height_diff = float(melt) / (self.get_node_density(idx) / 1000.0)
                 remove = True
+
+        # TOBI
+        # Keep track of the fresh snow layer
+        if (idx==0):
+            self.set_fresh_snow_props_height(self.new_snow_height-melt)
 
     
     #===============================================================================
     # Getter and setter functions
     #===============================================================================
-    
+
+    # TOBI
+    def set_fresh_snow_props(self, height, timestamp):
+        """ Keeps track of the new snowheight """
+        self.new_snow_height = height
+        # Keep track of the old snow age
+        self.old_snow_timestamp = self.new_snow_timestamp 
+        # Set the timestamp when fresh snowfall occured
+        self.new_snow_timestamp = timestamp
+
+    def set_fresh_snow_props_to_old_props(self):
+        """ Old snowpack reappers at surface ... change snow age to old snow age """
+        self.new_snow_timestamp = self.old_snow_timestamp
+
+    def set_fresh_snow_props_height(self, height):
+        """ Update fresh snow properties """
+        self.new_snow_height = height
+
+    def get_fresh_snow_props(self):
+        return self.new_snow_height, self.new_snow_timestamp
+
+
     def set_node_temperature(self, idx, temperature):
         """ Returns temperature of node idx """
-        return self.grid[idx].set_layer_temperature(temperature)
+        self.grid[idx].set_layer_temperature(temperature)
 
 
 
@@ -433,7 +471,7 @@ class Grid:
 
     def set_node_height(self, idx, height):
         """ Set height of node idx """
-        return self.grid[idx].set_layer_height(height)
+        self.grid[idx].set_layer_height(height)
 
 
 
@@ -446,7 +484,7 @@ class Grid:
 
     def set_node_liquid_water(self, idx, liquid_water):
         """ Set liquid water of node idx """
-        return self.grid[idx].set_layer_liquid_water(liquid_water)
+        self.grid[idx].set_layer_liquid_water(liquid_water)
 
 
 
@@ -458,7 +496,7 @@ class Grid:
     
     def set_node_liquid_water_content(self, idx, liquid_water_content):
         """ Set liquid water content of node idx """
-        return self.grid[idx].set_layer_liquid_water_content(liquid_water_content)
+        self.grid[idx].set_layer_liquid_water_content(liquid_water_content)
 
 
 
@@ -470,7 +508,7 @@ class Grid:
     
     def set_node_ice_fraction(self, idx, ice_fraction):
         """ Set liquid ice_fraction of node idx """
-        return self.grid[idx].set_layer_ice_fraction(ice_fraction)
+        self.grid[idx].set_layer_ice_fraction(ice_fraction)
 
 
     def set_ice_fraction(self, ice_fraction):
@@ -481,7 +519,7 @@ class Grid:
 
     def set_node_refreeze(self, idx, refreeze):
         """ Set refreezing of node idx """        
-        return self.grid[idx].set_layer_refreeze(refreeze)
+        self.grid[idx].set_layer_refreeze(refreeze)
 
 
 

@@ -76,7 +76,7 @@ def method_Bintanja(GRID, SWnet, dt):
                 melt_surplus = melt - melt_max
                 LWC_surplus = GRID.get_node_liquid_water(idx)
                 list_of_layers_to_remove.append(idx)
-                print("melted_layer\n")
+        
         GRID.set_node_temperature(idx, np.minimum(zero_temperature, float(GRID.get_node_temperature(idx) + \
                             (E[idx] / (GRID.get_node_density(idx) * spec_heat_ice)) * (dt / GRID.get_node_height(idx)))))
 

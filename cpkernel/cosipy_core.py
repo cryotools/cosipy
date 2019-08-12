@@ -100,6 +100,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
     elif ('SNOWFALL' in DATA):
         SNOWF = DATA.SNOWFALL.values
         RRR = None
+        RAIN = None
     else:
         SNOWF = None
         RRR = DATA.RRR.values
@@ -131,32 +132,39 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
     #--------------------------------------------
     logger.debug('Start time loop')
     for t in np.arange(len(DATA.time)):
+
+        # Check grid
         GRID.grid_check()
+
+        # get seconds since start
+        timestamp = dt*t
+            
+        # Calc fresh snow density
+        density_fresh_snow = np.maximum(109.0+6.0*(T2[t]-273.16)+26.0*np.sqrt(U2[t]), 50.0)
 
         if (SNOWF is not None):
             SNOWFALL = SNOWF[t]
         else:
         # , else convert rainfall [mm] to snowheight [m]
-            density_fresh_snow = np.maximum(109.0+6.0*(T2[t]-273.16)+26.0*np.sqrt(U2[t]),50.0)
+            # liquid/solid fraction
             SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) / center_snow_transfer_function) * spread_snow_transfer_function) + 1.0))
             RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000
             
-            if SNOWFALL<minimum_snowfall_threshold:        
-                SNOWFALL = 0.0
-                RAIN = 0.0
-            
+        if SNOWFALL<minimum_snow_layer_height:        
+            SNOWFALL = 0.0
+            RAIN = 0.0
 
         if SNOWFALL > 0.0:
             # Add a new snow node on top
-           GRID.add_node(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0)
-        
+           GRID.add_fresh_snow(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0, timestamp)
+       
         #--------------------------------------------
         # Get hours since last snowfall for the albedo calculations
         #--------------------------------------------
-        if SNOWFALL < minimum_snow_to_reset_albedo:
-            hours_since_snowfall += dt / 3600.0
-        else:
-            hours_since_snowfall = 0
+        #if SNOWFALL < minimum_snow_to_reset_albedo:
+        #    hours_since_snowfall += dt / 3600.0
+        #else:
+        #    hours_since_snowfall = 0
 
         #--------------------------------------------
         # Merge grid layers, if necessary
@@ -166,12 +174,12 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         #--------------------------------------------
         # Calculate albedo and roughness length changes if first layer is snow
         #--------------------------------------------
-        alpha = updateAlbedo(GRID, hours_since_snowfall)
+        alpha = updateAlbedo(GRID, timestamp)
 
         #--------------------------------------------
         # Update roughness length
         #--------------------------------------------
-        z0 = updateRoughness(GRID, hours_since_snowfall)
+        z0 = updateRoughness(GRID, timestamp)
         
         #--------------------------------------------
         # Surface Energy Balance 
@@ -224,8 +232,8 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         # Convert melt energy to m w.e.q.   
         melt = melt_energy * dt / (1000 * lat_heat_melting)  
        
-        # Remove melt m w.e.q.
-        GRID.remove_melt_energy(melt - sublimation - deposition - evaporation)
+        # Remove melt [m w.e.q.]
+        GRID.remove_melt_weq(melt - sublimation - deposition - evaporation)
         
         #--------------------------------------------
         # Percolation
@@ -245,7 +253,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         #--------------------------------------------
         # Calculate new density to densification
         #--------------------------------------------
-        #densification(GRID,SLOPE)
+        densification(GRID,SLOPE)
 
         #--------------------------------------------
         # Calculate mass balance
