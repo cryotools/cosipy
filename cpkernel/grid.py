@@ -10,14 +10,14 @@ import os
 
 class Grid:
 
-    def __init__(self, layer_heights, layer_densities, layer_temperatures, liquid_water):
+    def __init__(self, layer_heights, layer_densities, layer_temperatures, layer_liquid_water_content):
         """ Initialize numerical grid 
         
         Input:         
         layer_heights           : numpy array with the layer height
         layer_densities         : numpy array with density values for each layer
         layer_temperatures      : numpy array with temperature values for each layer
-        liquid_water            : numpy array with liquid water [m] for each layer """
+        layer_liquid_water      : numpy array with liquid water content [-] for each layer """
 
         # Start logging
         ''' Start the python logging'''
@@ -36,7 +36,7 @@ class Grid:
         self.layer_heights = layer_heights
         self.layer_densities = layer_densities
         self.layer_temperatures = layer_temperatures
-        self.liquid_water = liquid_water
+        self.layer_liquid_water_content = layer_liquid_water_content
 
         # Number of total nodes
         self.number_nodes = len(layer_heights)
@@ -59,18 +59,18 @@ class Grid:
         # Fill the list with node instances and fill it with user defined data
         for idxNode in range(self.number_nodes):
             self.grid.append(Node(self.layer_heights[idxNode], self.layer_densities[idxNode],
-                        self.layer_temperatures[idxNode], self.liquid_water[idxNode]))
+                        self.layer_temperatures[idxNode], self.layer_liquid_water_content[idxNode]))
 
 
 
     # TOBI
-    def add_fresh_snow(self, height, density, temperature, liquid_water, timestamp):
+    def add_fresh_snow(self, height, density, temperature, liquid_water_content, timestamp):
         """ Add a new node at the beginning of the node list (upper layer) """
 
         self.logger.debug('Add  node')
 
         # Add new node
-        self.grid.insert(0, Node(height, density, temperature, liquid_water))
+        self.grid.insert(0, Node(height, density, temperature, liquid_water_content))
         
         # Increase node counter
         self.number_nodes += 1
@@ -79,11 +79,11 @@ class Grid:
         self.set_fresh_snow_props(height, timestamp)
 
 
-    def add_node_idx(self, idx, height, density, temperature, liquid_water):
+    def add_node_idx(self, idx, height, density, temperature, liquid_water_content):
         """ Add a new node below node idx """
 
         # Add new node
-        self.grid.insert(idx, Node(height, density, temperature, liquid_water))
+        self.grid.insert(idx, Node(height, density, temperature, liquid_water_content))
 
         # Increase node counter
         self.number_nodes += 1
@@ -117,14 +117,13 @@ class Grid:
         new_height = self.get_node_height(idx) + self.get_node_height(idx+1)
         
         # Update liquid water
-        new_liquid_water = self.get_node_liquid_water(idx) + self.get_node_liquid_water(idx+1)
+        new_liquid_water_content = self.get_node_liquid_water_content(idx) + self.get_node_liquid_water_content(idx+1)
         
         # Update ice fraction
         new_ice_fraction = ((self.get_node_ice_fraction(idx)*self.get_node_height(idx) + \
                             self.get_node_ice_fraction(idx+1)*self.get_node_height(idx+1))/new_height)
         
-        # New volume fractions and density
-        new_liquid_water_content = new_liquid_water/new_height
+        # New air porosity
         new_air_porosity = 1 - new_liquid_water_content - new_ice_fraction
         
         if abs(1-new_ice_fraction-new_air_porosity-new_liquid_water_content)>1e-8:
@@ -135,7 +134,7 @@ class Grid:
                             (self.get_node_height(idx+1)/new_height)*self.get_node_temperature(idx+1)
 
         # Update node properties
-        self.update_node(idx, new_height, new_temperature, new_ice_fraction, new_liquid_water)
+        self.update_node(idx, new_height, new_temperature, new_ice_fraction, new_liquid_water_content)
         
         # Remove the second layer
         self.remove_node([idx+1])
@@ -169,8 +168,15 @@ class Grid:
             h1 = total_height - min_height
             
             # Update liquid water
-            lw0 = (h0/total_height) * self.get_node_liquid_water(idx) 
-            lw1 = (h1/total_height) * self.get_node_liquid_water(idx) 
+            if ((self.get_node_liquid_water_content(idx)-self.get_node_irreducible_water_content(idx))>0):
+                lw0 = self.get_node_irreducible_water_content(idx) 
+                lw1 = self.get_node_liquid_water_content(idx)-self.get_node_irreducible_water_content(idx) 
+            else:
+                lw0 = self.get_node_liquid_water_content(idx)
+                lw1 = 0.0
+
+            #lw0 = (h0/total_height) * self.get_node_liquid_water_content(idx) 
+            #lw1 = (h1/total_height) * self.get_node_liquid_water_content(idx) 
             
             # Update ice fraction
             if0 = self.get_node_ice_fraction(idx)
@@ -202,6 +208,8 @@ class Grid:
     def log_profile(self):
         """ Logarithmic remeshing """ 
 
+        print('-----------------------')
+        print(self.grid_info_screen(3))
         
         last_layer_height = first_layer_height 
        
@@ -250,6 +258,7 @@ class Grid:
             
             idx = idx+1
 
+        print(self.grid_info_screen(3))
 
 
     def adaptive_profile(self): 
@@ -295,22 +304,22 @@ class Grid:
     def split_node(self, pos):
         """ Split node at position pos """ 
         self.grid.insert(pos+1, Node(self.get_node_height(pos)/2.0, self.get_node_density(pos), self.get_node_temperature(pos), \
-                                     self.get_node_liquid_water(pos)/2.0, self.get_node_ice_fraction(pos)))
+                                     self.get_node_liquid_water_content(pos)/2.0, self.get_node_ice_fraction(pos)))
         self.update_node(pos, self.get_node_height(pos)/2.0, self.get_node_temperature(pos), \
-                                     self.get_node_ice_fraction(pos), self.get_node_liquid_water(pos)/2.0)
+                                     self.get_node_ice_fraction(pos), self.get_node_liquid_water_content(pos)/2.0)
 
         self.number_nodes += 1
 
 
 
-    def update_node(self, no, height, temperature, ice_fraction, liquid_water):
+    def update_node(self, no, height, temperature, ice_fraction, liquid_water_content):
         """ Update properties of a specific node """
 
         self.logger.debug('Update node')
         self.set_node_height(no,height)
         self.set_node_temperature(no,temperature)
         self.set_node_ice_fraction(no,ice_fraction)
-        self.set_node_liquid_water(no,liquid_water)
+        self.set_node_liquid_water_content(no,liquid_water_content)
 
 
 
@@ -399,7 +408,7 @@ class Grid:
 
         # Convert melt (m w.e.q.) to m height
         height_diff = float(melt) / (self.get_node_density(idx) / 1000.0)   # m (snow) - negative = melt
-        
+       
         if height_diff != 0.0:
             remove = True
         else:
@@ -480,18 +489,6 @@ class Grid:
         for idx in range(self.number_nodes):
             self.grid[idx].set_layer_height(height[idx])
 
-
-
-    def set_node_liquid_water(self, idx, liquid_water):
-        """ Set liquid water of node idx """
-        self.grid[idx].set_layer_liquid_water(liquid_water)
-
-
-
-    def set_liquid_water(self, liquid_water):
-        """ Set the liquid water profile """
-        for idx in range(self.number_nodes):
-            self.grid[idx].set_layer_liquid_water(liquid_water[idx])
 
     
     def set_node_liquid_water_content(self, idx, liquid_water_content):
@@ -611,18 +608,6 @@ class Grid:
             LWC.append(self.grid[idx].get_layer_liquid_water_content())
         return LWC
 
-
-    def get_node_liquid_water(self, idx):
-        """ Returns liquid water of node idx """
-        return self.grid[idx].get_layer_liquid_water()
-
-
-    def get_liquid_water(self):
-        """ Returns the liquid water profile """
-        LW = []
-        for idx in range(self.number_nodes):
-            LW.append(self.grid[idx].get_layer_liquid_water())
-        return LW
 
 
     def get_node_ice_fraction(self, idx):
@@ -827,8 +812,8 @@ class Grid:
                           Irreducible water content [-]")
 
         for i in range(n):
-            self.logger.debug("%d %3.2f \t %3.2f \t %4.2f \t %2.7f \t %2.7f \t %10.4f \t %4.4f \t  %4.8f \t %2.7f" % (i, self.get_node_height(i), self.get_node_temperature(i),
-                  self.get_node_density(i), self.get_node_liquid_water_content(i), self.get_node_liquid_water(i), self.get_node_cold_content(i),
+            self.logger.debug("%d %3.2f \t %3.2f \t %4.2f \t %2.7f \t %10.4f \t %4.4f \t  %4.8f \t %2.7f" % (i, self.get_node_height(i), self.get_node_temperature(i),
+                  self.get_node_density(i), self.get_node_liquid_water_content(i), self.get_node_cold_content(i),
                   self.get_node_porosity(i), self.get_node_refreeze(i), self.get_node_irreducible_water_content(i)))
         self.logger.debug('\n\n')
 
@@ -842,11 +827,11 @@ class Grid:
         if (n==-999):
             n = self.number_nodes
         
-        print("Node no. \t\t  Layer height [m] \t Temperature [K] \t Density [kg m^-3] \t LWC [-] \t LW [m] \t CC [J m^-2] \t Porosity [-] \t Refreezing [m w.e.]")
+        print("Node no. \t\t  Layer height [m] \t Temperature [K] \t Density [kg m^-3] \t LWC [-] \t Retention [-] \t CC [J m^-2] \t Porosity [-] \t Refreezing [m w.e.]")
 
         for i in range(n):
             print("%d %3.3f \t %3.2f \t %4.2f \t %2.7f \t %2.7f \t %10.4f \t %4.4f \t  %4.8f" % (i, self.get_node_height(i), self.get_node_temperature(i),
-                  self.get_node_density(i), self.get_node_liquid_water_content(i), self.get_node_liquid_water(i), self.get_node_cold_content(i),
+                  self.get_node_density(i), self.get_node_liquid_water_content(i), self.get_node_irreducible_water_content(i), self.get_node_cold_content(i),
                   self.get_node_porosity(i), self.get_node_refreeze(i)))
         print('\n\n')
 
@@ -862,7 +847,6 @@ class Grid:
         #    self.check_layer_property(self.get_temperature(), 'temperature', 273.2, 100.0)
         #    self.check_layer_property(self.get_density(), 'density', 918, 100)
         #    self.check_layer_property(self.get_liquid_water_content(), 'LWC', 1.0, 0.0)
-        #    self.check_layer_property(self.get_liquid_water(), 'LW', 1.0, 0.0)
         #    #self.check_layer_property(self.get_cold_content(), 'CC', 1000, -10**8)
         #    self.check_layer_property(self.get_porosity(), 'Porosity', 0.8, -0.00001)
         #    self.check_layer_property(self.get_refreeze(), 'Refreezing', 0.5, 0.0)

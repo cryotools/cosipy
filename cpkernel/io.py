@@ -370,8 +370,6 @@ class IOClass:
                 self.LAYER_CC = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
             if ('POROSITY' in self.full):
                 self.LAYER_POROSITY = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            if ('LW' in self.full):
-                self.LAYER_LW = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
             if ('ICE_FRACTION' in self.full):
                 self.LAYER_ICE_FRACTION = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
             if ('IRREDUCIBLE_WATER' in self.full):
@@ -388,7 +386,7 @@ class IOClass:
                              local_surfMB,local_Q,local_SNOWHEIGHT,local_TOTALHEIGHT,local_TS,local_ALBEDO, \
                              local_NLAYERS,local_ME,local_intMB,local_EVAPORATION,local_SUBLIMATION,local_CONDENSATION, \
                              local_DEPOSITION,local_REFREEZE,local_subM,local_Z0,local_surfM,local_LAYER_HEIGHT,local_LAYER_RHO, \
-                             local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY,local_LAYER_LW,local_LAYER_ICE_FRACTION, \
+                             local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY,local_LAYER_ICE_FRACTION, \
                              local_LAYER_IRREDUCIBLE_WATER,local_LAYER_REFREEZE):
 
         if ('RAIN' in self.atm):
@@ -455,8 +453,6 @@ class IOClass:
                 self.LAYER_CC[:,y,x,:] = local_LAYER_CC 
             if ('POROSITY' in self.full):
                 self.LAYER_POROSITY[:,y,x,:] = local_LAYER_POROSITY 
-            if ('LW' in self.full):
-                self.LAYER_LW[:,y,x,:] = local_LAYER_LW 
             if ('ICE_FRACTION' in self.full):
                 self.LAYER_ICE_FRACTION[:,y,x,:] = local_LAYER_ICE_FRACTION 
             if ('IRREDUCIBLE_WATER' in self.full):
@@ -534,8 +530,6 @@ class IOClass:
                 self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_CC, 'LAYER_CC', 'J m^-2', 'Cold content') 
             if ('POROSITY' in self.full):
                 self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_POROSITY, 'LAYER_POROSITY', '-', 'Porosity') 
-            if ('LW' in self.full):
-                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_LW, 'LAYER_LW', 'm w.e.', 'Liquid water') 
             if ('ICE_FRACTION' in self.full):
                 self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_ICE_FRACTION, 'LAYER_ICE_FRACTION', '-', 'Ice fraction') 
             if ('IRREDUCIBLE_WATER' in self.full):
@@ -583,7 +577,6 @@ class IOClass:
             self.local_LAYER_LWC = np.full((self.time,max_layers), np.nan)
             self.local_LAYER_CC = np.full((self.time,max_layers), np.nan)
             self.local_LAYER_POROSITY = np.full((self.time,max_layers), np.nan)
-            self.local_LAYER_LW = np.full((self.time,max_layers), np.nan)
             self.local_LAYER_ICE_FRACTION = np.full((self.time,max_layers), np.nan)
             self.local_LAYER_IRREDUCIBLE_WATER = np.full((self.time,max_layers), np.nan)
             self.local_LAYER_REFREEZE = np.full((self.time,max_layers), np.nan)
@@ -671,8 +664,6 @@ class IOClass:
                                                             np.nan), 'LAYER_RHO', 'kg m^-3', 'Layer density')
         self.add_variable_along_latlonlayer(self.RESTART, np.full((self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESTART.coords['layer'].shape[0]),
                                                             np.nan), 'LAYER_T', 'K', 'Layer temperature')
-        self.add_variable_along_latlonlayer(self.RESTART, np.full((self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESTART.coords['layer'].shape[0]),
-                                                            np.nan), 'LAYER_LW', 'm w.e.q.', 'Liquid water of layer')
         
         print('Restart ddataset ... ok \n')
         print('--------------------------------------------------------------\n')
@@ -703,7 +694,6 @@ class IOClass:
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_HEIGHT', 'm', 'Layer height')
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_RHO', 'kg m^-3', 'Density of layer')
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_T', 'K', 'Layer temperature')
-        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_LW', 'm w.e.q.', 'Liquid water of each layer')
     
         return self.RESTART
 
@@ -726,7 +716,6 @@ class IOClass:
         self.RESTART.LAYER_HEIGHT.loc[dict(south_north=y, west_east=x, layer=np.arange(max_layers))] = results.LAYER_HEIGHT
         self.RESTART.LAYER_RHO.loc[dict(south_north=y, west_east=x, layer=np.arange(max_layers))] = results.LAYER_RHO
         self.RESTART.LAYER_T.loc[dict(south_north=y, west_east=x, layer=np.arange(max_layers))] = results.LAYER_T
-        self.RESTART.LAYER_LW.loc[dict(south_north=y, west_east=x, layer=np.arange(max_layers))] = results.LAYER_LW
     
 
     #==============================================================================

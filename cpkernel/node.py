@@ -3,7 +3,7 @@ from constants import *
 class Node:
     """ This is the basic class which contains information of individual grid point. """
 
-    def __init__(self, height, snow_density, temperature, liquid_water, ice_fraction=None):
+    def __init__(self, height, snow_density, temperature, liquid_water_content, ice_fraction=None):
         """ Initialize the node with:
             height                  :      height of the layer [m]
             density                 :      snow density  [kg m^-3]
@@ -23,7 +23,7 @@ class Node:
         # Initialize state variables 
         self.height = height
         self.temperature = temperature
-        self.liquid_water = liquid_water
+        self.liquid_water_content = liquid_water_content
         
         if ice_fraction is None:
             # Remove weight of air from density
@@ -47,10 +47,6 @@ class Node:
     def get_layer_temperature(self):
         """ Return the mean temperature of the layer """
         return self.temperature
-    
-    def get_layer_liquid_water(self):
-        """ Return the liquid water of the layer """
-        return self.liquid_water
     
     def get_layer_ice_fraction(self):
         """ Return the ice fraction of the layer """
@@ -78,7 +74,7 @@ class Node:
 
     def get_layer_liquid_water_content(self):
         """ Return the liquid water [-] content of the layer """
-        return (self.get_layer_liquid_water()/1000.0) #/self.get_layer_height()
+        return self.liquid_water_content 
     
     def get_layer_irreducible_water_content(self):
         """ Return the irreducible water content of the layer """
@@ -87,7 +83,7 @@ class Node:
         elif (self.get_layer_ice_fraction() > 0.23) & (self.get_layer_ice_fraction() <= 0.812):
             theta_e = 0.08 - 0.1023*(self.get_layer_ice_fraction()-0.03)
         else:
-            theta_e = 0
+            theta_e = 0.0
         return theta_e 
     
     def get_layer_cold_content(self):
@@ -121,13 +117,9 @@ class Node:
         """ Set the mean temperature of the layer """
         self.temperature = temperature
 
-    def set_layer_liquid_water(self, liquid_water):
-        """ Set the liquid water of the layer """
-        self.liquid_water = liquid_water
-    
     def set_layer_liquid_water_content(self, liquid_water_content):
         """ Set the liquid water content of the layer """
-        self.liquid_water = liquid_water_content*self.get_layer_height()
+        self.liquid_water_content = liquid_water_content
     
     def set_layer_ice_fraction(self, ice_fraction):
         """ Set the ice fraction of the layer """

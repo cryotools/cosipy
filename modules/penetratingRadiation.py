@@ -57,10 +57,10 @@ def method_Bintanja(GRID, SWnet, dt):
 
 
             if (GRID.get_node_density(idx)<snow_ice_threshold):
-                GRID.set_node_liquid_water(idx, available_energy * dt / (1000 * lat_heat_melting))
+                GRID.set_node_liquid_water_content(idx, available_energy * dt / (1000 * lat_heat_melting))
 
                 ### added from layer before
-                GRID.set_node_liquid_water(idx, GRID.get_node_liquid_water(idx) + LWC_surplus)
+                GRID.set_node_liquid_water_content(idx, GRID.get_node_liquid_water_content(idx) + LWC_surplus)
 
             subsurface_melt += available_energy * dt / (1000 * lat_heat_melting)
             melt = available_energy * dt / (1000 * lat_heat_melting) + melt_surplus
@@ -74,7 +74,7 @@ def method_Bintanja(GRID, SWnet, dt):
                 GRID.set_node_height(idx, GRID.get_node_height(idx) - height_remove)
             else:
                 melt_surplus = melt - melt_max
-                LWC_surplus = GRID.get_node_liquid_water(idx)
+                LWC_surplus = GRID.get_node_liquid_water_content(idx)
                 list_of_layers_to_remove.append(idx)
         
         GRID.set_node_temperature(idx, np.minimum(zero_temperature, float(GRID.get_node_temperature(idx) + \

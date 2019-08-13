@@ -86,9 +86,9 @@ def load_snowpack(GRID_RESTART):
     layer_heights = GRID_RESTART.LAYER_HEIGHT[0:num_layers].values
     layer_density = GRID_RESTART.LAYER_RHO[0:num_layers].values
     layer_T = GRID_RESTART.LAYER_T[0:num_layers].values
-    layer_LW = GRID_RESTART.LAYER_LW[0:num_layers].values
+    layer_LWC = GRID_RESTART.LAYER_LWC[0:num_layers].values
    
-    GRID = Grid(layer_heights, layer_density, layer_T, layer_LW)
+    GRID = Grid(layer_heights, layer_density, layer_T, layer_LWC)
 
     if np.isnan(layer_T).any():
         GRID.grid_info_screen()

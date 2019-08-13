@@ -55,7 +55,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
     _LAYER_LWC = np.full((len(DATA.time),max_layers), np.nan)
     _LAYER_CC = np.full((len(DATA.time),max_layers), np.nan)
     _LAYER_POROSITY = np.full((len(DATA.time),max_layers), np.nan)
-    _LAYER_LW = np.full((len(DATA.time),max_layers), np.nan)
     _LAYER_ICE_FRACTION = np.full((len(DATA.time),max_layers), np.nan)
     _LAYER_IRREDUCIBLE_WATER = np.full((len(DATA.time),max_layers), np.nan)
     _LAYER_REFREEZE = np.full((len(DATA.time),max_layers), np.nan)
@@ -166,11 +165,18 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         #else:
         #    hours_since_snowfall = 0
 
+       # print(t)
+       # print('--------- before update --------------')
+       # print(GRID.grid_info_screen(15))
+
         #--------------------------------------------
         # Merge grid layers, if necessary
         #--------------------------------------------
+        print(SNOWFALL)
         GRID.update_grid()
         
+       # print('--------- after update --------------')
+       # print(GRID.grid_info_screen(15))
         #--------------------------------------------
         # Calculate albedo and roughness length changes if first layer is snow
         #--------------------------------------------
@@ -188,11 +194,14 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         SWnet = G[t] * (1 - alpha)
         
         # Penetrating SW radiation and subsurface melt
+        print('penetrating')
+        print(GRID.grid_info_screen(3))
         if SWnet > 0.0:
             subsurface_melt, G_penetrating = penetrating_radiation(GRID, SWnet, dt)
         else:
             subsurface_melt = 0.0
             G_penetrating = 0.0
+        print(GRID.grid_info_screen(3))
 
         # Calculate residual incoming shortwave radiation (penetrating part removed)
         G_resid = G[t] - G_penetrating
@@ -231,20 +240,27 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
 
         # Convert melt energy to m w.e.q.   
         melt = melt_energy * dt / (1000 * lat_heat_melting)  
+        
+      #  print('--------- after TS --------------')
+      #  print(GRID.grid_info_screen(15))
        
         # Remove melt [m w.e.q.]
         GRID.remove_melt_weq(melt - sublimation - deposition - evaporation)
-        
+        print('melt ',melt) 
+      #  print('--------- after remove melt --------------')
+      #  print(GRID.grid_info_screen(15))
         #--------------------------------------------
         # Percolation
         #--------------------------------------------
         Q  = percolation(GRID, melt - condensation, dt)
         
+       # print('--------- after percolation --------------')
+       # print(GRID.grid_info_screen(15))
         #--------------------------------------------
         # Refreezing
         #--------------------------------------------
-        water_refreezed = refreezing(GRID)
-
+        #water_refreezed = refreezing(GRID)
+        water_refreezed=0.0
         #--------------------------------------------
         # Solve the heat equation
         #--------------------------------------------
@@ -253,7 +269,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         #--------------------------------------------
         # Calculate new density to densification
         #--------------------------------------------
-        densification(GRID,SLOPE)
+        #densification(GRID,SLOPE)
 
         #--------------------------------------------
         # Calculate mass balance
@@ -308,7 +324,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
                 _LAYER_LWC[t, 0:GRID.get_number_layers()] = GRID.get_liquid_water_content()
                 _LAYER_CC[t, 0:GRID.get_number_layers()] = GRID.get_cold_content()
                 _LAYER_POROSITY[t, 0:GRID.get_number_layers()] = GRID.get_porosity()
-                _LAYER_LW[t, 0:GRID.get_number_layers()] = GRID.get_liquid_water()
                 _LAYER_ICE_FRACTION[t, 0:GRID.get_number_layers()] = GRID.get_ice_fraction()
                 _LAYER_IRREDUCIBLE_WATER[t, 0:GRID.get_number_layers()] = GRID.get_irreducible_water_content()
                 _LAYER_REFREEZE[t, 0:GRID.get_number_layers()] = GRID.get_refreeze()
@@ -319,7 +334,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
             _LAYER_LWC = None
             _LAYER_CC = None
             _LAYER_POROSITY = None
-            _LAYER_LW = None
             _LAYER_ICE_FRACTION = None
             _LAYER_IRREDUCIBLE_WATER = None
             _LAYER_REFREEZE = None
@@ -329,11 +343,10 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
     RESTART.LAYER_HEIGHT[0:GRID.get_number_layers()] = GRID.get_height() 
     RESTART.LAYER_RHO[0:GRID.get_number_layers()] = GRID.get_density() 
     RESTART.LAYER_T[0:GRID.get_number_layers()] = GRID.get_temperature() 
-    RESTART.LAYER_LW[0:GRID.get_number_layers()] = GRID.get_liquid_water() 
 
     return (indY,indX,RESTART,_RAIN,_SNOWFALL,_LWin,_LWout,_H,_LE,_B, \
             _MB,_surfMB,_Q,_SNOWHEIGHT,_TOTALHEIGHT,_TS,_ALBEDO,_NLAYERS, \
             _ME,_intMB,_EVAPORATION,_SUBLIMATION,_CONDENSATION,_DEPOSITION,_REFREEZE, \
             _subM,_Z0,_surfM, \
-            _LAYER_HEIGHT,_LAYER_RHO,_LAYER_T,_LAYER_LWC,_LAYER_CC,_LAYER_POROSITY,_LAYER_LW,_LAYER_ICE_FRACTION, \
+            _LAYER_HEIGHT,_LAYER_RHO,_LAYER_T,_LAYER_LWC,_LAYER_CC,_LAYER_POROSITY,_LAYER_ICE_FRACTION, \
             _LAYER_IRREDUCIBLE_WATER,_LAYER_REFREEZE)

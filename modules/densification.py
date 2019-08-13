@@ -35,7 +35,7 @@ def method_Boone(GRID,SLOPE):
     c3 = 0.046
     c4 = 0.081
     c5 = 0.018
-    eta0 = 3.7e7
+    eta0 = 3.7e6
     rho0 = 150
 
     # Overburden snow mass
@@ -75,8 +75,8 @@ def method_Boone(GRID,SLOPE):
 
             GRID.set_node_height(idxNode, (GRID.get_node_density(idxNode) / (new_rho+rho[idxNode])) * GRID.get_node_height(idxNode))
            
-            print(GRID.get_node_height(idxNode)/height[idxNode],GRID.get_node_height(idxNode),height[idxNode])
-            print(GRID.get_node_density(idxNode)/(new_rho+rho[idxNode])) 
+            #print(GRID.get_node_height(idxNode)/height[idxNode],GRID.get_node_height(idxNode),height[idxNode])
+            #print(rho[idxNode],GRID.get_node_density(idxNode)) 
             
             if (GRID.get_node_ice_fraction(idxNode)+GRID.get_node_liquid_water_content(idxNode)+GRID.get_node_porosity(idxNode)>1.0):
                 print('Fraction > 1: %.5f' % (GRID.get_node_ice_fraction(idxNode)+GRID.get_node_liquid_water_content(idxNode)+GRID.get_node_porosity(idxNode)))

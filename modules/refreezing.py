@@ -15,7 +15,7 @@ def refreezing(GRID):
     # Irreducible water when refreezed
     theta_r = 0.0
 
-    total_start = np.sum(GRID.get_liquid_water())
+    total_start = np.sum(GRID.get_liquid_water_content())
 
     # Loop over all internal grid points for percolation 
     for idxNode in range(0, GRID.number_nodes-1, 1):
@@ -55,7 +55,7 @@ def refreezing(GRID):
         GRID.set_node_refreeze(idxNode, dtheta_i*GRID.get_node_height(idxNode)) 
         water_refreezed =  water_refreezed - dtheta_w*GRID.get_node_height(idxNode)        
     
-    total_end = np.sum(GRID.get_liquid_water())
+    total_end = np.sum(GRID.get_liquid_water_content())
     
     if (total_start-total_end-water_refreezed) > 1e-8:
         logger.error('Refreezing module is not mass consistent')
