@@ -92,7 +92,7 @@ class Node:
     
     def get_layer_porosity(self):
         """ Return the porosity of the layer """
-        return 1-self.get_layer_ice_fraction()
+        return 1-self.get_layer_ice_fraction()-self.get_layer_liquid_water_content()
    
     def get_layer_thermal_conductivity(self):
         """ Return the volumetic weighted thermal conductivity of the layer Sturm et al. (1997) and Paterson (1994)"""

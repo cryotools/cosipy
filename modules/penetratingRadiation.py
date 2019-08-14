@@ -27,7 +27,7 @@ def method_Bintanja(GRID, SWnet, dt):
     ### LWC push to next layer
     LWC_surplus = 0.0
 
-    
+    # Absorption of shortwave radiation
     if GRID.get_node_density(0) <= snow_ice_threshold:
         Si = float(SWnet)*0.1
         depth = np.asarray(GRID.get_depth())
@@ -43,42 +43,37 @@ def method_Bintanja(GRID, SWnet, dt):
 
     list_of_layers_to_remove = []
 
-    for idx in range(0, GRID.number_nodes - 1):
+    for idxNode in range(0, GRID.number_nodes - 1):
 
-        temperature_temp = float(GRID.get_node_temperature(idx) + (E[idx] / (GRID.get_node_density(idx) * spec_heat_ice))
-                                 * (dt / GRID.get_node_height(idx)))
+        # New temperature due to penetrating shortwave radiation
+        T_rad = float(GRID.get_node_temperature(idxNode) + (E[idxNode] /\
+                    (GRID.get_node_density(idxNode) * spec_heat_ice)) * \
+                    (dt / GRID.get_node_height(idxNode)))
 
-        if temperature_temp > zero_temperature:
-            available_energy = (temperature_temp - zero_temperature) * GRID.get_node_density(idx) * spec_heat_ice \
-                               * (GRID.get_node_height(idx) / dt)
+        if (T_rad-zero_temperature>0.0):
 
-            ### added from layer before
-            #available_energy
+            # Temperature difference between layer and freezing temperature
+            dT = T_rad - zero_temperature
 
+            # Compute conversion factor A
+            A = (spec_heat_ice*ice_density)/(water_density*lat_heat_melting)
 
-            if (GRID.get_node_density(idx)<snow_ice_threshold):
-                GRID.set_node_liquid_water_content(idx, available_energy * dt / (1000 * lat_heat_melting))
+             # Changes in volumetric contents
+            dtheta_w = A * dT * GRID.get_node_ice_fraction(idxNode)
+            dtheta_i = (water_density/ice_density) * -dtheta_w
 
-                ### added from layer before
-                GRID.set_node_liquid_water_content(idx, GRID.get_node_liquid_water_content(idx) + LWC_surplus)
-
-            subsurface_melt += available_energy * dt / (1000 * lat_heat_melting)
-            melt = available_energy * dt / (1000 * lat_heat_melting) + melt_surplus
-
-            # Hom much energy required to melt entire layer
-            melt_max = GRID.get_node_height(idx) * (GRID.get_node_density(idx) / 1000)
-
-            if melt_max > melt:
-                # Convert melt (m w.e.) to height (m)
-                height_remove = melt / (GRID.get_node_density(idx) / 1000)
-                GRID.set_node_height(idx, GRID.get_node_height(idx) - height_remove)
+            # If enough energy to remove layer
+            if (dtheta_i>=GRID.get_node_ice_fraction(idxNode)):
+                list_of_layers_to_remove.append(idxNode)
+            # otherwise  
             else:
-                melt_surplus = melt - melt_max
-                LWC_surplus = GRID.get_node_liquid_water_content(idx)
-                list_of_layers_to_remove.append(idx)
-        
-        GRID.set_node_temperature(idx, np.minimum(zero_temperature, float(GRID.get_node_temperature(idx) + \
-                            (E[idx] / (GRID.get_node_density(idx) * spec_heat_ice)) * (dt / GRID.get_node_height(idx)))))
+                GRID.set_node_liquid_water_content(idxNode, \
+                    GRID.get_node_liquid_water_content(idxNode)+dtheta_w)
+                GRID.set_node_ice_fraction(idxNode, \
+                    GRID.get_node_ice_fraction(idxNode)+dtheta_i) 
+                GRID.set_node_temperature(idxNode, zero_temperature)
+
+            subsurface_melt += dtheta_w
 
     # Remove layers which have been melted
     GRID.remove_node(list_of_layers_to_remove)

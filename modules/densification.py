@@ -23,7 +23,7 @@ def densification(GRID,SLOPE):
 def method_Boone(GRID,SLOPE):
     """ Description: Densification through overburden pressure
         after Essery et al. 2013
-        
+
         RETURNS:
         rho_snow   :: densitiy profile after densification    [m3/kg]
         h_diff     :: difference in height before and after densification [m]
@@ -44,20 +44,22 @@ def method_Boone(GRID,SLOPE):
     # Get copy of layer heights and layer densities
     rho = np.copy(GRID.get_density())
     height = np.copy(GRID.get_height())
-    
+
     # Loop over all internal snow nodes
     for idxNode in range(0,GRID.get_number_snow_layers() - 1 , 1):
-        
+
         if (rho[idxNode]<500.0):
             # Get overburden snow mass
             if (idxNode>0):
                 M_s = M_s + rho[idxNode-1]*height[idxNode-1]
-            
+
             # Viscosity
             eta = eta0 * np.exp(c4*(zero_temperature-GRID.get_node_temperature(idxNode))+c5*rho[idxNode])
-            
+
             # New density
-            new_rho = (((M_s*9.81)/eta) + c1*np.exp(-c2*(zero_temperature-GRID.get_node_temperature(idxNode)) - c3*np.maximum(0.0,GRID.get_node_density(idxNode)-rho0)))*dt*rho[idxNode]
+            new_rho = (((M_s*9.81)/eta) + \
+                       c1*np.exp(-c2*(zero_temperature-GRID.get_node_temperature(idxNode)) - \
+                       c3*np.maximum(0.0,GRID.get_node_density(idxNode)-rho0)))*dt*rho[idxNode]
 
             # Calc changes in volumetric fractions of ice and water
             # No water in layer
@@ -66,28 +68,31 @@ def method_Boone(GRID,SLOPE):
                 dtheta_w = 0.0
             # layer contains water
             else:
-                dtheta_i = (new_rho/2.0)/ice_density
-                dtheta_w = (new_rho/2.0)/water_density
-    
+                dtheta_i = new_rho/ice_density
+                dtheta_w = 0.0
+                #dtheta_i = (new_rho/2.0)/ice_density
+                #dtheta_w = (new_rho/2.0)/water_density
+
             # Set new fractions
             GRID.set_node_ice_fraction(idxNode, (1+dtheta_i) * GRID.get_node_ice_fraction(idxNode))
-            GRID.set_node_liquid_water_content(idxNode, (1+dtheta_w) * GRID.get_node_liquid_water_content(idxNode))  
+            GRID.set_node_liquid_water_content(idxNode, (1+dtheta_w) * GRID.get_node_liquid_water_content(idxNode))
 
-            GRID.set_node_height(idxNode, (GRID.get_node_density(idxNode) / (new_rho+rho[idxNode])) * GRID.get_node_height(idxNode))
-           
-            #print(GRID.get_node_height(idxNode)/height[idxNode],GRID.get_node_height(idxNode),height[idxNode])
-            #print(rho[idxNode],GRID.get_node_density(idxNode)) 
-            
+            #GRID.set_node_height(idxNode, (GRID.get_node_density(idxNode) / (new_rho+rho[idxNode])) * GRID.get_node_height(idxNode))
+
             if (GRID.get_node_ice_fraction(idxNode)+GRID.get_node_liquid_water_content(idxNode)+GRID.get_node_porosity(idxNode)>1.0):
+                print((1+dtheta_i)*GRID.get_node_ice_fraction(idxNode),(1+dtheta_w)*GRID.get_node_liquid_water_content(idxNode),\
+                     GRID.get_node_porosity(idxNode))
+                print((1+dtheta_i)*GRID.get_node_ice_fraction(idxNode)+(1+dtheta_w)*GRID.get_node_liquid_water_content(idxNode)+\
+                     GRID.get_node_porosity(idxNode))
                 print('Fraction > 1: %.5f' % (GRID.get_node_ice_fraction(idxNode)+GRID.get_node_liquid_water_content(idxNode)+GRID.get_node_porosity(idxNode)))
-    
+
 
 
 
 def method_Essery_empirical(GRID,SLOPE):
     """ Description: Densification through overburden pressure
         after Essery et al. 2013
-        
+
         RETURNS:
         rho_snow   :: densitiy profile after densification    [m3/kg]
         h_diff     :: difference in height before and after densification [m]
@@ -105,7 +110,7 @@ def method_Essery_empirical(GRID,SLOPE):
         # No densification if density is above defined maximum density
         if (GRID.get_node_density(idxNode)<density_max):
             density_temp[idxNode]=(GRID.get_node_density(idxNode) - density_max) * np.exp(-dt/tau) + density_max
-                
+
             # Calc changes in volumetric fractions of ice and water
             # No water in layer
             if (GRID.get_node_liquid_water_content(idxNode)==0.0):
@@ -119,7 +124,7 @@ def method_Essery_empirical(GRID,SLOPE):
             # Set new fractions
             GRID.set_node_ice_fraction(idxNode, (1+dtheta_i) * GRID.get_node_ice_fraction(idxNode))
             GRID.set_node_liquid_water_content(idxNode, (1+dtheta_w) * GRID.get_node_liquid_water_content(idxNode))
-    
+
     GRID.set_height((GRID.get_density() / density_temp) * GRID.get_height())
 
 
@@ -128,12 +133,12 @@ def method_Essery_empirical(GRID,SLOPE):
 def method_Essery_physical(GRID,SLOPE):
     """ Description: Densification through overburden pressure
         after Essery et al. 2013
-        
+
         RETURNS:
         rho_snow   :: densitiy profile after densification    [m3/kg]
         h_diff     :: difference in height before and after densification [m]
     """
-    
+
     # Get copy of layer heights and density
     height_layers = GRID.get_height()
     density_temp = np.copy(GRID.get_density())
@@ -171,7 +176,7 @@ def method_Essery_physical(GRID,SLOPE):
         k3 = rhs(GRID.get_node_density(idxNode) + dt * k2 / 2., weight, GRID.get_node_temperature(idxNode))
         k4 = rhs(GRID.get_node_density(idxNode) + dt * k3, weight, GRID.get_node_temperature(idxNode))
         density_temp[idxNode] = GRID.get_node_density(idxNode) + (dt / 6.) * (k1 + 2 * k2 + 2 * k3 + k4)
-        
+
         # Calc changes in volumetric fractions of ice and water
         # No water in layer
         if (GRID.get_node_liquid_water_content(idxNode)==0.0):
