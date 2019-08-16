@@ -20,12 +20,8 @@ def percolation(GRID, water, t):
     # initial runoff [m w.e.]
     Q = 0  
     
-    #print('----------------------')
-    #print(water)
-    #print(GRID.grid_info_screen(3))
     # set liquid water of top layer (idx, LWCnew) in m
     GRID.set_node_liquid_water_content(0, GRID.get_node_liquid_water_content(0)+float(water))
-    #print(GRID.grid_info_screen(3))
 
     # for consistency check
     total_start = np.sum(GRID.get_liquid_water_content())
@@ -46,13 +42,9 @@ def percolation(GRID, water, t):
             # than percolate to the next layer (add to the next layer)
             GRID.set_node_liquid_water_content(idxNode, theta_e)
             GRID.set_node_liquid_water_content(idxNode+1, GRID.get_node_liquid_water_content(idxNode+1)+residual)
-            if (theta_e>0):
-                print('percolation', theta_e, theta_w, residual)
         else: 
             GRID.set_node_liquid_water_content(idxNode, theta_w)
-            #print('percolation', theta_e, theta_w, residual)
 
-    #print(GRID.grid_info_screen(3))
     # Runoff is equal to the LWC in the last node
     Q = GRID.get_node_liquid_water_content(GRID.number_nodes-1)
     GRID.set_node_liquid_water_content(GRID.number_nodes-1, 0.0)

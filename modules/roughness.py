@@ -5,12 +5,12 @@ def updateRoughness(GRID, timestamp):
 
     if roughness_method == 'Moelg12':
         sigma = method_Moelg(GRID, timestamp)
-
     else:
         print('Roughness parameterisation ', roughness_method, ' not available using default')
         sigma = method_Moelg(GRID, timestamp)
 
     return sigma
+
 
 def method_Moelg(GRID, timestamp):
 
@@ -19,6 +19,7 @@ def method_Moelg(GRID, timestamp):
     # Get hours since the last snowfall
     # First get fresh snow properties (height and timestamp)
     fresh_snow_height, fresh_snow_timestamp  = GRID.get_fresh_snow_props()
+
     # Get time difference between last snowfall and now
     hours_since_snowfall = (timestamp-fresh_snow_timestamp)/3600.0
 

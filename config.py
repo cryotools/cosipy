@@ -27,7 +27,7 @@ ystart = 0
 yend = 20
 
 ## Remeshing (log_profile or adaptive_profile)
-remesh_method = 'log_profile'
+remesh_method = 'adaptive_profile'
 
 ## Write full fields
 full_field = True 
@@ -42,15 +42,15 @@ force_use_TP = True
 dt = 3600                                           # 3600, 7200, 10800 [s] length of time step per iteration in seconds
 
 # How many mergings are allowed per time step
-merge_max = 5
+merge_max = 1
 
-density_threshold_merging = 20                      # If merging is true threshold for layer densities difference two layer
+density_threshold_merging = 2                      # If merging is true threshold for layer densities difference two layer
                                                     # try: 5-10 (kg m^-3)
-temperature_threshold_merging = 0.1                 # If mering is true threshold for layer temperatures to merge
+temperature_threshold_merging = 0.05                 # If mering is true threshold for layer temperatures to merge
                                                     # try: 0.05-0.1 (K)
 
 ## Max. number of layers, just for the restart file
 max_layers = 200
 
 # Configuration if worker for local cluster (not slurm) Number of workers, if None all cores are used
-workers = 1#None
+workers = 1 #None

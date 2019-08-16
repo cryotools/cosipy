@@ -2,7 +2,6 @@ import numpy as np
 from constants import *
 import sys
 
-# TOBI
 def updateAlbedo(GRID, timestamp):
     """ This methods updates the albedo """
 
@@ -14,6 +13,7 @@ def updateAlbedo(GRID, timestamp):
         alphaMod = method_Oerlemans(GRID,timestamp)
 
     return alphaMod
+
 
 def method_Oerlemans(GRID,timestamp):
 
@@ -35,8 +35,8 @@ def method_Oerlemans(GRID,timestamp):
 
     # Check if snow or ice
     if (GRID.get_node_density(0) <= snow_ice_threshold):
+        
         # Get current snowheight from layer height
-        #idx = (next((i for i, x in enumerate(GRID.get_density()) if x >= snow_ice_threshold), None))
         h = GRID.get_total_snowheight() #np.sum(GRID.get_height()[0:idx])
 
         # Surface albedo according to Oerlemans & Knap 1998, JGR)

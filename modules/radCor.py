@@ -17,6 +17,7 @@ def solarFParallel(lat, lon, timezone_lon, day, hour):
         zeni            ::  zenith angle (radians)
         azi             ::  solar azimuth angle (radians)
     """
+
     # Convert degree to radians
     FAC = math.pi / 180.0
 

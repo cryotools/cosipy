@@ -16,16 +16,12 @@ def penetrating_radiation(GRID, SWnet, dt):
 
 
 def method_Bintanja(GRID, SWnet, dt):
+
     # Total height of first layer
     total_height = 0.0
 
+    # Store the total subsurface melt
     subsurface_melt = 0.0
-
-    ### melt push to next layer
-    melt_surplus = 0.0
-
-    ### LWC push to next layer
-    LWC_surplus = 0.0
 
     # Absorption of shortwave radiation
     if GRID.get_node_density(0) <= snow_ice_threshold:
@@ -41,6 +37,7 @@ def method_Bintanja(GRID, SWnet, dt):
         decay = np.exp(2.5*-depth)
         E = Si*np.abs(np.diff(decay))
 
+    # List with layer numbers to be removed
     list_of_layers_to_remove = []
 
     for idxNode in range(0, GRID.number_nodes - 1):

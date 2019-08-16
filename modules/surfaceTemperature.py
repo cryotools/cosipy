@@ -56,6 +56,8 @@ def energy_balance(x, GRID, SWnet, rho, Cs_t, Cs_q, T2, u2, q2, p, Li, lam, SLOP
     # Return residual of energy balance
     return np.abs(SWnet+Li+Lo+H+L+B)
 
+
+
 def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
     """ This methods updates the surface temperature and returns the surface fluxes
        """
@@ -99,7 +101,9 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
     Cs_q = np.power(0.41,2.0) / ( np.log(2.0/z0) * np.log(2.0/z0q) )
 
     lam = GRID.get_node_thermal_conductivity(0) 
-    
+   
+#    print(GRID.grid_info_screen(20))
+
     res = minimize(energy_balance, GRID.get_node_temperature(0), method='L-BFGS-B', bounds=((220.0, 273.16),),
                    tol=1e-8, args=(GRID, SWnet, rho, Cs_t, Cs_q, T2, u2, q2, p, Li, lam, SLOPE))
  

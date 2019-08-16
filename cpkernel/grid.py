@@ -41,7 +41,8 @@ class Grid:
         # Number of total nodes
         self.number_nodes = len(layer_heights)
 
-        # TOBI
+        # Track the fresh snow layer (new_snow_height, new_snow_timestamp) as well as the old
+        # snow layer age (old_snow_timestamp)
         self.new_snow_height = 0.0      # meter snow accumulation
         self.new_snow_timestamp = 0.0   # seconds since snowfall
         self.old_snow_timestamp = 0.0   # snow age below fresh snow layer
@@ -63,10 +64,11 @@ class Grid:
 
 
 
-    # TOBI
+    
     def add_fresh_snow(self, height, density, temperature, liquid_water_content, timestamp):
         """ Add a new node at the beginning of the node list (upper layer) """
 
+        # Make entry in the log file
         self.logger.debug('Add  node')
 
         # Add new node
@@ -75,23 +77,15 @@ class Grid:
         # Increase node counter
         self.number_nodes += 1
 
-        # Keep track of fresh snow properties (height and timestamp)
+        # Set the fresh snow properties for albedo calculation (height and timestamp)
         self.set_fresh_snow_props(height, timestamp)
 
-
-    def add_node_idx(self, idx, height, density, temperature, liquid_water_content):
-        """ Add a new node below node idx """
-
-        # Add new node
-        self.grid.insert(idx, Node(height, density, temperature, liquid_water_content))
-
-        # Increase node counter
-        self.number_nodes += 1
 
 
     def remove_node(self, pos=None):
         """ Removes a node or a list of nodes at pos from the node list """
 
+        # Make entry in the log file
         self.logger.debug('Remove node')
 
         # Remove node from list when there is at least one node
@@ -168,15 +162,17 @@ class Grid:
             h1 = total_height - min_height
 
             # Update liquid water
+            # First the upper layer is filled with water until the max.
+            # retention. The rest is assigned to the second layer.
+            # if LWC exceeds the irreducible water content of the first layer,
+            # then fill the first layer and assign the rest to the second layer
             if ((self.get_node_liquid_water_content(idx)-self.get_node_irreducible_water_content(idx))>0):
                 lw0 = self.get_node_irreducible_water_content(idx)
                 lw1 = self.get_node_liquid_water_content(idx)-self.get_node_irreducible_water_content(idx)
-            else:
+            # if LWC<WC_irr, then assign all water to the first layer
+            else:   
                 lw0 = self.get_node_liquid_water_content(idx)
                 lw1 = 0.0
-
-            #lw0 = (h0/total_height) * self.get_node_liquid_water_content(idx)
-            #lw1 = (h1/total_height) * self.get_node_liquid_water_content(idx)
 
             # Update ice fraction
             if0 = self.get_node_ice_fraction(idx)
@@ -201,8 +197,8 @@ class Grid:
             self.update_node(idx, h0, T0, if0, lw0)
             self.grid.insert(idx+1, Node(h1, self.get_node_density(idx), T1, lw1, if1))
 
+            # Update node counter
             self.number_nodes += 1
-
 
 
     def log_profile(self):
@@ -216,6 +212,7 @@ class Grid:
         # How much snow is not remeshed
         hrest = hsnow
 
+        # First, the snowpack is remeshed
         idx = 0
         while (idx < self.get_number_snow_layers()):
 
@@ -228,17 +225,21 @@ class Grid:
                 # Height for the next layer
                 last_layer_height = layer_stretching*last_layer_height
 
+            # if the last layer is smaller than the required height, then merge
+            # with the previous layer
             elif ((hrest<last_layer_height) & (idx>0)):
                 self.merge_nodes(idx-1)
 
             idx = idx+1
 
 
-
+        # get the glacier depth 
         hrest = self.get_total_height()-self.get_total_snowheight()
 
+        # get number of snow layers
         idx = self.get_number_snow_layers()
-        # Loop over glacier
+
+        # then the glacier
         while (idx < self.get_number_layers()):
 
             if (hrest>=last_layer_height):
@@ -250,6 +251,8 @@ class Grid:
                 # Height for the next layer
                 last_layer_height = layer_stretching*last_layer_height
 
+            # if the last layer is smaller than the required height, then merge
+            # with the previous layer
             elif ((hrest<last_layer_height)):
                 self.merge_nodes(idx-1)
 
@@ -257,41 +260,61 @@ class Grid:
 
 
 
-    def adaptive_profile(self):
-        """ Remesh according to certain layer state criteria"""
-
-        #-------------------------------------------------------------------------
-        # Merging
-        #
-        # Layers are merged, if:
-        # (1) the density difference between the layer and the subsequent layer is smaller than the user defined threshold
-        # (2) the temperature difference is smaller than the user defined threshold
-        #-------------------------------------------------------------------------
-
-        #-------------------------------------------------------------------------
-        # Check for merging due to density and temperature
-        #-------------------------------------------------------------------------
-
-        # Correct first layer
+#    def adaptive_profile(self):
+#        """ Remesh according to certain layer state criteria"""
+#
+#        #-------------------------------------------------------------------------
+#        # Merging
+#        #
+#        # Layers are merged, if:
+#        # (1) the density difference between the layer and the subsequent layer is smaller than the user defined threshold
+#        # (2) the temperature difference is smaller than the user defined threshold
+#        #-------------------------------------------------------------------------
+#
+#        #-------------------------------------------------------------------------
+#        # Check for merging due to density and temperature
+#        #-------------------------------------------------------------------------
+#
+#        # Correct first layer
+#        #self.correct_layer(0 ,first_layer_height)
+#        
+#        for i in range(merge_max):
+#            # Get number of snow layers
+#            nlayers = self.get_number_snow_layers()
+#
+#            # Check if there are at least two layers
+#            if nlayers > 1:
+#
+#                # Calc differences between a layer and the subsequent layer
+#                dT = np.diff(self.get_temperature()[0:nlayers])
+#                dRho = np.diff(self.get_density()[0:nlayers])
+#
+#                # Sort the by differences in ascending order, and merge if criteria is met
+#                ind = np.lexsort((abs(dRho),abs(dT)))
+#                if ( (abs(dT[ind[0]])<temperature_threshold_merging) & (abs(dRho[ind[0]])<density_threshold_merging) ):
+#                    self.merge_nodes(ind[0])
+#
+#        
+#        # New layer height by adding up the height of the two layers
+#        total_height = self.get_node_height(idx)
+#
+#        # Merge subsequent layer with underlying layers until height of the layer is greater than the given height
+#        while ((total_height<min_height) & (idx+1<self.get_number_layers())):
+#            if (self.get_node_density(idx)<snow_ice_threshold) & (self.get_node_density(idx+1)<snow_ice_threshold):
+#                self.merge_nodes(idx)
+#            elif (self.get_node_density(idx)>=snow_ice_threshold) & (self.get_node_density(idx+1)>=snow_ice_threshold):
+#                self.merge_nodes(idx)
+#            else:
+#                break
+#
+#            # Recalculate total height
+#            total_height = self.get_node_height(idx)
+#
+#        print('before', self.grid_info_screen(10))
 #        self.correct_layer(0 ,first_layer_height)
-
-        for i in range(merge_max):
-            # Get number of snow layers
-            nlayers = self.get_number_snow_layers()
-
-            # Check if there are at least two layers
-            if nlayers > 1:
-
-                # Calc differences between a layer and the subsequent layer
-                dT = np.diff(self.get_temperature()[0:nlayers])
-                dRho = np.diff(self.get_density()[0:nlayers])
-
-                # Sort the by differences in ascending order, and merge if criteria is met
-                ind = np.lexsort((abs(dRho),abs(dT)))
-                if ( (ind[0]>=1) & (abs(dT[ind[0]])<temperature_threshold_merging) & (abs(dRho[ind[0]])<density_threshold_merging) ):
-                    self.merge_nodes(ind[0])
-
-        self.check('MERGE')
+#        print(self.grid_info_screen(10))
+#
+#        self.check('MERGE')
 
 
 
