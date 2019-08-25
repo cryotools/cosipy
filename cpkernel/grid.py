@@ -260,24 +260,77 @@ class Grid:
 
 
 
-#    def adaptive_profile(self):
-#        """ Remesh according to certain layer state criteria"""
-#
-#        #-------------------------------------------------------------------------
-#        # Merging
-#        #
-#        # Layers are merged, if:
-#        # (1) the density difference between the layer and the subsequent layer is smaller than the user defined threshold
-#        # (2) the temperature difference is smaller than the user defined threshold
-#        #-------------------------------------------------------------------------
-#
-#        #-------------------------------------------------------------------------
-#        # Check for merging due to density and temperature
-#        #-------------------------------------------------------------------------
-#
-#        # Correct first layer
-#        #self.correct_layer(0 ,first_layer_height)
-#        
+    def adaptive_profile(self):
+        """ Remesh according to certain layer state criteria"""
+
+        #-------------------------------------------------------------------------
+        # Merging
+        #
+        # Layers are merged, if:
+        # (1) the density difference between the layer and the subsequent layer is smaller than the user defined threshold
+        # (2) the temperature difference is smaller than the user defined threshold
+        #-------------------------------------------------------------------------
+
+        #-------------------------------------------------------------------------
+        # Check for merging due to density and temperature
+        #-------------------------------------------------------------------------
+
+        # Correct first layer
+        #self.correct_layer(0 ,first_layer_height)
+
+        # First, the snowpack is remeshed
+        idx = 0
+        while (idx < self.get_number_snow_layers()-1):
+
+            dT = np.abs(self.get_node_temperature(idx)-self.get_node_temperature(idx+1))
+            dRho = np.abs(self.get_node_density(idx)-self.get_node_density(idx+1))
+
+            if ((dT<temperature_threshold_merging) & (dRho<density_threshold_merging)) | (self.get_node_height(idx)<minimum_snow_layer_height):
+                self.merge_nodes(idx)
+            else:
+                idx += 1
+        
+        print('++++++++++++++++++++')
+        print(self.grid_info_screen(8))
+        # Correct first layer
+        self.correct_layer(0 ,first_layer_height)
+
+        if (self.get_number_layers()==2) & (self.get_node_height(1)<minimum_snow_layer_height):
+                self.merge_nodes(0)
+        print(self.grid_info_screen(8))
+    
+        # get the glacier depth 
+        hrest = self.get_total_height()-self.get_total_snowheight()
+
+        # get number of snow layers
+        idx = self.get_number_snow_layers()
+
+        if (self.get_number_snow_layers()>0):
+            last_layer_height = np.maximum(minimum_snow_layer_height,self.get_node_height(self.get_number_snow_layers()-1))
+        else:
+            last_layer_height = minimum_snow_layer_height
+
+        # then the glacier
+        while (idx < self.get_number_layers()):
+
+            if (hrest>=last_layer_height):
+                # Correct first layer
+                self.correct_layer(idx,last_layer_height)
+
+                hrest = hrest - last_layer_height
+
+                # Height for the next layer
+                last_layer_height = layer_stretching*last_layer_height
+
+            # if the last layer is smaller than the required height, then merge
+            # with the previous layer
+            elif ((hrest<last_layer_height)):
+                self.merge_nodes(idx-1)
+
+            idx = idx+1
+        
+        print(self.grid_info_screen(8))
+
 #        for i in range(merge_max):
 #            # Get number of snow layers
 #            nlayers = self.get_number_snow_layers()

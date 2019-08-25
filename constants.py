@@ -28,7 +28,7 @@ first_layer_height = 0.02                       # The first layer will always ha
 layer_stretching = 1.15                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
 
 minimum_snow_to_reset_albedo = 0.0001             # minimum snowfall to reset hours since last snowfall! Default was 0.005
-minimum_snow_layer_height = 0.001               # minimum first layer height
+minimum_snow_layer_height = 0.0001               # minimum layer height
 
 density_fresh_snow = 100.                       # density of freshly fallen snow [kg m-3]
 

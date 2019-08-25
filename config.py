@@ -27,7 +27,8 @@ ystart = 0
 yend = 20
 
 ## Remeshing (log_profile or adaptive_profile)
-remesh_method = 'adaptive_profile'
+#remesh_method = 'adaptive_profile'
+remesh_method = 'log_profile'
 
 ## Write full fields
 full_field = True 

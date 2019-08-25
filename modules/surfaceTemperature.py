@@ -36,14 +36,17 @@ def energy_balance(x, GRID, SWnet, rho, Cs_t, Cs_q, T2, u2, q2, p, Li, lam, SLOP
     else:
         phi = 1
     
+    # turbulent Prandtl number
+    Pr = 0.8
+
     # Sensible heat flux
-    H = rho * spec_heat_air * Cs_t * u2 * (T2-x) * phi * np.cos(np.radians(SLOPE))
+    H = rho * spec_heat_air * (1.0/Pr) * Cs_t * u2 * (T2-x) * phi * np.cos(np.radians(SLOPE))
 
     # Mixing ratio at surface
     q0 = (100.0 * 0.622 * (Ew0 / (p - Ew0))) / 100.0
     
     # Latent heat flux
-    L = rho * Lv * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
+    L = rho * Lv * (1.0/Pr) * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
 
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(x, 4.0)
@@ -130,7 +133,8 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
         Lv = lat_heat_sublimation
 
     # Sensible heat flux
-    H = rho * spec_heat_air * Cs_t * u2 * (T2-res.x) * phi * np.cos(np.radians(SLOPE))
+    Pr = 0.8
+    H = rho * spec_heat_air * (1.0/Pr) * Cs_t * u2 * (T2-res.x) * phi * np.cos(np.radians(SLOPE))
 
     # Saturation vapour pressure at the surface
     Ew0 = method_EW_Sonntag(res.x)
@@ -139,7 +143,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
     q0 = (100.0 * 0.622 * (Ew0/(p-Ew0))) / 100.0
 
     # Latent heat flux
-    L = rho * Lv * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
+    L = rho * Lv  * (1.0/Pr) * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
 
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(res.x, 4.0)

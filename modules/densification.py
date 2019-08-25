@@ -74,8 +74,7 @@ def method_Boone(GRID,SLOPE):
             GRID.set_node_liquid_water_content(idxNode, (1+dtheta_w) * GRID.get_node_liquid_water_content(idxNode))
 
             # Set new layer height (compaction)
-            GRID.set_node_height(idxNode, \
-                                 (rho[idxNode]/GRID.get_node_density(idxNode)) * GRID.get_node_height(idxNode))
+            GRID.set_node_height(idxNode, (rho[idxNode]/GRID.get_node_density(idxNode)) * GRID.get_node_height(idxNode))
 
             if (GRID.get_node_ice_fraction(idxNode)+GRID.get_node_liquid_water_content(idxNode)+GRID.get_node_porosity(idxNode)>1.0):
                 print((1+dtheta_i)*GRID.get_node_ice_fraction(idxNode),(1+dtheta_w)*GRID.get_node_liquid_water_content(idxNode),\
