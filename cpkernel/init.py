@@ -16,7 +16,7 @@ def init_snowpack(DATA):
     ## Check for WRF data
     ##--------------------------------------
     if ('SNOWHEIGHT' in DATA):
-        initial_snowheight = 0.5 #DATA.SNOWHEIGHT
+        initial_snowheight = DATA.SNOWHEIGHT
     else:
         initial_snowheight = initial_snowheight_constant
 
@@ -35,10 +35,10 @@ def init_snowpack(DATA):
     #-------------------------------------- 
     # Init layers
     if (initial_snowheight > 0.0):
-        layer_heights =  np.ones(int(initial_snowheight // initial_snow_layer_heights)) * initial_snow_layer_heights
-        layer_heights =  np.append(layer_heights, np.ones(int(initial_glacier_height // initial_glacier_layer_heights)) * initial_glacier_layer_heights)
+        layer_heights =  np.ones(int(np.floor(initial_snowheight / initial_snow_layer_heights))) * initial_snow_layer_heights
+        layer_heights =  np.append(layer_heights, np.ones(int(np.floor(initial_glacier_height / initial_glacier_layer_heights))) * initial_glacier_layer_heights)
     else:
-        layer_heights = np.ones(int(initial_glacier_height // initial_glacier_layer_heights)) * initial_glacier_layer_heights
+        layer_heights = np.ones(int(np.floor(initial_glacier_height / initial_glacier_layer_heights))) * initial_glacier_layer_heights
 
     number_layers = len(layer_heights)
 
@@ -51,16 +51,16 @@ def init_snowpack(DATA):
         # Init density
         rho_top = initial_top_density_snowpack
         rho_bottom = initial_botton_density_snowpack
-        density_gradient = (rho_top-rho_bottom)/(initial_snowheight//initial_snow_layer_heights)
-        for i in np.arange((initial_snowheight//initial_snow_layer_heights)):
+        density_gradient = (rho_top-rho_bottom)/(np.floor(initial_snowheight/initial_snow_layer_heights))
+        for i in np.arange((np.floor(initial_snowheight/initial_snow_layer_heights))):
             layer_density[int(i)] = rho_top - density_gradient * i
     
     # Init temperature new
-    temperature_gradient = (temperature_top - temperature_bottom) / (initial_glacier_height // initial_glacier_layer_heights)
+    temperature_gradient = (temperature_top - temperature_bottom) / (np.floor(initial_glacier_height / initial_glacier_layer_heights))
 
     total_height = 0
 
-    for i in np.arange(0 ,(initial_glacier_height // initial_glacier_layer_heights)):
+    for i in np.arange(0 ,(np.floor(initial_glacier_height / initial_glacier_layer_heights))):
 
         # Total height of overlying snowpack
         if int(i) > 0:
@@ -86,9 +86,9 @@ def load_snowpack(GRID_RESTART):
     layer_heights = GRID_RESTART.LAYER_HEIGHT[0:num_layers].values
     layer_density = GRID_RESTART.LAYER_RHO[0:num_layers].values
     layer_T = GRID_RESTART.LAYER_T[0:num_layers].values
-    layer_LW = GRID_RESTART.LAYER_LW[0:num_layers].values
+    layer_LWC = GRID_RESTART.LAYER_LWC[0:num_layers].values
    
-    GRID = Grid(layer_heights, layer_density, layer_T, layer_LW)
+    GRID = Grid(layer_heights, layer_density, layer_T, layer_LWC)
 
     if np.isnan(layer_T).any():
         GRID.grid_info_screen()

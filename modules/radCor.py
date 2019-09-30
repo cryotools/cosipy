@@ -17,6 +17,7 @@ def solarFParallel(lat, lon, timezone_lon, day, hour):
         zeni            ::  zenith angle (radians)
         azi             ::  solar azimuth angle (radians)
     """
+
     # Convert degree to radians
     FAC = math.pi / 180.0
 
@@ -128,8 +129,6 @@ def radCor2D(doy, zeni, azi, angslo, azislo, Rm, zeni_thld):
     Rd = Rm * Fdif          # Diffuse radiation
 
     # Correct beam component for angle and azimuth of pixels
-    cf = (math.cos(zeni) * math.cos(angslo / 180.0 * math.pi) + math.sin(zeni) * \
-          math.sin(angslo / 180.0 * math.pi) * math.cos(azi-azislo / 180.0 * math.pi)) / math.cos(zeni) 
     cf = (math.cos(zeni) * math.cos((angslo*math.pi) / 180.0) + math.sin(zeni) * \
           math.sin((angslo*math.pi) / 180.0) * math.cos(((azi-azislo)*math.pi) / 180.0)) / math.cos(zeni) 
     
