@@ -80,7 +80,6 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
     # Calc incoming longwave radiation, if not available Ea has to be in Pa (Konzelmann 1994)
     if LWin is None:
         eps_cs = 0.23 + 0.433 * np.power(100*Ea/T2,1.0/8.0)
-        #eps_cs = 1.24 * np.power(100*Ea/T2,1.0/7.0)
         eps_tot = eps_cs * (1 - np.power(N,2)) + 0.984 * np.power(N,2)
         Li = eps_tot * sigma * np.power(T2,4.0)
     else:
@@ -97,7 +96,6 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
     SWnet = G * (1-alpha)
 
     # Bulk transfer coefficient 
-    #Cs = np.power(0.41,2.0) / np.power(np.log(2.0/(z0)),2)
     z0t = z0/100
     z0q = z0/10
     Cs_t = np.power(0.41,2.0) / ( np.log(2.0/z0) * np.log(2.0/z0t) )
@@ -105,8 +103,6 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
 
     lam = GRID.get_node_thermal_conductivity(0) 
    
-#    print(GRID.grid_info_screen(20))
-
     res = minimize(energy_balance, GRID.get_node_temperature(0), method='L-BFGS-B', bounds=((220.0, 273.16),),
                    tol=1e-8, args=(GRID, SWnet, rho, Cs_t, Cs_q, T2, u2, q2, p, Li, lam, SLOPE))
  

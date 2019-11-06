@@ -8,6 +8,7 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 import time
+from datetime import timedelta
 import logging
 from modules.radCor import correctRadiation
 from constants import *
@@ -51,10 +52,10 @@ class IOClass:
             print('-------------------------------------------------------------- \n')
             
             # Load the restart file
-            timestamp = pd.to_datetime(time_start).strftime('%Y-%m-%dT%H-%M-%S')
+            timestamp = pd.to_datetime(time_start).strftime('%Y-%m-%dT%H-%M')
             if (os.path.isfile(os.path.join(data_path, 'restart', 'restart_'+timestamp+'.nc')) & (time_start != time_end)):
                 self.GRID_RESTART = xr.open_dataset(os.path.join(data_path, 'restart', 'restart_'+timestamp+'.nc'))
-                self.restart_date = self.GRID_RESTART.time     # Get time of the last calculation
+                self.restart_date = self.GRID_RESTART.time+np.timedelta64(dt,'s')     # Get time of the last calculation and add one time step
                 self.init_data_dataset()                       # Read data from the last date to the end of the data file
             else:
                 self.logger.error('No restart file available for the given date %s' % (timestamp))  # if there is a problem kill the program
@@ -73,7 +74,7 @@ class IOClass:
         self.ny = self.DATA.dims['south_north']
         self.nx = self.DATA.dims['west_east']
         self.time = self.DATA.dims['time']
-        
+
         return self.DATA
 
 
@@ -253,7 +254,6 @@ class IOClass:
         self.RESULT.attrs['First_layer_height_log_profile'] = first_layer_height
         self.RESULT.attrs['Layer_stretching_log_profile'] = layer_stretching
         self.RESULT.attrs['Minimum_snow_to_reset_albedo'] = minimum_snow_to_reset_albedo
-        self.RESULT.attrs['Density_fresh_snow'] = density_fresh_snow
         self.RESULT.attrs['Albedo_fresh_snow'] = albedo_fresh_snow
         self.RESULT.attrs['Albedo_firn'] = albedo_firn
         self.RESULT.attrs['Albedo_ice'] = albedo_ice
@@ -334,8 +334,8 @@ class IOClass:
             self.TS = np.full((self.time,self.ny,self.nx), np.nan)
         if ('ALBEDO' in self.atm):
             self.ALBEDO = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('NLAYERS' in self.internal):
-            self.NLAYERS = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('LAYERS' in self.internal):
+            self.LAYERS = np.full((self.time,self.ny,self.nx), np.nan)
         if ('ME' in self.internal):
             self.ME = np.full((self.time,self.ny,self.nx), np.nan)
         if ('intMB' in self.internal):
@@ -377,14 +377,14 @@ class IOClass:
             if ('REFREEZE' in self.full):
                 self.LAYER_REFREEZE = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
    
-
+    
     #==============================================================================
     # This function assigns the local results from the workers to the global
     # numpy arrays. The y and x values are the lat/lon indices.
     #==============================================================================
     def copy_local_to_global(self,y,x,local_RAIN,local_SNOWFALL,local_LWin,local_LWout,local_H,local_LE,local_B,local_MB, \
                              local_surfMB,local_Q,local_SNOWHEIGHT,local_TOTALHEIGHT,local_TS,local_ALBEDO, \
-                             local_NLAYERS,local_ME,local_intMB,local_EVAPORATION,local_SUBLIMATION,local_CONDENSATION, \
+                             local_LAYERS,local_ME,local_intMB,local_EVAPORATION,local_SUBLIMATION,local_CONDENSATION, \
                              local_DEPOSITION,local_REFREEZE,local_subM,local_Z0,local_surfM,local_LAYER_HEIGHT,local_LAYER_RHO, \
                              local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY,local_LAYER_ICE_FRACTION, \
                              local_LAYER_IRREDUCIBLE_WATER,local_LAYER_REFREEZE):
@@ -417,8 +417,8 @@ class IOClass:
             self.TS[:,y,x] = local_TS 
         if ('ALBEDO' in self.atm):
             self.ALBEDO[:,y,x] = local_ALBEDO 
-        if ('NLAYERS' in self.internal):
-            self.NLAYERS[:,y,x] = local_NLAYERS 
+        if ('LAYERS' in self.internal):
+            self.LAYERS[:,y,x] = local_LAYERS 
         if ('ME' in self.internal):
             self.ME[:,y,x] = local_ME 
         if ('intMB' in self.internal):
@@ -459,7 +459,7 @@ class IOClass:
                 self.LAYER_IRREDUCIBLE_WATER[:,y,x,:] = local_LAYER_IRREDUCIBLE_WATER 
             if ('REFREEZE' in self.full):
                 self.LAYER_REFREEZE[:,y,x,:] = local_LAYER_REFREEZE 
-        
+
 
     #==============================================================================
     # This function adds the global numpy arrays to the RESULT dataset which will
@@ -494,8 +494,8 @@ class IOClass:
             self.add_variable_along_latlontime(self.RESULT, self.TS, 'TS', 'K', 'Surface temperature') 
         if ('ALBEDO' in self.atm):
             self.add_variable_along_latlontime(self.RESULT, self.ALBEDO, 'ALBEDO', '-', 'Albedo') 
-        if ('NLAYERS' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.NLAYERS, 'NLAYERS', '-', 'Number of layers') 
+        if ('LAYERS' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.LAYERS, 'LAYERS', '-', 'Number of layers') 
         if ('ME' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.ME, 'ME', 'W m\u207b\xb2', 'Available melt energy') 
         if ('intMB' in self.internal):
@@ -538,48 +538,94 @@ class IOClass:
                 self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_REFREEZE, 'LAYER_REFREEZE', 'm w.e.', 'Refreezing') 
 
 
-    #==============================================================================
-    # The init_local_result_arrays creates the local numpy arrays which store 
-    # the simulations results. These arrays are returned to the main module(COSIPY.py)
-    # where they are written to the RESULT xarray dataset.
-    #==============================================================================
-    def create_local_result_arrays(self):
-        self.local_RAIN = np.full(self.time, np.nan)
-        self.local_SNOWFALL = np.full(self.time, np.nan)
-        self.local_LWin = np.full(self.time, np.nan)
-        self.local_LWout = np.full(self.time, np.nan)
-        self.local_H = np.full(self.time, np.nan)
-        self.local_LE = np.full(self.time, np.nan)
-        self.local_B = np.full(self.time, np.nan)
-        self.local_MB = np.full(self.time, np.nan)
-        self.local_surfMB = np.full(self.time, np.nan)
-        self.local_Q = np.full(self.time, np.nan)
-        self.local_SNOWHEIGHT = np.full(self.time, np.nan)
-        self.local_TOTALHEIGHT = np.full(self.time, np.nan)
-        self.local_TS = np.full(self.time, np.nan)
-        self.local_ALBEDO = np.full(self.time, np.nan)
-        self.local_ME = np.full(self.time, np.nan)
-        self.local_intMB = np.full(self.time, np.nan)
-        self.local_EVAPORATION = np.full(self.time, np.nan)
-        self.local_SUBLIMATION = np.full(self.time, np.nan)
-        self.local_CONDENSATION = np.full(self.time, np.nan)
-        self.local_DEPOSITION = np.full(self.time, np.nan)
-        self.local_REFREEZE = np.full(self.time, np.nan)
-        self.local_NLAYERS = np.full(self.time, np.nan)
-        self.local_subM = np.full(self.time, np.nan)
-        self.local_Z0 = np.full(self.time, np.nan)
-        self.local_surfM = np.full(self.time, np.nan)
+    #----------------------------------------------
+    # Initializes the restart xarray dataset
+    #----------------------------------------------
+    def init_restart_dataset(self):
+        """ This function creates the restart file 
+            
+        Returns:
+            
+            self.RESTART  ::  xarray structure"""
+        
+        self.RESTART = xr.Dataset()
+        self.RESTART.coords['time'] = self.DATA.coords['time'][-1]
+        self.RESTART.coords['lat'] = self.DATA.coords['lat']
+        self.RESTART.coords['lon'] = self.DATA.coords['lon']
+        self.RESTART.coords['layer'] = np.arange(max_layers)
+    
+        print('Restart ddataset ... ok \n')
+        print('--------------------------------------------------------------\n')
+        
+        return self.RESTART
+  
 
-        if full_field:
-            self.local_LAYER_HEIGHT = np.full((self.time,max_layers), np.nan)
-            self.local_LAYER_RHO = np.full((self.time,max_layers), np.nan)
-            self.local_LAYER_T = np.full((self.time,max_layers), np.nan)
-            self.local_LAYER_LWC = np.full((self.time,max_layers), np.nan)
-            self.local_LAYER_CC = np.full((self.time,max_layers), np.nan)
-            self.local_LAYER_POROSITY = np.full((self.time,max_layers), np.nan)
-            self.local_LAYER_ICE_FRACTION = np.full((self.time,max_layers), np.nan)
-            self.local_LAYER_IRREDUCIBLE_WATER = np.full((self.time,max_layers), np.nan)
-            self.local_LAYER_REFREEZE = np.full((self.time,max_layers), np.nan)
+    #==============================================================================
+    # This function creates the global numpy arrays which store the profiles.
+    # The global array is filled with the local results from the workers. Finally,
+    # the arrays are assigned to the RESTART dataset and is stored to disc (see COSIPY.py)
+    #==============================================================================
+    def create_global_restart_arrays(self):
+        self.NLAYERS = np.full((self.ny,self.nx), np.nan)
+        self.LAYER_HEIGHT = np.full((self.ny,self.nx,max_layers), np.nan)
+        self.LAYER_RHO = np.full((self.ny,self.nx,max_layers), np.nan)
+        self.LAYER_T = np.full((self.ny,self.nx,max_layers), np.nan)
+        self.LAYER_LWC = np.full((self.ny,self.nx,max_layers), np.nan)
+
+
+    #----------------------------------------------
+    # Initializes the local restart xarray dataset
+    #----------------------------------------------
+    def create_local_restart_dataset(self):
+        """ This function creates the result dataset for a grid point 
+        Args:
+            
+            self.DATA    ::  self.DATA structure 
+            
+        Returns:
+            
+            self.RESTART  ::  one-dimensional self.RESULT structure"""
+    
+        self.RESTART = xr.Dataset()
+        self.RESTART.coords['time'] = self.DATA.coords['time'][-1]
+        self.RESTART.coords['lat'] = self.DATA.coords['lat']
+        self.RESTART.coords['lon'] = self.DATA.coords['lon']
+        self.RESTART.coords['layer'] = np.arange(max_layers)
+        
+        self.add_variable_along_scalar(self.RESTART, np.full((1), np.nan), 'NLAYERS', '-', 'Number of layers')
+        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_HEIGHT', 'm', 'Layer height')
+        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_RHO', 'kg m^-3', 'Density of layer')
+        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_T', 'K', 'Layer temperature')
+        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_LWC', '-', 'Layer liquid water content')
+
+        return self.RESTART
+    
+
+    #==============================================================================
+    # This function assigns the local results from the workers to the global
+    # numpy arrays. The y and x values are the lat/lon indices.
+    #==============================================================================
+    def copy_local_restart_to_global(self,y,x,local_restart):
+        self.NLAYERS[y,x] = local_restart.NLAYERS 
+        self.LAYER_HEIGHT[y,x,:] = local_restart.LAYER_HEIGHT 
+        self.LAYER_RHO[y,x,:] = local_restart.LAYER_RHO
+        self.LAYER_T[y,x,:] = local_restart.LAYER_T
+        self.LAYER_LWC[y,x,:] = local_restart.LAYER_LWC
+
+    
+    #==============================================================================
+    # This function adds the global numpy arrays to the RESULT dataset which will
+    # be written to disc.
+    #==============================================================================
+    def write_restart_to_file(self):
+        
+        self.add_variable_along_latlon(self.RESTART, self.NLAYERS, 'NLAYERS', '-', 'Number of layers')
+        self.add_variable_along_latlonlayer(self.RESTART, self.LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Height of each layer')
+        self.add_variable_along_latlonlayer(self.RESTART, self.LAYER_RHO, 'LAYER_RHO', 'kg m^-3', 'Layer density')
+        self.add_variable_along_latlonlayer(self.RESTART, self.LAYER_T, 'LAYER_T', 'K', 'Layer temperature')
+        self.add_variable_along_latlonlayer(self.RESTART, self.LAYER_LWC, 'LAYER_LWC', '-', 'Layer liquid water content')
+
+
 
     # TODO: Make it Pythonian - Finish the getter/setter functions
     @property
@@ -633,90 +679,6 @@ class IOClass:
     def MB(self, x):
         self.__MB = x
 
-    #==============================================================================
-    # The next three functions initialize and write the local and global 
-    # restart datasets. The init_restart_dataset creates the global xarray dataset
-    # which contains the final restart variables. These variables are aggregated
-    # from the local restart datasets from each worker (node). Once the variables
-    # are aggregated they are written to a netcdf file (write_restart_future)
-    #==============================================================================
-    #----------------------------------------------
-    # Initializes the restart xarray dataset
-    #----------------------------------------------
-    def init_restart_dataset(self):
-        """ This function creates the restart file 
-            
-        Returns:
-            
-            self.RESTART  ::  xarray structure"""
-        
-        self.RESTART = xr.Dataset()
-        self.RESTART.coords['time'] = self.DATA.coords['time'][-1]
-        self.RESTART.coords['lat'] = self.DATA.coords['lat']
-        self.RESTART.coords['lon'] = self.DATA.coords['lon']
-        self.RESTART.coords['layer'] = np.arange(max_layers)
-    
-        self.add_variable_along_latlon(self.RESTART, np.full((1), np.nan), 'NLAYERS', '-', 'Number of layers')
-        
-        self.add_variable_along_latlonlayer(self.RESTART, np.full((self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESTART.coords['layer'].shape[0]),
-                                                            np.nan), 'LAYER_HEIGHT', 'm', 'Height of each layer')
-        self.add_variable_along_latlonlayer(self.RESTART, np.full((self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESTART.coords['layer'].shape[0]),
-                                                            np.nan), 'LAYER_RHO', 'kg m^-3', 'Layer density')
-        self.add_variable_along_latlonlayer(self.RESTART, np.full((self.DATA.T2.shape[1], self.DATA.T2.shape[2], self.RESTART.coords['layer'].shape[0]),
-                                                            np.nan), 'LAYER_T', 'K', 'Layer temperature')
-        
-        print('Restart ddataset ... ok \n')
-        print('--------------------------------------------------------------\n')
-    
-        return self.RESTART
-   
-
-    #----------------------------------------------
-    # Initializes the local restart xarray dataset
-    #----------------------------------------------
-    def create_local_restart_dataset(self):
-        """ This function creates the result dataset for a grid point 
-        Args:
-            
-            self.DATA    ::  self.DATA structure 
-            
-        Returns:
-            
-            self.RESTART  ::  one-dimensional self.RESULT structure"""
-    
-        self.RESTART = xr.Dataset()
-        self.RESTART.coords['time'] = self.DATA.coords['time'][-1]
-        self.RESTART.coords['lat'] = self.DATA.coords['lat']
-        self.RESTART.coords['lon'] = self.DATA.coords['lon']
-        self.RESTART.coords['layer'] = np.arange(max_layers)
-       
-        self.add_variable_along_latlon(self.RESTART, np.full((1), np.nan), 'NLAYERS', '-', 'Number of layers')
-        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_HEIGHT', 'm', 'Layer height')
-        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_RHO', 'kg m^-3', 'Density of layer')
-        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_T', 'K', 'Layer temperature')
-    
-        return self.RESTART
-
-
-    #----------------------------------------------
-    # Writes the last model state (layer characgeristics) into restart dataset 
-    #----------------------------------------------
-    def write_restart_future(self, results, y, x):
-        """ Writes the restart file 
-       
-        Args:
-       
-        results     :: RESTART xarray dataset
-        y           :: y-index 
-        x           :: x-index
-        
-        """
-
-        self.RESTART['NLAYERS'] = results.NLAYERS.values
-        self.RESTART.LAYER_HEIGHT.loc[dict(south_north=y, west_east=x, layer=np.arange(max_layers))] = results.LAYER_HEIGHT
-        self.RESTART.LAYER_RHO.loc[dict(south_north=y, west_east=x, layer=np.arange(max_layers))] = results.LAYER_RHO
-        self.RESTART.LAYER_T.loc[dict(south_north=y, west_east=x, layer=np.arange(max_layers))] = results.LAYER_T
-    
 
     #==============================================================================
     # The following functions return the RESULT, RESTART and GRID structures
@@ -736,9 +698,17 @@ class IOClass:
     #==============================================================================
     # Auxiliary functions for writing variables to NetCDF files
     #==============================================================================
-    def add_variable_along_latlon(self, ds, var, name, units, long_name):
+    def add_variable_along_scalar(self, ds, var, name, units, long_name):
         """ This function self.adds missing variables to the self.DATA class """
         ds[name] = var
+        ds[name].attrs['units'] = units
+        ds[name].attrs['long_name'] = long_name
+        ds[name].encoding['_FillValue'] = -9999
+        return ds
+
+    def add_variable_along_latlon(self, ds, var, name, units, long_name):
+        """ This function self.adds missing variables to the self.DATA class """
+        ds[name] = (('south_north','west_east'), var)
         ds[name].attrs['units'] = units
         ds[name].attrs['long_name'] = long_name
         ds[name].encoding['_FillValue'] = -9999

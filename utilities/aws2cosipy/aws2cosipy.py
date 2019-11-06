@@ -35,6 +35,9 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     # Read data
     #-----------------------------------
     date_parser = lambda x: dateutil.parser.parse(x, ignoretz=True)
+    #df = pd.read_csv(cs_file,
+    #   delimiter='\t', index_col=['TIMESTAMP'],
+    #    parse_dates=['TIMESTAMP'], na_values='NAN',date_parser=date_parser)
     df = pd.read_csv(cs_file,
        delimiter=',', index_col=['TIMESTAMP'],
         parse_dates=['TIMESTAMP'], na_values='NAN',date_parser=date_parser)
@@ -209,7 +212,10 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     check(dso.G,1600.0,0.0)
     check(dso.PRES,1080.0,200.0)
 
-def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date):
+
+
+
+def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=None, x1=None, y0=None, y1=None):
     """ This function creates an input dataset from an offered csv file with input point data
         Here you need to define how to interpolate the data.
 
@@ -227,9 +233,9 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     # Read data
     #-----------------------------------
     date_parser = lambda x: dateutil.parser.parse(x, ignoretz=True)
-    df = pd.read_csv(cs_file,
-       delimiter=',', index_col=['TIMESTAMP'],
-        parse_dates=['TIMESTAMP'], na_values='NAN',date_parser=date_parser)
+    df = pd.read_csv(cs_file, 
+        delimiter='\t', index_col=['TIMESTAMP'], parse_dates=['TIMESTAMP'], 
+        na_values='NAN',date_parser=date_parser)
 
     #-----------------------------------
     # Select time slice
@@ -242,6 +248,11 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     #-----------------------------------
     print('Read static file %s \n' % (static_file))
     ds = xr.open_dataset(static_file)
+    
+    #-----------------------------------
+    # Create subset
+    #-----------------------------------
+    ds = ds.sel(south_north=slice(y0,y1), west_east=slice(x0,x1))
 
     dso = xr.Dataset()
 
@@ -328,7 +339,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date):
         P_interp[t,:,:] = SLP * np.power((1-(0.0065*ds.HGT.values)/(288.15)), 5.255)
 
         if (RRR_var in df):
-            RRR_interp[t,:,:] = RRR[t] + (ds.HGT.values-stationAlt)*lapse_RRR
+            RRR_interp[t,:,:] = np.maximum(RRR[t] + (ds.HGT.values-stationAlt)*lapse_RRR, 0.0)
         
         if (SNOWFALL_var in df):
             SNOWFALL_interp[t, :, :] = SNOWFALL[t] + (ds.HGT.values-stationAlt)*lapse_SNOWFALL
@@ -337,7 +348,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date):
             LW_interp[t,:,:] = LW[t]
         
         if(N_var in df):
-            N_interp[t,:,:] = LW[t]
+            N_interp[t,:,:] = N[t]
 
     # Change aspect to south==0, east==negative, west==positive
     ds['ASPECT'] = np.mod(ds['ASPECT']+180.0, 360.0)
@@ -347,6 +358,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     aspect[aspect>=180] = 360.0 - aspect[aspect>=180]
     ds['ASPECT'] = (('south_north','west_east'),aspect)
     print(('Number of glacier cells: %i') % (np.count_nonzero(~np.isnan(ds['MASK'].values))))
+    print(('Number of glacier cells: %i') % (np.nansum(ds['MASK'].values)))
 
     # Auxiliary variables
     mask = ds.MASK.values
@@ -369,7 +381,6 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date):
         hour = df.index[t].hour
         for i in range(len(ds.south_north)):
             for j in range(len(ds.west_east)):
-                if (mask[i,j]==1):
                     if radiationModule:
                         G_interp[t,i,j] = np.maximum(0.0, correctRadiation(south_norths[i],west_easts[j], timezone_lon, doy, hour, slope[i,j], aspect[i,j], sw[t], zeni_thld))
                     else:
@@ -405,10 +416,20 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     if(N_var in df):
         add_variable_along_timelatlon(dso, N_interp, 'N', '%', 'Cloud cover fraction')
 
+    encoding = dict()
+    for var in IO.get_result().data_vars:
+        dataMin = IO.get_result()[var].min(skipna=True).values
+        dataMax = IO.get_result()[var].max(skipna=True).values
+        
+        dtype = 'int16'
+        FillValue = -9999
+        scale_factor, add_offset = compute_scale_and_offset(dataMin, dataMax, 16)
+        encoding[var] = dict(zlib=True, complevel=2, dtype=dtype, scale_factor=scale_factor, add_offset=add_offset, _FillValue=FillValue)
+
     #-----------------------------------
     # Write file to disc 
     #-----------------------------------
-    dso.to_netcdf(cosipy_file)
+    dso.to_netcdf(cosipy_file, encoding=encoding)
 
 
     print('Input file created \n')
@@ -465,6 +486,14 @@ def check(field, max, min):
     if np.isnan((np.min(field.values))):
         print('ERROR this does not work! %s VALUE: %.2f \n' % (str.capitalize(field.name), np.min(field.values)))
 
+def compute_scale_and_offset(min, max, n):
+    # stretch/compress data to the available packed range
+    scale_factor = (max - min) / (2 ** n - 1)
+    # translate the range to be symmetric about zero
+    add_offset = min + 2 ** (n - 1) * scale_factor
+    return (scale_factor, add_offset)
+
+
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='Create 2D input file from csv file.')
@@ -473,9 +502,13 @@ if __name__ == "__main__":
     parser.add_argument('-s', '-static_file', dest='static_file', help='Static file containing DEM, Slope etc.')
     parser.add_argument('-b', '-start_date', dest='start_date', help='Start date')
     parser.add_argument('-e', '-end_date', dest='end_date', help='End date')
+    parser.add_argument('-xl', '-xl', dest='xl', type=float, const=None, help='left longitude value of the subset')
+    parser.add_argument('-xr', '-xr', dest='xr', type=float, const=None, help='right longitude value of the subset')
+    parser.add_argument('-yl', '-yl', dest='yl', type=float, const=None, help='lower latitude value of the subset')
+    parser.add_argument('-yu', '-yu', dest='yu', type=float, const=None, help='upper latitude value of the subset')
 
     args = parser.parse_args()
     if point_model:
         create_1D_input(args.csv_file, args.cosipy_file, args.static_file, args.start_date, args.end_date) 
     else:
-        create_2D_input(args.csv_file, args.cosipy_file, args.static_file, args.start_date, args.end_date) 
+        create_2D_input(args.csv_file, args.cosipy_file, args.static_file, args.start_date, args.end_date, args.xl, args.xr, args.yl, args.yu) 

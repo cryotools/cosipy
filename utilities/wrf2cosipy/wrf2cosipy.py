@@ -30,8 +30,15 @@ def create_input(wrf_file, cosipy_file, start_date, end_date):
     # Rename the time coordinate
     ds = ds.rename({'XTIME':'Time'})
     
+    # Re-format timestamp (only hour and minutes, no seconds)
+    ds = ds.assign_coords(Time=pd.to_datetime(ds['Time'].values).strftime('%Y-%m-%dT%H-%M'))
+
     # Select the specified period
-    ds = ds.sel(Time=slice(start_date,end_date))
+    #print(pd.to_datetime(ds['Time'].values).strftime('%Y-%m-%dT%H-%M'))
+    if ((start_date!=None) & (end_date!=None)):
+        ds = ds.sel(Time=slice(start_date,end_date))
+
+    #print(ds.Time.values)
 
     # Create COSIPY input file
     dso = xr.Dataset()
@@ -134,8 +141,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Create 2D input file from WRF file.')
     parser.add_argument('-i', '-wrf_file', dest='wrf_file', help='WRF file')
     parser.add_argument('-o', '-cosipy_file', dest='cosipy_file', help='Name of the resulting COSIPY file')
-    parser.add_argument('-b', '-start_date', dest='start_date', help='Start date')
-    parser.add_argument('-e', '-end_date', dest='end_date', help='End date')
+    parser.add_argument('-b', '-start_date', dest='start_date', const=None, help='Start date')
+    parser.add_argument('-e', '-end_date', dest='end_date', const=None, help='End date')
 
     args = parser.parse_args()
     create_input(args.wrf_file, args.cosipy_file, args.start_date, args.end_date) 

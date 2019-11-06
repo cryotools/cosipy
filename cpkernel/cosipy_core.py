@@ -11,6 +11,7 @@ from modules.percolation import percolation
 from modules.refreezing import refreezing
 from modules.roughness import updateRoughness
 from modules.densification import densification
+from modules.evaluation import evaluate
 from modules.surfaceTemperature import update_surface_temperature
 
 from cpkernel.init import *
@@ -19,8 +20,9 @@ from cpkernel.grid import *
 import cProfile
 
 
-def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
+def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_data=None):
 
+    # Local variables
     _RRR = np.full(len(DATA.time), np.nan)
     _RAIN = np.full(len(DATA.time), np.nan)
     _SNOWFALL = np.full(len(DATA.time), np.nan)
@@ -82,6 +84,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
     # hours since the last snowfall (albedo module)
     hours_since_snowfall = 0
 
+    #--------------------------------------------
     # Get data from file
     #--------------------------------------------
     T2 = DATA.T2.values
@@ -104,6 +107,10 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         SNOWF = None
         RRR = DATA.RRR.values
 
+    # Multipy RRR with a user-defined factor
+    RRR = RRR*mult_factor_RRR
+    
+    # Use RRR rather than snowfall?
     if force_use_TP is True:
         SNOWF = None
 
@@ -123,6 +130,12 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
     else:
         SLOPE = 0.0
 
+    # Cumulative mass balance variable
+    MB_cum = 0
+
+    # Create pandas dataframe for stake evaluation
+    _df = pd.DataFrame(index=stake_data.index, columns=['mb','snowheight'], dtype='float')
+
     # Profiling with bokeh
     cp = cProfile.Profile()
 
@@ -131,7 +144,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
     #--------------------------------------------
     logger.debug('Start time loop')
     for t in np.arange(len(DATA.time)):
-
+ 
         # Check grid
         GRID.grid_check()
 
@@ -143,13 +156,14 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
 
         if (SNOWF is not None):
             SNOWFALL = SNOWF[t]
+            RAIN = RRR[t]
         else:
         # , else convert rainfall [mm] to snowheight [m]
             # liquid/solid fraction
-            SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) / center_snow_transfer_function) * spread_snow_transfer_function) + 1.0))
+            SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) - center_snow_transfer_function) * spread_snow_transfer_function) + 1.0))
             RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000
 
-        # if snofall is smaller than the threshold
+        # if snowfall is smaller than the threshold
         if SNOWFALL<minimum_snow_layer_height:
             SNOWFALL = 0.0
 
@@ -161,6 +175,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
             # Add a new snow node on top
            GRID.add_fresh_snow(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0, timestamp)
 
+        # Guarantee that solar radiation is greater equal zero
         if (G[t]<0.0):
             G[t] = 0.0
 
@@ -268,6 +283,16 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
         # Write results
         logger.debug('Write data into local result structure')
 
+        # TOBI
+        # Cumulative mass balance for stake evaluation 
+        MB_cum = MB_cum + mass_balance
+        
+        # Store cumulative MB in pandas frame for validation
+        if stake_names:
+            if (DATA.isel(time=t).time.values in stake_data.index):
+                _df['mb'].loc[DATA.isel(time=t).time.values] = MB_cum 
+                _df['snowheight'].loc[DATA.isel(time=t).time.values] = GRID.get_total_snowheight() 
+        
         # Save results
         _RAIN[t] = RAIN
         _SNOWFALL[t] = SNOWFALL
@@ -319,16 +344,21 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None):
             _LAYER_ICE_FRACTION = None
             _LAYER_IRREDUCIBLE_WATER = None
             _LAYER_REFREEZE = None
+
+    # Evaluate stakes
+    _stat = evaluate(stake_names, stake_data, _df)
+
     # Restart
     logger.debug('Write restart data into local restart structure')
     RESTART['NLAYERS'] = GRID.get_number_layers()
     RESTART.LAYER_HEIGHT[0:GRID.get_number_layers()] = GRID.get_height()
     RESTART.LAYER_RHO[0:GRID.get_number_layers()] = GRID.get_density()
     RESTART.LAYER_T[0:GRID.get_number_layers()] = GRID.get_temperature()
+    RESTART.LAYER_LWC[0:GRID.get_number_layers()] = GRID.get_liquid_water_content()
 
     return (indY,indX,RESTART,_RAIN,_SNOWFALL,_LWin,_LWout,_H,_LE,_B, \
             _MB,_surfMB,_Q,_SNOWHEIGHT,_TOTALHEIGHT,_TS,_ALBEDO,_NLAYERS, \
             _ME,_intMB,_EVAPORATION,_SUBLIMATION,_CONDENSATION,_DEPOSITION,_REFREEZE, \
             _subM,_Z0,_surfM, \
             _LAYER_HEIGHT,_LAYER_RHO,_LAYER_T,_LAYER_LWC,_LAYER_CC,_LAYER_POROSITY,_LAYER_ICE_FRACTION, \
-            _LAYER_IRREDUCIBLE_WATER,_LAYER_REFREEZE)
+            _LAYER_IRREDUCIBLE_WATER,_LAYER_REFREEZE,stake_names,_stat,_df)

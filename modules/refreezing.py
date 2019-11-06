@@ -57,10 +57,6 @@ def refreezing(GRID):
 
     total_end = np.sum(GRID.get_liquid_water_content())
 
-    if (total_start-total_end-water_refreezed) > 1e-8:
-        logger.error('Refreezing module is not mass consistent')
-        logger.error('Water in the begin/end/refreezed: %2.7f /  %2.7f / %2.7f' % (total_start,total_end,water_refreezed))
-
     return water_refreezed
 
 

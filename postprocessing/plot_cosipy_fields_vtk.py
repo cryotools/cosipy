@@ -5,26 +5,26 @@ import math
 from scipy.optimize import minimize
 from scipy.optimize import curve_fit
 from scipy.optimize import fmin
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import xarray as xr
 from itertools import product
 
 def main():
     #createDEM_v1()
     #createDEM_v2()
-    add_scalar('surfM','2018-06-01T08:00')
+    add_scalar('TS', '2017-07-01 12:00:00')
 
 def createDEM_v1():
 
-    ds = xr.open_dataset('../data/static/static.nc')
+    ds = xr.open_dataset('../data/output/Peru_20160601-20180530_comp4.nc')
     
     points = vtk.vtkPoints()
     
-    numPoints = ds.lat.size*ds.lon.size
+    numPoints = ds.south_north.size*ds.west_east.size
    
     print('Write points \n')
-    for i,j in product(ds.lat.values,ds.lon.values):
-            points.InsertNextPoint(j, i, ds.HGT.sel(lat=i,lon=j).values/6370000.0)
+    for i,j in product(ds.south_north.values,ds.west_east.values):
+            points.InsertNextPoint(ds.lat.isel(south_north=i,west_east=j), ds.lon.isel(south_north=i,west_east=j), ds.HGT.isel(south_north=i,west_east=j).values/6370000.0)
     
     print('Create unstructured grid \n') 
     polydata = vtk.vtkPolyData()
@@ -63,25 +63,25 @@ def createDEM_v1():
 
 def createDEM_v2():
 
-    ds = xr.open_dataset('../data/static/static.nc')
+    ds = xr.open_dataset('../data/output/Peru_20160601-20180530_comp4.nc')
     
     points = vtk.vtkPoints()
     quad = vtk.vtkQuad()
     cells = vtk.vtkCellArray()
     
-    numPoints = ds.lat.size*ds.lon.size
+    numPoints = ds.south_north.size*ds.west_east.size
    
     print('Write points \n')
-    for i,j in product(ds.lat.values,ds.lon.values):
-            points.InsertNextPoint(j, i, ds.HGT.sel(lat=i,lon=j).values/6370000.0)
+    for i,j in product(ds.south_north.values,ds.west_east.values):
+            points.InsertNextPoint(ds.lat.isel(south_north=i,west_east=j), ds.lon.isel(south_north=i,west_east=j), ds.HGT.sel(south_north=i,west_east=j).values/6370000.0)
     
     print('Write cells \n')
-    for idx in range(points.GetNumberOfPoints()-ds.lon.size):
-        if (idx%ds.lon.size != 0):
+    for idx in range(points.GetNumberOfPoints()-ds.west_east.size):
+        if (idx%ds.west_east.size != 0):
             quad.GetPointIds().SetId(0,idx)
             quad.GetPointIds().SetId(1,idx+1)
-            quad.GetPointIds().SetId(2,idx+ds.lon.size+1)
-            quad.GetPointIds().SetId(3,idx+ds.lon.size)
+            quad.GetPointIds().SetId(2,idx+ds.west_east.size+1)
+            quad.GetPointIds().SetId(3,idx+ds.west_east.size)
             cells.InsertNextCell(quad)
 
     print('Create unstructured grid \n') 
@@ -105,22 +105,22 @@ def add_scalar(var, timestamp):
     pointLocator.SetDataSet(vtkFile.GetOutput())
     pointLocator.BuildLocator()
     
- 
-    ds = xr.open_dataset('../data/output/Hintereisferner_output-20180601-20180601.nc')
+    ds = xr.open_dataset('../data/output/Peru_20160601-20180530_comp4.nc')
     ds = ds.sel(time=timestamp)
     
-    ds_sub = ds[var].stack(x=['lat','lon']) 
+    ds_sub = ds[var].stack(x=['south_north','west_east']) 
     ds_sub = ds_sub.dropna(dim='x')
     lats = ds_sub.x.lat.values
     lons = ds_sub.x.lon.values
     data = ds_sub.values
+    print(lats)
 
     numPoints = vtkFile.GetOutput().GetNumberOfPoints()
     scalar = np.empty(numPoints)
     scalar[:] = np.nan
 
     interpField = numpy_support.numpy_to_vtk(scalar)
-    interpField.SetName('TS')
+    interpField.SetName(var)
     vtkFile.GetOutput().GetPointData().AddArray(interpField)
     vtkFile.Update()
 
@@ -132,18 +132,19 @@ def add_scalar(var, timestamp):
         pointId = vtk.mutable(0) 
         Id = vtk.vtkIdList()
         pointId = pointLocator.FindClosestPoint([lons[i],lats[i],alt])
-        vtkFile.GetOutput().GetPointData().GetArray('TS').InsertTuple1(pointId,data[i])
+        vtkFile.GetOutput().GetPointData().GetArray(var).InsertTuple1(pointId,data[i])
 
     writer = vtk.vtkXMLUnstructuredGridWriter()
-    writer.SetFileName('cosipy_TS.vtu')
+    writer.SetFileName('cosipy.vtu')
     writer.SetInputData(vtkFile.GetOutput())
     writer.Write()
 
-    plotSurface(vtkFile)
+    #plotSurface(vtkFile)
 
     
 def plotSurface(domain):
- 
+
+    print(domain)
     domain.GetOutput().GetPointData().SetActiveScalars('TS')
     
     lut = vtk.vtkLookupTable()

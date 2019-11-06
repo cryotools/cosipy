@@ -106,6 +106,9 @@ class Grid:
         """ This function merges the nodes at location idx and idx+1. The node at idx is updated
         with the new properties (height, liquid water content, ice fraction, temperature), while the node
         at idx+1 is deleted after merging"""
+    
+        # Get overburden pressure for consistency check
+        w0 =self.get_node_height(idx)*self.get_node_density(idx)+self.get_node_height(idx+1)*self.get_node_density(idx+1)
 
         # New layer height by adding up the height of the two layers
         new_height = self.get_node_height(idx) + self.get_node_height(idx+1)
@@ -129,6 +132,9 @@ class Grid:
 
         # Update node properties
         self.update_node(idx, new_height, new_temperature, new_ice_fraction, new_liquid_water_content)
+        
+        if (w0-self.get_node_density(idx)*self.get_node_height(idx))>1e-8:
+            self.logger.error('Merging is not mass (density) consistent (%2.7f)' % (w0-self.get_node_density(idx)*self.get_node_height(idx)))
 
         # Remove the second layer
         self.remove_node([idx+1])

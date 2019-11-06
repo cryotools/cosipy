@@ -46,7 +46,7 @@ def method_Bintanja(GRID, SWnet, dt):
         T_rad = float(GRID.get_node_temperature(idxNode) + (E[idxNode] /\
                     (GRID.get_node_density(idxNode) * spec_heat_ice)) * \
                     (dt / GRID.get_node_height(idxNode)))
-
+        
         if (T_rad-zero_temperature>0.0):
 
             # Temperature difference between layer and freezing temperature
@@ -58,17 +58,15 @@ def method_Bintanja(GRID, SWnet, dt):
              # Changes in volumetric contents
             dtheta_w = A * dT * GRID.get_node_ice_fraction(idxNode)
             dtheta_i = (water_density/ice_density) * -dtheta_w
+            dh = -dtheta_i/GRID.get_node_ice_fraction(idxNode)
 
-            # If enough energy to remove layer
-            if (dtheta_i>=GRID.get_node_ice_fraction(idxNode)):
+            if (dh >= 1.0):
                 list_of_layers_to_remove.append(idxNode)
-            # otherwise  
             else:
                 GRID.set_node_liquid_water_content(idxNode, \
                     GRID.get_node_liquid_water_content(idxNode)+dtheta_w)
-                GRID.set_node_ice_fraction(idxNode, \
-                    GRID.get_node_ice_fraction(idxNode)+dtheta_i) 
                 GRID.set_node_temperature(idxNode, zero_temperature)
+                GRID.set_node_height(idxNode, (1-dh)*GRID.get_node_height(idxNode))
 
             subsurface_melt += dtheta_w
 

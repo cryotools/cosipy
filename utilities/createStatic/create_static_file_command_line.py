@@ -10,20 +10,11 @@ import os
 static_folder = '../../data/static/'
 
 ### input digital elevation model (DEM)
-dem_path_tif = static_folder + 'DEM/n30_e090_3arc_v2.tif'
+dem_path_tif = static_folder + 'DEM/Peru/ASTGTM2_S09W078_dem_clip.tif'
 ### input shape of glacier or study area, e.g. from the Randolph glacier inventory
-shape_path = static_folder + 'Shapefiles/Zhadang_RGI6.shp'
+shape_path = static_folder + 'Shapefiles/Peru/artesonraju_glacier_sentinel_f.shp'
 ### path were the static.nc file is saved
-output_path = static_folder + 'static.nc'
-
-### to shrink the DEM use the following lat/lon corners
-longitude_upper_left = '90.62'
-latitude_upper_left = '30.48'
-longitude_lower_right = '90.66'
-latitude_lower_right = '30.46'
-
-### to aggregate the DEM to a coarser spatial resolution
-aggregate_degree = '0.003'
+output_path = static_folder + 'Peru_static.nc'
 
 ### intermediate files, will be removed afterwars
 dem_path_tif_temp = static_folder + 'DEM/DEM_temp.tif'
@@ -33,13 +24,10 @@ aspect_path = static_folder + 'aspect.nc'
 mask_path = static_folder + 'mask.nc'
 slope_path = static_folder + 'slope.nc'
 
-### If you do not want to shrink the DEM, comment out the following to three lines
-os.system('gdal_translate -r cubicspline -projwin ' + longitude_upper_left + ' ' + latitude_upper_left + ' ' +
-          longitude_lower_right + ' ' + latitude_lower_right + ' ' + dem_path_tif + ' ' + dem_path_tif_temp)
+aggregate_degree = '0.00045475436839202433'
+os.system('gdalwarp -tr ' + aggregate_degree + ' ' + aggregate_degree + ' -r average ' + dem_path_tif + ' ' + dem_path_tif_temp)
 dem_path_tif = dem_path_tif_temp
-### If you do not want to aggregate DEM, comment out the following to two lines
-os.system('gdalwarp -tr ' + aggregate_degree + ' ' + aggregate_degree + ' -r average ' + dem_path_tif + ' ' + dem_path_tif_temp2)
-dem_path_tif = dem_path_tif_temp2
+
 ### convert DEM from tif to NetCDF
 os.system('gdal_translate -of NETCDF ' + dem_path_tif  + ' ' + dem_path)
 ### calcualte slope as NetCDF from DEM
@@ -48,7 +36,6 @@ os.system('gdaldem slope -of NETCDF ' + dem_path + ' ' + slope_path + ' -s 11112
 os.system('gdaldem aspect -of NETCDF ' + dem_path + ' ' + aspect_path)
 ### calculate mask as NetCDF with DEM and shapefile
 os.system('gdalwarp -of NETCDF  --config GDALWARP_IGNORE_BAD_CUTLINE YES -cutline ' + shape_path + ' ' + dem_path_tif  + ' ' + mask_path)
-#os.system('gdalwarp -of NETCDF -cutline ' + shape_path + ' ' + dem_path_tif + ' ' + mask_path)
 
 ### open intermediate netcdf files
 dem = xr.open_dataset(dem_path)

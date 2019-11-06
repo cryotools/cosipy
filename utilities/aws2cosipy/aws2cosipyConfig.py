@@ -11,8 +11,8 @@
 PRES_var = 'Press_Avg'   
 
 # Temperature
-T2_var = 'TC1_Avg'  
-in_K = False
+T2_var = 'Tair_Avg'  
+in_K = False 
 
 # Cloud cover fraction
 N_var = 'tcc'
@@ -38,10 +38,10 @@ SNOWFALL_var = 'SNOWFALL'
 #------------------------
 # Radiation module 
 #------------------------
-radiationModule = False 
+radiationModule = True 
 
 # Time zone
-timezone_lon = 15.0
+timezone_lon = 10.0
 
 # Zenit threshold (>threshold == zenit)
 zeni_thld = 85.0
@@ -49,18 +49,18 @@ zeni_thld = 85.0
 #------------------------
 # Point model 
 #------------------------
-point_model = True
-plon = 10.7779
-plat = 46.807984
-hgt = 2970 
+point_model = True 
+plon = 10.777899874814329
+plat = 46.807983544912666
+hgt = 3300
 
 #------------------------
 # Interpolation arguments 
 #------------------------
 stationName = 'Hintereisferner'
-stationAlt = 2880.0
+stationAlt = 3300.0
 
 lapse_T         = -0.006  # Temp K per  m
-lapse_RH        = 0.001  # RH % per  m (0 to 1)
-lapse_RRR       = 0.001   # RRR % per m (0 to 1)
-lapse_SNOWFALL  = 0.001   # Snowfall % per m (0 to 1)
+lapse_RH        = 0.002  # RH % per  m (0 to 1)
+lapse_RRR       = 0.0001   # RRR % per m (0 to 1)
+lapse_SNOWFALL  = 0.0001   # Snowfall % per m (0 to 1)
