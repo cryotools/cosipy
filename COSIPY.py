@@ -210,7 +210,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             else:
                 stake_names = None
 
-	    if WRF is True:
+            if WRF is True:
 		mask = DATA.MASK.sel(south_north=y, west_east=x)
 	        # Provide restart grid if necessary
                 if ((mask==1) & (restart==False)):
