@@ -50,4 +50,4 @@ stationAlt = 5665
 
 lapse_T    = -0.006     # Temp K per  m
 lapse_RH   = 0.002      # RH % per  m (0 to 1)
-lapse_RRR  = 0.0001     # RRR % per m (0 to 1)
+lapse_RRR  = 0.000     # RRR % per m (0 to 1)

@@ -44,6 +44,14 @@ eval_method = 'rmse'                                        # how to evaluate th
 obs_type = 'snowheight'                                    # What kind of stake data is used 'mb' or 'snowheight'
 
 #-----------------------------------
+# STANDARD LAT/LON or WRF INPUT 
+#-----------------------------------
+# Dimensions
+WRF = False					# Set to True if you use WRF as input
+northing = 'lat'				# Change to south_north for WRF
+easting = 'lon'					# Change to west_east for WRF
+
+#-----------------------------------
 # PARALLELIZATION 
 #-----------------------------------
 slurm_use = True            # use SLURM

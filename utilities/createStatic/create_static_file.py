@@ -71,20 +71,21 @@ mask[np.isnan(mask)]=-9999
 mask[mask>0]=1
 print(mask)
 
-### create output dataset
+## create output dataset
 ds = xr.Dataset()
-ds.coords['south_north'] = dem.lat.values
-ds.south_north.attrs['standard_name'] = 'south_north'
-ds.south_north.attrs['long_name'] = 'longitude'
-ds.south_north.attrs['units'] = 'degrees_east'
-ds.coords['west_east'] = dem.lon.values
-ds.west_east.attrs['standard_name'] = 'west_east'
-ds.west_east.attrs['long_name'] = 'latitude'
-ds.west_east.attrs['units'] = 'degrees_north'
+ds.coords['lon'] = dem.lon.values
+ds.lon.attrs['standard_name'] = 'lon'
+ds.lon.attrs['long_name'] = 'longitude'
+ds.lon.attrs['units'] = 'degrees_east'
+
+ds.coords['lat'] = dem.lat.values
+ds.lat.attrs['standard_name'] = 'lat'
+ds.lat.attrs['long_name'] = 'latitude'
+ds.lat.attrs['units'] = 'degrees_north'
 
 ### function to insert variarbles to dataset
 def insert_var(ds, var, name, units, long_name):
-    ds[name] = (('south_north','west_east'), var)
+    ds[name] = (('lat','lon'), var)
     ds[name].attrs['units'] = units
     ds[name].attrs['long_name'] = long_name
     ds[name].attrs['_FillValue'] = -9999

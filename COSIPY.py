@@ -151,13 +151,13 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
         print(client)
 
         # Get dimensions of the whole domain
-        ny = DATA.dims['south_north']
-        nx = DATA.dims['west_east']
+        ny = DATA.dims[northing]
+        nx = DATA.dims[easting]
 
         cp = cProfile.Profile()
 
         # Get some information about the cluster/nodes
-        total_grid_points = DATA.dims['south_north']*DATA.dims['west_east']
+        total_grid_points = DATA.dims[northing]*DATA.dims[easting]
         total_cores = processes*nodes
         points_per_core = total_grid_points // total_cores
         print(total_grid_points, total_cores, points_per_core)
@@ -210,14 +210,24 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             else:
                 stake_names = None
 
-            # Provide restart grid if necessary
-            if ((mask==1) & (restart==False)):
-                futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
-            elif ((mask==1) & (restart==True)):
-                futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, 
+	    if WRF is True:
+		mask = DATA.MASK.sel(south_north=y, west_east=x)
+	        # Provide restart grid if necessary
+                if ((mask==1) & (restart==False)):
+                    futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
+                elif ((mask==1) & (restart==True)):
+                    futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, 
                                              GRID_RESTART=IO.create_grid_restart().sel(south_north=y, west_east=x), 
                                              stake_names=stake_names, stake_data=df_stakes_data))
-
+	    else:
+		mask = DATA.MASK.sel(lat=y, lon=x)
+	        # Provide restart grid if necessary
+                if ((mask==1) & (restart==False)):
+                    futures.append(client.submit(cosipy_core, DATA.sel(lat=y, lon=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
+                elif ((mask==1) & (restart==True)):
+                    futures.append(client.submit(cosipy_core, DATA.sel(lat=y, lon=x), y, x, 
+                                             GRID_RESTART=IO.create_grid_restart().sel(lat=y, lon=x), 
+                                             stake_names=stake_names, stake_data=df_stakes_data))
         # Finally, do the calculations and print the progress
 #        progress(futures)
 
