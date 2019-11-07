@@ -18,5 +18,5 @@ extra_slurm_parameters = [
                             '--output=Output_nodes.output',	# Path slurm output file
                             '--error=Error_nodes.err',          # Path slurm error file
                             '--time=1-00:00:00',                # Time limit for job
-                            '--account=prime'                   # equivalent to slurm paarameter --account
+                            '--account='                   # equivalent to slurm paarameter --account
                             ]
