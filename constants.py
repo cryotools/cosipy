@@ -31,9 +31,9 @@ const_init_temp = 0.1                           # constant for init temperature 
 
 
 ' MODEL CONSTANTS '
-center_snow_transfer_function = 1.5             # center (50/50) when total precipitation is transfered to snow and rain
-spread_snow_transfer_function = 1.5             # 2: +-2.5; 2: +- 1.5; 3: +- 0.5
-mult_factor_RRR = 1.32                          # multiplication factor for RRR
+center_snow_transfer_function = 2.5             # center (50/50) when total precipitation is transfered to snow and rain
+spread_snow_transfer_function = 1               # 1: +-2.5
+mult_factor_RRR = 1.0                           # multiplication factor for RRR
 
 minimum_snow_to_reset_albedo = 0.0001           # minimum snowfall to reset hours since last snowfall! Default was 0.005
 minimum_snow_layer_height = 0.0001              # minimum layer height

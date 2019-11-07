@@ -114,8 +114,11 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     if force_use_TP is True:
         SNOWF = None
 
-    # Check whether longwave data is availible -> used for surface temperature calculations
-    if ('LWin' in DATA) and ('N' in DATA):
+    # Check whether longwave data is availible and not declined -> used for surface temperature calculations
+    if force_use_N is True:
+        LWin = None
+        N = DATA.N.values
+    elif ('LWin' in DATA) and ('N' in DATA):
         LWin = DATA.LWin.values
         N = DATA.N.values
     elif ('LWin' in DATA):

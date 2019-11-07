@@ -9,8 +9,6 @@
 
     Tobias Sauter
     Anselm Arndt
-    David Loibl
-    Bjoern Sass
 
     You are allowed to use and modify this code in a noncommercial manner and by
     appropriately citing the above mentioned developers.
@@ -79,7 +77,7 @@ def main():
     #-----------------------------------------------
     if (slurm_use):
 
-        with SLURMCluster(scheduler_port=port, cores=cores, processes=processes, memory=memory, shebang=shebang, name=name, queue=queue, job_extra=slurm_parameters) as cluster:
+        with SLURMCluster(scheduler_port=port, cores=cores, processes=processes, memory=memory, shebang=shebang, name=name, queue=queue, job_extra=slurm_parameters, local_directory='dask-worker-space') as cluster:
             cluster.scale(processes * nodes)   
             print(cluster.job_script())
             print("You are using SLURM!\n")

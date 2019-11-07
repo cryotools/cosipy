@@ -60,6 +60,11 @@ full_field = False          # write full fields (2D data) to file
 force_use_TP = False        # If total precipitation and snowfall in input data use total precipitation
 
 #-----------------------------------
+# CLOUD COVER FRACTION  
+#-----------------------------------
+force_use_N = False        # If cloud cover fraction and incoming longwave radiation in input data use cloud cover fraction
+
+#-----------------------------------
 # SUBSET  (provide pixel values) 
 #-----------------------------------
 tile = True 
