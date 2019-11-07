@@ -211,7 +211,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 stake_names = None
 
             if WRF is True:
-		mask = DATA.MASK.sel(south_north=y, west_east=x)
+                mask = DATA.MASK.sel(south_north=y, west_east=x)
 	        # Provide restart grid if necessary
                 if ((mask==1) & (restart==False)):
                     futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
@@ -219,8 +219,8 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                     futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, 
                                              GRID_RESTART=IO.create_grid_restart().sel(south_north=y, west_east=x), 
                                              stake_names=stake_names, stake_data=df_stakes_data))
-	    else:
-		mask = DATA.MASK.sel(lat=y, lon=x)
+             else:
+                mask = DATA.MASK.sel(lat=y, lon=x)
 	        # Provide restart grid if necessary
                 if ((mask==1) & (restart==False)):
                     futures.append(client.submit(cosipy_core, DATA.sel(lat=y, lon=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
