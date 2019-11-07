@@ -136,8 +136,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     # Cumulative mass balance variable
     MB_cum = 0
 
-    # Create pandas dataframe for stake evaluation
-    _df = pd.DataFrame(index=stake_data.index, columns=['mb','snowheight'], dtype='float')
+    if stake_evaluation is True:
+        # Create pandas dataframe for stake evaluation
+        _df = pd.DataFrame(index=stake_data.index, columns=['mb','snowheight'], dtype='float')
 
     # Profiling with bokeh
     cp = cProfile.Profile()
@@ -348,8 +349,12 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             _LAYER_IRREDUCIBLE_WATER = None
             _LAYER_REFREEZE = None
 
-    # Evaluate stakes
-    _stat = evaluate(stake_names, stake_data, _df)
+    if stake_evaluation is True:
+        # Evaluate stakes
+        _stat = evaluate(stake_names, stake_data, _df)
+    else:
+        _stat = None
+        _df = None
 
     # Restart
     logger.debug('Write restart data into local restart structure')

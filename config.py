@@ -32,11 +32,12 @@ output_netcdf = 'Greenland_'+time_start_str+'-'+time_end_str+'.nc'
 #-----------------------------------
 # RESTART 
 #-----------------------------------
-restart = True             # set to true if you want to start from restart file 
+restart = False             # set to true if you want to start from restart file
 
 #-----------------------------------
 # STAKE DATA 
 #-----------------------------------
+stake_evaluation = False
 stakes_loc_file = './data/input/HEF/loc_stakes.csv'        # path to stake location file
 stakes_data_file = './data/input/HEF/data_stakes_hef.csv' # path to stake data file
 eval_method = 'rmse'                                        # how to evaluate the simulations ('rmse')
@@ -67,7 +68,7 @@ force_use_N = False        # If cloud cover fraction and incoming longwave radia
 #-----------------------------------
 # SUBSET  (provide pixel values) 
 #-----------------------------------
-tile = True 
+tile = False
 xstart = 20
 xend = 40
 ystart = 20

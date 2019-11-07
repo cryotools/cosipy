@@ -166,37 +166,49 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
         df_stakes_loc = pd.read_csv(stakes_loc_file, delimiter='\t',na_values='-9999')
         df_stakes_data = pd.read_csv(stakes_data_file, delimiter='\t', index_col='TIMESTAMP',na_values='-9999')     
         df_stakes_data.index = pd.to_datetime(df_stakes_data.index)
-   
-        # Uncomment, if stake data is given as changes between measurements
-        #df_stakes_data = df_stakes_data.cumsum(axis=0)
-        
-        # Init dataframes to store evaluation statistics
-        df_stat = pd.DataFrame()
-        df_val = df_stakes_data.copy()
 
-        # reshape and stack coordinates
-        coords = np.column_stack((DATA.lat.values.ravel(), DATA.lon.values.ravel()))
+        # Check if evaluation is selected:
+        if stake_evaluation is True:
+            # Read stake data (data must be given as cumulative changes)
+            df_stakes_loc = pd.read_csv(stakes_loc_file, delimiter='\t', na_values='-9999')
+            df_stakes_data = pd.read_csv(stakes_data_file, delimiter='\t', index_col='TIMESTAMP', na_values='-9999')
+            df_stakes_data.index = pd.to_datetime(df_stakes_data.index)
 
-        # construct KD-tree, in order to get closes grid cell
-        ground_pixel_tree = scipy.spatial.cKDTree(transform_coordinates(coords))
+            # Uncomment, if stake data is given as changes between measurements
+            # df_stakes_data = df_stakes_data.cumsum(axis=0)
 
-        # Check for stake data
-        stakes_list = []
-        for index, row in df_stakes_loc.iterrows():
-            index = ground_pixel_tree.query(transform_coordinates((row['lat'],row['lon'])))
-            index = np.unravel_index(index[1], DATA.lat.shape)
-            stakes_list.append((index[0][0],index[1][0],row['id']))
+            # Init dataframes to store evaluation statistics
+            df_stat = pd.DataFrame()
+            df_val = df_stakes_data.copy()
+
+            # reshape and stack coordinates
+            coords = np.column_stack((DATA.lat.values.ravel(), DATA.lon.values.ravel()))
+
+            # construct KD-tree, in order to get closes grid cell
+            ground_pixel_tree = scipy.spatial.cKDTree(transform_coordinates(coords))
+
+            # Check for stake data
+            stakes_list = []
+            for index, row in df_stakes_loc.iterrows():
+                index = ground_pixel_tree.query(transform_coordinates((row['lat'], row['lon'])))
+                index = np.unravel_index(index[1], DATA.lat.shape)
+                stakes_list.append((index[0][0], index[1][0], row['id']))
+
+        else:
+            stakes_loc = None
+            df_stakes_data = None
 
         # Distribute data and model to workers
         start_res = datetime.now()
         for y,x in product(range(DATA.dims['south_north']),range(DATA.dims['west_east'])):
-            mask = DATA.MASK.sel(south_north=y, west_east=x)
-          
-            stake_names = []
-            # Check if the grid cell contain stakes and store the stake names in a list
-            for idx, (stake_loc_y, stake_loc_x, stake_name) in enumerate(stakes_list):    
-                if ((y==stake_loc_y) & (x==stake_loc_x)): 
-                    stake_names.append(stake_name)
+            if stake_evaluation is True:
+                stake_names = []
+                # Check if the grid cell contain stakes and store the stake names in a list
+                for idx, (stake_loc_y, stake_loc_x, stake_name) in enumerate(stakes_list):
+                    if ((y == stake_loc_y) & (x == stake_loc_x)):
+                        stake_names.append(stake_name)
+            else:
+                stake_names = None
 
             # Provide restart grid if necessary
             if ((mask==1) & (restart==False)):
@@ -244,23 +256,25 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 # Write restart data to file
                 IO.write_restart_to_file()
 
-                # Store evaluation of stake measurements to dataframe
-                stat = stat.rename('rmse')
-                df_stat = pd.concat([df_stat,stat]) 
-                
-                for i in stake_names:
-                    if (obs_type=='mb'):
-                        df_val[i] = df_eval.mb
-                    if (obs_type=='snowheight'):
-                        df_val[i] = df_eval.snowheight
+                if stake_evaluation is True:
+                    # Store evaluation of stake measurements to dataframe
+                    stat = stat.rename('rmse')
+                    df_stat = pd.concat([df_stat, stat])
+
+                    for i in stake_names:
+                        if (obs_type == 'mb'):
+                            df_val[i] = df_eval.mb
+                        if (obs_type == 'snowheight'):
+                            df_val[i] = df_eval.snowheight
 
         # Measure time
         end_res = datetime.now()-start_res 
         print("\t Time required to do calculations: %4g minutes %2g seconds \n" % (end_res.total_seconds()//60.0,end_res.total_seconds()%60.0))
       
-        # Save the statistics and the mass balance simulations at the stakes to files
-        df_stat.to_csv(os.path.join(data_path,'output','stake_statistics.csv'),sep='\t', float_format='%.2f')
-        df_val.to_csv(os.path.join(data_path,'output','stake_simulations.csv'),sep='\t', float_format='%.2f')
+        if stake_evaluation is True:
+            # Save the statistics and the mass balance simulations at the stakes to files
+            df_stat.to_csv(os.path.join(data_path,'output','stake_statistics.csv'),sep='\t', float_format='%.2f')
+            df_val.to_csv(os.path.join(data_path,'output','stake_simulations.csv'),sep='\t', float_format='%.2f')
 
 
 
