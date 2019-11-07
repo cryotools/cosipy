@@ -550,7 +550,7 @@ class IOClass:
         
         self.RESTART = xr.Dataset()
         self.RESTART.coords['time'] = self.DATA.coords['time'][-1]
-        self.RESTART.coords[northing] = self.DATA.coords[norhting]
+        self.RESTART.coords[northing] = self.DATA.coords[northing]
         self.RESTART.coords[easting] = self.DATA.coords[easting]
         self.RESTART.coords['layer'] = np.arange(max_layers)
     
