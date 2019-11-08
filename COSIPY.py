@@ -77,7 +77,7 @@ def main():
     #-----------------------------------------------
     if (slurm_use):
 
-        with SLURMCluster(scheduler_port=port, cores=cores, processes=processes, memory=memory, shebang=shebang, name=name, queue=queue, job_extra=slurm_parameters, local_directory='dask-worker-space') as cluster:
+        with SLURMCluster(scheduler_port=port, cores=cores, processes=processes, memory=memory, shebang=shebang, name=name, job_extra=slurm_parameters, local_directory='dask-worker-space') as cluster:
             cluster.scale(processes * nodes)   
             print(cluster.job_script())
             print("You are using SLURM!\n")
@@ -107,8 +107,8 @@ def main():
         dtype = 'int16'
         FillValue = -9999 
         scale_factor, add_offset = compute_scale_and_offset(dataMin, dataMax, 16)
-        #encoding[var] = dict(zlib=True, complevel=2, dtype=dtype, scale_factor=scale_factor, add_offset=add_offset, _FillValue=FillValue)
-        encoding[var] = dict(zlib=True, complevel=2)
+        #encoding[var] = dict(zlib=True, complevel=compression_level, dtype=dtype, scale_factor=scale_factor, add_offset=add_offset, _FillValue=FillValue)
+        encoding[var] = dict(zlib=True, complevel=compression_level)
   
     IO.get_result().to_netcdf(os.path.join(data_path,'output',output_netcdf), encoding=encoding, mode = 'w')
 
@@ -119,8 +119,8 @@ def main():
         dtype = 'int16'
         FillValue = -9999 
         scale_factor, add_offset = compute_scale_and_offset(dataMin, dataMax, 16)
-        #encoding[var] = dict(zlib=True, complevel=2, dtype=dtype, scale_factor=scale_factor, add_offset=add_offset, _FillValue=FillValue)
-        encoding[var] = dict(zlib=True, complevel=2)
+        #encoding[var] = dict(zlib=True, complevel=compression_level, dtype=dtype, scale_factor=scale_factor, add_offset=add_offset, _FillValue=FillValue)
+        encoding[var] = dict(zlib=True, complevel=compression_level)
     
     IO.get_restart().to_netcdf(os.path.join(data_path,'restart','restart_'+timestamp+'.nc'), encoding=encoding)
     
@@ -158,9 +158,10 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
 
         # Get some information about the cluster/nodes
         total_grid_points = DATA.dims[northing]*DATA.dims[easting]
-        total_cores = processes*nodes
-        points_per_core = total_grid_points // total_cores
-        print(total_grid_points, total_cores, points_per_core)
+        if slurm_use is True:
+            total_cores = processes*nodes
+            points_per_core = total_grid_points // total_cores
+            print(total_grid_points, total_cores, points_per_core)
 
         # Check if evaluation is selected:
         if stake_evaluation is True:
@@ -195,7 +196,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
 
         # Distribute data and model to workers
         start_res = datetime.now()
-        for y,x in product(range(DATA.dims[norhting]),range(DATA.dims[easting])):
+        for y,x in product(range(DATA.dims[northing]),range(DATA.dims[easting])):
             if stake_evaluation is True:
                 stake_names = []
                 # Check if the grid cell contain stakes and store the stake names in a list
@@ -204,9 +205,9 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                         stake_names.append(stake_name)
             else:
                 stake_names = None
-
-	    if WRF is True:
-		mask = DATA.MASK.sel(south_north=y, west_east=x)
+                
+            if WRF is True:
+                mask = DATA.MASK.sel(south_north=y, west_east=x)
 	        # Provide restart grid if necessary
                 if ((mask==1) & (restart==False)):
                     futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
@@ -214,8 +215,8 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                     futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, 
                                              GRID_RESTART=IO.create_grid_restart().sel(south_north=y, west_east=x), 
                                              stake_names=stake_names, stake_data=df_stakes_data))
-	    else:
-		mask = DATA.MASK.isel(lat=y, lon=x)
+            else:
+                mask = DATA.MASK.isel(lat=y, lon=x)
 	        # Provide restart grid if necessary
                 if ((mask==1) & (restart==False)):
                     futures.append(client.submit(cosipy_core, DATA.isel(lat=y, lon=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))

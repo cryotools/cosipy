@@ -13,4 +13,4 @@ name = 'Peru',                                # equivalent to slurm parameter --
 queue = 'work'
 nodes = 1                                   # processes multiplied by the number of workers
 shebang = '/bin/bash -l'
-slurm_parameters = ['--nodes=1','--error=slurm.err','--output=slurm.out','--time=00:10:00']
+slurm_parameters = ['--nodes=1','--error=slurm.err','--output=slurm.out','--time=00:10:00', '-p work']

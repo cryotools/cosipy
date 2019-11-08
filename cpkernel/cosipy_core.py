@@ -97,35 +97,36 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     # Checks for optional input variables
     #--------------------------------------------
     if ('SNOWFALL' in DATA) and ('RRR' in DATA):
-        SNOWF = DATA.SNOWFALL.values
-        RRR = DATA.RRR.values
+        SNOWF = DATA.SNOWFALL.values * mult_factor_RRR
+        RRR = DATA.RRR.values * mult_factor_RRR
+
     elif ('SNOWFALL' in DATA):
-        SNOWF = DATA.SNOWFALL.values
+        SNOWF = DATA.SNOWFALL.values * mult_factor_RRR
         RRR = None
         RAIN = None
+
     else:
         SNOWF = None
-        RRR = DATA.RRR.values
+        RRR = DATA.RRR.values * mult_factor_RRR
 
-    # Multipy RRR with a user-defined factor
-    RRR = RRR*mult_factor_RRR
-    
     # Use RRR rather than snowfall?
     if force_use_TP is True:
         SNOWF = None
 
-    # Check whether longwave data is availible and not declined -> used for surface temperature calculations
-    if force_use_N is True:
-        LWin = None
-        N = DATA.N.values
-    elif ('LWin' in DATA) and ('N' in DATA):
+    if ('LWin' in DATA) and ('N' in DATA):
         LWin = DATA.LWin.values
         N = DATA.N.values
+
     elif ('LWin' in DATA):
         LWin = DATA.LWin.values
+
     else:
         LWin = None
         N = DATA.N.values
+
+    # Use N rather than LWin
+    if force_use_N is True:
+        LWin = None
 
     if ('SLOPE' in DATA):
         SLOPE = DATA.SLOPE.values
@@ -133,7 +134,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     else:
         SLOPE = 0.0
 
-    # Cumulative mass balance variable
+    # Initial cumulative mass balance variable
     MB_cum = 0
 
     if stake_evaluation is True:
@@ -148,7 +149,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     #--------------------------------------------
     logger.debug('Start time loop')
     for t in np.arange(len(DATA.time)):
- 
         # Check grid
         GRID.grid_check()
 
@@ -158,12 +158,13 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Calc fresh snow density
         density_fresh_snow = np.maximum(109.0+6.0*(T2[t]-273.16)+26.0*np.sqrt(U2[t]), 50.0)
 
-        if (SNOWF is not None):
+        if (SNOWF is not None) and (RRR is not None):
             SNOWFALL = SNOWF[t]
-            RAIN = RRR[t]
+            RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000
+        elif (SNOWF is not None):
+            SNOWFALL = SNOWF[t]
         else:
-        # , else convert rainfall [mm] to snowheight [m]
-            # liquid/solid fraction
+            # Else convert total precipitation [mm] to snowheight [m]; liquid/solid fraction
             SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) - center_snow_transfer_function) * spread_snow_transfer_function) + 1.0))
             RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000
 
@@ -307,7 +308,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         _B[t] = ground_heat_flux
         _MB[t] = mass_balance
         _surfMB[t] = surface_mass_balance
-        _MB[t] = mass_balance
         _Q[t] = Q
         _SNOWHEIGHT[t] = GRID.get_total_snowheight()
         _TOTALHEIGHT[t] = GRID.get_total_height()

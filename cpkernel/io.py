@@ -70,7 +70,7 @@ class IOClass:
         #----------------------------------------------
         if tile:
             self.DATA = self.DATA.isel(south_north=slice(ystart,yend), west_east=slice(xstart,xend))
-        
+        print(northing)
         self.ny = self.DATA.dims[northing]
         self.nx = self.DATA.dims[easting]
         self.time = self.DATA.dims['time']
@@ -550,8 +550,8 @@ class IOClass:
         
         self.RESTART = xr.Dataset()
         self.RESTART.coords['time'] = self.DATA.coords['time'][-1]
-        self.RESTART.coords[northing] = self.DATA.coords[northing]
-        self.RESTART.coords[easting] = self.DATA.coords[easting]
+        self.RESTART.coords['lat'] = self.DATA.coords['lat']
+        self.RESTART.coords['lon'] = self.DATA.coords['lon']
         self.RESTART.coords['layer'] = np.arange(max_layers)
     
         print('Restart ddataset ... ok \n')
@@ -588,8 +588,8 @@ class IOClass:
     
         self.RESTART = xr.Dataset()
         self.RESTART.coords['time'] = self.DATA.coords['time'][-1]
-        self.RESTART.coords[northing] = self.DATA.coords[northing]
-        self.RESTART.coords[easting] = self.DATA.coords[easting]
+        self.RESTART.coords['lat'] = self.DATA.coords['lat']
+        self.RESTART.coords['lon'] = self.DATA.coords['lon']
         self.RESTART.coords['layer'] = np.arange(max_layers)
         
         self.add_variable_along_scalar(self.RESTART, np.full((1), np.nan), 'NLAYERS', '-', 'Number of layers')

@@ -73,7 +73,7 @@ your DEM and shapefile and adjust the area to which you want to shrink the DEM. 
 WGS84-EPSG:4326 projection with the units degrees, that the script works correctly. <br>
 Run the script with:
 ```
-python create_static_files_with_command_line.py
+python create_static_file.py
 ```
 Hint: to reproject the DEM to EPSG 4326 (not needed for the example in the source code):
 ```

@@ -35,8 +35,8 @@ center_snow_transfer_function = 2.5             # center (50/50) when total prec
 spread_snow_transfer_function = 1               # 1: +-2.5
 mult_factor_RRR = 1.0                           # multiplication factor for RRR
 
-minimum_snow_to_reset_albedo = 0.0001           # minimum snowfall to reset hours since last snowfall! Default was 0.005
-minimum_snow_layer_height = 0.0001              # minimum layer height
+minimum_snow_to_reset_albedo = 0.001            # minimum snowfall to reset hours since last snowfall! Default was 0.005
+minimum_snow_layer_height = 0.001               # minimum layer height
 
 
 ' REMESHING OPTIONS'
@@ -52,11 +52,11 @@ temperature_threshold_merging = 0.05            # If mering is true threshold fo
 ' PHYSICAL CONSTANTS '
 #density_fresh_snow = 100.                       # density of freshly fallen snow [kg m-3]
 
-albedo_fresh_snow = 0.990                       # albedo of fresh snow [-] (Moelg etal. 2012, TC)
+albedo_fresh_snow = 0.9                         # albedo of fresh snow [-] (Moelg etal. 2012, TC)
 albedo_firn = 0.55                              # albedo of firn [-] (Moelg etal. 2012, TC)
 albedo_ice = 0.3                                # albedo of ice [-] (Moelg etal. 2012, TC)
-albedo_mod_snow_aging = 10.0                    # effect of ageing on snow albedo [days] (Moelg etal. 2012, TC)
-albedo_mod_snow_depth = 1.0                     # effect of snow depth on albedo [cm] (Moelg etal. 2012, TC)
+albedo_mod_snow_aging = 22.0                    # effect of ageing on snow albedo [days] (Moelg etal. 2012, TC)
+albedo_mod_snow_depth = 3.0                     # effect of snow depth on albedo [cm] (Moelg etal. 2012, TC)
 
 roughness_fresh_snow = 0.24                     # surface roughness length for fresh snow [mm] (Moelg etal. 2012, TC)
 roughness_ice = 1.7                             # surface roughness length for ice [mm] (Moelg etal. 2012, TC)
