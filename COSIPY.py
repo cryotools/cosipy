@@ -161,11 +161,6 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
         total_cores = processes*nodes
         points_per_core = total_grid_points // total_cores
         print(total_grid_points, total_cores, points_per_core)
-        
-        # Read stake data (data must be given as cumulative changes)
-        df_stakes_loc = pd.read_csv(stakes_loc_file, delimiter='\t',na_values='-9999')
-        df_stakes_data = pd.read_csv(stakes_data_file, delimiter='\t', index_col='TIMESTAMP',na_values='-9999')     
-        df_stakes_data.index = pd.to_datetime(df_stakes_data.index)
 
         # Check if evaluation is selected:
         if stake_evaluation is True:
@@ -200,7 +195,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
 
         # Distribute data and model to workers
         start_res = datetime.now()
-        for y,x in product(range(DATA.dims['south_north']),range(DATA.dims['west_east'])):
+        for y,x in product(range(DATA.dims[norhting]),range(DATA.dims[easting])):
             if stake_evaluation is True:
                 stake_names = []
                 # Check if the grid cell contain stakes and store the stake names in a list
@@ -210,8 +205,8 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             else:
                 stake_names = None
 
-            if WRF is True:
-                mask = DATA.MASK.sel(south_north=y, west_east=x)
+	    if WRF is True:
+		mask = DATA.MASK.sel(south_north=y, west_east=x)
 	        # Provide restart grid if necessary
                 if ((mask==1) & (restart==False)):
                     futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
@@ -219,14 +214,14 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                     futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, 
                                              GRID_RESTART=IO.create_grid_restart().sel(south_north=y, west_east=x), 
                                              stake_names=stake_names, stake_data=df_stakes_data))
-             else:
-                mask = DATA.MASK.sel(lat=y, lon=x)
+	    else:
+		mask = DATA.MASK.isel(lat=y, lon=x)
 	        # Provide restart grid if necessary
                 if ((mask==1) & (restart==False)):
-                    futures.append(client.submit(cosipy_core, DATA.sel(lat=y, lon=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
+                    futures.append(client.submit(cosipy_core, DATA.isel(lat=y, lon=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
                 elif ((mask==1) & (restart==True)):
                     futures.append(client.submit(cosipy_core, DATA.sel(lat=y, lon=x), y, x, 
-                                             GRID_RESTART=IO.create_grid_restart().sel(lat=y, lon=x), 
+                                             GRID_RESTART=IO.create_grid_restart().isel(lat=y, lon=x), 
                                              stake_names=stake_names, stake_data=df_stakes_data))
         # Finally, do the calculations and print the progress
 #        progress(futures)
