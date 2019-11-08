@@ -70,7 +70,6 @@ class IOClass:
         #----------------------------------------------
         if tile:
             self.DATA = self.DATA.isel(south_north=slice(ystart,yend), west_east=slice(xstart,xend))
-        print(northing)
         self.ny = self.DATA.dims[northing]
         self.nx = self.DATA.dims[easting]
         self.time = self.DATA.dims['time']
