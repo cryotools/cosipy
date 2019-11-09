@@ -51,13 +51,13 @@ else:
 # COMPRESSION of output netCDF
 #-----------------------------------
 compression_level = 2                                       # Choose value between 1 and 9 (highest compression)
-                                                            # Recomondation: choose 1, 2 or 3 (higher not worthwhile, because of needed time for writting output)
+                                                            # Recommendation: choose 1, 2 or 3 (higher not worthwhile, because of needed time for writing output)
 #-----------------------------------
 # PARALLELIZATION 
 #-----------------------------------
 slurm_use = False                                           # use SLURM
 workers = None                                              # number of workers, if local cluster is used
-local_port = 8786                                           # port for local cluster
+local_port = 8787                                           # port for local cluster
 
 #-----------------------------------
 # WRITE FULL FIELDS 

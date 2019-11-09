@@ -526,11 +526,11 @@ class Grid:
         self.new_snow_height = height
         # Keep track of the old snow age
         self.old_snow_timestamp = self.new_snow_timestamp
-        # Set the timestamp when fresh snowfall occured
+        # Set the timestamp when fresh snowfall occurred
         self.new_snow_timestamp = timestamp
 
     def set_fresh_snow_props_to_old_props(self):
-        """ Old snowpack reappers at surface ... change snow age to old snow age """
+        """ Old snowpack reappears at surface ... change snow age to old snow age """
         self.new_snow_timestamp = self.old_snow_timestamp
 
     def set_fresh_snow_props_height(self, height):
@@ -755,7 +755,7 @@ class Grid:
 
 
     def get_node_thermal_diffusivity(self, idx):
-        """ Returns the thermal diffusivityof node idx """
+        """ Returns the thermal diffusivity of node idx """
         return self.grid[idx].get_layer_thermal_diffusivity()
 
 
@@ -877,7 +877,7 @@ class Grid:
     def grid_info(self, n=-999):
         """ The function prints the state of the snowpack
             Args:
-                n   : nuber of nodes to plot (from top)
+                n   : number of nodes to plot (from top)
         """
         if (n==-999):
             n = self.number_nodes
@@ -898,7 +898,7 @@ class Grid:
     def grid_info_screen(self, n=-999):
         """ The function prints the state of the snowpack
             Args:
-                n   : nuber of nodes to plot (from top)
+                n   : number of nodes to plot (from top)
         """
         if (n==-999):
             n = self.number_nodes
@@ -916,7 +916,7 @@ class Grid:
     def grid_check(self, level=1):
         """ The function checks the grid
             Args:
-                n   : nuber of nodes to plot (from top)
+                n   : number of nodes to plot (from top)
         """
         #if level == 1:
         #    self.check_layer_property(self.get_height(), 'thickness', 1.01, -0.001)

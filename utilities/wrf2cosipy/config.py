@@ -1,5 +1,5 @@
 """
- This is the configuration (init) file for the utility cs2posipy.
+ This is the configuration (init) file for the utility wrf2cosipy.
  Please make your changes here.
 """
 

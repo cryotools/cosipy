@@ -95,7 +95,7 @@ class Node:
         return 1-self.get_layer_ice_fraction()-self.get_layer_liquid_water_content()
    
     def get_layer_thermal_conductivity(self):
-        """ Return the volumetic weighted thermal conductivity of the layer Sturm et al. (1997) and Paterson (1994)"""
+        """ Return the volumetric weighted thermal conductivity of the layer Sturm et al. (1997) and Paterson (1994)"""
         return self.get_layer_ice_fraction()*k_i + self.get_layer_air_porosity()*k_a + self.get_layer_liquid_water_content()*k_w
 
     def get_layer_thermal_diffusivity(self):

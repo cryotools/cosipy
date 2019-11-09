@@ -70,7 +70,7 @@ def create_input(cs_file, cosipy_file, static_file, start_date, end_date):
     # Variable names in csv file
     #-----------------------------------
     T2 = df[T2_var]         # Temperature
-    RH2 = df[RH2_var]       # Relative humdity
+    RH2 = df[RH2_var]       # Relative humidity
     U2 = df[U2_var]         # Wind velocity
     G = df[G_var]           # Incoming shortwave radiation
     PRES = df[PRES_var]     # Pressure
@@ -214,7 +214,7 @@ def add_variable_along_latlon(ds, var, name, units, long_name):
 def check(field, max, min):
     '''Check the validity of the input data '''
     if np.nanmax(field) > max or np.nanmin(field) < min:
-        print('\n\nWARNING! Please check the data, its seems they are out of a reasonalbe range %s MAX: %.2f MIN: %.2f \n' % (str.capitalize(field.name), np.nanmax(field), np.nanmin(field)))
+        print('\n\nWARNING! Please check the data, its seems they are out of a reasonable range %s MAX: %.2f MIN: %.2f \n' % (str.capitalize(field.name), np.nanmax(field), np.nanmin(field)))
 
     if np.isnan((np.min(field.values))):
         print('ERROR this does not work! %s VALUE: %.2f \n' % (str.capitalize(field.name), np.min(field.values)))

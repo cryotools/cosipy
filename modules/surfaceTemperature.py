@@ -18,7 +18,7 @@ def energy_balance(x, GRID, SWnet, rho, Cs_t, Cs_q, T2, u2, q2, p, Li, lam, SLOP
 
     else:
         print('Method for saturation water vapour ', saturation_water_vapour_method,
-              ' not availalbe using default method, using default')
+              ' not available using default method, using default')
 
         Ew0 = method_EW_Sonntag(x)
     

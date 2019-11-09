@@ -160,7 +160,7 @@ class IOClass:
         if time_end > end_interval:
             print('\n WARNING! Selected endpoint after last timestep of input data\n')
         if time_start > end_interval or time_end < start_interval:
-            print('\n ERROR! Selected period not availalbe in input data\n')
+            print('\n ERROR! Selected period not available in input data\n')
 
 
         print('--------------------------------------------------------------')
@@ -245,8 +245,8 @@ class IOClass:
         self.RESULT.attrs['Initial_snow_layer_heights'] = initial_snow_layer_heights
         self.RESULT.attrs['Initial_glacier_layer_heights'] = initial_glacier_layer_heights
         self.RESULT.attrs['Initial_glacier_height'] = initial_glacier_height
-        self.RESULT.attrs['Initial_top_density_snowpack'] = initial_top_density_snowpack
-        self.RESULT.attrs['Initial_botton_density_snowpack'] = initial_botton_density_snowpack
+        self.RESULT.attrs['Initial_top_density_snowpack'] = initial_top_density_snowpack_constant
+        self.RESULT.attrs['Initial_bottom_density_snowpack'] = initial_bottom_density_snowpack_constant
         self.RESULT.attrs['Temperature_top'] = temperature_top_constant
         self.RESULT.attrs['Temperature_bottom'] = temperature_bottom
         self.RESULT.attrs['Const_init_temp'] = const_init_temp

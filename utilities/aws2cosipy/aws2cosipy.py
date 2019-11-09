@@ -53,7 +53,7 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     if (SNOWFALL_var not in df):
         df[SNOWFALL_var] = np.nan
  
-    # Inproved function to sum dataframe columns which contain nan's
+    # Improved function to sum dataframe columns which contain nan's
     def nansumwrapper(a, **kwargs):
         if np.isnan(a).all():
             return np.nan
@@ -124,7 +124,7 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     else:
         T2 = df[T2_var].values + 273.16      
 
-    RH2 = df[RH2_var].values       # Relative humdity
+    RH2 = df[RH2_var].values       # Relative humidity
     U2 = df[U2_var].values          # Wind velocity
     G = df[G_var].values            # Incoming shortwave radiation
     PRES = df[PRES_var].values      # Pressure
@@ -291,7 +291,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     # Get values from file
     #-----------------------------------
     T2 = df[T2_var]         # Temperature
-    RH2 = df[RH2_var]       # Relative humdity
+    RH2 = df[RH2_var]       # Relative humidity
     U2 = df[U2_var]         # Wind velocity
     G = df[G_var]           # Incoming shortwave radiation
     PRES = df[PRES_var]     # Pressure
@@ -481,7 +481,7 @@ def add_variable_along_point(ds, var, name, units, long_name):
 def check(field, max, min):
     '''Check the validity of the input data '''
     if np.nanmax(field) > max or np.nanmin(field) < min:
-        print('\n\nWARNING! Please check the data, its seems they are out of a reasonalbe range %s MAX: %.2f MIN: %.2f \n' % (str.capitalize(field.name), np.nanmax(field), np.nanmin(field)))
+        print('\n\nWARNING! Please check the data, its seems they are out of a reasonable range %s MAX: %.2f MIN: %.2f \n' % (str.capitalize(field.name), np.nanmax(field), np.nanmin(field)))
      
     if np.isnan((np.min(field.values))):
         print('ERROR this does not work! %s VALUE: %.2f \n' % (str.capitalize(field.name), np.min(field.values)))

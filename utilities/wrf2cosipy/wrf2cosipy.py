@@ -123,7 +123,7 @@ def add_variable_along_timelatlon(ds, var, name, units, long_name):
 def check(field, max, min):
     '''Check the validity of the input data '''
     if np.nanmax(field) > max or np.nanmin(field) < min:
-        print('\n\nWARNING! Please check the data, its seems they are out of a reasonalbe range %s MAX: %.2f MIN: %.2f \n' % (str.capitalize(field.name), np.nanmax(field), np.nanmin(field)))
+        print('\n\nWARNING! Please check the data, its seems they are out of a reasonable range %s MAX: %.2f MIN: %.2f \n' % (str.capitalize(field.name), np.nanmax(field), np.nanmin(field)))
 
 def wrf_rh(T2, Q2, PSFC):
     pq0 = 379.90516

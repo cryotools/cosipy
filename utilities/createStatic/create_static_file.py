@@ -28,7 +28,7 @@ latitude_lower_right = '30.46'
 ### to aggregate the DEM to a coarser spatial resolution
 aggregate_degree = '0.003'
 
-### intermediate files, will be removed afterwars
+### intermediate files, will be removed afterwards
 dem_path_tif_temp = static_folder + 'DEM_temp.tif'
 dem_path_tif_temp2 = static_folder + 'DEM_temp2.tif'
 dem_path = static_folder + 'dem.nc'
@@ -50,10 +50,10 @@ if aggregate:
 ### convert DEM from tif to NetCDF
 os.system('gdal_translate -of NETCDF ' + dem_path_tif  + ' ' + dem_path)
 
-### calcualte slope as NetCDF from DEM
+### calculate slope as NetCDF from DEM
 os.system('gdaldem slope -of NETCDF ' + dem_path + ' ' + slope_path + ' -s 111120')
 
-### calcualte aspect as NetCDF from DEM
+### calculate aspect as NetCDF from DEM
 os.system('gdaldem aspect -of NETCDF ' + dem_path + ' ' + aspect_path)
 
 ### calculate mask as NetCDF with DEM and shapefile
@@ -83,7 +83,7 @@ ds.lat.attrs['standard_name'] = 'lat'
 ds.lat.attrs['long_name'] = 'latitude'
 ds.lat.attrs['units'] = 'degrees_north'
 
-### function to insert variarbles to dataset
+### function to insert variables to dataset
 def insert_var(ds, var, name, units, long_name):
     ds[name] = (('lat','lon'), var)
     ds[name].attrs['units'] = units
@@ -92,8 +92,8 @@ def insert_var(ds, var, name, units, long_name):
 
 ### insert needed static variables
 insert_var(ds, dem.Band1.values,'HGT','meters','meter above sea level')
-insert_var(ds, aspect.Band1.values,'ASPECT','degress','Aspect of slope')
-insert_var(ds, slope.Band1.values,'SLOPE','degress','Terrain slope')
+insert_var(ds, aspect.Band1.values,'ASPECT','degrees','Aspect of slope')
+insert_var(ds, slope.Band1.values,'SLOPE','degrees','Terrain slope')
 insert_var(ds, mask,'MASK','boolean','Glacier mask')
 
 ### save combined static file, delete intermediate files and print number of glacier grid points

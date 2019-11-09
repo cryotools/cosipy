@@ -22,7 +22,7 @@ def init_snowpack(DATA):
 
     if ('SWE' in DATA):
         rho_mean = (DATA.SWE.values/DATA.SNOWHEIGHT.values)*1000
-        initial_top_denisty_snowpack = rho_mean
+        initial_top_density_snowpack = rho_mean
         initial_bottom_density_snowpack = rho_mean
 
     if ('TSK' in DATA):
@@ -49,8 +49,8 @@ def init_snowpack(DATA):
 
     if (initial_snowheight > 0.0):
         # Init density
-        rho_top = initial_top_density_snowpack
-        rho_bottom = initial_botton_density_snowpack
+        rho_top = initial_top_density_snowpack_constant
+        rho_bottom = initial_bottom_density_snowpack_constant
         density_gradient = (rho_top-rho_bottom)/(np.floor(initial_snowheight/initial_snow_layer_heights))
         for i in np.arange((np.floor(initial_snowheight/initial_snow_layer_heights))):
             layer_density[int(i)] = rho_top - density_gradient * i

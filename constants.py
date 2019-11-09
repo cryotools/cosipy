@@ -8,7 +8,7 @@ dt = 3600                                       # Time step in the input files [
 max_layers = 200                                # Max. number of layers, just for the restart file
 
 
-' PARAMETRIZATIONS '
+' PARAMETERIZATIONS '
 albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98'
 densification_method = 'Boone'                  # possibilities: 'Boone'
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
@@ -17,21 +17,21 @@ saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
 
 
 ' INITIAL CONDITIONS '
-initial_snowheight_constant = 0.0               # Inital snowheigt
+initial_snowheight_constant = 1.0               # Initial snowheight
 initial_snow_layer_heights = 0.05               # Initial thickness of snow layers
-initial_glacier_height = 30.0                   # Inital glacier heigt without snowlayers
+initial_glacier_height = 30.0                   # Initial glacier height without snowlayers
 initial_glacier_layer_heights = 1.0             # Initial thickness of glacier ice layers
 
-initial_top_density_snowpack = 800.             # Top density for inital snowpack
-initial_botton_density_snowpack = 800.          # Botton density for inital snowpack
+initial_top_density_snowpack_constant = 800.    # Top density for initial snowpack
+initial_bottom_density_snowpack_constant = 800. # Bottom density for initial snowpack
 
-temperature_top_constant = 268.15               # Upper boudary conditation for inital temperature profile (K)
-temperature_bottom = 270.15                     # Lower boundary condition for inital tempeature profile (K)
+temperature_top_constant = 268.15               # Upper boundary condition for initial temperature profile (K)
+temperature_bottom = 270.15                     # Lower boundary condition for initial temperature profile (K)
 const_init_temp = 0.1                           # constant for init temperature profile used in exponential function (exponential decay)
 
 
 ' MODEL CONSTANTS '
-center_snow_transfer_function = 2.5             # center (50/50) when total precipitation is transfered to snow and rain
+center_snow_transfer_function = 2.5             # center (50/50) when total precipitation is transferred to snow and rain
 spread_snow_transfer_function = 1               # 1: +-2.5
 mult_factor_RRR = 1.0                           # multiplication factor for RRR
 
@@ -52,15 +52,15 @@ temperature_threshold_merging = 0.05            # If mering is true threshold fo
 ' PHYSICAL CONSTANTS '
 #density_fresh_snow = 100.                       # density of freshly fallen snow [kg m-3]
 
-albedo_fresh_snow = 0.9                         # albedo of fresh snow [-] (Moelg etal. 2012, TC)
-albedo_firn = 0.55                              # albedo of firn [-] (Moelg etal. 2012, TC)
-albedo_ice = 0.3                                # albedo of ice [-] (Moelg etal. 2012, TC)
-albedo_mod_snow_aging = 22.0                    # effect of ageing on snow albedo [days] (Moelg etal. 2012, TC)
-albedo_mod_snow_depth = 3.0                     # effect of snow depth on albedo [cm] (Moelg etal. 2012, TC)
+albedo_fresh_snow = 0.9                         # albedo of fresh snow [-] (Moelg et al. 2012, TC)
+albedo_firn = 0.55                              # albedo of firn [-] (Moelg et al. 2012, TC)
+albedo_ice = 0.3                                # albedo of ice [-] (Moelg et al. 2012, TC)
+albedo_mod_snow_aging = 22.0                    # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
+albedo_mod_snow_depth = 3.0                     # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
 
-roughness_fresh_snow = 0.24                     # surface roughness length for fresh snow [mm] (Moelg etal. 2012, TC)
-roughness_ice = 1.7                             # surface roughness length for ice [mm] (Moelg etal. 2012, TC)
-roughness_firn = 4.0                            # surface roughness length for aged snow [mm] (Moelg etal. 2012, TC)
+roughness_fresh_snow = 0.24                     # surface roughness length for fresh snow [mm] (Moelg et al. 2012, TC)
+roughness_ice = 1.7                             # surface roughness length for ice [mm] (Moelg et al. 2012, TC)
+roughness_firn = 4.0                            # surface roughness length for aged snow [mm] (Moelg et al. 2012, TC)
 aging_factor_roughness = 0.0026                 # effect of ageing on roughness lenght (hours) 60 days from 0.24 to 4.0 => 0.0026
 
 snow_ice_threshold = 900.0                      # pore close of density [kg m^(-3)]
@@ -84,5 +84,5 @@ air_density = 1.1                               # density of air [kg m^(-3)]
 
 sigma = 5.67e-8                                 # Stefan-Bolzmann constant [W m-2 K-4]
 zero_temperature = 273.16                       # Melting temperature [K]
-surface_emission_coeff = 0.99                   # surface emision coefficient [-]
+surface_emission_coeff = 0.99                   # surface emission coefficient [-]
 

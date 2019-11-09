@@ -54,7 +54,7 @@ COSiPY provides some utilities which can be used to create the required input fi
 ### Create needed combined static input file
 The following is the example in the "data/static/" folder. If the procedure does not work for your study area, please try it first
 with the example.
-#### Required packages and libaries:
+#### Required packages and libraries:
 * gdal (e.g. in Debian-based Linux distributions package called gdal-bin)
 * climate date operators (e.g. in Debian-based Linux distributions package called cdo)
 * netCDF Operators (e.g. in Debian-based Linux distritutions package called nco)
@@ -64,13 +64,13 @@ with the example.
 
 #### Procedure:
 In the utilities folder, there is the script create_static_file_command_line.py. This script runs some commands in the command line.
-That's is the reason, that we can provide this script only for UNIX and MAC users at the moment. We are working on a version where no UNIX command
+That's is the reason that we can provide this script only for UNIX and MAC users at the moment. We are working on a version where no UNIX command
 line is needed.
 (create_static_file.py).<br>
 The intermediate files 'dem.nc', 'aspect.nc', 'mask.nc' and 'slope.nc' are deleted automatically. First, try to run the script
 and create the 'static.nc' file with the example 'n30_e090_3arc_v2.tif' (SRTM) and 'Zhadang_RGI6.shp'. If this works, try to change to
 your DEM and shapefile and adjust the area to which you want to shrink the DEM. The input data have to be in Lat/Lon
-WGS84-EPSG:4326 projection with the units degrees, that the script works correctly. <br>
+WGS84-EPSG:4326 projection with the units degrees that the script works correctly. <br>
 Run the script with:
 ```
 python create_static_file.py
@@ -81,16 +81,16 @@ gdalwarp -t_srs EPSG:4326 dgm_hintereisferner.tif dgm_hintereisferner-lat_lon.ti
 ```
 ### Create input file with all needed static and dynamic 2D fields
 #### Needed files and parameters
-* static.nc file, created in step above
+* static.nc file, created in the step above
 * 1D fields of all required dynamic input files
 #### Procedure:
-There are two different preprocessing scripts in the utilities folder to create the needed gridded input data. One is especially desingned for the
+There are two different preprocessing scripts in the utilities folder to create the needed gridded input data. One is especially designed for the
 usage of csv file from a datalogger of an AWS station. This file is called aws_logger2cosipy.py with the corresponding configuration file 
 'aws_logger2cosipyConfig.py'.<br> 
 The 'csv2cosipy.py' script with the corresponding configuration file 'csv2cosipyConfig.py' is a more general file.<br>
-Very important: For the aws_logger2cosipy.py version the temperature has to be in degree Celsius.<br> For the following example you have to use 
+Very important: For the aws_logger2cosipy.py version the temperature has to be in degree Celsius.<br> For the following example, you have to use 
 the csv2cosipy.py file.<br>
-For the solar radiation, a model after Wohlfahrt et al. (2016; doi: 10.1016/j.agrformet.2016.05.012) is used. <br>
+For solar radiation, a model after Wohlfahrt et al. (2016; doi: 10.1016/j.agrformet.2016.05.012) is used. <br>
 For air temperature, relative humidity and precipitation constant lapse rates, which have to be set, are used. <br>
 Wind speed and cloud cover fraction kept constant for all gridpoint at on time step.<br><br>
 The script needs:
@@ -138,7 +138,7 @@ python plot_cosipy_fields.py -h #for help
 |---|---|---|
 |cpkernel | core_cosipy.py | Core of the model (time loop) |
 |         | grid.py | Grid structure, consists of a list of layer nodes (vertical snow profile) |
-|         | node.py | Node class handles the nformation of each layer |
+|         | node.py | Node class handles the information of each layer |
 |         | init.py | Initialization of the snow cover |
 |         | io.py | Contains all input/output functions |
 |---|---|---|
@@ -175,7 +175,7 @@ Internal mass balance|intMB| m w.e.|
 Evaporation|EVAPORATION| m w.e.| 
 Sublimation|SUBLIMATION| m w.e.| 
 Condensation|CONDENSATION| m w.e.| 
-Depostion|DEPOSITION| m w.e.| 
+Deposition|DEPOSITION| m w.e.| 
 Surface melt|surfM| m w.e.| 
 Subsurface melt|subM| m w.e.| 
 Runoff|Q| m w.e.| 
@@ -209,4 +209,4 @@ $TODO:LINK TO ISSUE SECTION WOULD BE BETTER$
 Please branch or fork your version, do not change the master.
 
 You are allowed to use and modify this code in a noncommercial manner and by
-appropriately citing the above-mentioned developers.
+appropriately citing the  developers mentioned above.

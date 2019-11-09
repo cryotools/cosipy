@@ -9,7 +9,7 @@ def updateAlbedo(GRID, timestamp):
         alphaMod = method_Oerlemans(GRID,timestamp)
 
     else:
-        print('Albedo parameterisation ', albedo_method, ' not available, using default')
+        print('Albedo parametrisation ', albedo_method, ' not available, using default')
         alphaMod = method_Oerlemans(GRID,timestamp)
 
     return alphaMod
