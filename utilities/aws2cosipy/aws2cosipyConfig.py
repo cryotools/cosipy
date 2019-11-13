@@ -7,27 +7,29 @@
 # Declare variable names 
 #------------------------
 
+# Delimiter
+delimiter = ','
 # Pressure
-PRES_var = 'Press_Avg'   
+PRES_var = 'PRES'
 
 # Temperature
-T2_var = 'Tair_Avg'  
+T2_var = 'T2'
 in_K = False 
 
 # Cloud cover fraction
 N_var = 'tcc'
 
 # Relative humidity
-RH2_var = 'Hum_Avg'   
+RH2_var = 'RH2'
 
 # Incoming shortwave radiation
-G_var = 'SWin_Avg'   
+G_var = 'G'
 
 # Precipitation
-RRR_var = 'Rain_Tot' 
+RRR_var = 'RRR'
 
 # Wind velocity
-U2_var = 'Wspeed'     
+U2_var = 'U2'
 
 # Incoming longwave radiation
 LWin_var = 'LWinCor_Avg'
@@ -35,13 +37,18 @@ LWin_var = 'LWinCor_Avg'
 # Snowfall
 SNOWFALL_var = 'SNOWFALL'
 
+# Cloud cover fraction
+N_var = 'N'
+
+
+
 #------------------------
 # Radiation module 
 #------------------------
 radiationModule = True 
 
 # Time zone
-timezone_lon = 10.0
+timezone_lon = 90.0
 
 # Zenit threshold (>threshold == zenit)
 zeni_thld = 85.0
@@ -49,7 +56,7 @@ zeni_thld = 85.0
 #------------------------
 # Point model 
 #------------------------
-point_model = True 
+point_model = False
 plon = 10.777899874814329
 plat = 46.807983544912666
 hgt = 3300
@@ -57,10 +64,10 @@ hgt = 3300
 #------------------------
 # Interpolation arguments 
 #------------------------
-stationName = 'Hintereisferner'
-stationAlt = 3300.0
+stationName = 'Zhadang'
+stationAlt = 5665.0
 
 lapse_T         = -0.006  # Temp K per  m
 lapse_RH        = 0.002  # RH % per  m (0 to 1)
-lapse_RRR       = 0.0001   # RRR % per m (0 to 1)
-lapse_SNOWFALL  = 0.0001   # Snowfall % per m (0 to 1)
+lapse_RRR       = 0.0000   # RRR % per m (0 to 1)
+lapse_SNOWFALL  = 0.0000   # Snowfall % per m (0 to 1)
