@@ -18,7 +18,7 @@ def solarFParallel(lat, lon, timezone_lon, day, hour):
         azi             ::  solar azimuth angle (radians)
     """
 
-    # Convert degree to radians
+    # Calculate conversion factor degree to radians
     FAC = math.pi / 180.0
 
     # Solar declinations (radians)
@@ -119,6 +119,9 @@ def radCor2D(doy, zeni, azi, angslo, azislo, Rm, zeni_thld):
     Rc ... corrected solar radiation (W/m2)
     """
     
+    # Calculate conversion factor degree to radians
+    FAC = math.pi / 180.0
+
     # Derive fraction of diffuse radiation
     Fdif = Fdif_Neustift(doy, zeni, Rm)
     if (zeni > math.radians(zeni_thld)):
@@ -129,9 +132,9 @@ def radCor2D(doy, zeni, azi, angslo, azislo, Rm, zeni_thld):
     Rd = Rm * Fdif          # Diffuse radiation
 
     # Correct beam component for angle and azimuth of pixels
-    cf = (math.cos(zeni) * math.cos((angslo*math.pi) / 180.0) + math.sin(zeni) * \
-          math.sin((angslo*math.pi) / 180.0) * math.cos(((azi-azislo)*math.pi) / 180.0)) / math.cos(zeni) 
-    
+    cf = (math.cos(zeni) * math.cos(angslo*FAC) + math.sin(zeni) * math.sin(angslo*FAC) * \
+            math.cos(azi-(azislo*FAC))) / math.cos(zeni)
+
     Rc = Rb * cf + Rd
     
     return Rc
