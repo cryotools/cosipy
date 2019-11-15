@@ -105,11 +105,11 @@ In the csv2cosipyConfig.py one has to define how the input variables are called 
 For the radiation module, one has to set the timezone and the zenit threshold. <br> Furthermore, the station name has to be set, the altitude of the station, and the lapse rates for temperature, relative humidity and precipitation.<br>
 If everything is set, configured and prepared, run the script:
 ```bash
-py csv2cosipy.py -c ../../data/input/Zhadang/Zhadang_ERA5_2009_2018.csv -o ../../data/input/Zhadang/Zhadang_ERA5_2009.nc -s ../../data/static/Zhadang_static.nc -b 20090101 -e 20091231
+python aws2cosipy.py -c ../../data/input/Zhadang/Zhadang_ERA5_2009_2018.csv -o ../../data/input/Zhadang/Zhadang_ERA5_2009.nc -s ../../data/static/Zhadang_static.nc -b 20090101 -e 20091231
 ```
 The script takes all input timestamps which are in the -c input file. If you want only a specific period. The -b and -e option are optional:
 ```
-python csv2cosipy.py -c ../data/input/Zhadang/Zhadang_ERA5_2009_2018.csv -o ../data/input/Zhadang/Zhadang_ERA5_2009_2018.nc -s ../data/static/Zhadang_static.nc
+python aws2cosipy.py -c ../data/input/Zhadang/Zhadang_ERA5_2009_2018.csv -o ../data/input/Zhadang/Zhadang_ERA5_2009_2018.nc -s ../data/static/Zhadang_static.nc
 
 ```
 ## Core run

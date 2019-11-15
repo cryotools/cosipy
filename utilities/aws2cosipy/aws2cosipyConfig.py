@@ -7,8 +7,6 @@
 # Declare variable names 
 #------------------------
 
-# Delimiter
-delimiter = ','
 # Pressure
 PRES_var = 'PRES'
 
@@ -40,7 +38,16 @@ SNOWFALL_var = 'SNOWFALL'
 # Cloud cover fraction
 N_var = 'N'
 
+#------------------------
+# Aggregation to hourly data
+#------------------------
+aggregate_hourly = True
 
+# Delimiter in csv file
+delimiter = ','
+
+# WRF non uniform grid
+WRF = False
 
 #------------------------
 # Radiation module 

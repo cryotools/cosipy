@@ -255,13 +255,14 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     #-----------------------------------
     # Average to hourly data 
     #-----------------------------------
-    if(SNOWFALL_var in df):
-        # Make hourly data
-        df = df.resample('H').agg({T2_var:'mean', RH2_var:'mean',U2_var:'mean',
+    if aggregate_hourly:
+        if(SNOWFALL_var in df):
+            # Make hourly data
+            df = df.resample('H').agg({T2_var:'mean', RH2_var:'mean',U2_var:'mean',
                                RRR_var:'sum',G_var:'mean',PRES_var:'mean',N_var:'mean', SNOWFALL_var:'sum'})
 
-    else:
-        df = df.resample('H').agg({T2_var: 'mean', RH2_var: 'mean', U2_var: 'mean',
+        else:
+            df = df.resample('H').agg({T2_var: 'mean', RH2_var: 'mean', U2_var: 'mean',
                                RRR_var: 'sum', G_var: 'mean', PRES_var: 'mean', N_var:'mean'})
 
     #-----------------------------------
@@ -269,12 +270,22 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     #-----------------------------------
     print('Read static file %s \n' % (static_file))
     ds = xr.open_dataset(static_file)
-    ds.coords['time'] = df.index.values
 
     #-----------------------------------
     # Create subset
     #-----------------------------------
     ds = ds.sel(lat=slice(y0,y1), lon=slice(x0,x1))
+
+    if WRF:
+        dso = xr.Dataset()
+        x, y = np.meshgrid(ds.lon, ds.lat)
+        dso.coords['time'] = (('time'), df.index.values)
+        dso.coords['lat'] = (('south_north','west_east'), y)
+        dso.coords['lon'] = (('south_north','west_east'), x)
+
+    else:
+        dso = ds    
+        dso.coords['time'] = df.index.values
 
     #-----------------------------------
     # Order variables
@@ -316,27 +327,27 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     #-----------------------------------
     # Create numpy arrays for the 2D fields
     #-----------------------------------
-    T_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
-    RH_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
-    U_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
-    G_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
-    P_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
+    T_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
+    RH_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
+    U_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
+    G_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
+    P_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
 
     if (RRR_var in df):
         RRR = df[RRR_var]       # Precipitation
-        RRR_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
+        RRR_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
 
     if(SNOWFALL_var in df):
         SNOWFALL = df[SNOWFALL_var]      # Incoming longwave radiation
-        SNOWFALL_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
+        SNOWFALL_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
 
     if(LWin_var in df):
         LW = df[LWin_var]      # Incoming longwave radiation
-        LW_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
+        LW_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
 
     if(N_var in df):
         N = df[N_var]        # Cloud cover fraction
-        N_interp = np.zeros([len(ds.time), len(ds.lat), len(ds.lon)])
+        N_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
 
     #-----------------------------------
     # Interpolate point data to grid 
@@ -344,7 +355,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     print('Interpolate CR file to grid')
    
     # Interpolate data (T, RH, RRR, U)  to grid using lapse rates
-    for t in range(len(ds.time)):
+    for t in range(len(dso.time)):
         T_interp[t,:,:] = (T2[t]) + (ds.HGT.values-stationAlt)*lapse_T
         RH_interp[t,:,:] = RH2[t] + (ds.HGT.values-stationAlt)*lapse_RH
         U_interp[t,:,:] = U2[t]
@@ -391,7 +402,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     else:
         print('No radiation module used')
 
-    for t in range(len(ds.time)):
+    for t in range(len(dso.time)):
         doy = df.index[t].dayofyear
         hour = df.index[t].hour
         for i in range(len(ds.lat)):
@@ -411,26 +422,26 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     #-----------------------------------
     # Add variables to file 
     #-----------------------------------
-    add_variable_along_latlon(ds, ds.HGT.values, 'HGT', 'm', 'Elevation')
-    add_variable_along_latlon(ds, ds.ASPECT.values, 'ASPECT', 'degrees', 'Aspect of slope')
-    add_variable_along_latlon(ds, ds.SLOPE.values, 'SLOPE', 'degrees', 'Terrain slope')
-    add_variable_along_latlon(ds, ds.MASK.values, 'MASK', 'boolean', 'Glacier mask')
-    add_variable_along_timelatlon(ds, T_interp, 'T2', 'K', 'Temperature at 2 m')
-    add_variable_along_timelatlon(ds, RH_interp, 'RH2', '%', 'Relative humidity at 2 m')
-    add_variable_along_timelatlon(ds, U_interp, 'U2', 'm s\u207b\xb9', 'Wind velocity at 2 m')
-    add_variable_along_timelatlon(ds, G_interp, 'G', 'W m\u207b\xb2', 'Incoming shortwave radiation')
-    add_variable_along_timelatlon(ds, P_interp, 'PRES', 'hPa', 'Atmospheric Pressure')
+    add_variable_along_latlon(dso, ds.HGT.values, 'HGT', 'm', 'Elevation')
+    add_variable_along_latlon(dso, ds.ASPECT.values, 'ASPECT', 'degrees', 'Aspect of slope')
+    add_variable_along_latlon(dso, ds.SLOPE.values, 'SLOPE', 'degrees', 'Terrain slope')
+    add_variable_along_latlon(dso, ds.MASK.values, 'MASK', 'boolean', 'Glacier mask')
+    add_variable_along_timelatlon(dso, T_interp, 'T2', 'K', 'Temperature at 2 m')
+    add_variable_along_timelatlon(dso, RH_interp, 'RH2', '%', 'Relative humidity at 2 m')
+    add_variable_along_timelatlon(dso, U_interp, 'U2', 'm s\u207b\xb9', 'Wind velocity at 2 m')
+    add_variable_along_timelatlon(dso, G_interp, 'G', 'W m\u207b\xb2', 'Incoming shortwave radiation')
+    add_variable_along_timelatlon(dso, P_interp, 'PRES', 'hPa', 'Atmospheric Pressure')
     
     if (RRR_var in df):
-        add_variable_along_timelatlon(ds, RRR_interp, 'RRR', 'mm', 'Total precipitation (liquid+solid)')
+        add_variable_along_timelatlon(dso, RRR_interp, 'RRR', 'mm', 'Total precipitation (liquid+solid)')
     
     if(SNOWFALL_var in df):
-        add_variable_along_timelatlon(ds, SNOWFALL_interp, 'SNOWFALL', 'm', 'Snowfall')
+        add_variable_along_timelatlon(dso, SNOWFALL_interp, 'SNOWFALL', 'm', 'Snowfall')
 
     if(LWin_var in df):
-        add_variable_along_timelatlon(ds, LW_interp, 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation')
+        add_variable_along_timelatlon(dso, LW_interp, 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation')
     if(N_var in df):
-        add_variable_along_timelatlon(ds, N_interp, 'N', '%', 'Cloud cover fraction')
+        add_variable_along_timelatlon(dso, N_interp, 'N', '%', 'Cloud cover fraction')
 
     encoding = dict()
     # for var in IO.get_result().data_vars:
@@ -445,8 +456,8 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     #-----------------------------------
     # Write file to disc 
     #-----------------------------------
-    #ds.to_netcdf(cosipy_file, encoding=encoding)
-    ds.to_netcdf(cosipy_file)
+    #dso.to_netcdf(cosipy_file, encoding=encoding)
+    dso.to_netcdf(cosipy_file)
 
     print('Input file created \n')
     print('-------------------------------------------')
@@ -454,35 +465,41 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     #-----------------------------------
     # Do some checks
     #-----------------------------------
-    check(ds.T2,316.16,223.16)
-    check(ds.RH2,100.0,0.0)
-    check(ds.U2, 50.0, 0.0)
-    check(ds.RRR,20.0,0.0)
-    check(ds.G,1600.0,0.0)
-    check(ds.PRES,1080.0,200.0)
+    check(dso.T2,316.16,223.16)
+    check(dso.RH2,100.0,0.0)
+    check(dso.U2, 50.0, 0.0)
+    check(dso.RRR,20.0,0.0)
+    check(dso.G,1600.0,0.0)
+    check(dso.PRES,1080.0,200.0)
 
     if(RRR_var in df):
-        check(ds.RRR,20.0,0.0)
+        check(dso.RRR,20.0,0.0)
 
     if (SNOWFALL_var in df):
-        check(ds.SNOWFALL, 0.05, 0.0)
+        check(dso.SNOWFALL, 0.05, 0.0)
 
     if (LWin_var in df):
-        check(ds.LWin, 400, 0.0)
+        check(dso.LWin, 400, 0.0)
 
     if (N_var in df):
-        check(ds.N, 1.0, 0.0)
+        check(dso.N, 1.0, 0.0)
 
 def add_variable_along_timelatlon(ds, var, name, units, long_name):
     """ This function adds missing variables to the DATA class """
-    ds[name] = (('time','lat','lon'), var)
+    if WRF:
+         ds[name] = (('time','south_north','west_east'), var)
+    else:
+        ds[name] = (('time','lat','lon'), var)
     ds[name].attrs['units'] = units
     ds[name].attrs['long_name'] = long_name
     return ds
 
 def add_variable_along_latlon(ds, var, name, units, long_name):
     """ This function self.adds missing variables to the self.DATA class """
-    ds[name] = (('lat','lon'), var)
+    if WRF: 
+        ds[name] = (('south_north','west_east'), var)
+    else:
+        ds[name] = (('lat','lon'), var)
     ds[name].attrs['units'] = units
     ds[name].attrs['long_name'] = long_name
     ds[name].encoding['_FillValue'] = -9999
