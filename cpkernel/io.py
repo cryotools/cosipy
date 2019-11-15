@@ -565,12 +565,11 @@ class IOClass:
     # the arrays are assigned to the RESTART dataset and is stored to disc (see COSIPY.py)
     #==============================================================================
     def create_global_restart_arrays(self):
-        self.NLAYERS = np.full((self.ny,self.nx), np.nan)
-        self.LAYER_HEIGHT = np.full((self.ny,self.nx,max_layers), np.nan)
-        self.LAYER_RHO = np.full((self.ny,self.nx,max_layers), np.nan)
-        self.LAYER_T = np.full((self.ny,self.nx,max_layers), np.nan)
-        self.LAYER_LWC = np.full((self.ny,self.nx,max_layers), np.nan)
-
+        self.RES_NLAYERS = np.full((self.ny,self.nx), np.nan)
+        self.RES_LAYER_HEIGHT = np.full((self.ny,self.nx,max_layers), np.nan)
+        self.RES_LAYER_RHO = np.full((self.ny,self.nx,max_layers), np.nan)
+        self.RES_LAYER_T = np.full((self.ny,self.nx,max_layers), np.nan)
+        self.RES_LAYER_LWC = np.full((self.ny,self.nx,max_layers), np.nan)
 
     #----------------------------------------------
     # Initializes the local restart xarray dataset
@@ -605,25 +604,22 @@ class IOClass:
     # numpy arrays. The y and x values are the lat/lon indices.
     #==============================================================================
     def copy_local_restart_to_global(self,y,x,local_restart):
-        self.NLAYERS[y,x] = local_restart.NLAYERS 
-        self.LAYER_HEIGHT[y,x,:] = local_restart.LAYER_HEIGHT 
-        self.LAYER_RHO[y,x,:] = local_restart.LAYER_RHO
-        self.LAYER_T[y,x,:] = local_restart.LAYER_T
-        self.LAYER_LWC[y,x,:] = local_restart.LAYER_LWC
-
+        self.RES_NLAYERS[y,x] = local_restart.NLAYERS 
+        self.RES_LAYER_HEIGHT[y,x,:] = local_restart.LAYER_HEIGHT 
+        self.RES_LAYER_RHO[y,x,:] = local_restart.LAYER_RHO
+        self.RES_LAYER_T[y,x,:] = local_restart.LAYER_T
+        self.RES_LAYER_LWC[y,x,:] = local_restart.LAYER_LWC
     
     #==============================================================================
     # This function adds the global numpy arrays to the RESULT dataset which will
     # be written to disc.
     #==============================================================================
     def write_restart_to_file(self):
-        
-        self.add_variable_along_latlon(self.RESTART, self.NLAYERS, 'NLAYERS', '-', 'Number of layers')
-        self.add_variable_along_latlonlayer(self.RESTART, self.LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Height of each layer')
-        self.add_variable_along_latlonlayer(self.RESTART, self.LAYER_RHO, 'LAYER_RHO', 'kg m^-3', 'Layer density')
-        self.add_variable_along_latlonlayer(self.RESTART, self.LAYER_T, 'LAYER_T', 'K', 'Layer temperature')
-        self.add_variable_along_latlonlayer(self.RESTART, self.LAYER_LWC, 'LAYER_LWC', '-', 'Layer liquid water content')
-
+        self.add_variable_along_latlon(self.RESTART, self.RES_NLAYERS, 'NLAYERS', '-', 'Number of layers')
+        self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Height of each layer')
+        self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_RHO, 'LAYER_RHO', 'kg m^-3', 'Layer density')
+        self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_T, 'LAYER_T', 'K', 'Layer temperature')
+        self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_LWC, 'LAYER_LWC', '-', 'Layer liquid water content')
 
 
     # TODO: Make it Pythonian - Finish the getter/setter functions

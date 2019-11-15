@@ -133,8 +133,8 @@ class Grid:
         # Update node properties
         self.update_node(idx, new_height, new_temperature, new_ice_fraction, new_liquid_water_content)
         
-        if (w0-self.get_node_density(idx)*self.get_node_height(idx))>1e-8:
-            self.logger.error('Merging is not mass (density) consistent (%2.7f)' % (w0-self.get_node_density(idx)*self.get_node_height(idx)))
+        #if (w0-self.get_node_density(idx)*self.get_node_height(idx))>1e-8:
+        #    self.logger.error('Merging is not mass (density) consistent (%2.7f)' % (w0-self.get_node_density(idx)*self.get_node_height(idx)))
 
         # Remove the second layer
         self.remove_node([idx+1])

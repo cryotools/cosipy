@@ -10,6 +10,10 @@
 time_start = '2009-01-01T06:00'
 time_end   = '2009-01-10T00:00'
 
+# Hintereisferner
+#time_start = '2018-09-17T08:00'
+#time_end   = '2019-07-03T13:00'
+
 #-----------------------------------
 # FILENAMES AND PATHS 
 #-----------------------------------
@@ -17,8 +21,12 @@ time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
 data_path = './data/'                       
+# Zhadang example
 input_netcdf= 'Zhadang/Zhadang_ERA5_2009.nc'
 output_netcdf = 'Zhadang_ERA5_'+time_start_str+'-'+time_end_str+'.nc'
+# Hintereisferner example
+#input_netcdf= 'HEF/HEF_input.nc'
+#output_netcdf = 'HEF_'+time_start_str+'-'+time_end_str+'.nc'
 
 #-----------------------------------
 # RESTART 
@@ -57,7 +65,7 @@ compression_level = 2                                       # Choose value betwe
 #-----------------------------------
 slurm_use = False                                           # use SLURM
 workers = None                                              # number of workers, if local cluster is used
-local_port = 8787                                           # port for local cluster
+local_port = 8786                                           # port for local cluster
 
 #-----------------------------------
 # WRITE FULL FIELDS 
