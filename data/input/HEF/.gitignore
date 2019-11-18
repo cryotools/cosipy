@@ -1,5 +1,5 @@
 *
 !.gitignore
-!loc_stakes.csv
+!data_stakes_hef.csv
 !HEF_input.nc
 !loc_stakes.csv
