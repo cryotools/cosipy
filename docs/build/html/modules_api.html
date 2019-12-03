@@ -1,0 +1,512 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>modules package &mdash; COSIPY Model</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="cpkernel package" href="cpkernel.html" />
+    <link rel="prev" title="modules" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> COSIPY Python API
+          
+
+          
+            
+            <img src="_static/cosipy_logo_transparent.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Documentation.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">modules</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">modules package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-modules.albedo">modules.albedo module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-modules.densification">modules.densification module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-modules.evaluation">modules.evaluation module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-modules.heatEquation">modules.heatEquation module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-modules.penetratingRadiation">modules.penetratingRadiation module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-modules.percolation">modules.percolation module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-modules.radCor">modules.radCor module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-modules.refreezing">modules.refreezing module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-modules.roughness">modules.roughness module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-modules.surfaceTemperature">modules.surfaceTemperature module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-modules">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpkernel.html">cpkernel package</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">COSIPY Python API</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">modules</a> &raquo;</li>
+        
+      <li>modules package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/modules_api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="modules-package">
+<h1>modules package<a class="headerlink" href="#modules-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-modules.albedo">
+<span id="modules-albedo-module"></span><h2>modules.albedo module<a class="headerlink" href="#module-modules.albedo" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="modules.albedo.method_Oerlemans">
+<code class="sig-prename descclassname">modules.albedo.</code><code class="sig-name descname">method_Oerlemans</code><span class="sig-paren">(</span><em class="sig-param">GRID</em>, <em class="sig-param">timestamp</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.albedo.method_Oerlemans" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="modules.albedo.updateAlbedo">
+<code class="sig-prename descclassname">modules.albedo.</code><code class="sig-name descname">updateAlbedo</code><span class="sig-paren">(</span><em class="sig-param">GRID</em>, <em class="sig-param">timestamp</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.albedo.updateAlbedo" title="Permalink to this definition">¶</a></dt>
+<dd><p>This methods updates the albedo</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-modules.densification">
+<span id="modules-densification-module"></span><h2>modules.densification module<a class="headerlink" href="#module-modules.densification" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="modules.densification.densification">
+<code class="sig-prename descclassname">modules.densification.</code><code class="sig-name descname">densification</code><span class="sig-paren">(</span><em class="sig-param">GRID</em>, <em class="sig-param">SLOPE</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.densification.densification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Densification of the snowpack
+Args:</p>
+<blockquote>
+<div><p>GRID    ::  GRID-Structure</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="modules.densification.method_Boone">
+<code class="sig-prename descclassname">modules.densification.</code><code class="sig-name descname">method_Boone</code><span class="sig-paren">(</span><em class="sig-param">GRID</em>, <em class="sig-param">SLOPE</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.densification.method_Boone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Description: Densification through overburden pressure
+after Essery et al. 2013</p>
+<p>RETURNS:
+rho_snow   :: densitiy profile after densification    [m3/kg]
+h_diff     :: difference in height before and after densification [m]</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-modules.evaluation">
+<span id="modules-evaluation-module"></span><h2>modules.evaluation module<a class="headerlink" href="#module-modules.evaluation" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="modules.evaluation.evaluate">
+<code class="sig-prename descclassname">modules.evaluation.</code><code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param">stake_names</em>, <em class="sig-param">stake_data</em>, <em class="sig-param">df_</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.evaluation.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>This methods evaluates the simulation with the stake measurements
+stake_name</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="modules.evaluation.rmse">
+<code class="sig-prename descclassname">modules.evaluation.</code><code class="sig-name descname">rmse</code><span class="sig-paren">(</span><em class="sig-param">stake_names</em>, <em class="sig-param">stake_data</em>, <em class="sig-param">df_</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.evaluation.rmse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-modules.heatEquation">
+<span id="modules-heatequation-module"></span><h2>modules.heatEquation module<a class="headerlink" href="#module-modules.heatEquation" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="modules.heatEquation.solveHeatEquation">
+<code class="sig-prename descclassname">modules.heatEquation.</code><code class="sig-name descname">solveHeatEquation</code><span class="sig-paren">(</span><em class="sig-param">GRID</em>, <em class="sig-param">t</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.heatEquation.solveHeatEquation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solves the heat equation on a non-uniform grid using</p>
+<p>dt  ::  integration time</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-modules.penetratingRadiation">
+<span id="modules-penetratingradiation-module"></span><h2>modules.penetratingRadiation module<a class="headerlink" href="#module-modules.penetratingRadiation" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="modules.penetratingRadiation.method_Bintanja">
+<code class="sig-prename descclassname">modules.penetratingRadiation.</code><code class="sig-name descname">method_Bintanja</code><span class="sig-paren">(</span><em class="sig-param">GRID</em>, <em class="sig-param">SWnet</em>, <em class="sig-param">dt</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.penetratingRadiation.method_Bintanja" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="modules.penetratingRadiation.penetrating_radiation">
+<code class="sig-prename descclassname">modules.penetratingRadiation.</code><code class="sig-name descname">penetrating_radiation</code><span class="sig-paren">(</span><em class="sig-param">GRID</em>, <em class="sig-param">SWnet</em>, <em class="sig-param">dt</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.penetratingRadiation.penetrating_radiation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-modules.percolation">
+<span id="modules-percolation-module"></span><h2>modules.percolation module<a class="headerlink" href="#module-modules.percolation" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="modules.percolation.percolation">
+<code class="sig-prename descclassname">modules.percolation.</code><code class="sig-name descname">percolation</code><span class="sig-paren">(</span><em class="sig-param">GRID</em>, <em class="sig-param">water</em>, <em class="sig-param">t</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.percolation.percolation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Percolation and refreezing of melt water through the snow- and firn pack</p>
+<p>Args:</p>
+<blockquote>
+<div><p>GRID    ::  GRID-Structure 
+water   ::  Melt water (m w.e.q.) at the surface
+dt      ::  Integration time</p>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-modules.radCor">
+<span id="modules-radcor-module"></span><h2>modules.radCor module<a class="headerlink" href="#module-modules.radCor" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="modules.radCor.Fdif_Neustift">
+<code class="sig-prename descclassname">modules.radCor.</code><code class="sig-name descname">Fdif_Neustift</code><span class="sig-paren">(</span><em class="sig-param">doy</em>, <em class="sig-param">zeni</em>, <em class="sig-param">Rg</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.radCor.Fdif_Neustift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate fraction of diffuse radiation
+from Wohlfahrt et al. (2016) doi: 10.1016/j.agrformet.2016.05.012</p>
+<p>the basic logic here is that we use the ratio between incident global
+and potential shortwave radiation to define a clearness index and use
+this to calibrate an empirical function of the diffuse radiation
+fraction, in this case data from Neustift were used for calibration</p>
+<p>doy …. day of year (-)
+zeni … zenith angle of sun (rad)
+Rg ….. incident global (shortwave) radiation (W/m2)</p>
+<p>last edit: 23.04.2018, Georg</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="modules.radCor.correctRadiation">
+<code class="sig-prename descclassname">modules.radCor.</code><code class="sig-name descname">correctRadiation</code><span class="sig-paren">(</span><em class="sig-param">lat</em>, <em class="sig-param">lon</em>, <em class="sig-param">timezone_lon</em>, <em class="sig-param">doy</em>, <em class="sig-param">hour</em>, <em class="sig-param">angslo</em>, <em class="sig-param">azislo</em>, <em class="sig-param">Rm</em>, <em class="sig-param">zeni_thld</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.radCor.correctRadiation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="modules.radCor.radCor2D">
+<code class="sig-prename descclassname">modules.radCor.</code><code class="sig-name descname">radCor2D</code><span class="sig-paren">(</span><em class="sig-param">doy</em>, <em class="sig-param">zeni</em>, <em class="sig-param">azi</em>, <em class="sig-param">angslo</em>, <em class="sig-param">azislo</em>, <em class="sig-param">Rm</em>, <em class="sig-param">zeni_thld</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.radCor.radCor2D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Correct solar radiation measured horizontally for slope and aspect of
+underlying surface</p>
+<blockquote>
+<div><p>here first estimate fraction of diffuse radiation and then correct beam
+radiation component for slope and aspect of underlying surface based on
+Ham (2005)</p>
+<p>Ham, J.M. (2005) Useful equations and tables in micrometeorology. In: Hatfield, J.L.,
+Baker, J.M., Viney, M.K. (Eds.), Micrometeorology in Agricultural Systems.
+American Society of Agronomy Inc.; Crop Science Society of America Inc.; Soil
+Science Society of America Inc., Madison, Wisconsin, USA, pp. 533560.</p>
+</div></blockquote>
+<p>last edit: 24.03.2018, Georg</p>
+<p>the following inputs are scalars
+doy …. day of year
+zeni … solar zenith angle (from vertical, rad)
+azi …. solar azimuth angle (rad)
+Rm ….. solar radiation measured horizontally (W/m2)
+zeni_thld … zenith threshold (deg)</p>
+<p>the following inputs/outputs represent spatial data (arrays y and x direction)
+angslo … slope of pixel 
+azislo … azimuth of pixel
+Rc … corrected solar radiation (W/m2)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="modules.radCor.solarFParallel">
+<code class="sig-prename descclassname">modules.radCor.</code><code class="sig-name descname">solarFParallel</code><span class="sig-paren">(</span><em class="sig-param">lat</em>, <em class="sig-param">lon</em>, <em class="sig-param">timezone_lon</em>, <em class="sig-param">day</em>, <em class="sig-param">hour</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.radCor.solarFParallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate solar elevation, zenith and azimuth angles</p>
+<p>Inputs:</p>
+<blockquote>
+<div><p>lat             ::  latitude (decimal degree)
+lon             ::  longitude (decimal degree)
+timezone_lon    ::  longitude of standard meridian (decimal degree)
+doy             ::  day of the year (1-366)
+hour            ::  hour of the day (decimal, e.g. 12:30 = 12.5</p>
+</div></blockquote>
+<p>Outputs:</p>
+<blockquote>
+<div><p>beta            ::  solar elevation angle (radians)
+zeni            ::  zenith angle (radians)
+azi             ::  solar azimuth angle (radians)</p>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-modules.refreezing">
+<span id="modules-refreezing-module"></span><h2>modules.refreezing module<a class="headerlink" href="#module-modules.refreezing" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="modules.refreezing.refreezing">
+<code class="sig-prename descclassname">modules.refreezing.</code><code class="sig-name descname">refreezing</code><span class="sig-paren">(</span><em class="sig-param">GRID</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.refreezing.refreezing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-modules.roughness">
+<span id="modules-roughness-module"></span><h2>modules.roughness module<a class="headerlink" href="#module-modules.roughness" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="modules.roughness.method_Moelg">
+<code class="sig-prename descclassname">modules.roughness.</code><code class="sig-name descname">method_Moelg</code><span class="sig-paren">(</span><em class="sig-param">GRID</em>, <em class="sig-param">timestamp</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.roughness.method_Moelg" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method updates the roughness length (Moelg et al 2009, J.Clim.)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="modules.roughness.updateRoughness">
+<code class="sig-prename descclassname">modules.roughness.</code><code class="sig-name descname">updateRoughness</code><span class="sig-paren">(</span><em class="sig-param">GRID</em>, <em class="sig-param">timestamp</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.roughness.updateRoughness" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-modules.surfaceTemperature">
+<span id="modules-surfacetemperature-module"></span><h2>modules.surfaceTemperature module<a class="headerlink" href="#module-modules.surfaceTemperature" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="modules.surfaceTemperature.eb_fluxes">
+<code class="sig-prename descclassname">modules.surfaceTemperature.</code><code class="sig-name descname">eb_fluxes</code><span class="sig-paren">(</span><em class="sig-param">GRID</em>, <em class="sig-param">T0</em>, <em class="sig-param">alpha</em>, <em class="sig-param">z0</em>, <em class="sig-param">T2</em>, <em class="sig-param">rH2</em>, <em class="sig-param">p</em>, <em class="sig-param">G</em>, <em class="sig-param">u2</em>, <em class="sig-param">SLOPE</em>, <em class="sig-param">LWin=None</em>, <em class="sig-param">N=None</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.surfaceTemperature.eb_fluxes" title="Permalink to this definition">¶</a></dt>
+<dd><p>This functions returns the surface fluxes</p>
+<p>Given:</p>
+<blockquote>
+<div><p>GRID    ::  Grid structure
+T0      ::  Surface temperature [K]
+alpha   ::  Albedo [-]
+z0      ::  Roughness length [m]
+T2      ::  Air temperature [K]
+rH2     ::  Relative humidity [%]
+p       ::  Air pressure [hPa]
+G       ::  Incoming shortwave radiation [W m^-2]
+u2      ::  Wind velocity [m S^-1]
+SLOPE   ::  Slope of the surface [degree]
+LWin    ::  Incoming longwave radiation [W m^-2]
+N       ::  Fractional cloud cover [-]</p>
+</div></blockquote>
+<p>Returns:</p>
+<blockquote>
+<div><p>Li      ::  Incoming longwave radiation [W m^-2]
+Lo      ::  Outgoing longwave radiation [W m^-2]
+H       ::  Sensible heat flux [W m^-2]
+L       ::  Latent heat flux [W m^-2]
+B       ::  Ground heat flux [W m^-2]
+SWnet   ::  Shortwave radiation budget [W m^-2]
+rho     ::  Air density [kg m^-3]
+Lv      ::  Latent heat of vaporization [J kg^-1]
+Cs_t    ::  Stanton number [-]
+Cs_q    ::  Dalton number [-]
+q0      ::  Mixing ratio at the surface [kg kg^-1]
+q2      ::  Mixing ratio at measurement height [kg kg^-1]
+phi     ::  Stability correction term [-]</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="modules.surfaceTemperature.eb_optim">
+<code class="sig-prename descclassname">modules.surfaceTemperature.</code><code class="sig-name descname">eb_optim</code><span class="sig-paren">(</span><em class="sig-param">T0</em>, <em class="sig-param">GRID</em>, <em class="sig-param">alpha</em>, <em class="sig-param">z0</em>, <em class="sig-param">T2</em>, <em class="sig-param">rH2</em>, <em class="sig-param">p</em>, <em class="sig-param">G</em>, <em class="sig-param">u2</em>, <em class="sig-param">SLOPE</em>, <em class="sig-param">LWin=None</em>, <em class="sig-param">N=None</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.surfaceTemperature.eb_optim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimization function to solve for surface temperature T0</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="modules.surfaceTemperature.method_EW_Sonntag">
+<code class="sig-prename descclassname">modules.surfaceTemperature.</code><code class="sig-name descname">method_EW_Sonntag</code><span class="sig-paren">(</span><em class="sig-param">T</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.surfaceTemperature.method_EW_Sonntag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saturation vapor pressure</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>T   ::  Temperature [K]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="modules.surfaceTemperature.update_surface_temperature">
+<code class="sig-prename descclassname">modules.surfaceTemperature.</code><code class="sig-name descname">update_surface_temperature</code><span class="sig-paren">(</span><em class="sig-param">GRID</em>, <em class="sig-param">alpha</em>, <em class="sig-param">z0</em>, <em class="sig-param">T2</em>, <em class="sig-param">rH2</em>, <em class="sig-param">p</em>, <em class="sig-param">G</em>, <em class="sig-param">u2</em>, <em class="sig-param">SLOPE</em>, <em class="sig-param">LWin=None</em>, <em class="sig-param">N=None</em><span class="sig-paren">)</span><a class="headerlink" href="#modules.surfaceTemperature.update_surface_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>This methods updates the surface temperature and returns the surface fluxes</p>
+<p>Given:</p>
+<blockquote>
+<div><p>GRID    ::  Grid structure
+T0      ::  Surface temperature [K]
+alpha   ::  Albedo [-]
+z0      ::  Roughness length [m]
+T2      ::  Air temperature [K]
+rH2     ::  Relative humidity [%]
+p       ::  Air pressure [hPa]
+G       ::  Incoming shortwave radiation [W m^-2]
+u2      ::  Wind velocity [m S^-1]
+SLOPE   ::  Slope of the surface [degree]
+LWin    ::  Incoming longwave radiation [W m^-2]
+N       ::  Fractional cloud cover [-]</p>
+</div></blockquote>
+<p>Returns:</p>
+<blockquote>
+<div><p>Li      ::  Incoming longwave radiation [W m^-2]
+Lo      ::  Outgoing longwave radiation [W m^-2]
+H       ::  Sensible heat flux [W m^-2]
+L       ::  Latent heat flux [W m^-2]
+B       ::  Ground heat flux [W m^-2]
+SWnet   ::  Shortwave radiation budget [W m^-2]
+rho     ::  Air density [kg m^-3]
+Lv      ::  Latent heat of vaporization [J kg^-1]
+Cs_t    ::  Stanton number [-]
+Cs_q    ::  Dalton number [-]
+q0      ::  Mixing ratio at the surface [kg kg^-1]
+q2      ::  Mixing ratio at measurement height [kg kg^-1]
+phi     ::  Stability correction term [-]</p>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-modules">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-modules" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cpkernel.html" class="btn btn-neutral float-right" title="cpkernel package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="modules.html" class="btn btn-neutral float-left" title="modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Tobias Sauter, Anselm Arndt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
