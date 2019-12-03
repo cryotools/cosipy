@@ -210,8 +210,14 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 mask = DATA.MASK.sel(south_north=y, west_east=x)
 	        # Provide restart grid if necessary
                 if ((mask==1) & (restart==False)):
+                    if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
+                        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
+                        sys.exit()
                     futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
                 elif ((mask==1) & (restart==True)):
+                    if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
+                        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
+                        sys.exit()
                     futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, 
                                              GRID_RESTART=IO.create_grid_restart().sel(south_north=y, west_east=x), 
                                              stake_names=stake_names, stake_data=df_stakes_data))
@@ -219,9 +225,15 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 mask = DATA.MASK.isel(lat=y, lon=x)
 	        # Provide restart grid if necessary
                 if ((mask==1) & (restart==False)):
+                    if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
+                        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
+                        sys.exit()
                     futures.append(client.submit(cosipy_core, DATA.isel(lat=y, lon=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
                 elif ((mask==1) & (restart==True)):
-                    futures.append(client.submit(cosipy_core, DATA.sel(lat=y, lon=x), y, x, 
+                    if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
+                        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
+                        sys.exit()
+                    futures.append(client.submit(cosipy_core, DATA.isel(lat=y, lon=x), y, x, 
                                              GRID_RESTART=IO.create_grid_restart().isel(lat=y, lon=x), 
                                              stake_names=stake_names, stake_data=df_stakes_data))
         # Finally, do the calculations and print the progress

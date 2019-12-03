@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 import time
 import dateutil
+from itertools import product
 
 #np.warnings.filterwarnings('ignore')
 
@@ -484,6 +485,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     #-----------------------------------
     # Do some checks
     #-----------------------------------
+    check_for_nan(dso)
     check(dso.T2,316.16,223.16)
     check(dso.RH2,100.0,0.0)
     check(dso.U2, 50.0, 0.0)
@@ -506,7 +508,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
 def add_variable_along_timelatlon(ds, var, name, units, long_name):
     """ This function adds missing variables to the DATA class """
     if WRF:
-         ds[name] = (('time','south_north','west_east'), var)
+         ds[name] = (('time','south_north','west_east'), var)	
     else:
         ds[name] = (('time','lat','lon'), var)
     ds[name].attrs['units'] = units
@@ -545,6 +547,22 @@ def check(field, max, min):
      
     if np.isnan((np.min(field.values))):
         print('ERROR this does not work! %s VALUE: %.2f \n' % (str.capitalize(field.name), np.min(field.values)))
+
+def check_for_nan(ds):
+    if WRF is True:
+        for y,x in product(range(ds.dims['south_north']),range(ds.dims['west_east'])):
+            mask = ds.MASK.sel(south_north=y, west_east=x)
+            if mask==1:
+                if np.isnan(ds.sel(south_north=y, west_east=x).to_array()).any():
+                    print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
+                    sys.exit()
+    else:
+        for y,x in product(range(ds.dims['lat']),range(ds.dims['lon'])):
+            mask = ds.MASK.isel(lat=y, lon=x)
+            if mask==1:
+                if np.isnan(ds.isel(lat=y, lon=x).to_array()).any():
+                    print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
+                    sys.exit()
 
 def compute_scale_and_offset(min, max, n):
     # stretch/compress data to the available packed range
