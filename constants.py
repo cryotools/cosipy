@@ -22,11 +22,11 @@ initial_snow_layer_heights = 0.05               # Initial thickness of snow laye
 initial_glacier_height = 30.0                   # Initial glacier height without snowlayers
 initial_glacier_layer_heights = 1.0             # Initial thickness of glacier ice layers
 
-initial_top_density_snowpack_constant = 800.    # Top density for initial snowpack
-initial_bottom_density_snowpack_constant = 800. # Bottom density for initial snowpack
+initial_top_density_snowpack_constant = 300.    # Top density for initial snowpack
+initial_bottom_density_snowpack_constant = 600. # Bottom density for initial snowpack
 
-temperature_top_constant = 268.15               # Upper boundary condition for initial temperature profile (K)
-temperature_bottom = 270.15                     # Lower boundary condition for initial temperature profile (K)
+temperature_top_constant = 268.0                # Upper boundary condition for initial temperature profile (K)
+temperature_bottom = 268.0                      # Lower boundary condition for initial temperature profile (K)
 const_init_temp = 0.1                           # constant for init temperature profile used in exponential function (exponential decay)
 
 
@@ -35,18 +35,18 @@ center_snow_transfer_function = 2.5             # center (50/50) when total prec
 spread_snow_transfer_function = 1               # 1: +-2.5
 mult_factor_RRR = 1.0                           # multiplication factor for RRR
 
-minimum_snow_to_reset_albedo = 0.001            # minimum snowfall to reset hours since last snowfall! Default was 0.005
-minimum_snow_layer_height = 0.001               # minimum layer height
+minimum_snow_to_reset_albedo = 0.01             # minimum snowfall to reset hours since last snowfall! Default was 0.005
+minimum_snow_layer_height = 0.0001              # minimum layer height
 
 
 ' REMESHING OPTIONS'
 remesh_method = 'log_profile'                   # Remeshing (log_profile or adaptive_profile)
-first_layer_height = 0.02                       # The first layer will always have the defined height (m)
-layer_stretching = 1.10                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
+first_layer_height = 0.01                       # The first layer will always have the defined height (m)
+layer_stretching = 1.20                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
 
 merge_max = 1                                   # How many mergings are allowed per time step
-density_threshold_merging = 2                   # If merging is true threshold for layer densities difference two layer try: 5-10 (kg m^-3)
-temperature_threshold_merging = 0.05            # If mering is true threshold for layer temperatures to merge  try: 0.05-0.1 (K)
+density_threshold_merging = 20                  # If merging is true threshold for layer densities difference two layer try: 5-10 (kg m^-3)
+temperature_threshold_merging = 0.01            # If mering is true threshold for layer temperatures to merge  try: 0.05-0.1 (K)
 
 
 ' PHYSICAL CONSTANTS '
@@ -55,8 +55,8 @@ temperature_threshold_merging = 0.05            # If mering is true threshold fo
 albedo_fresh_snow = 0.9                         # albedo of fresh snow [-] (Moelg et al. 2012, TC)
 albedo_firn = 0.55                              # albedo of firn [-] (Moelg et al. 2012, TC)
 albedo_ice = 0.3                                # albedo of ice [-] (Moelg et al. 2012, TC)
-albedo_mod_snow_aging = 22.0                    # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
-albedo_mod_snow_depth = 3.0                     # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
+albedo_mod_snow_aging = 20.0                    # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
+albedo_mod_snow_depth = 1.0                     # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
 
 roughness_fresh_snow = 0.24                     # surface roughness length for fresh snow [mm] (Moelg et al. 2012, TC)
 roughness_ice = 1.7                             # surface roughness length for ice [mm] (Moelg et al. 2012, TC)
@@ -85,4 +85,3 @@ air_density = 1.1                               # density of air [kg m^(-3)]
 sigma = 5.67e-8                                 # Stefan-Bolzmann constant [W m-2 K-4]
 zero_temperature = 273.16                       # Melting temperature [K]
 surface_emission_coeff = 0.99                   # surface emission coefficient [-]
-
