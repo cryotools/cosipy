@@ -30,7 +30,7 @@ version = 'v1.1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-'sphinx.ext.todo','sphinx.ext.autodoc','sphinx_rtd_theme','sphinx.ext.githubpages'
+'sphinx.ext.todo','sphinx.ext.autodoc','sphinx_rtd_theme'
 ]
 
 apidoc_toc_file='test'

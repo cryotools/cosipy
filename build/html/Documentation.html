@@ -1,0 +1,371 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Getting started &mdash; COSIPY Model</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="modules" href="modules.html" />
+    <link rel="prev" title="Welcome to cosipy’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> COSIPY Python API
+          
+
+          
+            
+            <img src="_static/cosipy_logo_transparent.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#packages-and-libraries">Packages and libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-tutorial">Quick tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pre-processing">Pre-processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#create-the-static-file">Create the static file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#create-the-cosipy-input-file">Create the COSIPY input file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#execute-the-cosipy-model">Execute the COSIPY model:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#visualization">Visualization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">modules</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">COSIPY Python API</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Getting started</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/Documentation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="getting-started">
+<span id="documentation"></span><h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="requirements">
+<span id="id1"></span><h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="packages-and-libraries">
+<h3>Packages and libraries<a class="headerlink" href="#packages-and-libraries" title="Permalink to this headline">¶</a></h3>
+<p>COSIPY should run with any Python 3 version on any operating system. If you think the
+reason for a problem might be your specific Python 3 version or your operating
+system, please create a topic in the forum. The model is tested and
+developed on:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Anaconda Distribution on max OS</p></li>
+<li><p>Python 3.6.5 on Ubuntu 18.04</p></li>
+<li><p>Anaconda 3 64-bit (Python 3.6.3) on CentOS Linux 7.4</p></li>
+<li><p>High-Performance Cluster Erlangen-Nuremberg University</p></li>
+</ul>
+</div></blockquote>
+<p>The model requires the following libraries:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>xarray</p></li>
+<li><p>dask-jobqueue</p></li>
+<li><p>netcdf4</p></li>
+<li><p>numpy (included in Anaconda)</p></li>
+<li><p>scipy (included in Anaconda)</p></li>
+<li><p>distributed (included in Anaconda)</p></li>
+</ul>
+</div></blockquote>
+<p>Additional packages (optional):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>gdal (e.g. in Debian-based Linux distributions package called gdal-bin)</p></li>
+<li><p>climate date operators (e.g. in Debian-based Linux distributions package called cdo)</p></li>
+<li><p>netCDF Operators (e.g. in Debian-based Linux distritutions package called nco)</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="quick-tutorial">
+<span id="tutorial"></span><h2>Quick tutorial<a class="headerlink" href="#quick-tutorial" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pre-processing">
+<h3>Pre-processing<a class="headerlink" href="#pre-processing" title="Permalink to this headline">¶</a></h3>
+<p>COSIPY requires a file with the corresponding meteorological and static input
+data. Various tools are available to create the file from simple text or
+geotiff files.</p>
+<div class="section" id="create-the-static-file">
+<span id="static"></span><h4>Create the static file<a class="headerlink" href="#create-the-static-file" title="Permalink to this headline">¶</a></h4>
+<p>In the first step, topographic parameters are derived from the Digital Terrain
+Model (DEM) and written to a NetCDF file. A shape file is also required to
+delimit the glaciated areas. The DEM and the shapefile should be in lat/lon
+WGS84 (EPSG:4326) projection.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The DEM can be reprojected to EPSG:4326 using gdal:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">gdalwarp</span> <span class="o">-</span><span class="n">t_srs</span> <span class="n">EPSG</span><span class="p">:</span><span class="mi">4326</span> <span class="n">dgm_hintereisferner</span><span class="o">.</span><span class="n">tif</span> <span class="n">dgm_hintereisferner</span><span class="o">-</span><span class="n">lat_lon</span><span class="o">.</span><span class="n">tif</span>
+</pre></div>
+</div>
+</div>
+<p>COSIPY comes with the script create_static_file.py located in the utilities folder.
+This script runs some gdal routines in the command line. That’s is the reason that
+we can provide this script only for UNIX and MAC users at the moment.
+The script creates some intermediate NetCDF files (dem.nc, aspect.nc,
+mask.nc and slope.nc) that are automatically deleted after the static file is created.</p>
+<p>Here we use the DEM <strong>n30_e090_3arc_v2.tif</strong> (SRTM) and the shapefile
+<strong>Zhadang_RGI6.shp</strong> provided in the /data/static folder. The static file is
+created using:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">create_static_file</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>The command creates a new file <strong>Zhadang_static.nc</strong> in the /data/static folder.
+The file names and paths can be simply changed in the python script.</p>
+</div>
+<div class="section" id="create-the-cosipy-input-file">
+<span id="input"></span><h4>Create the COSIPY input file<a class="headerlink" href="#create-the-cosipy-input-file" title="Permalink to this headline">¶</a></h4>
+<p>The creation of the input file requires the static information (file) from
+<a class="reference internal" href="#static"><span class="std std-ref">section</span></a>. To convert the data from an automatic weather station
+(AWS) we use the conversion script aws2cosipy.py located in the folder
+/utilities/aws2cosipy. The script comes with a configuration file
+aws2cosipyConfig.py which defines the structure of the AWS file and other
+user-defined parameter. Since the input file provides point information, the
+data is interpolated via lapse rates for two-dimensional runs.  The solar
+radiation fields is based on a model suggested by Wohlfahrt et al.  (2016; doi:
+10.1016/j.agrformet.2016.05.012).  Other variables as wind velocity and cloud
+cover fraction are assumed to be constant over the domain.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The script aws2cosipy.py only serves to illustrate how data can be
+prepared for COSIPY. For most applications it is recommended to develop your
+own routine for data interpolation.</p>
+</div>
+<p>The script is executed with</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">python</span> <span class="n">aws2cosipy</span><span class="o">.</span><span class="n">py</span> <span class="o">/</span>
+  <span class="o">-</span><span class="n">c</span> <span class="o">../../</span><span class="n">data</span><span class="o">/</span><span class="nb">input</span><span class="o">/</span><span class="n">Zhadang</span><span class="o">/</span><span class="n">Zhadang_ERA5_2009_2018</span><span class="o">.</span><span class="n">csv</span> <span class="o">/</span>
+  <span class="o">-</span><span class="n">o</span> <span class="o">../../</span><span class="n">data</span><span class="o">/</span><span class="nb">input</span><span class="o">/</span><span class="n">Zhadang</span><span class="o">/</span><span class="n">Zhadang_ERA5_2009</span><span class="o">.</span><span class="n">nc</span> <span class="o">/</span>
+  <span class="o">-</span><span class="n">s</span> <span class="o">../../</span><span class="n">data</span><span class="o">/</span><span class="n">static</span><span class="o">/</span><span class="n">Zhadang_static</span><span class="o">.</span><span class="n">nc</span> <span class="o">/</span>
+  <span class="o">-</span><span class="n">b</span> <span class="mi">20090101</span> <span class="o">-</span><span class="n">e</span> <span class="mi">20091231</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 46%" />
+<col style="width: 54%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>Argument</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p>-c</p></td>
+<td><p>meteo file</p></td>
+</tr>
+<tr class="row-odd"><td><p>-o</p></td>
+<td><p>output file</p></td>
+</tr>
+<tr class="row-even"><td><p>-s</p></td>
+<td><p>static file</p></td>
+</tr>
+<tr class="row-odd"><td><p>-b</p></td>
+<td><p>start date</p></td>
+</tr>
+<tr class="row-even"><td><p>-e</p></td>
+<td><p>end date</p></td>
+</tr>
+</tbody>
+</table>
+<p>If the script was executed successfully, the file
+/data/input/Zhadang/Zhadang_ERA5_2009_2018.nc should have been created.</p>
+</div>
+<div class="section" id="execute-the-cosipy-model">
+<span id="run"></span><h4>Execute the COSIPY model:<a class="headerlink" href="#execute-the-cosipy-model" title="Permalink to this headline">¶</a></h4>
+<p>To run Cosipy, run the following command in the root directory:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">python</span> <span class="n">COSIPY</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>The example should take about 3-5 minutes on a workstation with 4 cores.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>The configuration and definition of the parameters/constants is done
+in config.py and constants.py.</strong></p>
+</div>
+</div>
+</div>
+<div class="section" id="visualization">
+<h3>Visualization<a class="headerlink" href="#visualization" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="modules.html" class="btn btn-neutral float-right" title="modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to cosipy’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Tobias Sauter, Anselm Arndt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

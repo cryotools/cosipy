@@ -1,0 +1,1019 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>cpkernel package &mdash; COSIPY Model</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="modules package" href="modules_api.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> COSIPY Python API
+          
+
+          
+            
+            <img src="_static/cosipy_logo_transparent.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Documentation.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="modules_api.html">modules package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">cpkernel package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cpkernel.cosipy_core">cpkernel.cosipy_core module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cpkernel.grid">cpkernel.grid module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cpkernel.init">cpkernel.init module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cpkernel.io">cpkernel.io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cpkernel.node">cpkernel.node module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cpkernel">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">COSIPY Python API</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">modules</a> &raquo;</li>
+        
+      <li>cpkernel package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cpkernel.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cpkernel-package">
+<h1>cpkernel package<a class="headerlink" href="#cpkernel-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-cpkernel.cosipy_core">
+<span id="cpkernel-cosipy-core-module"></span><h2>cpkernel.cosipy_core module<a class="headerlink" href="#module-cpkernel.cosipy_core" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="cpkernel.cosipy_core.cosipy_core">
+<code class="sig-prename descclassname">cpkernel.cosipy_core.</code><code class="sig-name descname">cosipy_core</code><span class="sig-paren">(</span><em class="sig-param">DATA</em>, <em class="sig-param">indY</em>, <em class="sig-param">indX</em>, <em class="sig-param">GRID_RESTART=None</em>, <em class="sig-param">stake_names=None</em>, <em class="sig-param">stake_data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.cosipy_core.cosipy_core" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-cpkernel.grid">
+<span id="cpkernel-grid-module"></span><h2>cpkernel.grid module<a class="headerlink" href="#module-cpkernel.grid" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="cpkernel.grid.Grid">
+<em class="property">class </em><code class="sig-prename descclassname">cpkernel.grid.</code><code class="sig-name descname">Grid</code><span class="sig-paren">(</span><em class="sig-param">layer_heights</em>, <em class="sig-param">layer_densities</em>, <em class="sig-param">layer_temperatures</em>, <em class="sig-param">layer_liquid_water_content</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="cpkernel.grid.Grid.adaptive_profile">
+<code class="sig-name descname">adaptive_profile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.adaptive_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remesh according to certain layer state criteria</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.add_fresh_snow">
+<code class="sig-name descname">add_fresh_snow</code><span class="sig-paren">(</span><em class="sig-param">height</em>, <em class="sig-param">density</em>, <em class="sig-param">temperature</em>, <em class="sig-param">liquid_water_content</em>, <em class="sig-param">timestamp</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.add_fresh_snow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new node at the beginning of the node list (upper layer)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.check">
+<code class="sig-name descname">check</code><span class="sig-paren">(</span><em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function checks whether temperature and layer heights are within the valid range</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.check_layer_property">
+<code class="sig-name descname">check_layer_property</code><span class="sig-paren">(</span><em class="sig-param">property</em>, <em class="sig-param">name</em>, <em class="sig-param">maximum</em>, <em class="sig-param">minimum</em>, <em class="sig-param">n=-999</em>, <em class="sig-param">level=1</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.check_layer_property" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.correct_layer">
+<code class="sig-name descname">correct_layer</code><span class="sig-paren">(</span><em class="sig-param">idx</em>, <em class="sig-param">min_height</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.correct_layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function adjusts layer idx to a given height (min_height). First, the layers below are merged until
+the height is sufficiently large to allow the adjustment. Then the layer is merged with the subsequent layer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_cold_content">
+<code class="sig-name descname">get_cold_content</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_cold_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the cold content profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_density">
+<code class="sig-name descname">get_density</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the rho profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_depth">
+<code class="sig-name descname">get_depth</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns depth profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_fresh_snow_props">
+<code class="sig-name descname">get_fresh_snow_props</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_fresh_snow_props" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_height">
+<code class="sig-name descname">get_height</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the heights of the layers</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_ice_fraction">
+<code class="sig-name descname">get_ice_fraction</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_ice_fraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the liquid water profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_ice_heights">
+<code class="sig-name descname">get_ice_heights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_ice_heights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the heights of the ice layers</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_irreducible_water_content">
+<code class="sig-name descname">get_irreducible_water_content</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_irreducible_water_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the irreducible water content profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_liquid_water_content">
+<code class="sig-name descname">get_liquid_water_content</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_liquid_water_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the rho profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_node_cold_content">
+<code class="sig-name descname">get_node_cold_content</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_node_cold_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns cold content of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_node_density">
+<code class="sig-name descname">get_node_density</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_node_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns density of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_node_depth">
+<code class="sig-name descname">get_node_depth</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_node_depth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_node_height">
+<code class="sig-name descname">get_node_height</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_node_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns layer height of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_node_ice_fraction">
+<code class="sig-name descname">get_node_ice_fraction</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_node_ice_fraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns ice fraction of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_node_irreducible_water_content">
+<code class="sig-name descname">get_node_irreducible_water_content</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_node_irreducible_water_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns irreducible water content of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_node_liquid_water_content">
+<code class="sig-name descname">get_node_liquid_water_content</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_node_liquid_water_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns density of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_node_porosity">
+<code class="sig-name descname">get_node_porosity</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_node_porosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns porosity of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_node_refreeze">
+<code class="sig-name descname">get_node_refreeze</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_node_refreeze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns refreezing of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_node_specific_heat">
+<code class="sig-name descname">get_node_specific_heat</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_node_specific_heat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns specific heat (air+water+ice) of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_node_temperature">
+<code class="sig-name descname">get_node_temperature</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_node_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns temperature of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_node_thermal_conductivity">
+<code class="sig-name descname">get_node_thermal_conductivity</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_node_thermal_conductivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the thermal conductivity of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_node_thermal_diffusivity">
+<code class="sig-name descname">get_node_thermal_diffusivity</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_node_thermal_diffusivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the thermal diffusivity of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_number_layers">
+<code class="sig-name descname">get_number_layers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_number_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of layers</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_number_snow_layers">
+<code class="sig-name descname">get_number_snow_layers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_number_snow_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of snow layers (density&lt;snow_ice_threshold)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_porosity">
+<code class="sig-name descname">get_porosity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_porosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the porosity profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_refreeze">
+<code class="sig-name descname">get_refreeze</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_refreeze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the refreezing profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_snow_heights">
+<code class="sig-name descname">get_snow_heights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_snow_heights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the heights of the snow layers</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_specific_heat">
+<code class="sig-name descname">get_specific_heat</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_specific_heat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the specific heat (air+water+ice) profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_temperature">
+<code class="sig-name descname">get_temperature</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the temperature profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_thermal_conductivity">
+<code class="sig-name descname">get_thermal_conductivity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_thermal_conductivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the thermal conductivity profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_thermal_diffusivity">
+<code class="sig-name descname">get_thermal_diffusivity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_thermal_diffusivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the thermal diffusivity profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_total_height">
+<code class="sig-name descname">get_total_height</code><span class="sig-paren">(</span><em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_total_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the total domain height</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.get_total_snowheight">
+<code class="sig-name descname">get_total_snowheight</code><span class="sig-paren">(</span><em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.get_total_snowheight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the total snowheight (density&lt;snow_ice_threshold)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.grid_check">
+<code class="sig-name descname">grid_check</code><span class="sig-paren">(</span><em class="sig-param">level=1</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.grid_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>The function checks the grid
+Args:</p>
+<blockquote>
+<div><p>n   : number of nodes to plot (from top)</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.grid_info">
+<code class="sig-name descname">grid_info</code><span class="sig-paren">(</span><em class="sig-param">n=-999</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.grid_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>The function prints the state of the snowpack
+Args:</p>
+<blockquote>
+<div><p>n   : number of nodes to plot (from top)</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.grid_info_screen">
+<code class="sig-name descname">grid_info_screen</code><span class="sig-paren">(</span><em class="sig-param">n=-999</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.grid_info_screen" title="Permalink to this definition">¶</a></dt>
+<dd><p>The function prints the state of the snowpack
+Args:</p>
+<blockquote>
+<div><p>n   : number of nodes to plot (from top)</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.info">
+<code class="sig-name descname">info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print some information on grid</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.init_grid">
+<code class="sig-name descname">init_grid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.init_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the grid with according to the input data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.log_profile">
+<code class="sig-name descname">log_profile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.log_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logarithmic remeshing</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.merge_nodes">
+<code class="sig-name descname">merge_nodes</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.merge_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function merges the nodes at location idx and idx+1. The node at idx is updated
+with the new properties (height, liquid water content, ice fraction, temperature), while the node
+at idx+1 is deleted after merging</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.merge_snow_with_glacier">
+<code class="sig-name descname">merge_snow_with_glacier</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.merge_snow_with_glacier" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.remove_melt_weq">
+<code class="sig-name descname">remove_melt_weq</code><span class="sig-paren">(</span><em class="sig-param">melt</em>, <em class="sig-param">idx=0</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.remove_melt_weq" title="Permalink to this definition">¶</a></dt>
+<dd><p>If melting occurs, the function reduces the height of the first layer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.remove_node">
+<code class="sig-name descname">remove_node</code><span class="sig-paren">(</span><em class="sig-param">pos=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.remove_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a node or a list of nodes at pos from the node list</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.set_fresh_snow_props">
+<code class="sig-name descname">set_fresh_snow_props</code><span class="sig-paren">(</span><em class="sig-param">height</em>, <em class="sig-param">timestamp</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.set_fresh_snow_props" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keeps track of the new snowheight</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.set_fresh_snow_props_height">
+<code class="sig-name descname">set_fresh_snow_props_height</code><span class="sig-paren">(</span><em class="sig-param">height</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.set_fresh_snow_props_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update fresh snow properties</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.set_fresh_snow_props_to_old_props">
+<code class="sig-name descname">set_fresh_snow_props_to_old_props</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.set_fresh_snow_props_to_old_props" title="Permalink to this definition">¶</a></dt>
+<dd><p>Old snowpack reappears at surface … change snow age to old snow age</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.set_height">
+<code class="sig-name descname">set_height</code><span class="sig-paren">(</span><em class="sig-param">height</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.set_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set height of profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.set_ice_fraction">
+<code class="sig-name descname">set_ice_fraction</code><span class="sig-paren">(</span><em class="sig-param">ice_fraction</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.set_ice_fraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the ice_fraction profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.set_liquid_water_content">
+<code class="sig-name descname">set_liquid_water_content</code><span class="sig-paren">(</span><em class="sig-param">liquid_water_content</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.set_liquid_water_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the liquid water content profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.set_node_height">
+<code class="sig-name descname">set_node_height</code><span class="sig-paren">(</span><em class="sig-param">idx</em>, <em class="sig-param">height</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.set_node_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set height of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.set_node_ice_fraction">
+<code class="sig-name descname">set_node_ice_fraction</code><span class="sig-paren">(</span><em class="sig-param">idx</em>, <em class="sig-param">ice_fraction</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.set_node_ice_fraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set liquid ice_fraction of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.set_node_liquid_water_content">
+<code class="sig-name descname">set_node_liquid_water_content</code><span class="sig-paren">(</span><em class="sig-param">idx</em>, <em class="sig-param">liquid_water_content</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.set_node_liquid_water_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set liquid water content of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.set_node_refreeze">
+<code class="sig-name descname">set_node_refreeze</code><span class="sig-paren">(</span><em class="sig-param">idx</em>, <em class="sig-param">refreeze</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.set_node_refreeze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set refreezing of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.set_node_temperature">
+<code class="sig-name descname">set_node_temperature</code><span class="sig-paren">(</span><em class="sig-param">idx</em>, <em class="sig-param">temperature</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.set_node_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns temperature of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.set_refreeze">
+<code class="sig-name descname">set_refreeze</code><span class="sig-paren">(</span><em class="sig-param">refreeze</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.set_refreeze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the refreezing profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.set_temperature">
+<code class="sig-name descname">set_temperature</code><span class="sig-paren">(</span><em class="sig-param">temperature</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.set_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set temperature of profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.split_node">
+<code class="sig-name descname">split_node</code><span class="sig-paren">(</span><em class="sig-param">pos</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.split_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split node at position pos</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.update_grid">
+<code class="sig-name descname">update_grid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.update_grid" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>The first step is to ensure that the first layer always has a
+defined height. The underlying layers are then adjusted, whereby
+two different options are available:</p>
+<blockquote>
+<div><ol class="lowerroman simple">
+<li><p>log_profile</p></li>
+<li><p>adaptive_profile</p></li>
+<li><p>None</p></li>
+</ol>
+</div></blockquote>
+<ol class="lowerroman simple">
+<li><p>The log-profile algorithm arranges the mesh logarithmically.
+The user gives a stretching factor (layer_stretching) that
+determines the increase in layer heights.</p></li>
+<li><p>The adjustment of the profile by means of the XX method is
+done on the basis of the similarity of layers. Layers with very
+similar states (temperature and density) are joined together. The
+similarity is determined by user-specified threshold values
+(temperature_threshold_merging, density_threshold_merging). In
+addition, the maximum number of merging steps per time step
+can be specified (merge_max).</p></li>
+</ol>
+</div></blockquote>
+<ol class="lowerroman simple" start="3">
+<li><p>This option only guarantees that layer are not smaller than the
+user specific minimum layer height</p></li>
+</ol>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.grid.Grid.update_node">
+<code class="sig-name descname">update_node</code><span class="sig-paren">(</span><em class="sig-param">no</em>, <em class="sig-param">height</em>, <em class="sig-param">temperature</em>, <em class="sig-param">ice_fraction</em>, <em class="sig-param">liquid_water_content</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.grid.Grid.update_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update properties of a specific node</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-cpkernel.init">
+<span id="cpkernel-init-module"></span><h2>cpkernel.init module<a class="headerlink" href="#module-cpkernel.init" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="cpkernel.init.init_snowpack">
+<code class="sig-prename descclassname">cpkernel.init.</code><code class="sig-name descname">init_snowpack</code><span class="sig-paren">(</span><em class="sig-param">DATA</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.init.init_snowpack" title="Permalink to this definition">¶</a></dt>
+<dd><p>INITIALIZATION</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cpkernel.init.load_snowpack">
+<code class="sig-prename descclassname">cpkernel.init.</code><code class="sig-name descname">load_snowpack</code><span class="sig-paren">(</span><em class="sig-param">GRID_RESTART</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.init.load_snowpack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize grid from restart file</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-cpkernel.io">
+<span id="cpkernel-io-module"></span><h2>cpkernel.io module<a class="headerlink" href="#module-cpkernel.io" title="Permalink to this headline">¶</a></h2>
+<p>This file reads the input data (model forcing) and write the output to netcdf file</p>
+<dl class="class">
+<dt id="cpkernel.io.IOClass">
+<em class="property">class </em><code class="sig-prename descclassname">cpkernel.io.</code><code class="sig-name descname">IOClass</code><span class="sig-paren">(</span><em class="sig-param">DATA=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="cpkernel.io.IOClass.B">
+<em class="property">property </em><code class="sig-name descname">B</code><a class="headerlink" href="#cpkernel.io.IOClass.B" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.H">
+<em class="property">property </em><code class="sig-name descname">H</code><a class="headerlink" href="#cpkernel.io.IOClass.H" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.LE">
+<em class="property">property </em><code class="sig-name descname">LE</code><a class="headerlink" href="#cpkernel.io.IOClass.LE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.LWin">
+<em class="property">property </em><code class="sig-name descname">LWin</code><a class="headerlink" href="#cpkernel.io.IOClass.LWin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.LWout">
+<em class="property">property </em><code class="sig-name descname">LWout</code><a class="headerlink" href="#cpkernel.io.IOClass.LWout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.MB">
+<em class="property">property </em><code class="sig-name descname">MB</code><a class="headerlink" href="#cpkernel.io.IOClass.MB" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.RAIN">
+<em class="property">property </em><code class="sig-name descname">RAIN</code><a class="headerlink" href="#cpkernel.io.IOClass.RAIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.SNOWFALL">
+<em class="property">property </em><code class="sig-name descname">SNOWFALL</code><a class="headerlink" href="#cpkernel.io.IOClass.SNOWFALL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.add_variable_along_latlon">
+<code class="sig-name descname">add_variable_along_latlon</code><span class="sig-paren">(</span><em class="sig-param">ds</em>, <em class="sig-param">var</em>, <em class="sig-param">name</em>, <em class="sig-param">units</em>, <em class="sig-param">long_name</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.add_variable_along_latlon" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function self.adds missing variables to the self.DATA class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.add_variable_along_latlonlayer">
+<code class="sig-name descname">add_variable_along_latlonlayer</code><span class="sig-paren">(</span><em class="sig-param">ds</em>, <em class="sig-param">var</em>, <em class="sig-param">name</em>, <em class="sig-param">units</em>, <em class="sig-param">long_name</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.add_variable_along_latlonlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function self.adds missing variables to the self.DATA class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.add_variable_along_latlonlayertime">
+<code class="sig-name descname">add_variable_along_latlonlayertime</code><span class="sig-paren">(</span><em class="sig-param">ds</em>, <em class="sig-param">var</em>, <em class="sig-param">name</em>, <em class="sig-param">units</em>, <em class="sig-param">long_name</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.add_variable_along_latlonlayertime" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function self.adds missing variables to the self.DATA class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.add_variable_along_latlontime">
+<code class="sig-name descname">add_variable_along_latlontime</code><span class="sig-paren">(</span><em class="sig-param">ds</em>, <em class="sig-param">var</em>, <em class="sig-param">name</em>, <em class="sig-param">units</em>, <em class="sig-param">long_name</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.add_variable_along_latlontime" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function self.adds missing variables to the self.DATA class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.add_variable_along_layer">
+<code class="sig-name descname">add_variable_along_layer</code><span class="sig-paren">(</span><em class="sig-param">ds</em>, <em class="sig-param">var</em>, <em class="sig-param">name</em>, <em class="sig-param">units</em>, <em class="sig-param">long_name</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.add_variable_along_layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function self.adds missing variables to the self.DATA class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.add_variable_along_layertime">
+<code class="sig-name descname">add_variable_along_layertime</code><span class="sig-paren">(</span><em class="sig-param">ds</em>, <em class="sig-param">var</em>, <em class="sig-param">name</em>, <em class="sig-param">units</em>, <em class="sig-param">long_name</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.add_variable_along_layertime" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function self.adds missing variables to the self.DATA class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.add_variable_along_scalar">
+<code class="sig-name descname">add_variable_along_scalar</code><span class="sig-paren">(</span><em class="sig-param">ds</em>, <em class="sig-param">var</em>, <em class="sig-param">name</em>, <em class="sig-param">units</em>, <em class="sig-param">long_name</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.add_variable_along_scalar" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function self.adds missing variables to the self.DATA class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.add_variable_along_time">
+<code class="sig-name descname">add_variable_along_time</code><span class="sig-paren">(</span><em class="sig-param">ds</em>, <em class="sig-param">var</em>, <em class="sig-param">name</em>, <em class="sig-param">units</em>, <em class="sig-param">long_name</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.add_variable_along_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function self.adds missing variables to the self.DATA class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.copy_local_restart_to_global">
+<code class="sig-name descname">copy_local_restart_to_global</code><span class="sig-paren">(</span><em class="sig-param">y</em>, <em class="sig-param">x</em>, <em class="sig-param">local_restart</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.copy_local_restart_to_global" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.copy_local_to_global">
+<code class="sig-name descname">copy_local_to_global</code><span class="sig-paren">(</span><em class="sig-param">y</em>, <em class="sig-param">x</em>, <em class="sig-param">local_RAIN</em>, <em class="sig-param">local_SNOWFALL</em>, <em class="sig-param">local_LWin</em>, <em class="sig-param">local_LWout</em>, <em class="sig-param">local_H</em>, <em class="sig-param">local_LE</em>, <em class="sig-param">local_B</em>, <em class="sig-param">local_MB</em>, <em class="sig-param">local_surfMB</em>, <em class="sig-param">local_Q</em>, <em class="sig-param">local_SNOWHEIGHT</em>, <em class="sig-param">local_TOTALHEIGHT</em>, <em class="sig-param">local_TS</em>, <em class="sig-param">local_ALBEDO</em>, <em class="sig-param">local_LAYERS</em>, <em class="sig-param">local_ME</em>, <em class="sig-param">local_intMB</em>, <em class="sig-param">local_EVAPORATION</em>, <em class="sig-param">local_SUBLIMATION</em>, <em class="sig-param">local_CONDENSATION</em>, <em class="sig-param">local_DEPOSITION</em>, <em class="sig-param">local_REFREEZE</em>, <em class="sig-param">local_subM</em>, <em class="sig-param">local_Z0</em>, <em class="sig-param">local_surfM</em>, <em class="sig-param">local_LAYER_HEIGHT</em>, <em class="sig-param">local_LAYER_RHO</em>, <em class="sig-param">local_LAYER_T</em>, <em class="sig-param">local_LAYER_LWC</em>, <em class="sig-param">local_LAYER_CC</em>, <em class="sig-param">local_LAYER_POROSITY</em>, <em class="sig-param">local_LAYER_ICE_FRACTION</em>, <em class="sig-param">local_LAYER_IRREDUCIBLE_WATER</em>, <em class="sig-param">local_LAYER_REFREEZE</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.copy_local_to_global" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.create_data_file">
+<code class="sig-name descname">create_data_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.create_data_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the DATA xarray dataset</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.create_global_restart_arrays">
+<code class="sig-name descname">create_global_restart_arrays</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.create_global_restart_arrays" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.create_global_result_arrays">
+<code class="sig-name descname">create_global_result_arrays</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.create_global_result_arrays" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.create_grid_restart">
+<code class="sig-name descname">create_grid_restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.create_grid_restart" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.create_local_restart_dataset">
+<code class="sig-name descname">create_local_restart_dataset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.create_local_restart_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function creates the result dataset for a grid point 
+Args:</p>
+<blockquote>
+<div><p>self.DATA    ::  self.DATA structure</p>
+</div></blockquote>
+<p>Returns:</p>
+<blockquote>
+<div><p>self.RESTART  ::  one-dimensional self.RESULT structure</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.create_restart_file">
+<code class="sig-name descname">create_restart_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.create_restart_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the data xarray</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.create_result_file">
+<code class="sig-name descname">create_result_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.create_result_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the data xarray</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.get_grid_restart">
+<code class="sig-name descname">get_grid_restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.get_grid_restart" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.get_restart">
+<code class="sig-name descname">get_restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.get_restart" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.get_result">
+<code class="sig-name descname">get_result</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.get_result" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.init_data_dataset">
+<code class="sig-name descname">init_data_dataset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.init_data_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>PRES        ::   Air Pressure [hPa]
+N           ::   Cloud cover  [fraction][%/100]
+RH2         ::   Relative humidity (2m over ground)[%]
+RRR         ::   Precipitation per time step [mm]
+SNOWFALL    ::   Snowfall per time step [m]
+G           ::   Solar radiation at each time step [W m-2]
+T2          ::   Air temperature (2m over ground) [K]
+U2          ::   Wind speed (magnitude) [m/s]
+HGT         ::   Elevation [m]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.init_restart_dataset">
+<code class="sig-name descname">init_restart_dataset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.init_restart_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function creates the restart file</p>
+<p>Returns:</p>
+<blockquote>
+<div><p>self.RESTART  ::  xarray structure</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.init_result_dataset">
+<code class="sig-name descname">init_result_dataset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.init_result_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function creates the result file 
+Args:</p>
+<blockquote>
+<div><p>self.DATA    ::  self.DATA structure</p>
+</div></blockquote>
+<p>Returns:</p>
+<blockquote>
+<div><p>self.RESULT  ::  one-dimensional self.RESULT structure</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.write_restart_to_file">
+<code class="sig-name descname">write_restart_to_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.write_restart_to_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.io.IOClass.write_results_to_file">
+<code class="sig-name descname">write_results_to_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.io.IOClass.write_results_to_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-cpkernel.node">
+<span id="cpkernel-node-module"></span><h2>cpkernel.node module<a class="headerlink" href="#module-cpkernel.node" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="cpkernel.node.Node">
+<em class="property">class </em><code class="sig-prename descclassname">cpkernel.node.</code><code class="sig-name descname">Node</code><span class="sig-paren">(</span><em class="sig-param">height</em>, <em class="sig-param">snow_density</em>, <em class="sig-param">temperature</em>, <em class="sig-param">liquid_water_content</em>, <em class="sig-param">ice_fraction=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This is the basic class which contains information of individual grid point.</p>
+<dl class="method">
+<dt id="cpkernel.node.Node.get_layer_air_porosity">
+<code class="sig-name descname">get_layer_air_porosity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.get_layer_air_porosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the ice fraction of the layer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.node.Node.get_layer_cold_content">
+<code class="sig-name descname">get_layer_cold_content</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.get_layer_cold_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the liquid water content of the layer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.node.Node.get_layer_density">
+<code class="sig-name descname">get_layer_density</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.get_layer_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the mean density including ice and liquid of the layer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.node.Node.get_layer_height">
+<code class="sig-name descname">get_layer_height</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.get_layer_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the layer height</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.node.Node.get_layer_ice_fraction">
+<code class="sig-name descname">get_layer_ice_fraction</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.get_layer_ice_fraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the ice fraction of the layer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.node.Node.get_layer_irreducible_water_content">
+<code class="sig-name descname">get_layer_irreducible_water_content</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.get_layer_irreducible_water_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the irreducible water content of the layer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.node.Node.get_layer_liquid_water_content">
+<code class="sig-name descname">get_layer_liquid_water_content</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.get_layer_liquid_water_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the liquid water [-] content of the layer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.node.Node.get_layer_porosity">
+<code class="sig-name descname">get_layer_porosity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.get_layer_porosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the porosity of the layer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.node.Node.get_layer_refreeze">
+<code class="sig-name descname">get_layer_refreeze</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.get_layer_refreeze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the volumetric ice content of the layer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.node.Node.get_layer_specific_heat">
+<code class="sig-name descname">get_layer_specific_heat</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.get_layer_specific_heat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the mean temperature of the layer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.node.Node.get_layer_temperature">
+<code class="sig-name descname">get_layer_temperature</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.get_layer_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the mean temperature of the layer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.node.Node.get_layer_thermal_conductivity">
+<code class="sig-name descname">get_layer_thermal_conductivity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.get_layer_thermal_conductivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the volumetric weighted thermal conductivity of the layer Sturm et al. (1997) and Paterson (1994)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.node.Node.get_layer_thermal_diffusivity">
+<code class="sig-name descname">get_layer_thermal_diffusivity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.get_layer_thermal_diffusivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the thermal diffusivity of the layer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.node.Node.set_layer_height">
+<code class="sig-name descname">set_layer_height</code><span class="sig-paren">(</span><em class="sig-param">height</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.set_layer_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the layer height</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.node.Node.set_layer_ice_fraction">
+<code class="sig-name descname">set_layer_ice_fraction</code><span class="sig-paren">(</span><em class="sig-param">ice_fraction</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.set_layer_ice_fraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the ice fraction of the layer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.node.Node.set_layer_liquid_water_content">
+<code class="sig-name descname">set_layer_liquid_water_content</code><span class="sig-paren">(</span><em class="sig-param">liquid_water_content</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.set_layer_liquid_water_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the liquid water content of the layer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.node.Node.set_layer_refreeze">
+<code class="sig-name descname">set_layer_refreeze</code><span class="sig-paren">(</span><em class="sig-param">refreeze</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.set_layer_refreeze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the amount of water refreezed of the layer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cpkernel.node.Node.set_layer_temperature">
+<code class="sig-name descname">set_layer_temperature</code><span class="sig-paren">(</span><em class="sig-param">temperature</em><span class="sig-paren">)</span><a class="headerlink" href="#cpkernel.node.Node.set_layer_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the mean temperature of the layer</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-cpkernel">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-cpkernel" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="modules_api.html" class="btn btn-neutral float-left" title="modules package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Tobias Sauter, Anselm Arndt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
