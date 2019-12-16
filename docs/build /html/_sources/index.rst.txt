@@ -8,8 +8,7 @@ Welcome to cosipy's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
-
+   
    includeme
    Documentation
    Application
