@@ -1,0 +1,6 @@
+xarray>=0.14.0
+sphinx>=2.2.2
+netcdf4>=1.5.1.2
+distributed>=1.22.0
+numpy>=1.17.3
+scipy>=1.1.0
