@@ -12,16 +12,16 @@
 #
 import os
 import sys
-#sys.path.insert(0, os.path.abspath('../'))
-#sys.path.insert(0, os.path.abspath('../modules'))
+import datetime
+
 sys.path.insert(0, os.path.abspath('../..'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'COSIPY Python API'
-copyright = '2019, Tobias Sauter, Anselm Arndt'
-author = 'Tobias Sauter, Anselm Arndt'
+project = 'COSIPY'
+copyright = '2019-{}, COSIPY Developer'.format(datetime.datetime.now().year)
+author = 'COSIPY Developers'
 version = 'v1.1'
 
 # -- General configuration ---------------------------------------------------
@@ -30,10 +30,35 @@ version = 'v1.1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-'sphinx.ext.todo','sphinx.ext.autodoc','sphinx_rtd_theme','sphinx.ext.githubpages'
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.todo',
+    'sphinx.ext.autodoc',
+    'sphinx_rtd_theme',
+    'sphinx.ext.githubpages'
 ]
 
-apidoc_toc_file='test'
+# Default processing flags for sphinx
+#autoclass_content = 'class'
+#autodoc_member_order = 'bysource'
+autodoc_default_flags = [
+  'members',
+  'undoc-members',
+  'show-inheritance',
+  ]
+
+
+autosummary_generate = True
+
+numpydoc_class_members_toctree = True
+numpydoc_show_class_members = False
+
+napoleon_use_param = True
+napoleon_use_rtype = True
+
+pygments_style = 'sphinx'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

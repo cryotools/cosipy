@@ -32,8 +32,8 @@ import yaml
 
 from config import *
 from slurm_config import *
-from cpkernel.cosipy_core import * 
-from cpkernel.io import *
+from cosipy.cpkernel.cosipy_core import * 
+from cosipy.cpkernel.io import *
 
 from distributed import Client, LocalCluster
 from dask import compute, delayed

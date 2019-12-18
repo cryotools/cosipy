@@ -6,7 +6,7 @@
 ' GENERAL INFORMATION ' 
 dt = 3600                                       # Time step in the input files [s]
 max_layers = 200                                # Max. number of layers, just for the restart file
-
+z = 2.0                                         # Measurement height [m]
 
 ' PARAMETERIZATIONS '
 albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98'
@@ -74,9 +74,9 @@ spec_heat_air = 1004.67                         # specific heat of air [J kg-1 K
 spec_heat_ice = 2050.00                         # specific heat of ice [J Kg-1 K-1]
 spec_heat_water = 4217.00                       # specific heat of water [J Kg-1 K-1]
 
-k_i = 2.25                                      # thermal conductivity ice [W m^1 K^-1]
-k_w = 0.6089                                    # thermal conductivity water [W m^1 K^-1]
-k_a = 0.026                                     # thermal conductivity air [W m^1 K^-1]
+k_i = 2.25                                      # thermal conductivity ice [W m^-1 K^-1]
+k_w = 0.6089                                    # thermal conductivity water [W m^-1 K^-1]
+k_a = 0.026                                     # thermal conductivity air [W m^-1 K^-1]
 
 water_density = 1000.0                          # density of water [kg m^(-3)]
 ice_density = 917.                              # density of ice [kg m^(-3)]

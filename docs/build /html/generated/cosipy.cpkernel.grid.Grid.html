@@ -1,0 +1,860 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>cosipy.cpkernel.grid.Grid &mdash; COSIPY Model</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="cosipy.cpkernel.grid.Node" href="cosipy.cpkernel.grid.Node.html" />
+    <link rel="prev" title="API" href="../api.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> COSIPY
+          
+
+          
+            
+            <img src="../_static/cosipy_logo_transparent.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Dokumentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Documentation.html">Getting started</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Ressources</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Ressources.html">Ressources</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#kernel-classes">Kernel classes</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">cosipy.cpkernel.grid.Grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosipy.cpkernel.grid.Node.html">cosipy.cpkernel.grid.Node</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#parametrizations">Parametrizations</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">COSIPY</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../api.html">API</a> &raquo;</li>
+        
+      <li>cosipy.cpkernel.grid.Grid</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/generated/cosipy.cpkernel.grid.Grid.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cosipy-cpkernel-grid-grid">
+<h1>cosipy.cpkernel.grid.Grid<a class="headerlink" href="#cosipy-cpkernel-grid-grid" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="cosipy.cpkernel.grid.Grid">
+<em class="property">class </em><code class="sig-prename descclassname">cosipy.cpkernel.grid.</code><code class="sig-name descname">Grid</code><span class="sig-paren">(</span><em class="sig-param">layer_heights</em>, <em class="sig-param">layer_densities</em>, <em class="sig-param">layer_temperatures</em>, <em class="sig-param">layer_liquid_water_content</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">layer_heights</em>, <em class="sig-param">layer_densities</em>, <em class="sig-param">layer_temperatures</em>, <em class="sig-param">layer_liquid_water_content</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize numerical grid</p>
+<p>Input:
+layer_heights           : numpy array with the layer height
+layer_densities         : numpy array with density values for each layer
+layer_temperatures      : numpy array with temperature values for each layer
+layer_liquid_water      : numpy array with liquid water content [-] for each layer</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.__init__" title="cosipy.cpkernel.grid.Grid.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(layer_heights, layer_densities, …)</p></td>
+<td><p>Initialize numerical grid</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.adaptive_profile" title="cosipy.cpkernel.grid.Grid.adaptive_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">adaptive_profile</span></code></a>()</p></td>
+<td><p>Remesh according to certain layer state criteria</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.add_fresh_snow" title="cosipy.cpkernel.grid.Grid.add_fresh_snow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_fresh_snow</span></code></a>(height, density, temperature, …)</p></td>
+<td><p>Add a new node at the beginning of the node list (upper layer)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.check" title="cosipy.cpkernel.grid.Grid.check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check</span></code></a>(name)</p></td>
+<td><p>Function checks whether temperature and layer heights are within the valid range</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.check_layer_property" title="cosipy.cpkernel.grid.Grid.check_layer_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_layer_property</span></code></a>(property, name, …[, …])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.correct_layer" title="cosipy.cpkernel.grid.Grid.correct_layer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correct_layer</span></code></a>(idx, min_height)</p></td>
+<td><p>This function adjusts layer idx to a given height (min_height).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_cold_content" title="cosipy.cpkernel.grid.Grid.get_cold_content"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cold_content</span></code></a>()</p></td>
+<td><p>Returns the cold content profile</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_density" title="cosipy.cpkernel.grid.Grid.get_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_density</span></code></a>()</p></td>
+<td><p>Returns the rho profile</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_depth" title="cosipy.cpkernel.grid.Grid.get_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_depth</span></code></a>()</p></td>
+<td><p>Returns depth profile</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_fresh_snow_props" title="cosipy.cpkernel.grid.Grid.get_fresh_snow_props"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_fresh_snow_props</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_height" title="cosipy.cpkernel.grid.Grid.get_height"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_height</span></code></a>()</p></td>
+<td><p>Returns the heights of the layers</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_ice_fraction" title="cosipy.cpkernel.grid.Grid.get_ice_fraction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ice_fraction</span></code></a>()</p></td>
+<td><p>Returns the liquid water profile</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_ice_heights" title="cosipy.cpkernel.grid.Grid.get_ice_heights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ice_heights</span></code></a>()</p></td>
+<td><p>Returns the heights of the ice layers</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_irreducible_water_content" title="cosipy.cpkernel.grid.Grid.get_irreducible_water_content"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_irreducible_water_content</span></code></a>()</p></td>
+<td><p>Returns the irreducible water content profile</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_liquid_water_content" title="cosipy.cpkernel.grid.Grid.get_liquid_water_content"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_liquid_water_content</span></code></a>()</p></td>
+<td><p>Returns the rho profile</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_node_cold_content" title="cosipy.cpkernel.grid.Grid.get_node_cold_content"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_cold_content</span></code></a>(idx)</p></td>
+<td><p>Returns cold content of node idx</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_node_density" title="cosipy.cpkernel.grid.Grid.get_node_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_density</span></code></a>(idx)</p></td>
+<td><p>Returns density of node idx</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_node_depth" title="cosipy.cpkernel.grid.Grid.get_node_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_depth</span></code></a>(idx)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_node_height" title="cosipy.cpkernel.grid.Grid.get_node_height"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_height</span></code></a>(idx)</p></td>
+<td><p>Returns layer height of node idx</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_node_ice_fraction" title="cosipy.cpkernel.grid.Grid.get_node_ice_fraction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_ice_fraction</span></code></a>(idx)</p></td>
+<td><p>Returns ice fraction of node idx</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_node_irreducible_water_content" title="cosipy.cpkernel.grid.Grid.get_node_irreducible_water_content"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_irreducible_water_content</span></code></a>(idx)</p></td>
+<td><p>Returns irreducible water content of node idx</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_node_liquid_water_content" title="cosipy.cpkernel.grid.Grid.get_node_liquid_water_content"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_liquid_water_content</span></code></a>(idx)</p></td>
+<td><p>Returns density of node idx</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_node_porosity" title="cosipy.cpkernel.grid.Grid.get_node_porosity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_porosity</span></code></a>(idx)</p></td>
+<td><p>Returns porosity of node idx</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_node_refreeze" title="cosipy.cpkernel.grid.Grid.get_node_refreeze"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_refreeze</span></code></a>(idx)</p></td>
+<td><p>Returns refreezing of node idx</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_node_specific_heat" title="cosipy.cpkernel.grid.Grid.get_node_specific_heat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_specific_heat</span></code></a>(idx)</p></td>
+<td><p>Returns specific heat (air+water+ice) of node idx</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_node_temperature" title="cosipy.cpkernel.grid.Grid.get_node_temperature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_temperature</span></code></a>(idx)</p></td>
+<td><p>Returns temperature of node idx</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_node_thermal_conductivity" title="cosipy.cpkernel.grid.Grid.get_node_thermal_conductivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_thermal_conductivity</span></code></a>(idx)</p></td>
+<td><p>Returns the thermal conductivity of node idx</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_node_thermal_diffusivity" title="cosipy.cpkernel.grid.Grid.get_node_thermal_diffusivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_thermal_diffusivity</span></code></a>(idx)</p></td>
+<td><p>Returns the thermal diffusivity of node idx</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_number_layers" title="cosipy.cpkernel.grid.Grid.get_number_layers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_number_layers</span></code></a>()</p></td>
+<td><p>Get the number of layers</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_number_snow_layers" title="cosipy.cpkernel.grid.Grid.get_number_snow_layers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_number_snow_layers</span></code></a>()</p></td>
+<td><p>Get the number of snow layers (density&lt;snow_ice_threshold)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_porosity" title="cosipy.cpkernel.grid.Grid.get_porosity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_porosity</span></code></a>()</p></td>
+<td><p>Returns the porosity profile</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_refreeze" title="cosipy.cpkernel.grid.Grid.get_refreeze"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_refreeze</span></code></a>()</p></td>
+<td><p>Returns the refreezing profile</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_snow_heights" title="cosipy.cpkernel.grid.Grid.get_snow_heights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_snow_heights</span></code></a>()</p></td>
+<td><p>Returns the heights of the snow layers</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_specific_heat" title="cosipy.cpkernel.grid.Grid.get_specific_heat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_specific_heat</span></code></a>()</p></td>
+<td><p>Returns the specific heat (air+water+ice) profile</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_temperature" title="cosipy.cpkernel.grid.Grid.get_temperature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_temperature</span></code></a>()</p></td>
+<td><p>Returns the temperature profile</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_thermal_conductivity" title="cosipy.cpkernel.grid.Grid.get_thermal_conductivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_thermal_conductivity</span></code></a>()</p></td>
+<td><p>Returns the thermal conductivity profile</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_thermal_diffusivity" title="cosipy.cpkernel.grid.Grid.get_thermal_diffusivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_thermal_diffusivity</span></code></a>()</p></td>
+<td><p>Returns the thermal diffusivity profile</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_total_height" title="cosipy.cpkernel.grid.Grid.get_total_height"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_total_height</span></code></a>([verbose])</p></td>
+<td><p>Get the total domain height</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.get_total_snowheight" title="cosipy.cpkernel.grid.Grid.get_total_snowheight"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_total_snowheight</span></code></a>([verbose])</p></td>
+<td><p>Get the total snowheight (density&lt;snow_ice_threshold)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.grid_check" title="cosipy.cpkernel.grid.Grid.grid_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid_check</span></code></a>([level])</p></td>
+<td><p>The function checks the grid :param n: number of nodes to plot (from top)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.grid_info" title="cosipy.cpkernel.grid.Grid.grid_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid_info</span></code></a>([n])</p></td>
+<td><p>The function prints the state of the snowpack :param n: number of nodes to plot (from top)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.grid_info_screen" title="cosipy.cpkernel.grid.Grid.grid_info_screen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid_info_screen</span></code></a>([n])</p></td>
+<td><p>The function prints the state of the snowpack :param n: number of nodes to plot (from top)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.info" title="cosipy.cpkernel.grid.Grid.info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">info</span></code></a>()</p></td>
+<td><p>Print some information on grid</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.init_grid" title="cosipy.cpkernel.grid.Grid.init_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_grid</span></code></a>()</p></td>
+<td><p>Initialize the grid with according to the input data</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.log_profile" title="cosipy.cpkernel.grid.Grid.log_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_profile</span></code></a>()</p></td>
+<td><p>Logarithmic remeshing</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.merge_nodes" title="cosipy.cpkernel.grid.Grid.merge_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_nodes</span></code></a>(idx)</p></td>
+<td><p>This function merges the nodes at location idx and idx+1.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.merge_snow_with_glacier" title="cosipy.cpkernel.grid.Grid.merge_snow_with_glacier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_snow_with_glacier</span></code></a>(idx)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.remove_melt_weq" title="cosipy.cpkernel.grid.Grid.remove_melt_weq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_melt_weq</span></code></a>(melt[, idx])</p></td>
+<td><p>If melting occurs, the function reduces the height of the first layer</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.remove_node" title="cosipy.cpkernel.grid.Grid.remove_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_node</span></code></a>([pos])</p></td>
+<td><p>Removes a node or a list of nodes at pos from the node list</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.set_fresh_snow_props" title="cosipy.cpkernel.grid.Grid.set_fresh_snow_props"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_fresh_snow_props</span></code></a>(height, timestamp)</p></td>
+<td><p>Keeps track of the new snowheight</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.set_fresh_snow_props_height" title="cosipy.cpkernel.grid.Grid.set_fresh_snow_props_height"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_fresh_snow_props_height</span></code></a>(height)</p></td>
+<td><p>Update fresh snow properties</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.set_fresh_snow_props_to_old_props" title="cosipy.cpkernel.grid.Grid.set_fresh_snow_props_to_old_props"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_fresh_snow_props_to_old_props</span></code></a>()</p></td>
+<td><p>Old snowpack reappears at surface …</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.set_height" title="cosipy.cpkernel.grid.Grid.set_height"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_height</span></code></a>(height)</p></td>
+<td><p>Set height of profile</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.set_ice_fraction" title="cosipy.cpkernel.grid.Grid.set_ice_fraction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_ice_fraction</span></code></a>(ice_fraction)</p></td>
+<td><p>Set the ice_fraction profile</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.set_liquid_water_content" title="cosipy.cpkernel.grid.Grid.set_liquid_water_content"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_liquid_water_content</span></code></a>(liquid_water_content)</p></td>
+<td><p>Set the liquid water content profile</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.set_node_height" title="cosipy.cpkernel.grid.Grid.set_node_height"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_node_height</span></code></a>(idx, height)</p></td>
+<td><p>Set height of node idx</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.set_node_ice_fraction" title="cosipy.cpkernel.grid.Grid.set_node_ice_fraction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_node_ice_fraction</span></code></a>(idx, ice_fraction)</p></td>
+<td><p>Set liquid ice_fraction of node idx</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.set_node_liquid_water_content" title="cosipy.cpkernel.grid.Grid.set_node_liquid_water_content"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_node_liquid_water_content</span></code></a>(idx, …)</p></td>
+<td><p>Set liquid water content of node idx</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.set_node_refreeze" title="cosipy.cpkernel.grid.Grid.set_node_refreeze"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_node_refreeze</span></code></a>(idx, refreeze)</p></td>
+<td><p>Set refreezing of node idx</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.set_node_temperature" title="cosipy.cpkernel.grid.Grid.set_node_temperature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_node_temperature</span></code></a>(idx, temperature)</p></td>
+<td><p>Returns temperature of node idx</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.set_refreeze" title="cosipy.cpkernel.grid.Grid.set_refreeze"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_refreeze</span></code></a>(refreeze)</p></td>
+<td><p>Set the refreezing profile</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.set_temperature" title="cosipy.cpkernel.grid.Grid.set_temperature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_temperature</span></code></a>(temperature)</p></td>
+<td><p>Set temperature of profile</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.split_node" title="cosipy.cpkernel.grid.Grid.split_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_node</span></code></a>(pos)</p></td>
+<td><p>Split node at position pos</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.update_grid" title="cosipy.cpkernel.grid.Grid.update_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_grid</span></code></a>()</p></td>
+<td><p>The first step is to ensure that the first layer always has a</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.cpkernel.grid.Grid.update_node" title="cosipy.cpkernel.grid.Grid.update_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_node</span></code></a>(no, height, temperature, …)</p></td>
+<td><p>Update properties of a specific node</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.adaptive_profile">
+<code class="sig-name descname">adaptive_profile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.adaptive_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remesh according to certain layer state criteria</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.add_fresh_snow">
+<code class="sig-name descname">add_fresh_snow</code><span class="sig-paren">(</span><em class="sig-param">height</em>, <em class="sig-param">density</em>, <em class="sig-param">temperature</em>, <em class="sig-param">liquid_water_content</em>, <em class="sig-param">timestamp</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.add_fresh_snow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new node at the beginning of the node list (upper layer)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.check">
+<code class="sig-name descname">check</code><span class="sig-paren">(</span><em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function checks whether temperature and layer heights are within the valid range</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.check_layer_property">
+<code class="sig-name descname">check_layer_property</code><span class="sig-paren">(</span><em class="sig-param">property</em>, <em class="sig-param">name</em>, <em class="sig-param">maximum</em>, <em class="sig-param">minimum</em>, <em class="sig-param">n=-999</em>, <em class="sig-param">level=1</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.check_layer_property" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.correct_layer">
+<code class="sig-name descname">correct_layer</code><span class="sig-paren">(</span><em class="sig-param">idx</em>, <em class="sig-param">min_height</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.correct_layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function adjusts layer idx to a given height (min_height). First, the layers below are merged until
+the height is sufficiently large to allow the adjustment. Then the layer is merged with the subsequent layer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_cold_content">
+<code class="sig-name descname">get_cold_content</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_cold_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the cold content profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_density">
+<code class="sig-name descname">get_density</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the rho profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_depth">
+<code class="sig-name descname">get_depth</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns depth profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_fresh_snow_props">
+<code class="sig-name descname">get_fresh_snow_props</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_fresh_snow_props" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_height">
+<code class="sig-name descname">get_height</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the heights of the layers</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_ice_fraction">
+<code class="sig-name descname">get_ice_fraction</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_ice_fraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the liquid water profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_ice_heights">
+<code class="sig-name descname">get_ice_heights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_ice_heights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the heights of the ice layers</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_irreducible_water_content">
+<code class="sig-name descname">get_irreducible_water_content</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_irreducible_water_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the irreducible water content profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_liquid_water_content">
+<code class="sig-name descname">get_liquid_water_content</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_liquid_water_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the rho profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_node_cold_content">
+<code class="sig-name descname">get_node_cold_content</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_node_cold_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns cold content of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_node_density">
+<code class="sig-name descname">get_node_density</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_node_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns density of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_node_depth">
+<code class="sig-name descname">get_node_depth</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_node_depth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_node_height">
+<code class="sig-name descname">get_node_height</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_node_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns layer height of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_node_ice_fraction">
+<code class="sig-name descname">get_node_ice_fraction</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_node_ice_fraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns ice fraction of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_node_irreducible_water_content">
+<code class="sig-name descname">get_node_irreducible_water_content</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_node_irreducible_water_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns irreducible water content of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_node_liquid_water_content">
+<code class="sig-name descname">get_node_liquid_water_content</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_node_liquid_water_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns density of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_node_porosity">
+<code class="sig-name descname">get_node_porosity</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_node_porosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns porosity of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_node_refreeze">
+<code class="sig-name descname">get_node_refreeze</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_node_refreeze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns refreezing of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_node_specific_heat">
+<code class="sig-name descname">get_node_specific_heat</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_node_specific_heat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns specific heat (air+water+ice) of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_node_temperature">
+<code class="sig-name descname">get_node_temperature</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_node_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns temperature of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_node_thermal_conductivity">
+<code class="sig-name descname">get_node_thermal_conductivity</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_node_thermal_conductivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the thermal conductivity of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_node_thermal_diffusivity">
+<code class="sig-name descname">get_node_thermal_diffusivity</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_node_thermal_diffusivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the thermal diffusivity of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_number_layers">
+<code class="sig-name descname">get_number_layers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_number_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of layers</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_number_snow_layers">
+<code class="sig-name descname">get_number_snow_layers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_number_snow_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of snow layers (density&lt;snow_ice_threshold)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_porosity">
+<code class="sig-name descname">get_porosity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_porosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the porosity profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_refreeze">
+<code class="sig-name descname">get_refreeze</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_refreeze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the refreezing profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_snow_heights">
+<code class="sig-name descname">get_snow_heights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_snow_heights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the heights of the snow layers</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_specific_heat">
+<code class="sig-name descname">get_specific_heat</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_specific_heat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the specific heat (air+water+ice) profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_temperature">
+<code class="sig-name descname">get_temperature</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the temperature profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_thermal_conductivity">
+<code class="sig-name descname">get_thermal_conductivity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_thermal_conductivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the thermal conductivity profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_thermal_diffusivity">
+<code class="sig-name descname">get_thermal_diffusivity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_thermal_diffusivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the thermal diffusivity profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_total_height">
+<code class="sig-name descname">get_total_height</code><span class="sig-paren">(</span><em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_total_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the total domain height</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.get_total_snowheight">
+<code class="sig-name descname">get_total_snowheight</code><span class="sig-paren">(</span><em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.get_total_snowheight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the total snowheight (density&lt;snow_ice_threshold)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.grid_check">
+<code class="sig-name descname">grid_check</code><span class="sig-paren">(</span><em class="sig-param">level=1</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.grid_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>The function checks the grid
+:param n: number of nodes to plot (from top)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.grid_info">
+<code class="sig-name descname">grid_info</code><span class="sig-paren">(</span><em class="sig-param">n=-999</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.grid_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>The function prints the state of the snowpack
+:param n: number of nodes to plot (from top)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.grid_info_screen">
+<code class="sig-name descname">grid_info_screen</code><span class="sig-paren">(</span><em class="sig-param">n=-999</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.grid_info_screen" title="Permalink to this definition">¶</a></dt>
+<dd><p>The function prints the state of the snowpack
+:param n: number of nodes to plot (from top)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.info">
+<code class="sig-name descname">info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print some information on grid</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.init_grid">
+<code class="sig-name descname">init_grid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.init_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the grid with according to the input data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.log_profile">
+<code class="sig-name descname">log_profile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.log_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logarithmic remeshing</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.merge_nodes">
+<code class="sig-name descname">merge_nodes</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.merge_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function merges the nodes at location idx and idx+1. The node at idx is updated
+with the new properties (height, liquid water content, ice fraction, temperature), while the node
+at idx+1 is deleted after merging</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.merge_snow_with_glacier">
+<code class="sig-name descname">merge_snow_with_glacier</code><span class="sig-paren">(</span><em class="sig-param">idx</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.merge_snow_with_glacier" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.remove_melt_weq">
+<code class="sig-name descname">remove_melt_weq</code><span class="sig-paren">(</span><em class="sig-param">melt</em>, <em class="sig-param">idx=0</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.remove_melt_weq" title="Permalink to this definition">¶</a></dt>
+<dd><p>If melting occurs, the function reduces the height of the first layer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.remove_node">
+<code class="sig-name descname">remove_node</code><span class="sig-paren">(</span><em class="sig-param">pos=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.remove_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a node or a list of nodes at pos from the node list</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.set_fresh_snow_props">
+<code class="sig-name descname">set_fresh_snow_props</code><span class="sig-paren">(</span><em class="sig-param">height</em>, <em class="sig-param">timestamp</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.set_fresh_snow_props" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keeps track of the new snowheight</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.set_fresh_snow_props_height">
+<code class="sig-name descname">set_fresh_snow_props_height</code><span class="sig-paren">(</span><em class="sig-param">height</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.set_fresh_snow_props_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update fresh snow properties</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.set_fresh_snow_props_to_old_props">
+<code class="sig-name descname">set_fresh_snow_props_to_old_props</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.set_fresh_snow_props_to_old_props" title="Permalink to this definition">¶</a></dt>
+<dd><p>Old snowpack reappears at surface … change snow age to old snow age</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.set_height">
+<code class="sig-name descname">set_height</code><span class="sig-paren">(</span><em class="sig-param">height</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.set_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set height of profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.set_ice_fraction">
+<code class="sig-name descname">set_ice_fraction</code><span class="sig-paren">(</span><em class="sig-param">ice_fraction</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.set_ice_fraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the ice_fraction profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.set_liquid_water_content">
+<code class="sig-name descname">set_liquid_water_content</code><span class="sig-paren">(</span><em class="sig-param">liquid_water_content</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.set_liquid_water_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the liquid water content profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.set_node_height">
+<code class="sig-name descname">set_node_height</code><span class="sig-paren">(</span><em class="sig-param">idx</em>, <em class="sig-param">height</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.set_node_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set height of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.set_node_ice_fraction">
+<code class="sig-name descname">set_node_ice_fraction</code><span class="sig-paren">(</span><em class="sig-param">idx</em>, <em class="sig-param">ice_fraction</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.set_node_ice_fraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set liquid ice_fraction of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.set_node_liquid_water_content">
+<code class="sig-name descname">set_node_liquid_water_content</code><span class="sig-paren">(</span><em class="sig-param">idx</em>, <em class="sig-param">liquid_water_content</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.set_node_liquid_water_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set liquid water content of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.set_node_refreeze">
+<code class="sig-name descname">set_node_refreeze</code><span class="sig-paren">(</span><em class="sig-param">idx</em>, <em class="sig-param">refreeze</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.set_node_refreeze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set refreezing of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.set_node_temperature">
+<code class="sig-name descname">set_node_temperature</code><span class="sig-paren">(</span><em class="sig-param">idx</em>, <em class="sig-param">temperature</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.set_node_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns temperature of node idx</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.set_refreeze">
+<code class="sig-name descname">set_refreeze</code><span class="sig-paren">(</span><em class="sig-param">refreeze</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.set_refreeze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the refreezing profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.set_temperature">
+<code class="sig-name descname">set_temperature</code><span class="sig-paren">(</span><em class="sig-param">temperature</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.set_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set temperature of profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.split_node">
+<code class="sig-name descname">split_node</code><span class="sig-paren">(</span><em class="sig-param">pos</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.split_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split node at position pos</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.update_grid">
+<code class="sig-name descname">update_grid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.update_grid" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>The first step is to ensure that the first layer always has a
+defined height. The underlying layers are then adjusted, whereby
+two different options are available:</p>
+<blockquote>
+<div><ol class="lowerroman simple">
+<li><p>log_profile</p></li>
+<li><p>adaptive_profile</p></li>
+<li><p>None</p></li>
+</ol>
+</div></blockquote>
+<ol class="lowerroman simple">
+<li><p>The log-profile algorithm arranges the mesh logarithmically.
+The user gives a stretching factor (layer_stretching) that
+determines the increase in layer heights.</p></li>
+<li><p>The adjustment of the profile by means of the XX method is
+done on the basis of the similarity of layers. Layers with very
+similar states (temperature and density) are joined together. The
+similarity is determined by user-specified threshold values
+(temperature_threshold_merging, density_threshold_merging). In
+addition, the maximum number of merging steps per time step
+can be specified (merge_max).</p></li>
+</ol>
+</div></blockquote>
+<ol class="lowerroman simple" start="3">
+<li><p>This option only guarantees that layer are not smaller than the
+user specific minimum layer height</p></li>
+</ol>
+</dd></dl>
+
+<dl class="method">
+<dt id="cosipy.cpkernel.grid.Grid.update_node">
+<code class="sig-name descname">update_node</code><span class="sig-paren">(</span><em class="sig-param">no</em>, <em class="sig-param">height</em>, <em class="sig-param">temperature</em>, <em class="sig-param">ice_fraction</em>, <em class="sig-param">liquid_water_content</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.cpkernel.grid.Grid.update_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update properties of a specific node</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cosipy.cpkernel.grid.Node.html" class="btn btn-neutral float-right" title="cosipy.cpkernel.grid.Node" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../api.html" class="btn btn-neutral float-left" title="API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019-2019, COSIPY Developer
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

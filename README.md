@@ -1,10 +1,8 @@
 ![!COSIPY](https://cryo-tools.org/wp-content/uploads/2019/11/COSIPY-logo-2500px.png)
 
-[![Documentation Status](https://readthedocs.org/projects/cosipy/badge/?version=latest)](https://cosipy.readthedocs.io/en/latest/?badge=latest)
-
 # Documentation
 The documentation for COSIPY is available at the following link:
-https://cosipy.readthedocs.io/en/latest/
+https://cryotools.github.io/cosipy/
 
 
 # Coupled snowpack and ice surface energy and mass balance model in Python
