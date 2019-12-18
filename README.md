@@ -2,6 +2,5 @@
 
 # Documentation
 The documentation for COSIPY is available at the following link:
-https://cryotools.github.io/cosipy/
-
+https://cosipy.readthedocs.io/en/latest/
 
