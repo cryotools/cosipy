@@ -19,7 +19,6 @@ Welcome to cosipy's documentation!
    Ressources 
    api
 
-#./api/modules
 
 Indices and tables
 ==================
