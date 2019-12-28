@@ -38,7 +38,7 @@ slope_path = static_folder + 'slope.nc'
 
 ### If you do not want to shrink the DEM, comment out the following to three lines
 if tile:
-    os.system('gdal_translate -r cubicspline -projwin ' + longitude_upper_left + ' ' + latitude_upper_left + ' ' +
+    os.system('gdal_translate -projwin ' + longitude_upper_left + ' ' + latitude_upper_left + ' ' +
           longitude_lower_right + ' ' + latitude_lower_right + ' ' + dem_path_tif + ' ' + dem_path_tif_temp)
     dem_path_tif = dem_path_tif_temp
 

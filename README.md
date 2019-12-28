@@ -3,4 +3,3 @@
 # Documentation
 The documentation for COSIPY is available at the following link:
 https://cosipy.readthedocs.io/en/latest/
-

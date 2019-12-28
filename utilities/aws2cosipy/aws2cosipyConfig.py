@@ -12,7 +12,7 @@ PRES_var = 'PRES'
 
 # Temperature
 T2_var = 'T2'
-in_K = False 
+in_K = True
 
 # Cloud cover fraction
 N_var = 'tcc'
