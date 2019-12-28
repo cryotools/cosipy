@@ -14,7 +14,7 @@ About
         :alt: Linux build status
 
     .. image:: https://readthedocs.org/projects/cosipy/badge/?version=latest
-        :target: http://docs.oggm.org/en/latest/
+        :target: https://cosipy.readthedocs.io/en/latest/
         :alt: Documentation status
 
 :License:
