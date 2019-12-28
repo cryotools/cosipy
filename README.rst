@@ -10,6 +10,9 @@ About
 -----
 
 :Tests:       
+    .. image:: https://coveralls.io/repos/github/cosipy/cosipy/badge.svg?branch=master
+        :target: https://coveralls.io/github/cosipy/cosipy?branch=master
+        :alt: Code coverage
 
     .. image:: https://travis-ci.org/cosipy/cosipy.svg?branch=master
         :target: https://travis-ci.org/cosipy/cosipy
