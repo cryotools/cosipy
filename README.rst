@@ -10,11 +10,11 @@ About
 -----
 
 :Tests:       
-    .. image:: https://coveralls.io/repos/github/cosipy/cosipy/badge.svg?branch=master
-        :target: https://coveralls.io/github/cosipy/cosipy?branch=master
+    .. image:: https://coveralls.io/repos/github/cosipy/cosipy/badge.svg?branch=DevAns
+        :target: https://coveralls.io/github/cosipy/cosipy?branch=DevAns
         :alt: Code coverage
 
-    .. image:: https://travis-ci.org/cosipy/cosipy.svg?branch=master
+    .. image:: https://travis-ci.org/cosipy/cosipy.svg?branch=DevAns
         :target: https://travis-ci.org/cosipy/cosipy
         :alt: Linux build status
 
