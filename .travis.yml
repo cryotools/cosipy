@@ -20,6 +20,7 @@ install:
 script:
   - pytest
 
-# Push the results back to codecov
+# Push the results back to coveralls
 after_success:
-  - codecov
+  - coveralls
+
