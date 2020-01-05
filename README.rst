@@ -10,12 +10,12 @@ About
 -----
 
 :Tests:       
-    .. image:: https://coveralls.io/repos/github/cosipy/cosipy/badge.svg?branch=DevAns
-        :target: https://coveralls.io/github/cosipy/cosipy?branch=DevAns
+    .. image:: https://coveralls.io/repos/github/cryotools/cosipy/badge.svg?branch=DevAns
+        :target: https://coveralls.io/github/cryotools/cosipy?branch=DevAns
         :alt: Code coverage
 
-    .. image:: https://travis-ci.org/cosipy/cosipy.svg?branch=DevAns
-        :target: https://travis-ci.org/cosipy/cosipy
+    .. image:: https://travis-ci.org/cryotools/cosipy.svg?branch=DevAns
+        :target: https://travis-ci.org/cryotools/cosipy
         :alt: Linux build status
 
     .. image:: https://readthedocs.org/projects/cosipy/badge/?version=latest
