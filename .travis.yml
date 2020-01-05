@@ -1,14 +1,21 @@
 language: python
+
+# Specify Python versions
 python:
   - "3.4"
   - "3.5"
   - "3.6"
   - "3.7"
   - "3.8"
+
 # command to install dependencies
 install:
   - pip install -r requirements.txt
 
 # command to run tests
-#script:
-#  - pytest
+script:
+  - pytest
+
+# Push the results back to codecov
+after_success:
+  - codecov
