@@ -10,9 +10,13 @@ About
 -----
 
 :Tests:       
+    .. image:: https://coveralls.io/repos/github/cryotools/cosipy/badge.svg?branch=master
+        :target: https://coveralls.io/github/cryotools/cosipy?branch=master
+
     .. image:: https://coveralls.io/repos/github/cryotools/cosipy/badge.svg?branch=DevAns
         :target: https://coveralls.io/github/cryotools/cosipy?branch=DevAns
         :alt: Code coverage
+
 
     .. image:: https://travis-ci.org/cryotools/cosipy.svg?branch=DevAns
         :target: https://travis-ci.org/cryotools/cosipy
