@@ -19,8 +19,8 @@ install:
 # command to run tests
 script:
   - pytest
+  - python COSIPY.oy
 
 # Push the results back to coveralls
 after_success:
   - coveralls
-
