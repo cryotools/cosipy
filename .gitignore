@@ -13,3 +13,5 @@ error*
 *swp
 slurm.err
 slurm.out
+.coveralls.yml
+.coverage
