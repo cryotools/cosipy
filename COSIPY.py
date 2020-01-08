@@ -77,7 +77,7 @@ def main():
     #-----------------------------------------------
     if (slurm_use):
 
-        with SLURMCluster(scheduler_port=port, cores=cores, processes=processes, memory=memory, shebang=shebang, name=name, job_extra=slurm_parameters, local_directory='dask-worker-space') as cluster:
+        with SLURMCluster(scheduler_port=port, cores=cores, processes=processes, memory=memory, shebang=shebang, name=name, job_extra=slurm_parameters, local_directory='logs/dask-worker-space') as cluster:
             cluster.scale(processes * nodes)   
             print(cluster.job_script())
             print("You are using SLURM!\n")

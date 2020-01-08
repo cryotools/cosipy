@@ -241,4 +241,4 @@ class Node:
             refr : float
                 Amount of refreezed water [:math:`m~w.e.`]
         """
-        self.refreeze = refr 
+        self.refreeze = refr
