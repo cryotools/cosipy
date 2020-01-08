@@ -1,0 +1,7 @@
+numpy
+scipy
+xarray
+distributed<=2.5.2
+dask_jobqueue
+netcdf4
+coveralls

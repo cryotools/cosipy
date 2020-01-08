@@ -1,0 +1,27 @@
+language: python
+
+# Specify Python versions
+python:
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "3.7"
+  - "3.8"
+
+env:
+  global:
+    - COVERALLS_PARALLEL=true
+
+# command to install dependencies
+install:
+  - pip install -r requirements.txt
+  - pip install pytest
+  - pip freeze
+
+# command to run tests
+script:
+  - coverage run -m --source=. pytest
+
+# Push the results back to coveralls
+after_success:
+  - coveralls
