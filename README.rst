@@ -24,7 +24,7 @@ About
         :target: https://travis-ci.org/cryotools/cosipy
 
     .. image:: https://codecov.io/gh/cryotools/cosipy/branch/master/graph/badge.svg
-        :target: https://codecov.io/gh/cryotools/cosipylimageodb
+        :target: https://codecov.io/gh/cryotools/cosipy
 
 :Citation:
     .. image:: https://zenodo.org/badge/doi/10.5281/zenodo.2579669.svg
