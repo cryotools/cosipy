@@ -13,15 +13,18 @@ https://cosipy.slack.com
 About
 -----
 
-:Tests:       
-    .. image:: https://coveralls.io/repos/github/cryotools/cosipy/badge.svg?branch=master
-        :target: https://coveralls.io/github/cryotools/cosipy?branch=master
+:Tests:
+    .. image:: https://readthedocs.org/projects/cosipy/badge/?version=latest
+        :target: https://cosipy.readthedocs.io/en/latest/
+
+    .. image:: http://www.repostatus.org/badges/latest/active.svg
+        :target:: http://www.repostatus.org/#active
 
     .. image:: https://travis-ci.org/cryotools/cosipy.svg?branch=master
         :target: https://travis-ci.org/cryotools/cosipy
 
-    .. image:: https://readthedocs.org/projects/cosipy/badge/?version=latest
-        :target: https://cosipy.readthedocs.io/en/latest/
+    .. image:: https://codecov.io/gh/cryotools/cosipy/branch/master/graph/badge.svg
+        :target: https://codecov.io/gh/cryotools/cosipylimageodb
 
 :Citation:
     .. image:: https://zenodo.org/badge/doi/10.5281/zenodo.2579669.svg
