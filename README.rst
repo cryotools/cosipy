@@ -18,7 +18,7 @@ About
         :target: https://cosipy.readthedocs.io/en/latest/
 
     .. image:: http://www.repostatus.org/badges/latest/active.svg
-        :target:: http://www.repostatus.org/#active
+        :target: http://www.repostatus.org/#active
 
     .. image:: https://travis-ci.org/cryotools/cosipy.svg?branch=master
         :target: https://travis-ci.org/cryotools/cosipy
