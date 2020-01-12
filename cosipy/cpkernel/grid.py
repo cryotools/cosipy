@@ -566,7 +566,7 @@ class Grid:
         """ Returns the heights of the ice layers """
         hlayer = []
         for idx in range(self.get_number_layers()):
-            if (self.get_layer_density(idx)>=snow_ice_threshold):
+            if (self.get_node_density(idx)>=snow_ice_threshold):
                 hlayer.append(self.grid[idx].get_layer_height())
         return hlayer
 
