@@ -1,3 +1,4 @@
+from pytest import approx
 from cosipy.modules.albedo import updateAlbedo
 from cosipy.cpkernel.grid import *
 from COSIPY import start_logging
@@ -11,6 +12,7 @@ GRID = Grid(layer_heights, layer_densities, layer_temperatures, layer_liquid_wat
 GRID_ice = Grid(layer_heights[3:4], layer_densities[3:4], layer_temperatures[3:4],layer_liquid_water[3:4])
 
 def test_albedo_parameterisation():
+
     albedo = updateAlbedo(GRID,3600)
     assert albedo >= albedo_firn and albedo <= albedo_fresh_snow
 

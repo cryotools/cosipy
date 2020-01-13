@@ -1,8 +1,9 @@
 [run]
-source =
-    cosipy
-    utilities/*
-    postprocessing/
+branch = True
 omit =
-    */tests/*
     */__init__.py
+    cosipy/tests/*
+    data/*
+    docs/*
+    logs/*
+    utilities/hpc/*

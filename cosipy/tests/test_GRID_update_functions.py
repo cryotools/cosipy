@@ -1,6 +1,5 @@
-import os; import yaml; import logging
-from cosipy.cpkernel.grid import *
 from pytest import approx
+from cosipy.cpkernel.grid import *
 from COSIPY import start_logging
 
 layer_heights = [0.1, 0.2, 0.3, 0.5, 0.5]
