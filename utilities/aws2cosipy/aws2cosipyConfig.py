@@ -14,9 +14,6 @@ PRES_var = 'PRES'
 T2_var = 'T2'
 in_K = True
 
-# Cloud cover fraction
-N_var = 'tcc'
-
 # Relative humidity
 RH2_var = 'RH2'
 
