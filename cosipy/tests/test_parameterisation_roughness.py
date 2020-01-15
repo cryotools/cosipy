@@ -18,4 +18,3 @@ def test_roughness_parameterisation():
 
     roughness = updateRoughness(GRID_ice,3600)
     assert roughness == roughness_ice/1000
-

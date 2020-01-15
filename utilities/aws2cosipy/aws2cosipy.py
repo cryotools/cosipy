@@ -14,7 +14,7 @@ from itertools import product
 sys.path.append('../../')
 
 from utilities.aws2cosipy.aws2cosipyConfig import *
-from modules.radCor import correctRadiation
+from cosipy.modules.radCor import correctRadiation
 
 import argparse
 

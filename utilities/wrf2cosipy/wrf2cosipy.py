@@ -11,7 +11,6 @@ from itertools import product
 sys.path.append('../../')
 
 from utilities.wrf2cosipy.wrf2cosipyConfig import *
-from modules.radCor import correctRadiation
 
 import argparse
 
