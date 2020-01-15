@@ -588,7 +588,6 @@ class Grid:
             temperature : float
                 New layer temperature [:math:`K`].
         """
-        self.grid[idx].set_layer_temperature(temperature)
         for idx in range(self.number_nodes):
             self.grid[idx].set_layer_temperature(temperature[idx])
 
