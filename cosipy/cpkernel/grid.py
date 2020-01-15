@@ -281,37 +281,29 @@ class Grid:
         # Check for merging due to density and temperature
         #-------------------------------------------------------------------------
 
-        # Correct first layer
-        self.correct_layer(0 ,first_layer_height)
-
         # First, the snowpack is remeshed
-        idx = 1
+        idx = 0
         while ((idx < self.get_number_snow_layers()-1)):
 
             dT = np.abs(self.get_node_temperature(idx)-self.get_node_temperature(idx+1))
             dRho = np.abs(self.get_node_density(idx)-self.get_node_density(idx+1))
 
-            #if (self.get_node_height(idx),first_layer_height):
-            #    self.correct_layer(0 ,first_layer_height)
-            if ((dT<temperature_threshold_merging) & (dRho<density_threshold_merging)) | (self.get_node_height(idx)<minimum_snow_layer_height):
+            if ((dT<=temperature_threshold_merging) & (dRho<=density_threshold_merging) & (self.get_node_height(idx)<=0.1)) | \
+                ((self.get_node_height(idx)<=minimum_snow_layer_height) & (dRho<=density_threshold_merging)):
+                #print('+++++++++++++++++++++++++++++++++++')
+                #print('dT: %.4f \t dRho: %.4f \t dH: %.4f' % (dT,dRho,self.get_node_height(idx)))
+                #print('dT: %r \t dRho: %r \t dH: %r' % (dT<temperature_threshold_merging,dRho<density_threshold_merging,self.get_node_height(idx)<0.1))
+                #print(self.get_node_height(idx),self.get_node_height(idx+1))
+                #print(self.get_node_density(idx),self.get_node_density(idx+1))
                 self.merge_nodes(idx)
+                #print(self.get_node_height(idx))
+                #print(self.get_node_density(idx))
+                #print('-----------------------------------\n\n')
             else:
                 idx += 1
-        
-        while ((idx < self.get_number_layers()-1)):
 
-            dT = np.abs(self.get_node_temperature(idx)-self.get_node_temperature(idx+1))
-            dRho = np.abs(self.get_node_density(idx)-self.get_node_density(idx+1))
-
-            #if (self.get_node_height(idx),first_layer_height):
-            #    self.correct_layer(0 ,first_layer_height)
-            if ((dT<temperature_threshold_merging) & (dRho<density_threshold_merging)) | (self.get_node_height(idx)<minimum_snow_layer_height):
-                self.merge_nodes(idx)
-            else:
-                idx += 1
-        
-        print('++++++++++++++++++++')
-        print(self.grid_info_screen(8))
+        # Correct first layer
+        self.correct_layer(0 ,first_layer_height)
 
 
 
