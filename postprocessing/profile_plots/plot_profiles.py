@@ -1,6 +1,8 @@
 import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+from matplotlib.colors import BoundaryNorm
 import os
 import numpy as np
 import xarray as xr
@@ -9,6 +11,7 @@ from scipy.interpolate import griddata
 from scipy import interpolate
 import matplotlib.dates as mdates
 import pandas as pd
+
 
 def plot_profile(filename, pdate, lat, lon):
     """ This creates a simple plot showing the 2D fields"""
@@ -27,53 +30,99 @@ def plot_profile(filename, pdate, lat, lon):
     plt.show()
 
 
-def plot_profile_1D_timeseries(filename, var, domainy):
+def plot_profile_1D_timeseries(filename, var, domainy=None, start=None, end=None, lat=None, lon=None):
     
     # Get dataset
     ds = xr.open_dataset(filename)
+    
+    if ((start is not None) & (end is not None)):
+        ds = ds.sel(time=slice(start,end))
+
+    # Select location
+    if ((lat is not None) & (lon is not None)):
+        ds = ds.sel(lat=lat, lon=lon, method='nearest')
 
     # Get first layer height
     fl = ds.attrs['First_layer_height_log_profile']
 
     # Get data
     if var=='T':
-        V = ds.LAYER_T[:,0,0,:].values
+        if ((lat is None) & (lon is None)):
+            V = ds.LAYER_T[:,0,0,:].values
+        else:
+            V = ds.LAYER_T[:,:].values
         lb = (np.floor(np.nanmin(V)/10.0))*10
         levels = np.arange(lb, 273.16, 2)
         barLabel = 'Temperature [K]'
     if var=='RHO':
-        V = ds.LAYER_RHO[:,0,0,:].values
-        #cmap = lt.cm.bone
-        levels = np.arange(0,550,50)
+        if ((lat is None) & (lon is None)):
+            V = ds.LAYER_RHO[:,0,0,:].values
+        else:
+            V = ds.LAYER_RHO[:,:].values
+        cmap = plt.get_cmap('YlGnBu_r')
         barLabel = 'Density [kg m^-3]'
     if var=='IF':
-        V = ds.LAYER_ICE_FRACTION[:,0,0,:].values
+        if ((lat is None) & (lon is None)):
+            V = ds.LAYER_ICE_FRACTION[:,0,0,:].values
+        else:
+            V = ds.LAYER_ICE_FRACTION[:,:].values
         #cmap = lt.cm.bone
         levels = np.arange(0,1,0.1)
         barLabel = 'Ice fraction [-]'
-    if var=='LWC':
-        V = ds.LAYER_LWC[:,0,0,:].values
+    if var=='REF':
+        if ((lat is None) & (lon is None)):
+            V = ds.LAYER_REFREEZE[:,0,0,:].values
+        else:
+            V = ds.LAYER_REFREEZE[:,:].values
         #cmap = lt.cm.bone
         levels = np.arange(0,1,0.1)
+        barLabel = 'Refreezing [m w.e.]'
+    if var=='LWC':
+        if ((lat is None) & (lon is None)):
+            V = ds.LAYER_LWC[:,0,0,:].values
+        else:
+            V = ds.LAYER_LWC[:,:].values
+        cmap = plt.get_cmap('YlGnBu_r')
         barLabel = 'Liquid Water Content [-]'
     if var=='POR':
-        V = ds.LAYER_POROSITY[:,0,0,:].values
+        if ((lat is None) & (lon is None)):
+            V = ds.LAYER_POROSITY[:,0,0,:].values
+        else:
+            V = ds.LAYER_POROSITY[:,:].values
         #cmap = lt.cm.bone
         levels = np.arange(0,1,0.1)
         barLabel = 'Air Porosity [-]'
+    if var=='DEPTH':
+        if ((lat is None) & (lon is None)):
+            V = ds.LAYER_HEIGHT[:,0,0,:].values.cumsum(axis=1)
+        else:
+            V = ds.LAYER_HEIGHT[:,:].values.cumsum(axis=1)
+        #cmap = lt.cm.bone
+        levels = 128 #np.arange(0,1,0.1)
+        barLabel = 'Depth [m]'
         
         
-    D = ds.LAYER_HEIGHT[:,0,0,:].values.cumsum(axis=1)
-    
+    if ((lat is None) & (lon is None)):
+        D = ds.LAYER_HEIGHT[:,0,0,:].values.cumsum(axis=1)
+    else:
+        D = ds.LAYER_HEIGHT[:,:].values.cumsum(axis=1)
+   
     # Get dimensions
     time = np.arange(ds.dims['time'])
-    depth = ds.TOTALHEIGHT[:,0,0].values
+    
+    if ((lat is None) & (lon is None)):
+        depth = ds.SNOWHEIGHT[:,0,0].values
+    else:
+        depth = ds.SNOWHEIGHT[:].values
     
     # Calc plotting domain height
-    Dn = (np.int(np.floor(ds.TOTALHEIGHT.max()))+2)
+    Dn = (np.int(np.floor(ds.SNOWHEIGHT.max()))+1)
     
-    # Create new grid
+    ## Create new grid
     xi = time
+    if domainy is None:
+        domainy=0.0
+
     yi = np.arange(domainy, Dn, fl)
     X, Y = np.meshgrid(xi,yi)
     data = np.full_like(X, np.nan, dtype=np.double)
@@ -81,17 +130,24 @@ def plot_profile_1D_timeseries(filename, var, domainy):
     # Re-calc depth data top=zero
     D = (-(D.transpose()-depth).transpose())
 
-    for i in xi:
-        # Get non-nan values
-        Dsubset = D[i,~np.isnan(D[i,:])]
-        Tsubset = V[i,~np.isnan(D[i,:])]
-        idx = np.where(yi<=depth[i])
+    def find_nearest(array, values):
+        array = np.asarray(array)
     
-        f = interpolate.interp1d(Dsubset, Tsubset, fill_value="extrapolate")
-        data[idx,i] = f(yi[idx])
+        # the last dim must be 1 to broadcast in (array - values) below.
+        values = np.expand_dims(values, axis=-1) 
+    
+        indices = np.nanargmin(np.abs(array - values),axis=-1)
+        dist = np.nanmin(np.abs(array - values), axis=-1)
+    
+        return indices,dist
 
+    for i in range(len(xi)):
+        sel = np.where(yi<depth[i])
+        idx,dist = find_nearest(D[i,:],yi[sel])
+        data[sel,i] = V[i,idx]
+    
     fig, ax = plt.subplots(figsize=(20, 10))
-    CS = ax.contourf(X,Y,data,levels=levels,extend='max')
+    CS = ax.pcolormesh(X,Y,data,cmap=cmap)
     
     N = pd.date_range(ds.time[0].values, ds.time[-1].values, freq='m')
     M = pd.date_range(ds.time[0].values, ds.time[-1].values, freq='H')
@@ -116,21 +172,28 @@ def plot_profile_1D_timeseries(filename, var, domainy):
     plt.show()
 
 
-def plot_profile_1D(filename, pdate, d):
+def plot_profile_1D(filename, pdate, d=None, lat=None, lon=None):
     """ This creates a simple plot showing the 2D fields"""
 
     DATA = xr.open_dataset(filename)
-    print(DATA)
+    DATA = DATA.sel(lat=lat, lon=lon, method='nearest')
     DATA = DATA.sel(time=pdate)
+    
     plt.figure(figsize=(5, 5))
     depth = np.append(0,np.cumsum(DATA.LAYER_HEIGHT.values))
-    rho = np.append(DATA.LAYER_RHO[:,:,0],DATA.LAYER_RHO.values)
-    t = np.append(DATA.LAYER_T[:,:,0],DATA.LAYER_T.values)
     
-    idx, val = find_nearest(depth,d)
-    print('nearest depth: ', val)
-    print('density: ',rho[idx])
-    print('temperature: ',t[idx])
+    if ((lat is None) & (lon is None)):
+        rho = np.append(DATA.LAYER_RHO[:,:,0],DATA.LAYER_RHO.values)
+        t = np.append(DATA.LAYER_T[:,:,0],DATA.LAYER_T.values)
+    else:
+        rho = np.append(DATA.LAYER_RHO[0],DATA.LAYER_RHO.values)
+        t = np.append(DATA.LAYER_T[0],DATA.LAYER_T.values)
+   
+    if (d is not None):
+        idx, val = find_nearest(depth,d)
+        print('nearest depth: ', val)
+        print('density: ',rho[idx])
+        print('temperature: ',t[idx])
 
     plt.step(rho,depth)
     ax1 = plt.gca()
@@ -169,11 +232,19 @@ if __name__ == "__main__":
     parser.add_argument('-n', '-lat', dest='lat', help='Latitude', type=float)
     parser.add_argument('-m', '-lon', dest='lon', help='Longitude', type=float)
     parser.add_argument('-e', '-depth', dest='d', help='depth', type=float)
+    parser.add_argument('-s', '-start', dest='start', help='start date')
+    parser.add_argument('-t', '-end', dest='end', help='depth')
 
     args = parser.parse_args()
     
     if (args.lat is None) & (args.lon is None) & (args.pdate is None):
-        plot_profile_1D_timeseries(args.file, args.var, args.d)
+        plot_profile_1D_timeseries(args.file, args.var, args.d, args.start, args.end)
+    
+    if (args.lat is not None) & (args.lon is not None) & (args.d is not None) & (args.pdate is None):
+        plot_profile_1D_timeseries(args.file, args.var, args.d, args.lat, args.lon)
 
     if (args.lat is None) & (args.lon is None) & (args.pdate is not None):
         plot_profile_1D(args.file, args.pdate, args.d) 
+    
+    if (args.lat is not None) & (args.lon is not None) & (args.pdate is not None):
+        plot_profile_1D(args.file, args.pdate, args.d, args.lat, args.lon) 
