@@ -14,7 +14,7 @@ def test_grid_getter_functions():
      assert GRID.get_temperature() == layer_temperatures
      assert GRID.get_liquid_water_content() == layer_liquid_water
      assert GRID.get_snow_heights() == layer_heights[0:3]
-     #assert GRID.get_ice_heights() == layer_heights[3:5]
+     assert GRID.get_ice_heights() == layer_heights[3:5]
      assert GRID.get_node_height(0) == layer_heights[0]
      assert GRID.get_node_density(0) == approx(layer_densities[0], abs=1e-3)
      assert GRID.get_node_temperature(0) == layer_temperatures[0]
@@ -24,5 +24,5 @@ def test_grid_getter_functions():
     #number_nodes_before = GRID.get_number_layers()
     #GRID.remove_node()
     #assert GRID.get_number_nodes() == number_nodes_before -1
-#    assert np.nanmean(GRID.get_density()) == np.nanmean(layer_densities)
-#    assert GRID.get_density() == layer_densities
+    #assert np.nanmean(GRID.get_density()) == np.nanmean(layer_densities)
+    #assert GRID.get_density() == layer_densities

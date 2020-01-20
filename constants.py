@@ -11,7 +11,7 @@ z = 2.0                                         # Measurement height [m]
 ' PARAMETERIZATIONS '
 stability_correction = 'Ri'                     # possibilities: 'Ri','MO'
 albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98'
-densification_method = 'Boone'                # possibilities: 'Boone','Vionnet'
+densification_method = 'Boone'                  # possibilities: 'Boone','Vionnet'
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
 roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'

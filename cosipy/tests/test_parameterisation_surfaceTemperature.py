@@ -14,7 +14,7 @@ GRID = Grid(layer_heights, layer_densities, layer_temperatures, layer_liquid_wat
 def test_surface_Temperature_parameterisation():
 
     fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
-    ground_heat_flux, sw_radiation_net, rho, Lv, Cs_t, Cs_q, q0, q2, phi \
+    ground_heat_flux, sw_radiation_net, rho, Lv, Cs_t, Cs_q, q0, q2 \
         = update_surface_temperature(GRID, 0.6, (0.24/1000), 275, 0.6, 789, 1000, 4.5, 0.0, 0.1)
 
     assert surface_temperature <= zero_temperature and surface_temperature >= 220.0

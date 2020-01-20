@@ -19,5 +19,5 @@ def test_densification_parameterisation():
     SWE_after = np.array(GRID.get_height()) / np.array(GRID.get_density())
     SWE_after_sum = np.nansum(SWE_after)
 
-#    assert SWE_before_sum == approx(SWE_after_sum, abs=1e-3)
-#
+    #assert SWE_before_sum == approx(SWE_after_sum, abs=1e-3)
+    #assert SWE_before_sum == SWE_after_sum

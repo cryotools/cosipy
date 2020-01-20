@@ -26,5 +26,8 @@ def test_grid_getter_functions():
      SWE_after_adaptive = np.array(GRID.get_height()) / np.array(GRID.get_density())
      SWE_after_adaptive_sum = np.nansum(SWE_after_adaptive)
 
+     #assert SWE_before_sum == SWE_after_sum
+     #assert SWE_after_sum == SWE_after_adaptive_sum
+
      assert SWE_before_sum == approx(SWE_after_sum, abs=1e-3)
      assert SWE_after_sum == approx(SWE_after_adaptive_sum, abs=1e-3)
