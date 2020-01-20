@@ -27,8 +27,8 @@ About
         :target: https://codecov.io/gh/cryotools/cosipy
 
 :Citation:
-    .. image:: https://zenodo.org/badge/doi/10.5281/zenodo.2579669.svg
-        :target: https://zenodo.org/record/2579669#.XhTdxK6YUUE
+    .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3613921.svg
+        :target: https://doi.org/10.5281/zenodo.3613921
 
 :License:
     .. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
