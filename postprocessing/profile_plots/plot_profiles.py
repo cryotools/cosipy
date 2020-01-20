@@ -51,8 +51,7 @@ def plot_profile_1D_timeseries(filename, var, domainy=None, start=None, end=None
             V = ds.LAYER_T[:,0,0,:].values
         else:
             V = ds.LAYER_T[:,:].values
-        lb = (np.floor(np.nanmin(V)/10.0))*10
-        levels = np.arange(lb, 273.16, 2)
+        cmap = plt.get_cmap('YlGnBu_r')
         barLabel = 'Temperature [K]'
     if var=='RHO':
         if ((lat is None) & (lon is None)):
@@ -66,16 +65,14 @@ def plot_profile_1D_timeseries(filename, var, domainy=None, start=None, end=None
             V = ds.LAYER_ICE_FRACTION[:,0,0,:].values
         else:
             V = ds.LAYER_ICE_FRACTION[:,:].values
-        #cmap = lt.cm.bone
-        levels = np.arange(0,1,0.1)
+        cmap = plt.get_cmap('YlGnBu_r')
         barLabel = 'Ice fraction [-]'
     if var=='REF':
         if ((lat is None) & (lon is None)):
             V = ds.LAYER_REFREEZE[:,0,0,:].values
         else:
             V = ds.LAYER_REFREEZE[:,:].values
-        #cmap = lt.cm.bone
-        levels = np.arange(0,1,0.1)
+        cmap = plt.get_cmap('YlGnBu_r')
         barLabel = 'Refreezing [m w.e.]'
     if var=='LWC':
         if ((lat is None) & (lon is None)):
@@ -89,16 +86,14 @@ def plot_profile_1D_timeseries(filename, var, domainy=None, start=None, end=None
             V = ds.LAYER_POROSITY[:,0,0,:].values
         else:
             V = ds.LAYER_POROSITY[:,:].values
-        #cmap = lt.cm.bone
-        levels = np.arange(0,1,0.1)
+        cmap = plt.get_cmap('YlGnBu_r')
         barLabel = 'Air Porosity [-]'
     if var=='DEPTH':
         if ((lat is None) & (lon is None)):
             V = ds.LAYER_HEIGHT[:,0,0,:].values.cumsum(axis=1)
         else:
             V = ds.LAYER_HEIGHT[:,:].values.cumsum(axis=1)
-        #cmap = lt.cm.bone
-        levels = 128 #np.arange(0,1,0.1)
+        cmap = plt.get_cmap('YlGnBu_r')
         barLabel = 'Depth [m]'
         
         
@@ -147,11 +142,20 @@ def plot_profile_1D_timeseries(filename, var, domainy=None, start=None, end=None
         data[sel,i] = V[i,idx]
     
     fig, ax = plt.subplots(figsize=(20, 10))
-    CS = ax.pcolormesh(X,Y,data,cmap=cmap)
+    #CS = ax.pcolormesh(X,Y,data,cmap=cmap)
+    CS = ax.pcolormesh(X,Y,data, vmin=100, vmax=600)
     
     N = pd.date_range(ds.time[0].values, ds.time[-1].values, freq='m')
     M = pd.date_range(ds.time[0].values, ds.time[-1].values, freq='H')
+ 
+    df = pd.read_csv('../../data/input/HEF/data_stakes_hef.csv',sep='\t',index_col='TIMESTAMP')
+    df = df[df['Pit01']!=-9999]
     
+    for index, row in df.iterrows():
+        res = (M == pd.Timestamp(index)).argmax() 
+        if res!=0:
+            plt.scatter(res,row['Pit01'])
+
     labIdx = []
     label = []
     for q in N:
@@ -176,9 +180,11 @@ def plot_profile_1D(filename, pdate, d=None, lat=None, lon=None):
     """ This creates a simple plot showing the 2D fields"""
 
     DATA = xr.open_dataset(filename)
-    DATA = DATA.sel(lat=lat, lon=lon, method='nearest')
     DATA = DATA.sel(time=pdate)
     
+    if ((lat is not None) & (lon is not None)):
+        DATA = DATA.sel(lat=lat, lon=lon, method='nearest')
+
     plt.figure(figsize=(5, 5))
     depth = np.append(0,np.cumsum(DATA.LAYER_HEIGHT.values))
     
@@ -188,12 +194,14 @@ def plot_profile_1D(filename, pdate, d=None, lat=None, lon=None):
     else:
         rho = np.append(DATA.LAYER_RHO[0],DATA.LAYER_RHO.values)
         t = np.append(DATA.LAYER_T[0],DATA.LAYER_T.values)
-   
+    
+    print('Date: %s' % (pdate))
+    print('T2: %.2f \t RH: %.2f \t U: %.2f \t G: %.2f' % (DATA.T2,DATA.RH2,DATA.U2,DATA.G))
     if (d is not None):
-        idx, val = find_nearest(depth,d)
-        print('nearest depth: ', val)
-        print('density: ',rho[idx])
-        print('temperature: ',t[idx])
+        for dmeas in d:
+            #idx, val = find_nearest(depth,d)
+            idx, val = find_nearest(depth,dmeas)
+            print('nearest depth: %.3f \t density: %.2f \t T: %.2f' % (val,rho[idx],t[idx]))
 
     plt.step(rho,depth)
     ax1 = plt.gca()
@@ -231,7 +239,7 @@ if __name__ == "__main__":
     parser.add_argument('-v', '-var', dest='var', help='Which variable')
     parser.add_argument('-n', '-lat', dest='lat', help='Latitude', type=float)
     parser.add_argument('-m', '-lon', dest='lon', help='Longitude', type=float)
-    parser.add_argument('-e', '-depth', dest='d', help='depth', type=float)
+    parser.add_argument('-e', '-depth', dest='d', nargs='+', help='depth', type=float)
     parser.add_argument('-s', '-start', dest='start', help='start date')
     parser.add_argument('-t', '-end', dest='end', help='depth')
 

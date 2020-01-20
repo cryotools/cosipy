@@ -45,26 +45,26 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
 
     # Get surface temperture by minimizing the energy balance function (SWnet+Li+Lo+H+L=0)
     res = minimize(eb_optim, GRID.get_node_temperature(0), method='L-BFGS-B', bounds=((220.0, 273.16),),
-                   tol=1e-8, args=(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin, N))
+                   tol=1e-1, args=(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin, N))
 
     # Set surface temperature
     GRID.set_node_temperature(0, float(res.x))
  
-    (Li,Lo,H,L,B,SWnet,rho,Lv,Cs_t,Cs_q,q0,q2,phi) = eb_fluxes(GRID, res.x, alpha, z0, T2, rH2, p, G,
+    (Li,Lo,H,L,B,SWnet,rho,Lv,Cs_t,Cs_q,q0,q2) = eb_fluxes(GRID, res.x, alpha, z0, T2, rH2, p, G,
                                                                u2, SLOPE, LWin, N,) 
-
+    
     # Consistency check
     if float(res.x)>273.16:
         logger.error('Surface temperature exceeds 273.16 K')
         logger.error(GRID.get_node_temperature(0))
 
     # Return fluxes
-    return res.fun, res.x, Li, Lo, H, L, B, SWnet, rho, Lv, Cs_t, Cs_q, q0, q2, phi
+    return res.fun, res.x, Li, Lo, H, L, B, SWnet, rho, Lv, Cs_t, Cs_q, q0, q2
 
 
 
 def eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
-    ''' This functions returns the surface fluxes 
+    ''' This functions returns the surface fluxes with Monin-Obukhov stability correction.
 
     Given:
 
@@ -125,6 +125,9 @@ def eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
     # otherwise use LW data from file
         Li = LWin
 
+    # turbulent Prandtl number
+    Pr = 0.8
+
     # Mixing Ratio at surface and at measurement height  or calculate with other formula? 0.622*e/p = q
     q2 = (rH2 * 0.622 * (Ew / (p - Ew))) / 100.0
     q0 = (100.0 * 0.622 * (Ew0 / (p - Ew0))) / 100.0
@@ -138,38 +141,81 @@ def eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
     # Bulk transfer coefficient 
     z0t = z0/100    # Roughness length for sensible heat
     z0q = z0/10     # Roughness length for moisture
-    Cs_t = np.power(0.41,2.0) / ( np.log(z/z0) * np.log(z/z0t) )    # Stanton-Number
-    Cs_q = np.power(0.41,2.0) / ( np.log(z/z0) * np.log(z/z0q) )    # Dalton-Number
+
+    # Monin-Obukhov stability correction
+    if stability_correction == 'MO':
+        L = 0.0
+        H0 = np.inf
+        diff = np.inf
+        optim = True
+        iter = 0
+
+        # Optimize Obukhov length
+        while optim:
+            # ustar with initial condition of L == x
+            ust = ustar(u2,z,z0,L)
+        
+            # Sensible heat flux for neutral conditions
+            Cd = np.power(0.41,2.0) / np.power(np.log(z/z0) - phi_m(z,L) - phi_m(z0,L),2.0)
+            Cs_t = 0.41*np.sqrt(Cd) / (np.log(z/z0t) - phi_tq(z,L) - phi_tq(z0,L))
+            Cs_q = 0.41*np.sqrt(Cd) / (np.log(z/z0q) - phi_tq(z,L) - phi_tq(z0,L))
+        
+            # Surface heat flux
+            H = rho * spec_heat_air * (1.0/Pr) * Cs_t * u2 * (T2-T0) * np.cos(np.radians(SLOPE))
+        
+            # Latent heat flux
+            LE = rho * Lv * (1.0/Pr) * Cs_q * u2 * (q2-q0) *  np.cos(np.radians(SLOPE))
+        
+            # Monin-Obukhov length
+            L = MO(rho, ust, T2, H)
+            
+            # Heat flux differences between iterations
+            diff = np.abs(H0-H)
+           
+            # Termination criterion
+            if (diff<1e-1) | (iter>5):
+                optim = False
+            iter = iter+1
+            
+            # Store last heat flux in H0
+            H0 = H
+  
+    # Richardson-Number stability correction
+    elif stability_correction == 'Ri':
+        # Bulk transfer coefficient 
+        Cs_t = np.power(0.41,2.0) / ( np.log(z/z0) * np.log(z/z0t) )    # Stanton-Number
+        Cs_q = np.power(0.41,2.0) / ( np.log(z/z0) * np.log(z/z0q) )    # Dalton-Number
+        
+        # Bulk Richardson number
+        if (u2!=0):
+            Ri = (9.81 * (T2 - T0) * 2.0) / (T2 * np.power(u2, 2))
+        else:
+            Ri = 0
+        
+        # Stability correction
+        if (Ri > 0.01) & (Ri <= 0.2):
+            phi = np.power(1-5*Ri,2)
+        elif Ri > 0.2:
+            phi = 0
+        else:
+            phi = 1
+        
+        # turbulent Prandtl number
+        Pr = 0.8
+
+        # Sensible heat flux
+        H = rho * spec_heat_air * (1.0/Pr) * Cs_t * u2 * (T2-T0) * phi * np.cos(np.radians(SLOPE))
+        
+        # Latent heat flux
+        LE = rho * Lv * (1.0/Pr) * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
+
+    
+    # Outgoing longwave radiation
+    Lo = -surface_emission_coeff * sigma * np.power(T0, 4.0)
 
     # Get thermal conductivity
     lam = GRID.get_node_thermal_conductivity(0) 
    
-    # Bulk Richardson number
-    if (u2!=0):
-        Ri = (9.81 * (T2 - T0) * 2.0) / (T2 * np.power(u2, 2))
-    else:
-        Ri = 0
-    
-    # Stability correction
-    if (Ri > 0.01) & (Ri <= 0.2):
-        phi = np.power(1-5*Ri,2)
-    elif Ri > 0.2:
-        phi = 0
-    else:
-        phi = 1
-    
-    # turbulent Prandtl number
-    Pr = 0.8
-
-    # Sensible heat flux
-    H = rho * spec_heat_air * (1.0/Pr) * Cs_t * u2 * (T2-T0) * phi * np.cos(np.radians(SLOPE))
-
-    # Latent heat flux
-    L = rho * Lv * (1.0/Pr) * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
-
-    # Outgoing longwave radiation
-    Lo = -surface_emission_coeff * sigma * np.power(T0, 4.0)
-
     # Ground heat flux
     hminus = GRID.get_node_depth(1)-GRID.get_node_depth(0)
     hplus = GRID.get_node_depth(2)-GRID.get_node_depth(1)
@@ -177,8 +223,53 @@ def eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
             ((GRID.get_node_temperature(2)-GRID.get_node_temperature(1))/hplus) + (hplus/(hplus+hminus))*((GRID.get_node_temperature(1)-T0)/hminus)
 
     # Return surface fluxes
-    return (float(Li), float(Lo), float(H), float(L), float(B), float(SWnet), rho, Lv, Cs_t, Cs_q, q0, q2, phi)
+    return (float(Li), float(Lo), float(H), float(LE), float(B), float(SWnet), rho, Lv, Cs_t, Cs_q, q0, q2)
 
+
+def phi_m(z,L):
+    """ Stability function for the momentum flux.
+    """
+    if (L>0):
+        if ((z/L)>0.0) & ((z/L)<=1.0):
+            return (-5*z/L)
+        elif ((z/L)>1.0):
+            return (1-5) * (1+np.log(z/L)) - (z/L) 
+    elif L<0:
+        x = np.power((1-16*z/L),0.25)
+        return 2*np.log((1+x)/2.0) + np.log((1+np.power(x,2.0))/2.0) - 2*np.arctan(x) + np.pi/2.0
+    else:
+        return 0.0
+
+
+def phi_tq(z,L):
+    """ Stability function for the heat and moisture flux.
+    """
+    if (L>0):
+        if ((z/L)>0.0) & ((z/L)<=1.0):
+            return (-5*z/L)
+        elif ((z/L)>1.0):
+            return (1-5) * (1+np.log(z/L)) - (z/L) 
+    elif L<0:
+        x = np.power((1-19.3*z/L),0.25)
+        return 2*np.log((1+np.power(x,2.0))/2.0)
+    else:
+        return 0.0
+
+
+def ustar(u2,z,z0,L):
+    """ Friction velocity. 
+    """
+    return (0.41*u2) / (np.log(z/z0)-phi_m(z,L))
+
+
+def MO(rho, ust, T2, H):
+    """ Monin-Obukhov length
+    """
+    # Monin-Obukhov length
+    if H!=0:
+        return (rho*spec_heat_air*np.power(ust,3)*T2)/(0.41*9.81*H)
+    else:
+        return 0.0
 
 
 
@@ -186,7 +277,7 @@ def eb_optim(T0, GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
     ''' Optimization function to solve for surface temperature T0 '''
 
     # Get surface fluxes for surface temperature T0
-    (Li,Lo,H,L,B,SWnet,rho,Lv,Cs_t,Cs_q,q0,q2,phi) = eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G,
+    (Li,Lo,H,L,B,SWnet,rho,Lv,Cs_t,Cs_q,q0,q2) = eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G,
                                                                u2, SLOPE, LWin, N)
 
     # Return the residual (is minimized by the optimization function)

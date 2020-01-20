@@ -340,14 +340,17 @@ class Grid:
         """
         # First, the snowpack is remeshed
         idx = 0
+        merge_counter = 0
         while ((idx < self.get_number_snow_layers()-1)):
 
             dT = np.abs(self.get_node_temperature(idx)-self.get_node_temperature(idx+1))
             dRho = np.abs(self.get_node_density(idx)-self.get_node_density(idx+1))
 
-            if ((dT<=temperature_threshold_merging) & (dRho<=density_threshold_merging) & (self.get_node_height(idx)<=0.1)) | \
-                ((self.get_node_height(idx)<=minimum_snow_layer_height) & (dRho<=density_threshold_merging)):
+            if ((dT<=temperature_threshold_merging) & (dRho<=density_threshold_merging) & (self.get_node_height(idx)<=0.1) & (merge_counter<=merge_max)):
                 self.merge_nodes(idx)
+                merge_counter = merge_counter + 1
+            elif ((self.get_node_height(idx)<=minimum_snow_layer_height) & (dRho<=density_threshold_merging)):
+                self.remove_node([idx])
             else:
                 idx += 1
 
