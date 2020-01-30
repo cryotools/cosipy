@@ -153,7 +153,7 @@ class Grid:
         
         """ 
         # Get overburden pressure for consistency check
-        w0 =self.get_node_height(idx)*self.get_node_density(idx)+self.get_node_height(idx+1)*self.get_node_density(idx+1)
+        w0 = self.get_node_height(idx)*self.get_node_density(idx)+self.get_node_height(idx+1)*self.get_node_density(idx+1)
 
         # New layer height by adding up the height of the two layers
         new_height = self.get_node_height(idx) + self.get_node_height(idx+1)
@@ -349,7 +349,8 @@ class Grid:
             if ((dT<=temperature_threshold_merging) & (dRho<=density_threshold_merging) & (self.get_node_height(idx)<=0.1) & (merge_counter<=merge_max)):
                 self.merge_nodes(idx)
                 merge_counter = merge_counter + 1
-            elif ((self.get_node_height(idx)<=minimum_snow_layer_height) & (dRho<=density_threshold_merging)):
+            #elif ((self.get_node_height(idx)<=minimum_snow_layer_height) & (dRho<=density_threshold_merging)):
+            elif ((self.get_node_height(idx)<=minimum_snow_layer_height)):
                 self.remove_node([idx])
             else:
                 idx += 1

@@ -158,8 +158,10 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         timestamp = dt*t
 
         # Calc fresh snow density
-        #density_fresh_snow = np.maximum(109.0+6.0*(T2[t]-273.16)+26.0*np.sqrt(U2[t]), 50.0)
-        density_fresh_snow = np.maximum(150.0+6.0*(T2[t]-273.16)+26.0*np.sqrt(U2[t]), 120.0)
+        if (densification_method!='constant'):
+            density_fresh_snow = np.maximum(109.0+6.0*(T2[t]-273.16)+26.0*np.sqrt(U2[t]), 50.0)
+        else:
+            density_fresh_snow = constant_density 
 
         # Derive snowfall [m] and rain rates [m w.e.]
         if (SNOWF is not None) and (RRR is not None):
@@ -255,15 +257,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         melt = melt_energy * dt / (water_density * lat_heat_melting)
 
         # Remove melt [m w.e.q.]
-        #GRID.remove_melt_weq(melt - sublimation - deposition - evaporation)
-        h1 = GRID.get_total_height()
         GRID.remove_melt_weq(melt - sublimation - deposition - evaporation)
-        h2 = GRID.get_total_height()
-        if (np.abs(h1-h2)>0.2):
-            print('++++++++++++++++++++++++++++++++++++++')
-            print('T: %.2f \t T0: %.2f \t lw_in: %.2f \t lw_out: %.2f \t H: %.2f \t LE: %.2f \t B: %.2f \t G: %.2f \t Sub: %.2f' % (T2[t], surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, ground_heat_flux,
-                  sw_radiation_net, subsurface_melt))
-            print(GRID.get_node_height(0),melt,sublimation,deposition,evaporation,h1,h2,'\n')
 
         #--------------------------------------------
         # Percolation
@@ -274,7 +268,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Refreezing
         #--------------------------------------------
         water_refreezed = refreezing(GRID)
-        
+
         #--------------------------------------------
         # Solve the heat equation
         #--------------------------------------------
@@ -295,12 +289,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         internal_mass_balance2 = melt-Q  #+ subsurface_melt
         mass_balance_check = surface_mass_balance + internal_mass_balance2
 
-        #GRID.grid_check()
-
         # Write results
         logger.debug('Write data into local result structure')
 
-        # TOBI
         # Cumulative mass balance for stake evaluation 
         MB_cum = MB_cum + mass_balance
         
