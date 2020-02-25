@@ -202,6 +202,7 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     #-----------------------------------
     # Write file to disc 
     #-----------------------------------
+    check_for_nan_point(ds)
     ds.to_netcdf(cosipy_file)
 
 
@@ -477,6 +478,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     # Write file to disc 
     #-----------------------------------
     #dso.to_netcdf(cosipy_file, encoding=encoding)
+    check_for_nan(dso)
     dso.to_netcdf(cosipy_file)
 
     print('Input file created \n')
@@ -485,7 +487,6 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     #-----------------------------------
     # Do some checks
     #-----------------------------------
-    check_for_nan(dso)
     check(dso.T2,316.16,223.16)
     check(dso.RH2,100.0,0.0)
     check(dso.U2, 50.0, 0.0)
@@ -563,6 +564,11 @@ def check_for_nan(ds):
                 if np.isnan(ds.isel(lat=y, lon=x).to_array()).any():
                     print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
                     sys.exit()
+
+def check_for_nan_point(ds):
+    if np.isnan(ds.to_array()).any():
+        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
+        sys.exit()
 
 def compute_scale_and_offset(min, max, n):
     # stretch/compress data to the available packed range

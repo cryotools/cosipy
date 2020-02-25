@@ -1,11 +1,12 @@
 """
  This file reads the DEM of the study site and the shapefile and creates the needed static.nc
 """
-
+import sys
+import os
 import xarray as xr
 import numpy as np
-import netCDF4
-import os
+from itertools import product
+import richdem as rd
 
 static_folder = '../../data/static/'
 
@@ -53,15 +54,14 @@ os.system('gdal_translate -of NETCDF ' + dem_path_tif  + ' ' + dem_path)
 ### calculate slope as NetCDF from DEM
 os.system('gdaldem slope -of NETCDF ' + dem_path + ' ' + slope_path + ' -s 111120')
 
-### calculate aspect as NetCDF from DEM
-os.system('gdaldem aspect -of NETCDF ' + dem_path + ' ' + aspect_path)
+### calculate aspect from DEM
+aspect = np.flipud(rd.TerrainAttribute(rd.LoadGDAL(dem_path_tif), attrib = 'aspect'))
 
 ### calculate mask as NetCDF with DEM and shapefile
 os.system('gdalwarp -of NETCDF  --config GDALWARP_IGNORE_BAD_CUTLINE YES -cutline ' + shape_path + ' ' + dem_path_tif  + ' ' + mask_path)
 
 ### open intermediate netcdf files
 dem = xr.open_dataset(dem_path)
-aspect = xr.open_dataset(aspect_path)
 mask = xr.open_dataset(mask_path)
 slope = xr.open_dataset(slope_path)
 
@@ -92,11 +92,27 @@ def insert_var(ds, var, name, units, long_name):
 
 ### insert needed static variables
 insert_var(ds, dem.Band1.values,'HGT','meters','meter above sea level')
-insert_var(ds, aspect.Band1.values,'ASPECT','degrees','Aspect of slope')
+insert_var(ds, aspect,'ASPECT','degrees','Aspect of slope')
 insert_var(ds, slope.Band1.values,'SLOPE','degrees','Terrain slope')
 insert_var(ds, mask,'MASK','boolean','Glacier mask')
 
 ### save combined static file, delete intermediate files and print number of glacier grid points
+
+def check_for_nan(ds,var=None):
+    for y,x in product(range(ds.dims['lat']),range(ds.dims['lon'])):
+        mask = ds.MASK.isel(lat=y, lon=x)
+        if mask==1:
+            if var is None:
+                if np.isnan(ds.isel(lat=y, lon=x).to_array()).any():
+                    print('ERROR!!!!!!!!!!! There are NaNs in the static fields')
+                    sys.exit()
+            else:
+                if np.isnan(ds[var].isel(lat=y, lon=x)).any():
+                    print('ERROR!!!!!!!!!!! There are NaNs in the static fields')
+                    sys.exit()
+check_for_nan(ds)
 ds.to_netcdf(output_path)
 os.system('rm '+ dem_path + ' ' + aspect_path + ' ' + mask_path + ' ' + slope_path + ' ' + dem_path_tif_temp + ' '+ dem_path_tif_temp2)
 print("Study area consists of ", np.nansum(mask[mask==1]), " glacier points")
+print("Done")
+
