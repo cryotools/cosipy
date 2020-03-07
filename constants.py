@@ -34,10 +34,10 @@ const_init_temp = 0.1                           # constant for init temperature 
 ' MODEL CONSTANTS '
 center_snow_transfer_function = 2.5             # center (50/50) when total precipitation is transferred to snow and rain
 spread_snow_transfer_function = 1               # 1: +-2.5
-mult_factor_RRR = 1.6                           # multiplication factor for RRR
+mult_factor_RRR = 1.0                           # multiplication factor for RRR
 
 minimum_snow_to_reset_albedo = 0.01             # minimum snowfall to reset hours since last snowfall! Default was 0.005
-minimum_snow_layer_height = 0.001              # minimum layer height
+minimum_snow_layer_height = 0.001               # minimum layer height
 
 
 ' REMESHING OPTIONS'
@@ -46,7 +46,7 @@ first_layer_height = 0.01                       # The first layer will always ha
 layer_stretching = 1.20                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
 
 merge_max = 1                                   # How many mergings are allowed per time step
-density_threshold_merging = 5                 # If merging is true threshold for layer densities difference two layer try: 5-10 (kg m^-3)
+density_threshold_merging = 5                   # If merging is true threshold for layer densities difference two layer try: 5-10 (kg m^-3)
 temperature_threshold_merging = 0.01            # If mering is true threshold for layer temperatures to merge  try: 0.05-0.1 (K)
 
 
@@ -54,7 +54,7 @@ temperature_threshold_merging = 0.01            # If mering is true threshold fo
 density_fresh_snow = 250.                       # density of freshly fallen snow [kg m-3]
 
 albedo_fresh_snow = 0.9                         # albedo of fresh snow [-] (Moelg et al. 2012, TC)
-albedo_firn = 0.6                              # albedo of firn [-] (Moelg et al. 2012, TC)
+albedo_firn = 0.6                               # albedo of firn [-] (Moelg et al. 2012, TC)
 albedo_ice = 0.3                                # albedo of ice [-] (Moelg et al. 2012, TC)
 albedo_mod_snow_aging = 20.0                    # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
 albedo_mod_snow_depth = 1.0                     # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
