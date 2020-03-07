@@ -142,7 +142,7 @@ def main():
 
 def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
 
-    with Client(cluster,processes=False) as client:
+    with Client(cluster) as client:
         print('--------------------------------------------------------------')
         print('\t Starting clients and submit jobs ... \n')
         print('-------------------------------------------------------------- \n')
