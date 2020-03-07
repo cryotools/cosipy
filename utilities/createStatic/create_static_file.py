@@ -96,8 +96,9 @@ insert_var(ds, aspect,'ASPECT','degrees','Aspect of slope')
 insert_var(ds, slope.Band1.values,'SLOPE','degrees','Terrain slope')
 insert_var(ds, mask,'MASK','boolean','Glacier mask')
 
-### save combined static file, delete intermediate files and print number of glacier grid points
+os.system('rm '+ dem_path + ' ' + mask_path + ' ' + slope_path + ' ' + dem_path_tif_temp + ' '+ dem_path_tif_temp2)
 
+### save combined static file, delete intermediate files and print number of glacier grid points
 def check_for_nan(ds,var=None):
     for y,x in product(range(ds.dims['lat']),range(ds.dims['lon'])):
         mask = ds.MASK.isel(lat=y, lon=x)
@@ -112,7 +113,6 @@ def check_for_nan(ds,var=None):
                     sys.exit()
 check_for_nan(ds)
 ds.to_netcdf(output_path)
-os.system('rm '+ dem_path + ' ' + aspect_path + ' ' + mask_path + ' ' + slope_path + ' ' + dem_path_tif_temp + ' '+ dem_path_tif_temp2)
 print("Study area consists of ", np.nansum(mask[mask==1]), " glacier points")
 print("Done")
 

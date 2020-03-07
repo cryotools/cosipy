@@ -216,7 +216,6 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     check(ds.T2,316.16,223.16)
     check(ds.RH2,100.0,0.0)
     check(ds.U2, 50.0, 0.0)
-    check(ds.RRR,20.0,0.0)
     check(ds.G,1600.0,0.0)
     check(ds.PRES,1080.0,200.0)
 
@@ -265,8 +264,14 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     # Average to hourly data 
     #-----------------------------------
     if aggregate_hourly:
-        if(SNOWFALL_var in df):
-            # Make hourly data
+        if ((LWin_var in df) and (SNOWFALL_var in df)):
+            df = df.resample('H').agg({T2_var:'mean', RH2_var:'mean',U2_var:'mean',
+                RRR_var:'sum',G_var:'mean',PRES_var:'mean',N_var:'mean', SNOWFALL_var:'sum', LWin_var:'mean'})
+
+        elif (LWin_var in df):
+            df = df.resample('H').agg({T2_var:'mean', RH2_var:'mean',U2_var:'mean',RRR_var:'sum',G_var:'mean',PRES_var:'mean',N_var:'mean', LWin_var:'mean'})
+
+        elif (SNOWFALL_var in df):
             df = df.resample('H').agg({T2_var:'mean', RH2_var:'mean',U2_var:'mean',
                                RRR_var:'sum',G_var:'mean',PRES_var:'mean',N_var:'mean', SNOWFALL_var:'sum'})
 
@@ -329,6 +334,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
 
     elif (LWin_var in df):
         df[LWin_var] = df[LWin_var].apply(pd.to_numeric, errors='coerce')
+        print("LWin in data")
 
     elif (N_var in df):
         df[N_var] = df[N_var].apply(pd.to_numeric, errors='coerce')
@@ -351,7 +357,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     T_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
     RH_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
     U_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
-    G_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
+    G_interp = np.full([len(dso.time), len(ds.lat), len(ds.lon)], np.nan)
     P_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
 
     if (RRR_var in df):
@@ -490,12 +496,11 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     check(dso.T2,316.16,223.16)
     check(dso.RH2,100.0,0.0)
     check(dso.U2, 50.0, 0.0)
-    check(dso.RRR,20.0,0.0)
     check(dso.G,1600.0,0.0)
     check(dso.PRES,1080.0,200.0)
 
     if(RRR_var in df):
-        check(dso.RRR,20.0,0.0)
+        check(dso.RRR,25.0,0.0)
 
     if (SNOWFALL_var in df):
         check(dso.SNOWFALL, 0.05, 0.0)
