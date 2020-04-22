@@ -237,7 +237,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                                              GRID_RESTART=IO.create_grid_restart().isel(lat=y, lon=x), 
                                              stake_names=stake_names, stake_data=df_stakes_data))
         # Finally, do the calculations and print the progress
-#        progress(futures)
+        progress(futures)
 
         #---------------------------------------
         # Guarantee that restart file is closed
