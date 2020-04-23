@@ -18,7 +18,7 @@ saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
 
 
 ' INITIAL CONDITIONS '
-initial_snowheight_constant = 0.0               # Initial snowheight
+initial_snowheight_constant = 1.0               # Initial snowheight
 initial_snow_layer_heights = 0.10               # Initial thickness of snow layers
 initial_glacier_height = 30.0                   # Initial glacier height without snowlayers
 initial_glacier_layer_heights = 1.0             # Initial thickness of glacier ice layers
@@ -34,7 +34,7 @@ const_init_temp = 0.1                           # constant for init temperature 
 ' MODEL CONSTANTS '
 center_snow_transfer_function = 2.5             # center (50/50) when total precipitation is transferred to snow and rain
 spread_snow_transfer_function = 1               # 1: +-2.5
-mult_factor_RRR = 1.6                           # multiplication factor for RRR
+mult_factor_RRR = 1.0                           # multiplication factor for RRR
 
 minimum_snow_to_reset_albedo = 0.01             # minimum snowfall to reset hours since last snowfall! Default was 0.005
 minimum_snow_layer_height = 0.001              # minimum layer height
