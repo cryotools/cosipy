@@ -263,21 +263,42 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     #-----------------------------------
     # Average to hourly data 
     #-----------------------------------
-    if aggregate_hourly:
-        if ((LWin_var in df) and (SNOWFALL_var in df)):
-            df = df.resample('H').agg({T2_var:'mean', RH2_var:'mean',U2_var:'mean',
-                RRR_var:'sum',G_var:'mean',PRES_var:'mean',N_var:'mean', SNOWFALL_var:'sum', LWin_var:'mean'})
+    if aggregate:
+        if ((N_var in df) and (RRR_var in df) and (LWin_var in df) and (SNOWFALL_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
 
-        elif (LWin_var in df):
-            df = df.resample('H').agg({T2_var:'mean', RH2_var:'mean',U2_var:'mean',RRR_var:'sum',G_var:'mean',PRES_var:'mean',N_var:'mean', LWin_var:'mean'})
+        elif ((N_var in df) and (RRR_var in df) and (LWin_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean'})
 
-        elif (SNOWFALL_var in df):
-            df = df.resample('H').agg({T2_var:'mean', RH2_var:'mean',U2_var:'mean',
-                               RRR_var:'sum',G_var:'mean',PRES_var:'mean',N_var:'mean', SNOWFALL_var:'sum'})
+        elif ((N_var in df) and (RRR_var in df) and (SNOWFALL_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', SNOWFALL_var:'sum'})
 
-        else:
-            df = df.resample('H').agg({T2_var: 'mean', RH2_var: 'mean', U2_var: 'mean',
-                               RRR_var: 'sum', G_var: 'mean', PRES_var: 'mean', N_var:'mean'})
+        elif ((N_var in df) and (LWin_var in df) and (SNOWFALL_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                LWin_var:'mean', SNOWFALL_var:'sum'})
+
+        elif ((RRR_var in df) and (LWin_var in df) and (SNOWFALL_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', RRR_var:'sum',
+                LWin_var:'mean', SNOWFALL_var:'sum'})
+
+        elif ((N_var in df) and (RRR_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
+
+        elif ((N_var in df) and (SNOWFALL_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
+
+        elif ((RRR_var in df) and (LWin_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
+
+        elif ((LWin_var in df) and (SNOWFALL_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
 
     #-----------------------------------
     # Load static data
@@ -404,12 +425,9 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
             N_interp[t,:,:] = N[t]
 
     # Change aspect to south==0, east==negative, west==positive
-    ds['ASPECT'] = np.mod(ds['ASPECT']+180.0, 360.0)
-    mask = ds['ASPECT'].where(ds['ASPECT']<=180.0)
-    aspect = ds['ASPECT'].values
-    aspect[aspect<180] = aspect[aspect<180]*-1.0
-    aspect[aspect>=180] = 360.0 - aspect[aspect>=180]
+    aspect = ds['ASPECT'].values - 180.0
     ds['ASPECT'] = (('lat','lon'),aspect)
+
     print(('Number of glacier cells: %i') % (np.count_nonzero(~np.isnan(ds['MASK'].values))))
     print(('Number of glacier cells: %i') % (np.nansum(ds['MASK'].values)))
 
@@ -551,9 +569,6 @@ def check(field, max, min):
     if np.nanmax(field) > max or np.nanmin(field) < min:
         print('\n\nWARNING! Please check the data, its seems they are out of a reasonable range %s MAX: %.2f MIN: %.2f \n' % (str.capitalize(field.name), np.nanmax(field), np.nanmin(field)))
      
-    if np.isnan((np.min(field.values))):
-        print('ERROR this does not work! %s VALUE: %.2f \n' % (str.capitalize(field.name), np.min(field.values)))
-
 def check_for_nan(ds):
     if WRF is True:
         for y,x in product(range(ds.dims['south_north']),range(ds.dims['west_east'])):

@@ -38,7 +38,8 @@ N_var = 'N'
 #------------------------
 # Aggregation to hourly data
 #------------------------
-aggregate_hourly = True
+aggregate = True
+aggregation_step = 'H'
 
 # Delimiter in csv file
 delimiter = ','
