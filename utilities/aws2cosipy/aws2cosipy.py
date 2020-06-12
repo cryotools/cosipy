@@ -202,6 +202,7 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     #-----------------------------------
     # Write file to disc 
     #-----------------------------------
+    check_for_nan_point(ds)
     ds.to_netcdf(cosipy_file)
 
 
@@ -215,7 +216,6 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     check(ds.T2,316.16,223.16)
     check(ds.RH2,100.0,0.0)
     check(ds.U2, 50.0, 0.0)
-    check(ds.RRR,20.0,0.0)
     check(ds.G,1600.0,0.0)
     check(ds.PRES,1080.0,200.0)
 
@@ -263,15 +263,42 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     #-----------------------------------
     # Average to hourly data 
     #-----------------------------------
-    if aggregate_hourly:
-        if(SNOWFALL_var in df):
-            # Make hourly data
-            df = df.resample('H').agg({T2_var:'mean', RH2_var:'mean',U2_var:'mean',
-                               RRR_var:'sum',G_var:'mean',PRES_var:'mean',N_var:'mean', SNOWFALL_var:'sum'})
+    if aggregate:
+        if ((N_var in df) and (RRR_var in df) and (LWin_var in df) and (SNOWFALL_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
 
-        else:
-            df = df.resample('H').agg({T2_var: 'mean', RH2_var: 'mean', U2_var: 'mean',
-                               RRR_var: 'sum', G_var: 'mean', PRES_var: 'mean', N_var:'mean'})
+        elif ((N_var in df) and (RRR_var in df) and (LWin_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean'})
+
+        elif ((N_var in df) and (RRR_var in df) and (SNOWFALL_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', SNOWFALL_var:'sum'})
+
+        elif ((N_var in df) and (LWin_var in df) and (SNOWFALL_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                LWin_var:'mean', SNOWFALL_var:'sum'})
+
+        elif ((RRR_var in df) and (LWin_var in df) and (SNOWFALL_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', RRR_var:'sum',
+                LWin_var:'mean', SNOWFALL_var:'sum'})
+
+        elif ((N_var in df) and (RRR_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
+
+        elif ((N_var in df) and (SNOWFALL_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
+
+        elif ((RRR_var in df) and (LWin_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
+
+        elif ((LWin_var in df) and (SNOWFALL_var in df)):
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
 
     #-----------------------------------
     # Load static data
@@ -328,6 +355,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
 
     elif (LWin_var in df):
         df[LWin_var] = df[LWin_var].apply(pd.to_numeric, errors='coerce')
+        print("LWin in data")
 
     elif (N_var in df):
         df[N_var] = df[N_var].apply(pd.to_numeric, errors='coerce')
@@ -350,7 +378,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     T_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
     RH_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
     U_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
-    G_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
+    G_interp = np.full([len(dso.time), len(ds.lat), len(ds.lon)], np.nan)
     P_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
 
     if (RRR_var in df):
@@ -397,12 +425,9 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
             N_interp[t,:,:] = N[t]
 
     # Change aspect to south==0, east==negative, west==positive
-    ds['ASPECT'] = np.mod(ds['ASPECT']+180.0, 360.0)
-    mask = ds['ASPECT'].where(ds['ASPECT']<=180.0)
-    aspect = ds['ASPECT'].values
-    aspect[aspect<180] = aspect[aspect<180]*-1.0
-    aspect[aspect>=180] = 360.0 - aspect[aspect>=180]
+    aspect = ds['ASPECT'].values - 180.0
     ds['ASPECT'] = (('lat','lon'),aspect)
+
     print(('Number of glacier cells: %i') % (np.count_nonzero(~np.isnan(ds['MASK'].values))))
     print(('Number of glacier cells: %i') % (np.nansum(ds['MASK'].values)))
 
@@ -477,6 +502,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     # Write file to disc 
     #-----------------------------------
     #dso.to_netcdf(cosipy_file, encoding=encoding)
+    check_for_nan(dso)
     dso.to_netcdf(cosipy_file)
 
     print('Input file created \n')
@@ -485,16 +511,14 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     #-----------------------------------
     # Do some checks
     #-----------------------------------
-    check_for_nan(dso)
     check(dso.T2,316.16,223.16)
     check(dso.RH2,100.0,0.0)
     check(dso.U2, 50.0, 0.0)
-    check(dso.RRR,20.0,0.0)
     check(dso.G,1600.0,0.0)
     check(dso.PRES,1080.0,200.0)
 
     if(RRR_var in df):
-        check(dso.RRR,20.0,0.0)
+        check(dso.RRR,25.0,0.0)
 
     if (SNOWFALL_var in df):
         check(dso.SNOWFALL, 0.05, 0.0)
@@ -545,9 +569,6 @@ def check(field, max, min):
     if np.nanmax(field) > max or np.nanmin(field) < min:
         print('\n\nWARNING! Please check the data, its seems they are out of a reasonable range %s MAX: %.2f MIN: %.2f \n' % (str.capitalize(field.name), np.nanmax(field), np.nanmin(field)))
      
-    if np.isnan((np.min(field.values))):
-        print('ERROR this does not work! %s VALUE: %.2f \n' % (str.capitalize(field.name), np.min(field.values)))
-
 def check_for_nan(ds):
     if WRF is True:
         for y,x in product(range(ds.dims['south_north']),range(ds.dims['west_east'])):
@@ -563,6 +584,11 @@ def check_for_nan(ds):
                 if np.isnan(ds.isel(lat=y, lon=x).to_array()).any():
                     print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
                     sys.exit()
+
+def check_for_nan_point(ds):
+    if np.isnan(ds.to_array()).any():
+        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
+        sys.exit()
 
 def compute_scale_and_offset(min, max, n):
     # stretch/compress data to the available packed range

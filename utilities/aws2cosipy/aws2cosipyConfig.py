@@ -38,7 +38,8 @@ N_var = 'N'
 #------------------------
 # Aggregation to hourly data
 #------------------------
-aggregate_hourly = True
+aggregate = True
+aggregation_step = 'H'
 
 # Delimiter in csv file
 delimiter = ','
@@ -71,7 +72,7 @@ hgt = 3300
 stationName = 'Zhadang'
 stationAlt = 5665.0
 
-lapse_T         = -0.006  # Temp K per  m
-lapse_RH        = 0.002  # RH % per  m (0 to 1)
-lapse_RRR       = 0.0000   # RRR % per m (0 to 1)
-lapse_SNOWFALL  = 0.0000   # Snowfall % per m (0 to 1)
+lapse_T         = -0.006    # Temp K per  m
+lapse_RH        =  0.002    # RH % per  m (0 to 1)
+lapse_RRR       =  0.0000   # RRR % per m (0 to 1)
+lapse_SNOWFALL  =  0.0000   # Snowfall % per m (0 to 1)
