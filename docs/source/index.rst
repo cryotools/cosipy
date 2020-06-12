@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to cosipy's documentation!
+Documentation
 ==================================
 COSIPY is a coupled snowpack and ice surface energy and mass balance model which solves the energy balance at the surface and is coupled to an adaptive vertical multi-layer subsurface module.
 

@@ -29,6 +29,9 @@ About
         :target: https://codecov.io/gh/cryotools/cosipy
 
 :Citation:
+    .. image:: https://img.shields.io/badge/Citation-GMD%20paper-orange.svg
+        :target: https://www.geosci-model-dev-discuss.net/gmd-2020-21/#discussion
+
     .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3613921.svg
         :target: https://doi.org/10.5281/zenodo.3613921
 
