@@ -254,7 +254,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
                           sensible_heat_flux + latent_heat_flux)
 
         # Convert melt energy to m w.e.q.
-        melt = melt_energy * dt / (water_density * lat_heat_melting)
+        melt = melt_energy * dt / (1000 * lat_heat_melting)
 
         # Remove melt [m w.e.q.]
         GRID.remove_melt_weq(melt - sublimation - deposition - evaporation)

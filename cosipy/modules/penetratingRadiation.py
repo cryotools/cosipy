@@ -68,7 +68,9 @@ def method_Bintanja(GRID, SWnet, dt):
                 GRID.set_node_temperature(idxNode, zero_temperature)
                 GRID.set_node_height(idxNode, (1-dh)*GRID.get_node_height(idxNode))
 
-            subsurface_melt += dtheta_w
+            subsurface_melt += dtheta_w * GRID.get_node_height(idxNode)
+        else:
+            GRID.set_node_temperature(idxNode, T_rad)
 
     # Remove layers which have been melted
     GRID.remove_node(list_of_layers_to_remove)
