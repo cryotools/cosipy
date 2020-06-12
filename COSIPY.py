@@ -178,7 +178,12 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             df_val = df_stakes_data.copy()
 
             # reshape and stack coordinates
-            coords = np.column_stack((DATA.lat.values.ravel(), DATA.lon.values.ravel()))
+            if WRF:
+                coords = np.column_stack((DATA.lat.values.ravel(), DATA.lon.values.ravel()))
+            else:
+                # in case lat/lon are 1D coordinates
+                lons, lats = np.meshgrid(DATA.lon,DATA.lat)
+                coords = np.column_stack((lats.ravel(),lons.ravel()))
 
             # construct KD-tree, in order to get closes grid cell
             ground_pixel_tree = scipy.spatial.cKDTree(transform_coordinates(coords))
@@ -187,12 +192,16 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             stakes_list = []
             for index, row in df_stakes_loc.iterrows():
                 index = ground_pixel_tree.query(transform_coordinates((row['lat'], row['lon'])))
-                index = np.unravel_index(index[1], DATA.lat.shape)
+                if WRF:
+                    index = np.unravel_index(index[1], DATA.lat.shape)
+                else:
+                    index = np.unravel_index(index[1], lats.shape)
                 stakes_list.append((index[0][0], index[1][0], row['id']))
 
         else:
             stakes_loc = None
             df_stakes_data = None
+
 
         # Distribute data and model to workers
         start_res = datetime.now()
