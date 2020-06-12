@@ -1,4 +1,9 @@
 *
 !.gitignore
-!Zhadang/
 !HEF/
+!HEF/data_stakes_hef.csv
+!HEF/HEF_input.nc
+!HEF/loc_stakes.csv
+!Zhadang/
+!Zhadang/Zhadang_ERA5_2009_2018.csv
+!Zhadang/Zhadang_ERA5_2009.nc

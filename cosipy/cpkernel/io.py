@@ -278,7 +278,7 @@ class IOClass:
         self.RESULT.attrs['Density_threshold_merging'] = density_threshold_merging
         self.RESULT.attrs['Temperature_threshold_merging'] = temperature_threshold_merging
 
-        self.RESULT.attrs['Density_fresh_snow'] = density_fresh_snow
+        self.RESULT.attrs['Density_fresh_snow'] = constant_density
         self.RESULT.attrs['Albedo_fresh_snow'] = albedo_fresh_snow
         self.RESULT.attrs['Albedo_firn'] = albedo_firn
         self.RESULT.attrs['Albedo_ice'] = albedo_ice

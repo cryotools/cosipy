@@ -6,9 +6,13 @@
 #-----------------------------------
 # SIMULATION PERIOD 
 #-----------------------------------
+# Zhadang
+time_start = '2009-01-01T06:00'
+time_end   = '2009-01-10T00:00'
+
 # Hintereisferner
-time_start = '2018-09-17T08:00'
-time_end   = '2019-07-03T13:00'
+#time_start = '2018-09-17T08:00'
+#time_end   = '2019-07-03T13:00'
 
 #-----------------------------------
 # FILENAMES AND PATHS 
@@ -17,8 +21,14 @@ time_start_str=(time_start[0:10]).replace('-','')
 time_end_str=(time_end[0:10]).replace('-','')
 
 data_path = './data/'
-input_netcdf = 'HEF/HEF_input.nc'
-output_netcdf = 'hef.nc'
+
+# Zhadang example
+input_netcdf= 'Zhadang/Zhadang_ERA5_2009.nc'
+output_netcdf = 'Zhadang_ERA5_'+time_start_str+'-'+time_end_str+'.nc'
+
+# Hintereisferner example
+#input_netcdf = 'HEF/HEF_input.nc'
+#output_netcdf = 'hef.nc'
 
 #-----------------------------------
 # RESTART 
@@ -28,7 +38,7 @@ restart = False                                             # set to true if you
 #-----------------------------------
 # STAKE DATA 
 #-----------------------------------
-stake_evaluation = True 
+stake_evaluation = False 
 stakes_loc_file = './data/input/HEF/loc_stakes.csv'         # path to stake location file
 stakes_data_file = './data/input/HEF/data_stakes_hef.csv'   # path to stake data file
 eval_method = 'rmse'                                        # how to evaluate the simulations ('rmse')
@@ -38,7 +48,7 @@ obs_type = 'snowheight'                                     # What kind of stake
 # STANDARD LAT/LON or WRF INPUT 
 #-----------------------------------
 # Dimensions
-WRF = True                                                 # Set to True if you use WRF as input
+WRF = False                                                 # Set to True if you use WRF as input
 
 if WRF is False:
     northing = 'lat'	                                    # name of dimension	in in- and -output
@@ -62,7 +72,7 @@ local_port = 8786                                           # port for local clu
 #-----------------------------------
 # WRITE FULL FIELDS 
 #-----------------------------------    
-full_field = True                                          # write full fields (2D data) to file
+full_field = False                                          # write full fields (2D data) to file
     
 #-----------------------------------
 # TOTAL PRECIPITATION  

@@ -95,15 +95,3 @@ def load_snowpack(GRID_RESTART):
         sys.exit(1) 
     
     return GRID
-
-
-
-
-
-
-
-
-
-
-
-

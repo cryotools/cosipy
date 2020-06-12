@@ -1,5 +1,5 @@
 *
 !.gitignore
-DEM/n30_e090_3arc_v2.tif
-Shapefiles/Zhadang_RGI6*
-
+!DEM/n30_e090_3arc_v2.tif
+!Shapefiles/Zhadang_RGI6*
+!Zhadang_static.nc
