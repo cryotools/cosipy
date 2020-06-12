@@ -62,8 +62,8 @@ def create_input(wrf_file, cosipy_file, start_date, end_date):
     z  = hu     # Height of measurement
     z0 = 0.0040 # Roughness length for momentum
     umag = np.sqrt(ds.V10.values**2+ds.U10.values**2)   # Mean wind velocity
-    ustar = (umag*0.41)/(np.log(z/z0))                  # Friction velocity
-    U2 = (ustar/0.41) * np.log(z/z0)                    # New wind velocity at 2 m
+    U2 = umag * (np.log(2 / z0) / np.log(10 / z0))
+
     dso = add_variable_along_timelatlon(dso, U2, 'U2', 'm s^-1', 'Wind velocity at 2 m')
 
     # Add glacier mask to file (derived from the land use category)
@@ -76,9 +76,9 @@ def create_input(wrf_file, cosipy_file, start_date, end_date):
     rrr = np.full_like(ds.T2, np.nan)
     for t in np.arange(len(dso.time)):
         if (t==0):
-            rrr[t,:,:] = ds.RAINNC[t,:,:]
+            rrr[t,:,:] = ds.RAINNC[t,:,:] + ds.RAINC[t,:,:]
         else:
-            rrr[t,:,:] = ds.RAINNC[t,:,:]-ds.RAINNC[t-1,:,:]    
+            rrr[t,:,:] = (ds.RAINNC[t,:,:] + ds.RAINC[t,:,:])  - (ds.RAINNC[t-1,:,:] + ds.RAINC[t-1,:,:])    
     dso = add_variable_along_timelatlon(dso, rrr, 'RRR', 'mm', 'Total precipitation')
  
     # Derive snowfall from accumulated values
