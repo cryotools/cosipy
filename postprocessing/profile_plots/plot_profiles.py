@@ -30,7 +30,7 @@ def plot_profile(filename, pdate, lat, lon):
     plt.show()
 
 
-def plot_profile_1D_timeseries(filename, var, domainy=None, start=None, end=None, lat=None, lon=None):
+def plot_profile_1D_timeseries(filename, var, domainy=None, start=None, end=None, lat=None, lon=None, stake_file=None, pit_name=None):
     
     # Get dataset
     ds = xr.open_dataset(filename)
@@ -95,6 +95,13 @@ def plot_profile_1D_timeseries(filename, var, domainy=None, start=None, end=None
             V = ds.LAYER_HEIGHT[:,:].values.cumsum(axis=1)
         cmap = plt.get_cmap('YlGnBu_r')
         barLabel = 'Depth [m]'
+    if var=='HEIGHT':
+        if ((lat is None) & (lon is None)):
+            V = ds.LAYER_HEIGHT[:,0,0,:].values
+        else:
+            V = ds.LAYER_HEIGHT[:,:].values
+        cmap = plt.get_cmap('YlGnBu_r')
+        barLabel = 'Layer height [m]'
         
         
     if ((lat is None) & (lon is None)):
@@ -142,19 +149,20 @@ def plot_profile_1D_timeseries(filename, var, domainy=None, start=None, end=None
         data[sel,i] = V[i,idx]
     
     fig, ax = plt.subplots(figsize=(20, 10))
-    #CS = ax.pcolormesh(X,Y,data,cmap=cmap)
-    CS = ax.pcolormesh(X,Y,data, vmin=100, vmax=600)
+    CS = ax.pcolormesh(X,Y,data,cmap=cmap)
+    #CS = ax.pcolormesh(X,Y,data, vmin=0, vmax=0.1)
     
     N = pd.date_range(ds.time[0].values, ds.time[-1].values, freq='m')
     M = pd.date_range(ds.time[0].values, ds.time[-1].values, freq='H')
- 
-    df = pd.read_csv('../../data/input/HEF/data_stakes_hef.csv',sep='\t',index_col='TIMESTAMP')
-    df = df[df['Pit01']!=-9999]
+
+    if ((stake_file!=None) & (pit_name!=None)):
+        df = pd.read_csv(stake_file, sep='\t',index_col='TIMESTAMP')
+        df = df[df[pit_name]!=-9999]
     
-    for index, row in df.iterrows():
-        res = (M == pd.Timestamp(index)).argmax() 
-        if res!=0:
-            plt.scatter(res,row['Pit01'])
+        for index, row in df.iterrows():
+            res = (M == pd.Timestamp(index)).argmax() 
+            if res!=0:
+                plt.scatter(res,row[pit_name])
 
     labIdx = []
     label = []
@@ -232,27 +240,22 @@ def naive_fast(latvar,lonvar,lat0,lon0):
     
 
 if __name__ == "__main__":
-    
+   
     parser = argparse.ArgumentParser(description='Quick plot of the results file.')
-    parser.add_argument('-f', '-file', dest='file', help='File name')
-    parser.add_argument('-d', '-date', dest='pdate', help='Which date to plot')
-    parser.add_argument('-v', '-var', dest='var', help='Which variable')
-    parser.add_argument('-n', '-lat', dest='lat', help='Latitude', type=float)
-    parser.add_argument('-m', '-lon', dest='lon', help='Longitude', type=float)
-    parser.add_argument('-e', '-depth', dest='d', nargs='+', help='depth', type=float)
-    parser.add_argument('-s', '-start', dest='start', help='start date')
-    parser.add_argument('-t', '-end', dest='end', help='depth')
+    parser.add_argument('-f', '--file', dest='file', help='Path to the result file')
+    parser.add_argument('-d', '--date', dest='pdate', help='Date of the profile plot')
+    parser.add_argument('-v', '--var', dest='var', default='RHO', help='Which variable to plot (e.g. T, RHO, etc.)')
+    parser.add_argument('-n', '--lat', dest='lat', default=None, help='Latitude value in case of 2D simulation', type=float)
+    parser.add_argument('-m', '--lon', dest='lon', default=None, help='Longitude value in case of 2D simulation', type=float)
+    parser.add_argument('-s', '--start', dest='start', default=None, help='Start date for the time plot')
+    parser.add_argument('-e', '--end', dest='end', default=None, help='End date for the time plot')
+    parser.add_argument('--stake-file', dest='stake_file', default=None, help='Path to the stake data file')
+    parser.add_argument('--pit', dest='pit_name', default=None, help='Name of the pit in the stake data file')
+    parser.add_argument('--depth', dest='d', nargs='+', default=None, help='An array with depth values for which the corresponding values are to be displayed', type=float)
 
     args = parser.parse_args()
-    
-    if (args.lat is None) & (args.lon is None) & (args.pdate is None):
-        plot_profile_1D_timeseries(args.file, args.var, args.d, args.start, args.end)
-    
-    if (args.lat is not None) & (args.lon is not None) & (args.d is not None) & (args.pdate is None):
-        plot_profile_1D_timeseries(args.file, args.var, args.d, args.lat, args.lon)
-
-    if (args.lat is None) & (args.lon is None) & (args.pdate is not None):
-        plot_profile_1D(args.file, args.pdate, args.d) 
-    
-    if (args.lat is not None) & (args.lon is not None) & (args.pdate is not None):
+   
+    if (args.pdate is None):
+        plot_profile_1D_timeseries(args.file, args.var, args.d, args.start, args.end, stake_file=args.stake_file, pit_name=args.pit_name)
+    else:
         plot_profile_1D(args.file, args.pdate, args.d, args.lat, args.lon) 
