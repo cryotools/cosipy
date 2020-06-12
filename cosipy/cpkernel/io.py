@@ -231,32 +231,54 @@ class IOClass:
         self.RESULT.coords['lat'] = self.DATA.coords['lat']
         self.RESULT.coords['lon'] = self.DATA.coords['lon']
 
-        # Attributes
-        self.RESULT.attrs['Remesh_method'] = remesh_method
+        # Global attributes from config.py
         self.RESULT.attrs['Start_from_restart_file'] = str(restart)
+        self.RESULT.attrs['Stake_evaluation'] = str(stake_evaluation)
+        self.RESULT.attrs['WRF_simulation'] = str(WRF)
+        self.RESULT.attrs['Compression_level'] = compression_level
+        self.RESULT.attrs['Slurm_use'] = str(slurm_use)
+        self.RESULT.attrs['Full_fiels'] = str(full_field)
         self.RESULT.attrs['Force_use_TP'] = str(force_use_TP)
-        self.RESULT.attrs['Time_step_input_file_seconds'] = dt
-        self.RESULT.attrs['Density_threshold_merging'] = density_threshold_merging
-        self.RESULT.attrs['Temperature_threshold_merging'] = temperature_threshold_merging
-        self.RESULT.attrs['Merge_max'] = merge_max
+        self.RESULT.attrs['Force_use_N'] = str(force_use_N)
+        self.RESULT.attrs['Tile_of_glacier_of_interest'] = str(tile)
 
+        # Global attributes from constants.py
+        self.RESULT.attrs['Time_step_input_file_seconds'] = dt
+        self.RESULT.attrs['Max_layers'] = max_layers
+        self.RESULT.attrs['Z_measurment_height'] = z
+        self.RESULT.attrs['Stability_correction'] = stability_correction
         self.RESULT.attrs['Albedo_method'] = albedo_method
         self.RESULT.attrs['Densification_method'] = densification_method
         self.RESULT.attrs['Penetrating_method'] = penetrating_method
         self.RESULT.attrs['Roughness_method'] = roughness_method
         self.RESULT.attrs['Saturation_water_vapour_method'] = saturation_water_vapour_method
+
         self.RESULT.attrs['Initial_snowheight'] = initial_snowheight_constant
         self.RESULT.attrs['Initial_snow_layer_heights'] = initial_snow_layer_heights
-        self.RESULT.attrs['Initial_glacier_layer_heights'] = initial_glacier_layer_heights
         self.RESULT.attrs['Initial_glacier_height'] = initial_glacier_height
+        self.RESULT.attrs['Initial_glacier_layer_heights'] = initial_glacier_layer_heights
         self.RESULT.attrs['Initial_top_density_snowpack'] = initial_top_density_snowpack_constant
         self.RESULT.attrs['Initial_bottom_density_snowpack'] = initial_bottom_density_snowpack_constant
         self.RESULT.attrs['Temperature_top'] = temperature_top_constant
         self.RESULT.attrs['Temperature_bottom'] = temperature_bottom
         self.RESULT.attrs['Const_init_temp'] = const_init_temp
+
+        self.RESULT.attrs['Center_snow_transfer_function'] = center_snow_transfer_function
+        self.RESULT.attrs['Spread_snow_transfer_function'] = spread_snow_transfer_function
+        self.RESULT.attrs['Multiplication_factor_for_RRR_or_SNOWFALL'] = mult_factor_RRR
+        self.RESULT.attrs['Minimum_snow_to_reset_albedo'] = minimum_snow_to_reset_albedo
+        self.RESULT.attrs['Minimum_snow_layer_height'] = minimum_snow_layer_height
+
+        self.RESULT.attrs['Remesh_method'] = remesh_method
         self.RESULT.attrs['First_layer_height_log_profile'] = first_layer_height
         self.RESULT.attrs['Layer_stretching_log_profile'] = layer_stretching
-        self.RESULT.attrs['Minimum_snow_to_reset_albedo'] = minimum_snow_to_reset_albedo
+
+        self.RESULT.attrs['Merge_max'] = merge_max
+        self.RESULT.attrs['Layer_stretching_log_profile'] = layer_stretching
+        self.RESULT.attrs['Density_threshold_merging'] = density_threshold_merging
+        self.RESULT.attrs['Temperature_threshold_merging'] = temperature_threshold_merging
+
+        self.RESULT.attrs['Density_fresh_snow'] = density_fresh_snow
         self.RESULT.attrs['Albedo_fresh_snow'] = albedo_fresh_snow
         self.RESULT.attrs['Albedo_firn'] = albedo_firn
         self.RESULT.attrs['Albedo_ice'] = albedo_ice
@@ -266,11 +288,24 @@ class IOClass:
         self.RESULT.attrs['Roughness_ice'] = roughness_ice
         self.RESULT.attrs['Roughness_firn'] = roughness_firn
         self.RESULT.attrs['Aging_factor_roughness'] = aging_factor_roughness
-        self.RESULT.attrs['Surface_emission_coeff'] = surface_emission_coeff
         self.RESULT.attrs['Snow_ice_threshold'] = snow_ice_threshold
         self.RESULT.attrs['Snow_firn_threshold'] = snow_firn_threshold
-        self.RESULT.attrs['Center_snow_transfer_function'] = center_snow_transfer_function
-        self.RESULT.attrs['Spread_snow_transfer_function'] = spread_snow_transfer_function
+
+        self.RESULT.attrs['lat_heat_melting'] = lat_heat_melting
+        self.RESULT.attrs['lat_heat_vaporize'] = lat_heat_vaporize
+        self.RESULT.attrs['lat_heat_sublimation'] = lat_heat_sublimation
+        self.RESULT.attrs['spec_heat_air'] = spec_heat_air
+        self.RESULT.attrs['spec_heat_ice'] = spec_heat_ice
+        self.RESULT.attrs['spec_heat_water'] = spec_heat_water
+        self.RESULT.attrs['k_i'] = k_i
+        self.RESULT.attrs['k_w'] = k_w
+        self.RESULT.attrs['k_a'] = k_a
+        self.RESULT.attrs['water_density'] = water_density
+        self.RESULT.attrs['ice_density'] = ice_density
+        self.RESULT.attrs['air_density'] = air_density
+        self.RESULT.attrs['sigma'] = sigma
+        self.RESULT.attrs['zero_temperature'] = zero_temperature
+        self.RESULT.attrs['Surface_emission_coeff'] = surface_emission_coeff
 
         # Variables given by the input dataset
         self.add_variable_along_latlon(self.RESULT, self.DATA.HGT, 'HGT', 'm', 'Elevation')
