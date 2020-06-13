@@ -41,7 +41,7 @@ minimum_snow_layer_height = 0.001               # minimum layer height
 
 
 ' REMESHING OPTIONS'
-remesh_method = 'adaptive_profile'                   # Remeshing (log_profile or adaptive_profile)
+remesh_method = 'log_profile'                   # Remeshing (log_profile or adaptive_profile)
 first_layer_height = 0.01                       # The first layer will always have the defined height (m)
 layer_stretching = 1.20                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
 
