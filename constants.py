@@ -9,7 +9,7 @@ max_layers = 500                                # Max. number of layers, just fo
 z = 2.0                                         # Measurement height [m]
 
 ' PARAMETERIZATIONS '
-stability_correction = 'MO'                     # possibilities: 'Ri','MO'
+stability_correction = 'Ri'                     # possibilities: 'Ri','MO'
 albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98'
 densification_method = 'Boone'                  # possibilities: 'Boone','Vionnet','empirical','constant'
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
