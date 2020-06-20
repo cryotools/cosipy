@@ -1,4 +1,4 @@
-"""scent direction
+"""
  This is the COSIPY configuration (init) file.
  Please make your changes here.
 """
