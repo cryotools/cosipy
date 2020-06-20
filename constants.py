@@ -51,7 +51,7 @@ temperature_threshold_merging = 0.01            # If mering is true threshold fo
 
 
 ' PHYSICAL CONSTANTS '
-constant_density = 300.                        # constant density of freshly fallen snow [kg m-3], if densification_method is set to 'constant'
+constant_density = 300.                         # constant density of freshly fallen snow [kg m-3], if densification_method is set to 'constant'
 
 albedo_fresh_snow = 0.9                         # albedo of fresh snow [-] (Moelg et al. 2012, TC)
 albedo_firn = 0.6                               # albedo of firn [-] (Moelg et al. 2012, TC)
@@ -75,9 +75,6 @@ spec_heat_air = 1004.67                         # specific heat of air [J kg-1 K
 spec_heat_ice = 2050.00                         # specific heat of ice [J Kg-1 K-1]
 spec_heat_water = 4217.00                       # specific heat of water [J Kg-1 K-1]
 
-#k_i = 2.25                                      # thermal conductivity ice [W m^-1 K^-1]
-#k_w = 0.6089                                    # thermal conductivity water [W m^-1 K^-1]
-#k_a = 0.026                                     # thermal conductivity air [W m^-1 K^-1]
 k_i = 2.22                                      # thermal conductivity ice [W m^-1 K^-1]
 k_w = 0.55                                    # thermal conductivity water [W m^-1 K^-1]
 k_a = 0.024                                     # thermal conductivity air [W m^-1 K^-1]

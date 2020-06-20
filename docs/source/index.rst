@@ -5,7 +5,7 @@
 
 Documentation
 ==================================
-COSIPY is a coupled snowpack and ice surface energy and mass balance model which solves the energy balance at the surface and is coupled to an adaptive vertical multi-layer subsurface module.
+COSIPY is a Python-based coupled snowpack and ice surface energy and mass balance model which solves the energy balance at the surface and is coupled to an adaptive vertical multi-layer subsurface module.
 
 .. toctree::
    :maxdepth: 2
