@@ -325,18 +325,6 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     #-----------------------------------
     # Order variables
     #-----------------------------------
-    if (in_K):
-        T2 = df[T2_var].values         # Temperature
-    else:
-        T2 = df[T2_var].values + 273.16      
-
-    if np.nanmax(T2) > 373.16:
-        print('Maximum temperature is: %s K please check the input temperature' % (np.nanmax(T2)))
-        sys.exit()
-    elif np.nanmin(T2) < 173.16:
-        print('Minimum temperature is: %s K please check the input temperature' % (np.nanmin(T2)))
-        sys.exit()
-
     df[T2_var] = df[T2_var].apply(pd.to_numeric, errors='coerce')
     df[RH2_var] = df[RH2_var].apply(pd.to_numeric, errors='coerce')
     df[U2_var] = df[U2_var].apply(pd.to_numeric, errors='coerce')
@@ -366,11 +354,22 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     #-----------------------------------
     # Get values from file
     #-----------------------------------
-    T2 = df[T2_var]         # Temperature
     RH2 = df[RH2_var]       # Relative humidity
     U2 = df[U2_var]         # Wind velocity
     G = df[G_var]           # Incoming shortwave radiation
     PRES = df[PRES_var]     # Pressure
+
+    if (in_K):
+        T2 = df[T2_var].values         # Temperature
+    else:
+        T2 = df[T2_var].values + 273.16      
+
+    if np.nanmax(T2) > 373.16:
+        print('Maximum temperature is: %s K please check the input temperature' % (np.nanmax(T2)))
+        sys.exit()
+    elif np.nanmin(T2) < 173.16:
+        print('Minimum temperature is: %s K please check the input temperature' % (np.nanmin(T2)))
+        sys.exit()
 
     #-----------------------------------
     # Create numpy arrays for the 2D fields
