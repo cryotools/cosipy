@@ -83,9 +83,20 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
 
     else:
         ds = xr.Dataset()
-        x, y = np.meshgrid(plon, plat)
-        ds.coords['lat'] = (('south_north', 'west_east'), y)
-        ds.coords['lon'] = (('south_north', 'west_east'), x)
+        if WRF:
+            lon, lat = np.meshgrid(plon, plat)
+            ds.coords['lat'] = (('south_north', 'west_east'), lon)
+            ds.coords['lon'] = (('south_north', 'west_east'), lat)
+        else:
+            ds.coords['lon'] = np.array([plon])
+            ds.lon.attrs['standard_name'] = 'lon'
+            ds.lon.attrs['long_name'] = 'longitude'
+            ds.lon.attrs['units'] = 'degrees_east'
+
+            ds.coords['lat'] = np.array([plat])
+            ds.lat.attrs['standard_name'] = 'lat'
+            ds.lat.attrs['long_name'] = 'latitude'
+            ds.lat.attrs['units'] = 'degrees_north'
 
     ds.coords['time'] = (('time'), df.index.values)
 
@@ -286,19 +297,19 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
 
         elif ((N_var in df) and (RRR_var in df)):
             df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
-                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
+                RRR_var:'sum'})
 
         elif ((N_var in df) and (SNOWFALL_var in df)):
             df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
-                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
+                SNOWFALL_var:'sum'})
 
         elif ((RRR_var in df) and (LWin_var in df)):
-            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
-                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', RRR_var:'sum',
+                LWin_var:'mean'})
 
         elif ((LWin_var in df) and (SNOWFALL_var in df)):
-            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
-                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
+            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', LWin_var:'mean',
+                SNOWFALL_var:'sum'})
 
     #-----------------------------------
     # Load static data
