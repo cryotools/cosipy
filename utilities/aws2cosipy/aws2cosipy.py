@@ -261,7 +261,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
         df = df.loc[start_date:end_date]
 
     #-----------------------------------
-    # Average to hourly data 
+    # Aggregate data to selected value
     #-----------------------------------
     if aggregate:
         if ((N_var in df) and (RRR_var in df) and (LWin_var in df) and (SNOWFALL_var in df)):
