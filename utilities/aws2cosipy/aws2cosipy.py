@@ -26,7 +26,7 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
 
         Latest update: 
             Tobias Sauter 07.07.2019
-	        Anselm 12.11.2019
+	    Anselm Arndt 12.11.2019
     """
 
     print('-------------------------------------------')

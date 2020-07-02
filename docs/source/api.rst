@@ -9,7 +9,8 @@ Kernel classes
 .. autosummary::
     :toctree: generated/
     :nosignatures:
-
+    
+    cpkernel.cosipy_core
     cpkernel.grid.Grid
     cpkernel.grid.Node
 
@@ -31,3 +32,13 @@ Parametrizations
     modules.refreezing
     modules.roughness
     modules.surfaceTemperature
+
+Utilities
+=========
+
+.. autosummary::
+    :toctree: generated/
+    :nosignatures:
+
+    utilities.aws2cosipy.aws2cosipy
+

@@ -21,6 +21,24 @@ import cProfile
 
 
 def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_data=None):
+""" _cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_data=None)
+    Cosipy core function, which perform the calculations on one core
+    Params
+    ======
+    DATA: xarray.Dataset
+      xarray dataset which contain one grid point
+    indY: 
+    indX:
+    GRID_RESTART : boolean, optional
+      If restart is given, no inital profile is created
+    stake_name : boolean, optional
+      stake names      
+    stake_data : boelann, optional
+      stake data
+    Returns
+    ======
+    Returns all calculated variables of one grid point
+    """
 
     # Local variables
     _RRR = np.full(len(DATA.time), np.nan)
