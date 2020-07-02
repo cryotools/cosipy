@@ -4,10 +4,8 @@ cosipy.cpkernel.grid.Grid
 .. currentmodule:: cosipy.cpkernel.grid
 
 .. autoclass:: Grid
-   :members:
-   :undoc-members:
-   :show-inheritance:
-    
+
+   
    .. automethod:: __init__
 
    

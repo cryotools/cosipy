@@ -33,6 +33,9 @@ Parametrizations
     modules.roughness
     modules.surfaceTemperature
 
+
+.. currentmodule:: utilities
+
 Utilities
 =========
 
@@ -40,5 +43,5 @@ Utilities
     :toctree: generated/
     :nosignatures:
 
-    utilities.aws2cosipy.aws2cosipy
+    aws2cosipy.aws2cosipy
 
