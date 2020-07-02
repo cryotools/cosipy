@@ -21,7 +21,7 @@ import cProfile
 
 
 def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_data=None):
-""" _cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_data=None)
+    """ _cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_data=None)
     Cosipy core function, which perform the calculations on one core
     Params
     ======
@@ -38,6 +38,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     Returns
     ======
     Returns all calculated variables of one grid point
+
     """
 
     # Local variables
