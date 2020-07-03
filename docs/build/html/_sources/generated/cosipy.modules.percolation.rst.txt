@@ -5,6 +5,10 @@ cosipy.modules.percolation
 
    
    
+   
+
+   
+   
    .. rubric:: Functions
 
    .. autosummary::
@@ -20,3 +24,6 @@ cosipy.modules.percolation
    
    
    
+
+
+

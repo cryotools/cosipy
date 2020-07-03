@@ -129,7 +129,7 @@ The script is executed with
 +-----------+-------------+
 
 If the script was executed successfully, the file
-/data/input/Zhadang/Zhadang_ERA5_2009_2018.nc should have been created.
+/data/input/Zhadang/Zhadang_ERA5_2009.nc should have been created.
 
 .. _run:
 

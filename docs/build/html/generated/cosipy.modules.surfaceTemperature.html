@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,30 +11,33 @@
   
 
   
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
   
   
   
 
   
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="utilities.aws2cosipy.aws2cosipy" href="utilities.aws2cosipy.aws2cosipy.html" />
     <link rel="prev" title="cosipy.modules.roughness" href="cosipy.modules.roughness.html" /> 
 </head>
 
@@ -50,7 +52,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> COSIPY
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> COSIPY
           
 
           
@@ -80,6 +82,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -109,6 +112,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">cosipy.modules.surfaceTemperature</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#utilities">Utilities</a></li>
 </ul>
 </li>
 </ul>
@@ -116,6 +120,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -154,7 +159,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../api.html">API</a> &raquo;</li>
         
@@ -186,112 +191,32 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.modules.surfaceTemperature.eb_fluxes" title="cosipy.modules.surfaceTemperature.eb_fluxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eb_fluxes</span></code></a>(GRID, T0, alpha, z0, T2, rH2, p, …)</p></td>
-<td><p>This functions returns the surface fluxes</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MO</span></code>(rho, ust, T2, H)</p></td>
+<td><p>Monin-Obukhov length</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.modules.surfaceTemperature.eb_optim" title="cosipy.modules.surfaceTemperature.eb_optim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eb_optim</span></code></a>(T0, GRID, alpha, z0, T2, rH2, p, G, …)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">eb_fluxes</span></code>(GRID, T0, alpha, z0, T2, rH2, p, …)</p></td>
+<td><p>This functions returns the surface fluxes with Monin-Obukhov stability correction.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">eb_optim</span></code>(T0, GRID, alpha, z0, T2, rH2, p, G, …)</p></td>
 <td><p>Optimization function to solve for surface temperature T0</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#cosipy.modules.surfaceTemperature.method_EW_Sonntag" title="cosipy.modules.surfaceTemperature.method_EW_Sonntag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">method_EW_Sonntag</span></code></a>(T)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">method_EW_Sonntag</span></code>(T)</p></td>
 <td><p>Saturation vapor pressure</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#cosipy.modules.surfaceTemperature.update_surface_temperature" title="cosipy.modules.surfaceTemperature.update_surface_temperature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_surface_temperature</span></code></a>(GRID, alpha, z0, …)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">phi_m</span></code>(z, L)</p></td>
+<td><p>Stability function for the momentum flux.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">phi_tq</span></code>(z, L)</p></td>
+<td><p>Stability function for the heat and moisture flux.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_surface_temperature</span></code>(GRID, alpha, z0, …)</p></td>
 <td><p>This methods updates the surface temperature and returns the surface fluxes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ustar</span></code>(u2, z, z0, L)</p></td>
+<td><p>Friction velocity.</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="function">
-<dt id="cosipy.modules.surfaceTemperature.eb_fluxes">
-<code class="sig-prename descclassname">cosipy.modules.surfaceTemperature.</code><code class="sig-name descname">eb_fluxes</code><span class="sig-paren">(</span><em class="sig-param">GRID</em>, <em class="sig-param">T0</em>, <em class="sig-param">alpha</em>, <em class="sig-param">z0</em>, <em class="sig-param">T2</em>, <em class="sig-param">rH2</em>, <em class="sig-param">p</em>, <em class="sig-param">G</em>, <em class="sig-param">u2</em>, <em class="sig-param">SLOPE</em>, <em class="sig-param">LWin=None</em>, <em class="sig-param">N=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.modules.surfaceTemperature.eb_fluxes" title="Permalink to this definition">¶</a></dt>
-<dd><p>This functions returns the surface fluxes</p>
-<p>Given:</p>
-<blockquote>
-<div><p>GRID    ::  Grid structure
-T0      ::  Surface temperature [K]
-alpha   ::  Albedo [-]
-z0      ::  Roughness length [m]
-T2      ::  Air temperature [K]
-rH2     ::  Relative humidity [%]
-p       ::  Air pressure [hPa]
-G       ::  Incoming shortwave radiation [W m^-2]
-u2      ::  Wind velocity [m S^-1]
-SLOPE   ::  Slope of the surface [degree]
-LWin    ::  Incoming longwave radiation [W m^-2]
-N       ::  Fractional cloud cover [-]</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Li      ::  Incoming longwave radiation [W m^-2]
-Lo      ::  Outgoing longwave radiation [W m^-2]
-H       ::  Sensible heat flux [W m^-2]
-L       ::  Latent heat flux [W m^-2]
-B       ::  Ground heat flux [W m^-2]
-SWnet   ::  Shortwave radiation budget [W m^-2]
-rho     ::  Air density [kg m^-3]
-Lv      ::  Latent heat of vaporization [J kg^-1]
-Cs_t    ::  Stanton number [-]
-Cs_q    ::  Dalton number [-]
-q0      ::  Mixing ratio at the surface [kg kg^-1]
-q2      ::  Mixing ratio at measurement height [kg kg^-1]
-phi     ::  Stability correction term [-]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="cosipy.modules.surfaceTemperature.eb_optim">
-<code class="sig-prename descclassname">cosipy.modules.surfaceTemperature.</code><code class="sig-name descname">eb_optim</code><span class="sig-paren">(</span><em class="sig-param">T0</em>, <em class="sig-param">GRID</em>, <em class="sig-param">alpha</em>, <em class="sig-param">z0</em>, <em class="sig-param">T2</em>, <em class="sig-param">rH2</em>, <em class="sig-param">p</em>, <em class="sig-param">G</em>, <em class="sig-param">u2</em>, <em class="sig-param">SLOPE</em>, <em class="sig-param">LWin=None</em>, <em class="sig-param">N=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.modules.surfaceTemperature.eb_optim" title="Permalink to this definition">¶</a></dt>
-<dd><p>Optimization function to solve for surface temperature T0</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="cosipy.modules.surfaceTemperature.method_EW_Sonntag">
-<code class="sig-prename descclassname">cosipy.modules.surfaceTemperature.</code><code class="sig-name descname">method_EW_Sonntag</code><span class="sig-paren">(</span><em class="sig-param">T</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.modules.surfaceTemperature.method_EW_Sonntag" title="Permalink to this definition">¶</a></dt>
-<dd><p>Saturation vapor pressure</p>
-<dl class="simple">
-<dt>Input:</dt><dd><p>T   ::  Temperature [K]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="cosipy.modules.surfaceTemperature.update_surface_temperature">
-<code class="sig-prename descclassname">cosipy.modules.surfaceTemperature.</code><code class="sig-name descname">update_surface_temperature</code><span class="sig-paren">(</span><em class="sig-param">GRID</em>, <em class="sig-param">alpha</em>, <em class="sig-param">z0</em>, <em class="sig-param">T2</em>, <em class="sig-param">rH2</em>, <em class="sig-param">p</em>, <em class="sig-param">G</em>, <em class="sig-param">u2</em>, <em class="sig-param">SLOPE</em>, <em class="sig-param">LWin=None</em>, <em class="sig-param">N=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cosipy.modules.surfaceTemperature.update_surface_temperature" title="Permalink to this definition">¶</a></dt>
-<dd><p>This methods updates the surface temperature and returns the surface fluxes</p>
-<p>Given:</p>
-<blockquote>
-<div><p>GRID    ::  Grid structure
-T0      ::  Surface temperature [K]
-alpha   ::  Albedo [-]
-z0      ::  Roughness length [m]
-T2      ::  Air temperature [K]
-rH2     ::  Relative humidity [%]
-p       ::  Air pressure [hPa]
-G       ::  Incoming shortwave radiation [W m^-2]
-u2      ::  Wind velocity [m S^-1]
-SLOPE   ::  Slope of the surface [degree]
-LWin    ::  Incoming longwave radiation [W m^-2]
-N       ::  Fractional cloud cover [-]</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Li      ::  Incoming longwave radiation [W m^-2]
-Lo      ::  Outgoing longwave radiation [W m^-2]
-H       ::  Sensible heat flux [W m^-2]
-L       ::  Latent heat flux [W m^-2]
-B       ::  Ground heat flux [W m^-2]
-SWnet   ::  Shortwave radiation budget [W m^-2]
-rho     ::  Air density [kg m^-3]
-Lv      ::  Latent heat of vaporization [J kg^-1]
-Cs_t    ::  Stanton number [-]
-Cs_q    ::  Dalton number [-]
-q0      ::  Mixing ratio at the surface [kg kg^-1]
-q2      ::  Mixing ratio at measurement height [kg kg^-1]
-phi     ::  Stability correction term [-]</p>
-</dd>
-</dl>
-</dd></dl>
-
 </div>
 
 
@@ -301,6 +226,8 @@ phi     ::  Stability correction term [-]</p>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="utilities.aws2cosipy.aws2cosipy.html" class="btn btn-neutral float-right" title="utilities.aws2cosipy.aws2cosipy" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="cosipy.modules.roughness.html" class="btn btn-neutral float-left" title="cosipy.modules.roughness" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -312,11 +239,19 @@ phi     ::  Stability correction term [-]</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019-2019, COSIPY Developer
+        
+        &copy; Copyright 2019-2020, COSIPY Developer
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -327,7 +262,6 @@ phi     ::  Stability correction term [-]</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
