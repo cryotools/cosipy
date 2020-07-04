@@ -37,6 +37,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="utilities.wrf2cosipy.wrf2cosipy" href="utilities.wrf2cosipy.wrf2cosipy.html" />
     <link rel="prev" title="cosipy.modules.surfaceTemperature" href="cosipy.modules.surfaceTemperature.html" /> 
 </head>
 
@@ -101,8 +102,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../api.html#parametrizations">Parametrizations</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../api.html#utilities">Utilities</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">utilities.aws2cosipy.aws2cosipy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utilities.wrf2cosipy.wrf2cosipy.html">utilities.wrf2cosipy.wrf2cosipy</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#postprocessing">Postprocessing</a></li>
 </ul>
 </li>
 </ul>
@@ -174,7 +177,10 @@
             
   <div class="section" id="module-utilities.aws2cosipy.aws2cosipy">
 <span id="utilities-aws2cosipy-aws2cosipy"></span><h1>utilities.aws2cosipy.aws2cosipy<a class="headerlink" href="#module-utilities.aws2cosipy.aws2cosipy" title="Permalink to this headline">¶</a></h1>
-<p>This file reads the input data (model forcing) and write the output to netcdf file</p>
+<p>This file reads the input data (model forcing) and write the output to netcdf file.  There is the create_1D_input
+(point model) and create_2D_input (distirbuted simulations) function. In case of the 1D input, the function works
+without a static file, in that file the static variables are created. For both cases, lapse rates can be determined
+in the aws2cosipyConfig.py file.</p>
 <p class="rubric">Functions</p>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -223,6 +229,8 @@
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="utilities.wrf2cosipy.wrf2cosipy.html" class="btn btn-neutral float-right" title="utilities.wrf2cosipy.wrf2cosipy" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="cosipy.modules.surfaceTemperature.html" class="btn btn-neutral float-left" title="cosipy.modules.surfaceTemperature" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

@@ -1,5 +1,8 @@
 """
- This file reads the input data (model forcing) and write the output to netcdf file
+ This file reads the input data (model forcing) and write the output to netcdf file.  There is the create_1D_input
+ (point model) and create_2D_input (distirbuted simulations) function. In case of the 1D input, the function works
+ without a static file, in that file the static variables are created. For both cases, lapse rates can be determined
+ in the aws2cosipyConfig.py file.
 """
 import sys
 import xarray as xr
@@ -26,7 +29,7 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
 
         Latest update: 
             Tobias Sauter 07.07.2019
-	    Anselm Arndt 12.11.2019
+	        Anselm 04.07.2020
     """
 
     print('-------------------------------------------')
@@ -132,9 +135,9 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     # Get values from file
     #-----------------------------------
     if (in_K):
-        T2 = df[T2_var].values         # Temperature
+        T2 = df[T2_var].values + (hgt - stationAlt) * lapse_T                                   # Temperature
     else:
-        T2 = df[T2_var].values + 273.16      
+        T2 = df[T2_var].values + 273.16 + (hgt - stationAlt) * lapse_T
 
     if np.nanmax(T2) > 373.16:
         print('Maximum temperature is: %s K please check the input temperature' % (np.nanmax(T2)))
@@ -143,31 +146,29 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
         print('Minimum temperature is: %s K please check the input temperature' % (np.nanmin(T2)))
         sys.exit()
 
-    RH2 = df[RH2_var].values       # Relative humidity
-    U2 = df[U2_var].values          # Wind velocity
-    G = df[G_var].values            # Incoming shortwave radiation
-    PRES = df[PRES_var].values      # Pressure
+    RH2 = df[RH2_var].values + (hgt - stationAlt) * lapse_RH                                    # Relative humidity
+    U2 = df[U2_var].values                                                                      # Wind velocity
+    G = df[G_var].values                                                                        # Incoming shortwave radiation
+
+    SLP = df[PRES_var].values / np.power((1 - (0.0065 * stationAlt) / (288.15)), 5.255)
+    PRES = SLP * np.power((1 - (0.0065 * hgt)/(288.15)), 5.22)                                  # Pressure
+
 
     if (RRR_var in df):
-        RRR = df[RRR_var].values       # Precipitation
+        RRR = np.maximum(df[RRR_var].values + (hgt - stationAlt) * lapse_RRR, 0)                 # Precipitation
 
     if(SNOWFALL_var in df):
-        SNOWFALL = df[SNOWFALL_var].values      # Incoming longwave radiation
+        SNOWFALL = np.maximum(df[SNOWFALL_var].values + (hgt-stationAlt) * lapse_SNOWFALL, 0)   # SNOWFALL
 
     if(LWin_var in df):
-        LW = df[LWin_var].values      # Incoming longwave radiation
+        LW = df[LWin_var].values                                                                # Incoming longwave radiation
 
     if(N_var in df):
-        N = df[N_var].values        # Cloud cover fraction
+        N = df[N_var].values                                                                    # Cloud cover fraction
 
     # Change aspect to south==0, east==negative, west==positive
     if (static_file):
-        ds['ASPECT'] = np.mod(ds['ASPECT']+180.0, 360.0)
-        mask = ds['ASPECT'].where(ds['ASPECT']<=180.0)
-        aspect = ds['ASPECT'].values
-        aspect[aspect<180] = aspect[aspect<180]*-1.0
-        aspect[aspect>=180] = 360.0 - aspect[aspect>=180]
-        #ds['ASPECT'] = (('south_north','west_east'),aspect)
+        aspect = ds['ASPECT'].values - 180.0
         ds['ASPECT'] = aspect
         
         # Auxiliary variables
@@ -207,6 +208,7 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
 
     if(LWin_var in df):
         add_variable_along_timelatlon_point(ds, LW, 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation')
+
     if(N_var in df):
         add_variable_along_timelatlon_point(ds, N, 'N', '%', 'Cloud cover fraction')
 
@@ -216,11 +218,9 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     check_for_nan_point(ds)
     ds.to_netcdf(cosipy_file)
 
-
     print('Input file created \n')
     print('-------------------------------------------')
 
-   
     #-----------------------------------
     # Do some checks
     #-----------------------------------
@@ -249,9 +249,9 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
         Please note, there should be only one header line in the file.
 
         Latest update: 
-            Tobias Sauter 07.07.2019
-	    Anselm 12.11.2019
-    """
+        Tobias Sauter 07.07.2019
+	    Anselm 01.07.2020
+	"""
 
     print('-------------------------------------------')
     print('Create input \n')
@@ -341,12 +341,12 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     df[U2_var] = df[U2_var].apply(pd.to_numeric, errors='coerce')
     df[G_var] = df[G_var].apply(pd.to_numeric, errors='coerce')
     df[PRES_var] = df[PRES_var].apply(pd.to_numeric, errors='coerce')
-    
+
+    #if (PRES_var not in df):
+    #    df[PRES_var] = 660.00
+
     if (RRR_var in df):
         df[RRR_var] = df[RRR_var].apply(pd.to_numeric, errors='coerce')
-
-    if (PRES_var not in df):
-        df[PRES_var] = 660.00
 
     if (LWin_var not in df and N_var not in df):
         print("ERROR no longwave incoming or cloud cover data")
