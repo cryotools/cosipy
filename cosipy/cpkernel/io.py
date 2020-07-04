@@ -360,6 +360,8 @@ class IOClass:
             self.LE = np.full((self.time,self.ny,self.nx), np.nan)
         if ('B' in self.atm):
             self.B = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('QRR' in self.atm):
+            self.QRR = np.full((self.time,self.ny,self.nx), np.nan)
         if ('MB' in self.internal):
             self.MB = np.full((self.time,self.ny,self.nx), np.nan)
         if ('surfMB' in self.internal):
@@ -422,8 +424,8 @@ class IOClass:
     # This function assigns the local results from the workers to the global
     # numpy arrays. The y and x values are the lat/lon indices.
     #==============================================================================
-    def copy_local_to_global(self,y,x,local_RAIN,local_SNOWFALL,local_LWin,local_LWout,local_H,local_LE,local_B,local_MB, \
-                             local_surfMB,local_Q,local_SNOWHEIGHT,local_TOTALHEIGHT,local_TS,local_ALBEDO, \
+    def copy_local_to_global(self,y,x,local_RAIN,local_SNOWFALL,local_LWin,local_LWout,local_H,local_LE,local_B,local_QRR,
+                             local_MB, local_surfMB,local_Q,local_SNOWHEIGHT,local_TOTALHEIGHT,local_TS,local_ALBEDO, \
                              local_LAYERS,local_ME,local_intMB,local_EVAPORATION,local_SUBLIMATION,local_CONDENSATION, \
                              local_DEPOSITION,local_REFREEZE,local_subM,local_Z0,local_surfM,local_LAYER_HEIGHT,local_LAYER_RHO, \
                              local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY,local_LAYER_ICE_FRACTION, \
@@ -443,6 +445,8 @@ class IOClass:
             self.LE[:,y,x] = local_LE
         if ('B' in self.atm):
             self.B[:,y,x] = local_B
+        if ('QRR' in self.atm):
+            self.QRR[:,y,x] = local_QRR
         if ('surfMB' in self.internal):
             self.surfMB[:,y,x] = local_surfMB
         if ('MB' in self.internal):
@@ -519,7 +523,9 @@ class IOClass:
         if ('LE' in self.atm):
             self.add_variable_along_latlontime(self.RESULT, self.LE, 'LE', 'W m\u207b\xb2', 'Latent heat flux') 
         if ('B' in self.atm):
-            self.add_variable_along_latlontime(self.RESULT, self.B, 'B', 'W m\u207b\xb2', 'Ground heat flux') 
+            self.add_variable_along_latlontime(self.RESULT, self.B, 'B', 'W m\u207b\xb2', 'Ground heat flux')
+        if ('QRR' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.QRR, 'QRR', 'W m\u207b\xb2', 'Rain heat flux')
         if ('surfMB' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.surfMB, 'surfMB', 'm w.e.', 'Surface mass balance') 
         if ('MB' in self.internal):
@@ -686,6 +692,9 @@ class IOClass:
     def B(self):
         return self.__B
     @property
+    def QRR(self):
+        return self.__QRR
+    @property
     def MB(self):
         return self.__MB
     
@@ -711,6 +720,9 @@ class IOClass:
     @B.setter
     def B(self, x):
         self.__B = x
+    @QRR.setter
+    def QRR(self, x):
+        self.__QRR = x
     @MB.setter
     def MB(self, x):
         self.__MB = x

@@ -5,7 +5,7 @@ from scipy.optimize import minimize
 import sys
 
 
-def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
+def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=None):
     """ This methods updates the surface temperature and returns the surface fluxes
 
     Given:
@@ -19,6 +19,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
         p       ::  Air pressure [hPa]
         G       ::  Incoming shortwave radiation [W m^-2]
         u2      ::  Wind velocity [m S^-1]
+        RAIN    ::  RAIN (mm)
         SLOPE   ::  Slope of the surface [degree]
         LWin    ::  Incoming longwave radiation [W m^-2]
         N       ::  Fractional cloud cover [-]
@@ -30,6 +31,7 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
         H       ::  Sensible heat flux [W m^-2]
         L       ::  Latent heat flux [W m^-2]
         B       ::  Ground heat flux [W m^-2]
+        Qrr     ::  Rain heat flux [W m^-2]
         SWnet   ::  Shortwave radiation budget [W m^-2]
         rho     ::  Air density [kg m^-3]
         Lv      ::  Latent heat of vaporization [J kg^-1]
@@ -45,13 +47,13 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
 
     # Get surface temperture by minimizing the energy balance function (SWnet+Li+Lo+H+L=0)
     res = minimize(eb_optim, GRID.get_node_temperature(0), method='L-BFGS-B', bounds=((220.0, 273.16),),
-                   tol=1e-1, args=(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin, N))
+                   tol=1e-1, args=(GRID, alpha, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin, N))
 
     # Set surface temperature
     GRID.set_node_temperature(0, float(res.x))
  
-    (Li,Lo,H,L,B,SWnet,rho,Lv,Cs_t,Cs_q,q0,q2) = eb_fluxes(GRID, res.x, alpha, z0, T2, rH2, p, G,
-                                                               u2, SLOPE, LWin, N,) 
+    (Li, Lo, H, L, B, Qrr, SWnet, rho, Lv, Cs_t, Cs_q, q0, q2) = eb_fluxes(GRID, res.x, alpha, z0, T2, rH2, p, G,
+                                                               u2, RAIN, SLOPE, LWin, N,)
     
     # Consistency check
     if float(res.x)>273.16:
@@ -59,11 +61,11 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=N
         logger.error(GRID.get_node_temperature(0))
 
     # Return fluxes
-    return res.fun, res.x, Li, Lo, H, L, B, SWnet, rho, Lv, Cs_t, Cs_q, q0, q2
+    return res.fun, res.x, Li, Lo, H, L, B, Qrr, SWnet, rho, Lv, Cs_t, Cs_q, q0, q2
 
 
 
-def eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
+def eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=None):
     ''' This functions returns the surface fluxes with Monin-Obukhov stability correction.
 
     Given:
@@ -77,6 +79,7 @@ def eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
         p       ::  Air pressure [hPa]
         G       ::  Incoming shortwave radiation [W m^-2]
         u2      ::  Wind velocity [m S^-1]
+        RAIN    ::  RAIN (mm)
         SLOPE   ::  Slope of the surface [degree]
         LWin    ::  Incoming longwave radiation [W m^-2]
         N       ::  Fractional cloud cover [-]
@@ -88,6 +91,7 @@ def eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
         H       ::  Sensible heat flux [W m^-2]
         L       ::  Latent heat flux [W m^-2]
         B       ::  Ground heat flux [W m^-2]
+        Qrr     ::  Rain heat flux [W m^-2]
         SWnet   ::  Shortwave radiation budget [W m^-2]
         rho     ::  Air density [kg m^-3]
         Lv      ::  Latent heat of vaporization [J kg^-1]
@@ -222,8 +226,11 @@ def eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
     B = lam * (hminus/(hplus+hminus)) * \
             ((GRID.get_node_temperature(2)-GRID.get_node_temperature(1))/hplus) + (hplus/(hplus+hminus))*((GRID.get_node_temperature(1)-T0)/hminus)
 
+    # Rain heat flux
+    QRR = water_density * spec_heat_water * (RAIN/1000/dt) * (T2 - T0)
+
     # Return surface fluxes
-    return (float(Li), float(Lo), float(H), float(LE), float(B), float(SWnet), rho, Lv, Cs_t, Cs_q, q0, q2)
+    return (float(Li), float(Lo), float(H), float(LE), float(B), float(QRR), float(SWnet), rho, Lv, Cs_t, Cs_q, q0, q2)
 
 
 def phi_m(z,L):
@@ -273,15 +280,15 @@ def MO(rho, ust, T2, H):
 
 
 
-def eb_optim(T0, GRID, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
+def eb_optim(T0, GRID, alpha, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=None):
     ''' Optimization function to solve for surface temperature T0 '''
 
     # Get surface fluxes for surface temperature T0
-    (Li,Lo,H,L,B,SWnet,rho,Lv,Cs_t,Cs_q,q0,q2) = eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G,
-                                                               u2, SLOPE, LWin, N)
+    (Li,Lo,H,L,B,Qrr, SWnet,rho,Lv,Cs_t,Cs_q,q0,q2) = eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G,
+                                                               u2, RAIN, SLOPE, LWin, N)
 
     # Return the residual (is minimized by the optimization function)
-    return np.abs(SWnet+Li+Lo+H+L+B)
+    return np.abs(SWnet+Li+Lo+H+L+B+Qrr)
 
 
 

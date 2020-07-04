@@ -50,6 +50,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     _H = np.full(len(DATA.time), np.nan)
     _LE = np.full(len(DATA.time), np.nan)
     _B = np.full(len(DATA.time), np.nan)
+    _QRR = np.full(len(DATA.time), np.nan)
     _MB = np.full(len(DATA.time), np.nan)
     _surfMB = np.full(len(DATA.time), np.nan)
     _MB = np.full(len(DATA.time), np.nan)
@@ -243,13 +244,13 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         if LWin is not None:
             # Find new surface temperature (LW is used from the input file)
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
-                ground_heat_flux, sw_radiation_net, rho, Lv, Cs_t, Cs_q, q0, q2 \
-                = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], PRES[t], G_resid, U2[t], SLOPE, LWin=LWin[t])
+                ground_heat_flux, rain_heat_flux, sw_radiation_net, rho, Lv, Cs_t, Cs_q, q0, q2 \
+                = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], PRES[t], G_resid, U2[t], RAIN, SLOPE, LWin=LWin[t])
         else:
             # Find new surface temperature (LW is parametrized using cloud fraction)
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
-                ground_heat_flux, sw_radiation_net, rho, Lv, Cs_t, Cs_q, q0, q2 \
-                = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], PRES[t], G_resid, U2[t], SLOPE, N=N[t])
+                ground_heat_flux, rain_heat_flux, sw_radiation_net, rho, Lv, Cs_t, Cs_q, q0, q2 \
+                = update_surface_temperature(GRID, alpha, z0, T2[t], RH2[t], PRES[t], G_resid, U2[t], RAIN, SLOPE, N=N[t])
 
         #--------------------------------------------
         # Surface mass fluxes [m w.e.q.]
@@ -281,7 +282,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Percolation
         #--------------------------------------------
-        Q  = percolation(GRID, melt - condensation, dt)
+        Q  = percolation(GRID, melt - condensation + RAIN/1000.0, dt)
 
         #--------------------------------------------
         # Refreezing
@@ -328,6 +329,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         _H[t] = sensible_heat_flux
         _LE[t] = latent_heat_flux
         _B[t] = ground_heat_flux
+        _QRR[t] = rain_heat_flux
         _MB[t] = mass_balance
         _surfMB[t] = surface_mass_balance
         _Q[t] = Q
@@ -386,7 +388,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     RESTART.LAYER_T[0:GRID.get_number_layers()] = GRID.get_temperature()
     RESTART.LAYER_LWC[0:GRID.get_number_layers()] = GRID.get_liquid_water_content()
 
-    return (indY,indX,RESTART,_RAIN,_SNOWFALL,_LWin,_LWout,_H,_LE,_B, \
+    return (indY,indX,RESTART,_RAIN,_SNOWFALL,_LWin,_LWout,_H,_LE,_B, _QRR, \
             _MB,_surfMB,_Q,_SNOWHEIGHT,_TOTALHEIGHT,_TS,_ALBEDO,_NLAYERS, \
             _ME,_intMB,_EVAPORATION,_SUBLIMATION,_CONDENSATION,_DEPOSITION,_REFREEZE, \
             _subM,_Z0,_surfM, \
