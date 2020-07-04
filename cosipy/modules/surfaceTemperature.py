@@ -142,6 +142,7 @@ def eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
     z0t = z0/100    # Roughness length for sensible heat
     z0q = z0/10     # Roughness length for moisture
 
+    stability_corretctions_allowed = ['Ri', 'MO']
     # Monin-Obukhov stability correction
     if stability_correction == 'MO':
         L = 0.0
@@ -161,10 +162,10 @@ def eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
             Cs_q = 0.41*np.sqrt(Cd) / (np.log(z/z0q) - phi_tq(z,L) - phi_tq(z0,L))
         
             # Surface heat flux
-            H = rho * spec_heat_air * (1.0/Pr) * Cs_t * u2 * (T2-T0) * np.cos(np.radians(SLOPE))
+            H = rho * spec_heat_air * Cs_t * u2 * (T2-T0) * np.cos(np.radians(SLOPE))
         
             # Latent heat flux
-            LE = rho * Lv * (1.0/Pr) * Cs_q * u2 * (q2-q0) *  np.cos(np.radians(SLOPE))
+            LE = rho * Lv * Cs_q * u2 * (q2-q0) *  np.cos(np.radians(SLOPE))
         
             # Monin-Obukhov length
             L = MO(rho, ust, T2, H)
@@ -199,16 +200,15 @@ def eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G, u2, SLOPE, LWin=None, N=None):
             phi = 0
         else:
             phi = 1
-        
-        # turbulent Prandtl number
-        Pr = 0.8
 
         # Sensible heat flux
-        H = rho * spec_heat_air * (1.0/Pr) * Cs_t * u2 * (T2-T0) * phi * np.cos(np.radians(SLOPE))
+        H = rho * spec_heat_air * Cs_t * u2 * (T2-T0) * phi * np.cos(np.radians(SLOPE))
         
         # Latent heat flux
-        LE = rho * Lv * (1.0/Pr) * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
+        LE = rho * Lv * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
 
+    else:
+        raise ValueError("Stability correction = \"{:s}\" is not allowed, must be one of {:s}".format(stability_correction, ", ".join(stability_corretctions_allowed)))
     
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(T0, 4.0)

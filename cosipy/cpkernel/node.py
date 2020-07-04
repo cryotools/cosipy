@@ -1,4 +1,5 @@
 from constants import *
+import numpy as np
 
 class Node:
     """ The Node-class stores the state variables of layer. 
@@ -174,7 +175,14 @@ class Node:
             lambda : float
                 Thermal conductivity [:math:`W~m^{-1}~K^{-1}`]
         """
-        return self.get_layer_ice_fraction()*k_i + self.get_layer_air_porosity()*k_a + self.get_layer_liquid_water_content()*k_w
+        methods_allowed = ['bulk', 'empirical']
+        if thermal_conductivity_method == 'bulk':
+            lam = self.get_layer_ice_fraction()*k_i + self.get_layer_air_porosity()*k_a + self.get_layer_liquid_water_content()*k_w
+        elif thermal_conductivity_method == 'empirical':
+            lam = 0.021 + 2.5 * np.power((self.get_layer_density()/1000),2)
+        else:
+            raise ValueError("Thermal conductivity method = \"{:s}\" is not allowed, must be one of {:s}".format(thermal_conductivity_method, ", ".join(methods_allowed)))
+        return lam
 
     def get_layer_thermal_diffusivity(self):
         """ Returns the thermal diffusivity of the node. 

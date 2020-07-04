@@ -9,6 +9,7 @@ def densification(GRID,SLOPE):
         GRID    ::  GRID-Structure
     """
 
+    densification_allowed = ['Boone', 'Vionnet', 'empirical', 'constant']
     if densification_method == 'Boone':
         method_Boone(GRID,SLOPE)
     elif densification_method == 'Vionnet':
@@ -18,9 +19,7 @@ def densification(GRID,SLOPE):
     elif densification_method == 'constant':
         pass
     else:
-        print('ERROR: Densification parameterisation', densification_method, 'not available, using default')
-        method_Boone(GRID,SLOPE)
-
+        raise ValueError("Densification method = \"{:s}\" is not allowed, must be one of {:s}".format(densification_method, ", ".join(densification_allowed)))
 
 def method_Boone(GRID,SLOPE):
     """ Description: Densification through overburden pressure

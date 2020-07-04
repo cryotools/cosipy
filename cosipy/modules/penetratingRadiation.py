@@ -4,13 +4,11 @@ from constants import *
 import sys
 
 def penetrating_radiation(GRID, SWnet, dt):
-
+    penetrating_allowed = ['Bintanja95']
     if penetrating_method == 'Bintanja95':
         subsurface_melt, Si = method_Bintanja(GRID, SWnet, dt)
-
     else:
-        print('Penetrating radiation parameterisation ', penetrating_method, ' not available, using default')
-        subsurface_melt, Si = method_Bintanja(GRID, SWnet, dt)
+        raise ValueError("Penetrating method = \"{:s}\" is not allowed, must be one of {:s}".format(penetrating_method, ", ".join(penetrating_allowed)))
 
     return subsurface_melt, Si
 

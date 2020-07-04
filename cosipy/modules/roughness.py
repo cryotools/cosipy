@@ -3,11 +3,11 @@ import sys
 
 def updateRoughness(GRID, timestamp):
 
+    roughness_allowed = ['Moelg12']
     if roughness_method == 'Moelg12':
         sigma = method_Moelg(GRID, timestamp)
     else:
-        print('Roughness parameterisation ', roughness_method, ' not available using default')
-        sigma = method_Moelg(GRID, timestamp)
+        raise ValueError("Roghness method = \"{:s}\" is not allowed, must be one of {:s}".format(roughness_method,", ".join(roughness_allowed)))
 
     return sigma
 

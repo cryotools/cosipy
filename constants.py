@@ -15,6 +15,7 @@ densification_method = 'Boone'                  # possibilities: 'Boone','Vionne
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
 roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
+thermal_conductivity_method = 'bulk'		    # possitilities: 'bulk', 'empirical'
 
 
 ' INITIAL CONDITIONS '

@@ -4,13 +4,12 @@ import sys
 
 def updateAlbedo(GRID, timestamp):
     """ This methods updates the albedo """
-
+    albedo_allowed = ['Oerlemans98']
     if albedo_method == 'Oerlemans98':
         alphaMod = method_Oerlemans(GRID,timestamp)
 
     else:
-        print('Albedo parametrisation ', albedo_method, ' not available, using default')
-        alphaMod = method_Oerlemans(GRID,timestamp)
+        raise ValueError("Albedo method = \"{:s}\" is not allowed, must be one of {:s}".format(albedo_method, ", ".join(albedo_allowed)))
 
     return alphaMod
 
