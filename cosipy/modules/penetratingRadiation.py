@@ -53,7 +53,7 @@ def method_Bintanja(GRID, SWnet, dt):
             # Compute conversion factor A
             A = (spec_heat_ice*ice_density)/(water_density*lat_heat_melting)
 
-             # Changes in volumetric contents
+            # Changes in volumetric contents; dtheta_w change in water fraciont and dtheate_i change in ice fraction
             dtheta_w = A * dT * GRID.get_node_ice_fraction(idxNode)
             dtheta_i = (water_density/ice_density) * -dtheta_w
             dh = -dtheta_i/GRID.get_node_ice_fraction(idxNode)

@@ -52,5 +52,3 @@ def solveHeatEquation(GRID, t):
 
     # Write results to GRID
     GRID.set_temperature(x)
-
-    
