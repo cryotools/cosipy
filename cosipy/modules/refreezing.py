@@ -22,21 +22,22 @@ def refreezing(GRID):
 
         if ((GRID.get_node_temperature(idxNode)-zero_temperature<1e-3) & (GRID.get_node_liquid_water_content(idxNode)>theta_r)):
 
-            # Temperature difference between layer and freezing temperature
+            # Temperature difference between layer and freezing temperature, cold content in temperature
             dT = GRID.get_node_temperature(idxNode) - zero_temperature
 
-            # Compute conversion factor A
+            # Compute conversion factor A (1/K)
             A = (spec_heat_ice*ice_density)/(water_density*lat_heat_melting)
 
-            # Changes in volumetric contents
+            # Changes in volumetric contents, maximum amount of water that can refreeze from cold content
             dtheta_w = A * dT * GRID.get_node_ice_fraction(idxNode)
-            dtheta_i = (water_density/ice_density) * -dtheta_w
 
-            # Check if enough water water to refreeze
+            # Check if enough water water to refreeze, if less water than potential energy from cold content, only refreeze availabe water
             if ((GRID.get_node_liquid_water_content(idxNode)+dtheta_w) < theta_r):
                 dtheta_w = theta_r - GRID.get_node_liquid_water_content(idxNode)
-                dtheta_i = (water_density/ice_density) * -dtheta_w
-                dT       = dtheta_i / A
+
+            dtheta_i = (water_density/ice_density) * -dtheta_w
+            dT       = dtheta_i / A
+            GRID.set_node_temperature(idxNode, GRID.get_node_temperature(idxNode)+dT) ### erhöhe temperature um eis was dazu gekommen ist
 
             if ((GRID.get_node_ice_fraction(idxNode)+dtheta_i+theta_r) >= 1.0):
                 GRID.set_node_liquid_water_content(idxNode, theta_r)
@@ -44,8 +45,6 @@ def refreezing(GRID):
             else:
                 GRID.set_node_liquid_water_content(idxNode, GRID.get_node_liquid_water_content(idxNode)+dtheta_w)
                 GRID.set_node_ice_fraction(idxNode, GRID.get_node_ice_fraction(idxNode)+dtheta_i)
-
-            GRID.set_node_temperature(idxNode, GRID.get_node_temperature(idxNode)+dT)
 
         else:
 
