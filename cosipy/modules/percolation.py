@@ -17,6 +17,16 @@ def percolation(GRID, water, t):
     # Start logging
     logger = logging.getLogger(__name__)
 
+    # convert m to mm = kg/m2, not needed because of change to fraction
+    # water = water * 1000
+
+    # convert kg/m2 to kg/m3
+    water = water / GRID.get_node_height(0)
+
+
+    # kg/m3 to fraction
+    # water = water / 1000
+
     # initial runoff [m w.e.]
     Q = 0  
     
@@ -28,7 +38,7 @@ def percolation(GRID, water, t):
     
     # Loop over all internal grid points for percolation 
     for idxNode in range(0, GRID.number_nodes-1, 1):
-        
+
         # Get irreducible water content [-]
         theta_e = GRID.get_node_irreducible_water_content(idxNode)
         
@@ -41,12 +51,22 @@ def percolation(GRID, water, t):
         if residual > 0:
             # than percolate to the next layer (add to the next layer)
             GRID.set_node_liquid_water_content(idxNode, theta_e)
-            GRID.set_node_liquid_water_content(idxNode+1, GRID.get_node_liquid_water_content(idxNode+1)+residual)
+
+            ### old
+            #GRID.set_node_liquid_water_content(idxNode+1, GRID.get_node_liquid_water_content(idxNode+1)+residual)
+
+            ### new: if water is pushed to next layer, because of fractions the layer heights have to be considered
+            residual = residual * GRID.get_node_height(idxNode)
+            GRID.set_node_liquid_water_content(idxNode + 1, GRID.get_node_liquid_water_content(idxNode + 1) + residual / GRID.get_node_height(idxNode+1))
         else: 
             GRID.set_node_liquid_water_content(idxNode, theta_w)
 
-    # Runoff is equal to the LWC in the last node
-    Q = GRID.get_node_liquid_water_content(GRID.number_nodes-1)
+
+    # Runoff is equal to the LWC in the last node and has to be converted from kg/m3 to kg/m2
+    # convert from fraction to kg/m3 (*1000) and from mm to m (/1000) not needed
+    Q = GRID.get_node_liquid_water_content(GRID.number_nodes-1) * GRID.get_node_height(GRID.number_nodes-1)
+
+
     GRID.set_node_liquid_water_content(GRID.number_nodes-1, 0.0)
 
     # for consistency check
