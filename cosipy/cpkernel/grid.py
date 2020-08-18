@@ -229,11 +229,11 @@ class Grid:
             # if LWC exceeds the irreducible water content of the first layer,
             # then fill the first layer and assign the rest to the second layer
             if ((self.get_node_liquid_water_content(idx)-self.get_node_irreducible_water_content(idx))>0):
-                lw0 = self.get_node_irreducible_water_content(idx)
-                lw1 = self.get_node_liquid_water_content(idx)-self.get_node_irreducible_water_content(idx)
+                lw0 = self.get_node_irreducible_water_content(idx) * self.get_node_height(idx)
+                lw1 = self.get_node_liquid_water_content(idx) * self.get_node_height(idx) - self.get_node_irreducible_water_content(idx) * self.get_node_height(idx)
             # if LWC<WC_irr, then assign all water to the first layer
             else:   
-                lw0 = self.get_node_liquid_water_content(idx)
+                lw0 = self.get_node_liquid_water_content(idx) * self.get_node_height(idx)
                 lw1 = 0.0
 
             # Update ice fraction
@@ -256,8 +256,8 @@ class Grid:
                 self.logger.error('Correct layer is not mass consistent (%2.7f) [Layer 1]' % (if0,por0,lwc0))
 
             # Update node properties
-            self.update_node(idx, h0, T0, if0, lw0)
-            self.grid.insert(idx+1, Node(h1, self.get_node_density(idx), T1, lw1, if1))
+            self.update_node(idx, h0, T0, if0, lwc0)
+            self.grid.insert(idx+1, Node(h1, self.get_node_density(idx), T1, lwc1, if1))
 
             # Update node counter
             self.number_nodes += 1
