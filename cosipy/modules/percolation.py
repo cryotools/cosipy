@@ -61,12 +61,9 @@ def percolation(GRID, water, t):
         else: 
             GRID.set_node_liquid_water_content(idxNode, theta_w)
 
-
     # Runoff is equal to the LWC in the last node and has to be converted from kg/m3 to kg/m2
     # convert from fraction to kg/m3 (*1000) and from mm to m (/1000) not needed
     Q = GRID.get_node_liquid_water_content(GRID.number_nodes-1) * GRID.get_node_height(GRID.number_nodes-1)
-
-
     GRID.set_node_liquid_water_content(GRID.number_nodes-1, 0.0)
 
     # for consistency check
@@ -77,7 +74,3 @@ def percolation(GRID, water, t):
         logger.error('Percolation module is not mass consistent')
 
     return Q
-
-
-
-

@@ -52,7 +52,7 @@ def refreezing(GRID):
             dtheta_w = 0
 
         GRID.set_node_refreeze(idxNode, dtheta_i*GRID.get_node_height(idxNode))
-        water_refreezed =  water_refreezed - dtheta_w*GRID.get_node_height(idxNode)
+        water_refreezed =  water_refreezed - dtheta_w * GRID.get_node_height(idxNode)
 
     total_end = np.sum(GRID.get_liquid_water_content())
 
