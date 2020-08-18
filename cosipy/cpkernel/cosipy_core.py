@@ -277,12 +277,12 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         melt = melt_energy * dt / (1000 * lat_heat_melting)
 
         # Remove melt [m w.e.q.]
-        GRID.remove_melt_weq(melt - sublimation - deposition - evaporation)
+        lwc_from_melted_layers = GRID.remove_melt_weq(melt - sublimation - deposition - evaporation)
 
         #--------------------------------------------
         # Percolation
         #--------------------------------------------
-        Q  = percolation(GRID, melt - condensation + RAIN/1000.0, dt)
+        Q  = percolation(GRID, melt - condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
 
         #--------------------------------------------
         # Refreezing
