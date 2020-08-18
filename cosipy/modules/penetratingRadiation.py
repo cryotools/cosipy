@@ -63,10 +63,12 @@ def method_Bintanja(GRID, SWnet, dt):
             else:
                 GRID.set_node_liquid_water_content(idxNode, \
                     GRID.get_node_liquid_water_content(idxNode)+dtheta_w)
+                LWC_temp = GRID.get_node_liquid_water_content(idxNode) * GRID.get_node_height(idxNode)
                 GRID.set_node_temperature(idxNode, zero_temperature)
                 GRID.set_node_height(idxNode, (1-dh)*GRID.get_node_height(idxNode))
+                GRID.set_node_liquid_water_content(idxNode, LWC_temp/GRID.get_node_height(idxNode))
 
-            subsurface_melt += dtheta_w * GRID.get_node_height(idxNode)
+            subsurface_melt = subsurface_melt + dtheta_w * GRID.get_node_height(idxNode)
         else:
             GRID.set_node_temperature(idxNode, T_rad)
 
