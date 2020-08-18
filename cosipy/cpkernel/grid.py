@@ -159,7 +159,9 @@ class Grid:
         new_height = self.get_node_height(idx) + self.get_node_height(idx+1)
 
         # Update liquid water
-        new_liquid_water_content = self.get_node_liquid_water_content(idx) + self.get_node_liquid_water_content(idx+1)
+        #new_liquid_water_content = self.get_node_liquid_water_content(idx) + self.get_node_liquid_water_content(idx+1)
+        new_liquid_water_content = (self.get_node_liquid_water_content(idx) * self.get_node_height(idx) + \
+                                    self.get_node_liquid_water_content(idx+1) * self.get_node_height(idx + 1))/new_height
 
         # Update ice fraction
         new_ice_fraction = ((self.get_node_ice_fraction(idx)*self.get_node_height(idx) + \
