@@ -323,7 +323,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         
         # Save results
         _RAIN[t] = RAIN
-        _SNOWFALL[t] = SNOWFALL
+        _SNOWFALL[t] = SNOWFALL * (density_fresh_snow/ice_density)
         _LWin[t] = lw_radiation_in
         _LWout[t] = lw_radiation_out
         _H[t] = sensible_heat_flux

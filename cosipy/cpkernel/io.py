@@ -513,7 +513,7 @@ class IOClass:
         if ('RAIN' in self.atm):
             self.add_variable_along_latlontime(self.RESULT, self.RAIN, 'RAIN', 'mm', 'Liquid precipitation') 
         if ('SNOWFALL' in self.atm):
-            self.add_variable_along_latlontime(self.RESULT, self.SNOWFALL, 'SNOWFALL', 'm', 'Snowfall') 
+            self.add_variable_along_latlontime(self.RESULT, self.SNOWFALL, 'SNOWFALL', 'm w.e.', 'Snowfall') 
         if ('LWin' in self.atm):
             self.add_variable_along_latlontime(self.RESULT, self.LWin, 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation') 
         if ('LWout' in self.atm):
