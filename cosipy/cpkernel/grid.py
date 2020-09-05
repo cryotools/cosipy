@@ -513,8 +513,6 @@ class Grid:
             SWE = self.get_node_height(idx) * (self.get_node_density(idx)/water_density)
             # Remove melt from layer and set new snowheight
             if (melt<SWE):
-                lwc_from_layers = lwc_from_layers + self.get_node_liquid_water_content(idx) * self.get_node_height(idx)
-                self.set_node_liquid_water_content(idx, 0)
                 self.set_node_height(idx, (SWE-melt)/(self.get_node_density(idx)/water_density))
                 melt = 0.0
             # remove layer otherwise and continue loop
