@@ -5,7 +5,7 @@
 
 ' GENERAL INFORMATION ' 
 dt = 3600                                       # Time step in the input files [s]
-max_layers = 500                                # Max. number of layers, just for the restart file
+max_layers = 200                                # Max. number of layers, just for the restart file
 z = 2.0                                         # Measurement height [m]
 
 ' PARAMETERIZATIONS '
@@ -15,25 +15,25 @@ densification_method = 'Boone'                  # possibilities: 'Boone','Vionne
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
 roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
-thermal_conductivity_method = 'bulk'		    # possitilities: 'bulk', 'empirical'
+thermal_conductivity_method = 'bulk'		# possitilities: 'bulk', 'empirical'
 
 
 ' INITIAL CONDITIONS '
-initial_snowheight_constant = 1.0               # Initial snowheight
+initial_snowheight_constant = 0.2               # Initial snowheight
 initial_snow_layer_heights = 0.10               # Initial thickness of snow layers
-initial_glacier_height = 10.0                   # Initial glacier height without snowlayers
+initial_glacier_height = 40.0                   # Initial glacier height without snowlayers
 initial_glacier_layer_heights = 0.5             # Initial thickness of glacier ice layers
 
 initial_top_density_snowpack_constant = 300.    # Top density for initial snowpack
 initial_bottom_density_snowpack_constant = 600. # Bottom density for initial snowpack
 
-temperature_top_constant = 273.0                # Upper boundary condition for initial temperature profile (K)
-temperature_bottom = 272.16                     # Lower boundary condition for initial temperature profile (K)
+temperature_top_constant = 271.16               # Upper boundary condition for initial temperature profile (K)
+temperature_bottom = 270.16                     # Lower boundary condition for initial temperature profile (K)
 const_init_temp = 0.1                           # constant for init temperature profile used in exponential function (exponential decay)
 
 
 ' MODEL CONSTANTS '
-center_snow_transfer_function = 2.5             # center (50/50) when total precipitation is transferred to snow and rain
+center_snow_transfer_function = 1.0             # center (50/50) when total precipitation is transferred to snow and rain
 spread_snow_transfer_function = 1               # 1: +-2.5
 mult_factor_RRR = 1.0                           # multiplication factor for RRR
 
@@ -54,11 +54,11 @@ temperature_threshold_merging = 0.01            # If mering is true threshold fo
 ' PHYSICAL CONSTANTS '
 constant_density = 300.                         # constant density of freshly fallen snow [kg m-3], if densification_method is set to 'constant'
 
-albedo_fresh_snow = 0.9                         # albedo of fresh snow [-] (Moelg et al. 2012, TC)
-albedo_firn = 0.6                               # albedo of firn [-] (Moelg et al. 2012, TC)
+albedo_fresh_snow = 0.80                        # albedo of fresh snow [-] (Moelg et al. 2012, TC)
+albedo_firn = 0.50                              # albedo of firn [-] (Moelg et al. 2012, TC)
 albedo_ice = 0.3                                # albedo of ice [-] (Moelg et al. 2012, TC)
-albedo_mod_snow_aging = 20.0                    # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
-albedo_mod_snow_depth = 1.0                     # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
+albedo_mod_snow_aging = 21.0                    # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
+albedo_mod_snow_depth = 3.0                     # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
 
 roughness_fresh_snow = 0.24                     # surface roughness length for fresh snow [mm] (Moelg et al. 2012, TC)
 roughness_ice = 1.7                             # surface roughness length for ice [mm] (Moelg et al. 2012, TC)
