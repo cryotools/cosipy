@@ -270,19 +270,19 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Melt process - mass changes of snowpack (melting, sublimation, deposition, evaporation, condensation)
         #--------------------------------------------
         # Melt energy in [W m^-2 or J s^-1 m^-2]
-        melt_energy = max(0, sw_radiation_net + lw_radiation_in + lw_radiation_out + ground_heat_flux +
+        melt_energy = max(0, sw_radiation_net + lw_radiation_in + lw_radiation_out + ground_heat_flux + rain_heat_flux +
                           sensible_heat_flux + latent_heat_flux)
 
         # Convert melt energy to m w.e.q.
         melt = melt_energy * dt / (1000 * lat_heat_melting)
 
         # Remove melt [m w.e.q.]
-        lwc_from_melted_layers = GRID.remove_melt_weq(melt - sublimation - deposition - evaporation)
+        lwc_from_melted_layers = GRID.remove_melt_weq(melt - sublimation - deposition)
 
         #--------------------------------------------
         # Percolation
         #--------------------------------------------
-        Q  = percolation(GRID, melt - condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
+        Q  = percolation(GRID, melt + evaporation + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
 
         #--------------------------------------------
         # Refreezing
@@ -302,11 +302,11 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate mass balance
         #--------------------------------------------
-        surface_mass_balance = SNOWFALL * (density_fresh_snow / ice_density) - melt - sublimation - deposition - evaporation
+        surface_mass_balance = SNOWFALL * (density_fresh_snow / ice_density) - melt + sublimation + deposition
         internal_mass_balance = water_refreezed - subsurface_melt
         mass_balance = surface_mass_balance + internal_mass_balance
 
-        internal_mass_balance2 = melt-Q  #+ subsurface_melt
+        internal_mass_balance2 = melt-Q  + subsurface_melt
         mass_balance_check = surface_mass_balance + internal_mass_balance2
 
         # Write results
