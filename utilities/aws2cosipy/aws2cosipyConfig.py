@@ -74,5 +74,5 @@ stationAlt = 5665.0
 
 lapse_T         = -0.006    # Temp K per  m
 lapse_RH        =  0.000    # RH % per  m (0 to 1)
-lapse_RRR       =  0.0000   # RRR % per m (0 to 1)
+lapse_RRR       =  0.0000   # mm per m
 lapse_SNOWFALL  =  0.0000   # Snowfall % per m (0 to 1)
