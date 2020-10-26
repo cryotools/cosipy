@@ -79,27 +79,33 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     # Load static data
     #-----------------------------------
 
-    if (static_file):
-        print('Read static file %s \n' % (static_file))
-        ds = xr.open_dataset(static_file)
-        ds = ds.isel(lat=plat,lon=plon,method='nearest')
+    if WRF:
+        ds = xr.Dataset()
+        lon, lat = np.meshgrid(plon, plat)
+        ds.coords['lat'] = (('south_north', 'west_east'), lon)
+        ds.coords['lon'] = (('south_north', 'west_east'), lat)
 
     else:
-        ds = xr.Dataset()
-        if WRF:
-            lon, lat = np.meshgrid(plon, plat)
-            ds.coords['lat'] = (('south_north', 'west_east'), lon)
-            ds.coords['lon'] = (('south_north', 'west_east'), lat)
-        else:
-            ds.coords['lon'] = np.array([plon])
-            ds.lon.attrs['standard_name'] = 'lon'
-            ds.lon.attrs['long_name'] = 'longitude'
-            ds.lon.attrs['units'] = 'degrees_east'
+        if (static_file):
+            print('Read static file %s \n' % (static_file))
+            ds = xr.open_dataset(static_file)
+            ds = ds.sel(lat=plat,lon=plon,method='nearest')
+            ds.coords['lon'] = np.array([ds.lon.values])
+            ds.coords['lat'] = np.array([ds.lat.values])
 
+        else:
+            ds = xr.Dataset()
+            ds.coords['lon'] = np.array([plon])
             ds.coords['lat'] = np.array([plat])
-            ds.lat.attrs['standard_name'] = 'lat'
-            ds.lat.attrs['long_name'] = 'latitude'
-            ds.lat.attrs['units'] = 'degrees_north'
+
+        ds.lon.attrs['standard_name'] = 'lon'
+        ds.lon.attrs['long_name'] = 'longitude'
+        ds.lon.attrs['units'] = 'degrees_east'
+
+        ds.coords['lat'] = np.array([plat])
+        ds.lat.attrs['standard_name'] = 'lat'
+        ds.lat.attrs['long_name'] = 'latitude'
+        ds.lat.attrs['units'] = 'degrees_north'
 
     ds.coords['time'] = (('time'), df.index.values)
 

@@ -50,7 +50,7 @@ WRF = False
 #------------------------
 # Radiation module 
 #------------------------
-radiationModule = True 
+radiationModule = True
 
 # Time zone
 timezone_lon = 90.0
@@ -62,9 +62,9 @@ zeni_thld = 85.0            # I you do not know the exact value for your locatio
 # Point model 
 #------------------------
 point_model = False
-plon = 10.777899874814329
-plat = 46.807983544912666
-hgt = 3300
+plon = 90.64
+plat = 30.47
+hgt = 5665.0
 
 #------------------------
 # Interpolation arguments 
