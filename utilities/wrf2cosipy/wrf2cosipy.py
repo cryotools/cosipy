@@ -91,7 +91,7 @@ def create_input(wrf_file, cosipy_file, start_date, end_date):
     dso = add_variable_along_timelatlon(dso, snowf/1000.0, 'SNOWFALL', 'm', 'Snowfall')
    
     # Write file
-    dso.to_netcdf('wrf2cosipy_input.nc')
+    dso.to_netcdf(cosipy_file)
     print(dso.dims['south_north']) 
   
     # Do some checks 
