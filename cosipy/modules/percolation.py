@@ -70,7 +70,7 @@ def percolation(GRID, water, t):
     total_end = np.sum(GRID.get_liquid_water_content())
 
     # Check mass consistency
-    if (total_start-total_end-Q) > 1e-8:
-        logger.error('Percolation module is not mass consistent')
+#    if (total_start-total_end-Q) > 1e-8:
+#        logger.error('Percolation module is not mass consistent')
 
     return Q
