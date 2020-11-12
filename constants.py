@@ -26,6 +26,9 @@ initial_glacier_layer_heights = 0.5             # Initial thickness of glacier i
 
 initial_top_density_snowpack_constant = 300.    # Top density for initial snowpack
 initial_bottom_density_snowpack_constant = 600. # Bottom density for initial snowpack
+zlt1 = 0.01					# depth 1 for B temperature profile
+zlt2 = 0.06					# depth 2 for B temperature profile 
+zlt3 = 0.11					# depth 3 for B temperature profile
 
 temperature_top_constant = 271.16               # Upper boundary condition for initial temperature profile (K)
 temperature_bottom = 270.16                     # Lower boundary condition for initial temperature profile (K)

@@ -2,6 +2,7 @@ import numpy as np
 from constants import *
 from cosipy.cpkernel.io import *
 from scipy.optimize import minimize
+from scipy.interpolate import interp1d
 import sys
 
 
@@ -221,10 +222,14 @@ def eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=
     lam = GRID.get_node_thermal_conductivity(0) 
    
     # Ground heat flux
-    hminus = GRID.get_node_depth(1)-GRID.get_node_depth(0)
-    hplus = GRID.get_node_depth(2)-GRID.get_node_depth(1)
-    B = lam * (hminus/(hplus+hminus)) * \
-            ((GRID.get_node_temperature(2)-GRID.get_node_temperature(1))/hplus) + (hplus/(hplus+hminus))*((GRID.get_node_temperature(1)-T0)/hminus)
+#    hminus = GRID.get_node_depth(1)-GRID.get_node_depth(0)
+#    hplus = GRID.get_node_depth(2)-GRID.get_node_depth(1)
+#    B = lam * (hminus/(hplus+hminus)) * \
+#            ((GRID.get_node_temperature(2)-GRID.get_node_temperature(1))/hplus) + (hplus/(hplus+hminus))*((GRID.get_node_temperature(1)-T0)/hminus)
+    f = interp1d(np.append(0.0,np.array(GRID.get_depth())), np.append(T0,np.array(GRID.get_temperature())))
+    T1, T2, T3 = f(zlt1), f(zlt2), f(zlt3)
+    hminus, hplus = zlt2-zlt1, zlt3-zlt2
+    B = lam * (hminus/(hplus+hminus)) * ((T3-T2)/hplus) + (hplus/(hplus+hminus)) * ((T2-T1)/hminus)
 
     # Rain heat flux
     QRR = water_density * spec_heat_water * (RAIN/1000/dt) * (T2 - T0)
