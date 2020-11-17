@@ -9,7 +9,6 @@ import pandas as pd
 import numpy as np
 import time
 from datetime import timedelta
-import logging
 from cosipy.modules.radCor import correctRadiation
 from constants import *
 from config import * 
@@ -20,9 +19,6 @@ class IOClass:
     def __init__(self, DATA=None):
         """ Init IO Class"""
 
-        # start module logging
-        self.logger = logging.getLogger(__name__)
-        
         # Read variable list from file
         config = configparser.ConfigParser()
         config.read('./cosipy/output')
@@ -58,8 +54,8 @@ class IOClass:
                 self.restart_date = self.GRID_RESTART.time+np.timedelta64(dt,'s')     # Get time of the last calculation and add one time step
                 self.init_data_dataset()                       # Read data from the last date to the end of the data file
             else:
-                self.logger.error('No restart file available for the given date %s' % (timestamp))  # if there is a problem kill the program
-                self.logger.error('OR start date %s equals end date %s \n' % (time_start, time_end))
+                print('No restart file available for the given date %s' % (timestamp))  # if there is a problem kill the program
+                print('OR start date %s equals end date %s \n' % (time_start, time_end))
                 sys.exit(1)
         else:
             self.restart_date = None

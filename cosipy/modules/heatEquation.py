@@ -1,23 +1,14 @@
 import numpy as np
-from numpy.distutils.command.install_clib import install_clib
-import logging
 
 from scipy import sparse
 from scipy.sparse.linalg import spsolve
 
-from constants import *
-from config import *
-
-import sys
-
-def solveHeatEquation(GRID, t):
-    """ Solves the heat equation on a non-uniform grid using
+def solveHeatEquation(GRID, dt):
+    """ Solves the heat equation on a non-uniform grid
 
     dt  ::  integration time
     
     """
-    # start module logging
-    logger = logging.getLogger(__name__)
     
     nl = GRID.get_number_layers()
 
@@ -37,9 +28,9 @@ def solveHeatEquation(GRID, t):
     C2 = np.ones(nl)
     C3 = np.zeros(nl-1)
     
-    C1[0:nl-2] = -(2*K[1:nl-1]*t)/(hk*(hk+hk1))
-    C2[1:nl-1] = 1+(2*K[1:nl-1]*t)/(hk*hk1)
-    C3[1:nl-1] = -(2*K[1:nl-1]*t)/(hk1*(hk+hk1))
+    C1[0:nl-2] = -(2*K[1:nl-1]*dt)/(hk*(hk+hk1))
+    C2[1:nl-1] = 1+(2*K[1:nl-1]*dt)/(hk*hk1)
+    C3[1:nl-1] = -(2*K[1:nl-1]*dt)/(hk1*(hk+hk1))
     
     # Create tridiagonal matrix
     A = sparse.diags([C1, C2, C3], [-1,0,1], format='csc')

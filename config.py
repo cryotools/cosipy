@@ -50,12 +50,14 @@ obs_type = 'snowheight'                                     # What kind of stake
 # Dimensions
 WRF = False                                                 # Set to True if you use WRF as input
 
-if WRF is False:
-    northing = 'lat'	                                    # name of dimension	in in- and -output
-    easting = 'lon'					                        # name of dimension in in- and -output
-else:
+northing = 'lat'	                                    # name of dimension	in in- and -output
+easting = 'lon'					                        # name of dimension in in- and -output
+if WRF:
     northing = 'south_north'                                # name of dimension in WRF in- and output
     easting = 'west_east'                                   # name of dimension in WRF in- and output
+
+#Interactive simulation with WRF
+WRF_X_CSPY = True
 
 #-----------------------------------
 # COMPRESSION of output netCDF
@@ -73,6 +75,8 @@ local_port = 8786                                           # port for local clu
 # WRITE FULL FIELDS 
 #-----------------------------------    
 full_field = False                                          # write full fields (2D data) to file
+if WRF_X_CSPY:
+    full_field = True
     
 #-----------------------------------
 # TOTAL PRECIPITATION  

@@ -1,7 +1,5 @@
 import sys
 import numpy as np
-import xarray as xr
-import logging
 import math
 from constants import *
 from config import *
@@ -10,13 +8,11 @@ from cosipy.cpkernel.grid import *
 def init_snowpack(DATA):
     ''' INITIALIZATION '''
 
-    logger = logging.getLogger(__name__)
-
     ##--------------------------------------
     ## Check for WRF data
     ##--------------------------------------
     if ('SNOWHEIGHT' in DATA):
-        initial_snowheight = DATA.SNOWHEIGHT
+        initial_snowheight = DATA.SNOWHEIGHT.values
     else:
         initial_snowheight = initial_snowheight_constant
 
@@ -83,10 +79,12 @@ def load_snowpack(GRID_RESTART):
     num_layers = np.int(GRID_RESTART.NLAYERS.values)
    
     # Init layer height
-    layer_heights = GRID_RESTART.LAYER_HEIGHT[0:num_layers].values
-    layer_density = GRID_RESTART.LAYER_RHO[0:num_layers].values
-    layer_T = GRID_RESTART.LAYER_T[0:num_layers].values
-    layer_LWC = GRID_RESTART.LAYER_LWC[0:num_layers].values
+    # Weird slicing position to accommodate NestedNamespace in WRF_X_CSPY
+    layer_heights = GRID_RESTART.LAYER_HEIGHT.values[0:num_layers]
+    layer_density = GRID_RESTART.LAYER_RHO.values[0:num_layers]
+    layer_T = GRID_RESTART.LAYER_T.values[0:num_layers]
+    layer_LWC = GRID_RESTART.LAYER_LWC.values[0:num_layers]
+
    
     GRID = Grid(layer_heights, layer_density, layer_T, layer_LWC)
 

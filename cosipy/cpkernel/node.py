@@ -1,6 +1,18 @@
 from constants import *
 import numpy as np
 
+from collections import OrderedDict
+from numba import float64  
+from numba.experimental import jitclass
+
+spec = OrderedDict()
+spec['height'] = float64              
+spec['temperature'] = float64     
+spec['liquid_water_content'] = float64     
+spec['ice_fraction'] = float64
+spec['refreeze'] = float64
+
+@jitclass(spec)
 class Node:
     """ The Node-class stores the state variables of layer. 
     

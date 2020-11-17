@@ -1,6 +1,6 @@
 import numpy as np
-from constants import *
-import sys
+from constants import albedo_method, albedo_fresh_snow, albedo_firn, albedo_ice, \
+                      albedo_mod_snow_aging, albedo_mod_snow_depth, snow_ice_threshold
 
 def updateAlbedo(GRID, timestamp):
     """ This methods updates the albedo """

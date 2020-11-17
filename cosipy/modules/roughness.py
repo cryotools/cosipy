@@ -1,5 +1,6 @@
-from constants import *
-import sys
+from constants import roughness_method, roughness_fresh_snow, \
+                      roughness_firn, roughness_ice, snow_ice_threshold, \
+                      aging_factor_roughness
 
 def updateRoughness(GRID, timestamp):
 

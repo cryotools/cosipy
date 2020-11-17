@@ -1,12 +1,10 @@
 import numpy as np
-from constants import *
-from config import *
-import logging
+from constants import zero_temperature, spec_heat_ice, ice_density, \
+                      water_density, lat_heat_melting
+from numba import njit
 
+@njit
 def refreezing(GRID):
-
-    # start module logging
-    logger = logging.getLogger(__name__)
 
     # water refreezed
     water_refreezed = 0.0
@@ -15,7 +13,8 @@ def refreezing(GRID):
     # Irreducible water when refreezed
     theta_r = 0.0
 
-    total_start = np.sum(GRID.get_liquid_water_content())
+    #numba expects to sum numpty types
+    total_start = np.sum(np.array(GRID.get_liquid_water_content()))
 
     # Loop over all internal grid points for percolation
     for idxNode in range(0, GRID.number_nodes-1, 1):
@@ -54,7 +53,7 @@ def refreezing(GRID):
         GRID.set_node_refreeze(idxNode, dtheta_i*GRID.get_node_height(idxNode))
         water_refreezed =  water_refreezed - dtheta_w * GRID.get_node_height(idxNode)
 
-    total_end = np.sum(GRID.get_liquid_water_content())
+    total_end = np.sum(np.array(GRID.get_liquid_water_content()))
 
     return water_refreezed
 

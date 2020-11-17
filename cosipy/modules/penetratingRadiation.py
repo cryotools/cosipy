@@ -1,7 +1,7 @@
-import math
 import numpy as np
-from constants import *
-import sys
+from constants import penetrating_method, snow_ice_threshold, spec_heat_ice, \
+                      zero_temperature, ice_density, water_density, lat_heat_melting
+from numba import njit
 
 def penetrating_radiation(GRID, SWnet, dt):
     penetrating_allowed = ['Bintanja95']
@@ -12,7 +12,7 @@ def penetrating_radiation(GRID, SWnet, dt):
 
     return subsurface_melt, Si
 
-
+@njit
 def method_Bintanja(GRID, SWnet, dt):
 
     # Total height of first layer
@@ -22,18 +22,14 @@ def method_Bintanja(GRID, SWnet, dt):
     subsurface_melt = 0.0
 
     # Absorption of shortwave radiation
+    depth = np.append(0.0,np.array(GRID.get_depth()))   #numba doesn't support np.insert
     if GRID.get_node_density(0) <= snow_ice_threshold:
         Si = float(SWnet)*0.1
-        depth = np.asarray(GRID.get_depth())
-        depth = np.insert(depth,0,0)
         decay = np.exp(17.1*-depth)
-        E = Si*np.abs(np.diff(decay))
     else:
         Si = float(SWnet)*0.2
-        depth = np.asarray(GRID.get_depth())
-        depth = np.insert(depth,0,0)
         decay = np.exp(2.5*-depth)
-        E = Si*np.abs(np.diff(decay))
+    E = Si*np.abs(np.diff(decay))
 
     # List with layer numbers to be removed
     list_of_layers_to_remove = []
@@ -73,6 +69,7 @@ def method_Bintanja(GRID, SWnet, dt):
             GRID.set_node_temperature(idxNode, T_rad)
 
     # Remove layers which have been melted
-    GRID.remove_node(list_of_layers_to_remove)
+    if list_of_layers_to_remove:      #numba jitclass can't compute fingerprint of empty list
+        GRID.remove_node(list_of_layers_to_remove)
 
     return subsurface_melt, Si

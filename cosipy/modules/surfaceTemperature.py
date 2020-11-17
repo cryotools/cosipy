@@ -1,18 +1,22 @@
 import numpy as np
-from constants import *
-from cosipy.cpkernel.io import *
-from scipy.optimize import minimize
-import sys
+from constants import sfc_temperature_method, saturation_water_vapour_method, zero_temperature, \
+                      lat_heat_sublimation, lat_heat_vaporize, stability_correction, spec_heat_air, \
+                      spec_heat_water, water_density, surface_emission_coeff, sigma
+from scipy.optimize import minimize, newton
+from numba import njit
+from types import SimpleNamespace
 
 
-def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=None):
+def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=None):
     """ This methods updates the surface temperature and returns the surface fluxes
 
     Given:
 
         GRID    ::  Grid structure
         T0      ::  Surface temperature [K]
+	dt      ::  Integration time [s] -- can vary in WRF_X_CSPY
         alpha   ::  Albedo [-]
+	z       ::  Measurement height [m] -- varies in WRF_X_CSPY
         z0      ::  Roughness length [m]
         T2      ::  Air temperature [K]
         rH2     ::  Relative humidity [%]
@@ -41,38 +45,53 @@ def update_surface_temperature(GRID, alpha, z0, T2, rH2, p, G, u2, RAIN, SLOPE, 
         q2      ::  Mixing ratio at measurement height [kg kg^-1]
         phi     ::  Stability correction term [-]
     """
- 
-    # start module logging
-    logger = logging.getLogger(__name__)
+    
+    if sfc_temperature_method == 'L-BFGS-B' or sfc_temperature_method == 'SLSQP':
+        # Get surface temperature by minimizing the energy balance function (SWnet+Li+Lo+H+L=0)
+        res = minimize(eb_optim, GRID.get_node_temperature(0), method=sfc_temperature_method,
+                       bounds=((220.0, zero_temperature),),tol=1e-1, #jac=fast_jac,
+                       args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin, N))
+		       
+    elif sfc_temperature_method == 'Newton':
+        try:
+            res = newton(eb_optim, GRID.get_node_temperature(0), tol=1e-1, maxiter=50,
+                        args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin, N))
 
-    # Get surface temperture by minimizing the energy balance function (SWnet+Li+Lo+H+L=0)
-    res = minimize(eb_optim, GRID.get_node_temperature(0), method='L-BFGS-B', bounds=((220.0, 273.16),),
-                   tol=1e-1, args=(GRID, alpha, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin, N))
+        except RuntimeError:
+             #lazy workaround for non-convergence that is most reasonable in WRF_X_CSPY (dt ~O(10s))
+             print('bypassing non-convergence in surface temperature update')
+             res = GRID.get_node_temperature(0)	
+	     
+        res = SimpleNamespace(**{'x':min(zero_temperature,res),'fun':None})
+
+    else:
+        print('Invalid method for minimizing the residual')
 
     # Set surface temperature
     GRID.set_node_temperature(0, float(res.x))
  
-    (Li, Lo, H, L, B, Qrr, SWnet, rho, Lv, Cs_t, Cs_q, q0, q2) = eb_fluxes(GRID, res.x, alpha, z0, T2, rH2, p, G,
-                                                               u2, RAIN, SLOPE, LWin, N,)
+    (Li, Lo, H, L, B, Qrr, SWnet, rho, Lv, Cs_t, Cs_q, q0, q2) = eb_fluxes(GRID, res.x, dt, alpha, 
+                                                             z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin, N,)
     
     # Consistency check
-    if float(res.x)>273.16:
-        logger.error('Surface temperature exceeds 273.16 K')
-        logger.error(GRID.get_node_temperature(0))
+    if (float(res.x)>zero_temperature) or (float(res.x)<220.):
+        print('Surface temperature is outside bounds:',GRID.get_node_temperature(0))
 
     # Return fluxes
     return res.fun, res.x, Li, Lo, H, L, B, Qrr, SWnet, rho, Lv, Cs_t, Cs_q, q0, q2
 
 
-
-def eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=None):
+@njit
+def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=None):
     ''' This functions returns the surface fluxes with Monin-Obukhov stability correction.
 
     Given:
 
         GRID    ::  Grid structure
         T0      ::  Surface temperature [K]
+        dt      ::  Integration time [s]
         alpha   ::  Albedo [-]
+	z       ::  Measurement height [m]
         z0      ::  Roughness length [m]
         T2      ::  Air temperature [K]
         rH2     ::  Relative humidity [%]
@@ -121,7 +140,8 @@ def eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=
     Ea = (rH2 * Ew) / 100.0
 
     # Calc incoming longwave radiation, if not available Ea has to be in Pa (Konzelmann 1994)
-    if LWin is None:
+    # numba has no implementation for power(none, int)
+    if (LWin is None) and (N is not None):
         eps_cs = 0.23 + 0.433 * np.power(100*Ea/T2,1.0/8.0)
         eps_tot = eps_cs * (1 - np.power(N,2)) + 0.984 * np.power(N,2)
         Li = eps_tot * sigma * np.power(T2,4.0)
@@ -193,7 +213,7 @@ def eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=
         
         # Bulk Richardson number
         if (u2!=0):
-            Ri = (9.81 * (T2 - T0) * 2.0) / (T2 * np.power(u2, 2))
+            Ri = ( (9.81 * (T2 - T0) * 2.0) / (T2 * np.power(u2, 2)) ).item() #numba can't compare literal & array below
         else:
             Ri = 0
         
@@ -230,9 +250,10 @@ def eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=
     QRR = water_density * spec_heat_water * (RAIN/1000/dt) * (T2 - T0)
 
     # Return surface fluxes
-    return (float(Li), float(Lo), float(H), float(LE), float(B), float(QRR), float(SWnet), rho, Lv, Cs_t, Cs_q, q0, q2)
+    # Numba: No implementation of function Function(<class 'float'>) found for signature: >>> float(array(float64, 1d, C))
+    return (Li.item(), Lo.item(), H.item(), LE.item(), B.item(), QRR.item(), SWnet.item(), rho, Lv, Cs_t, Cs_q, q0, q2)
 
-
+@njit
 def phi_m(z,L):
     """ Stability function for the momentum flux.
     """
@@ -247,7 +268,7 @@ def phi_m(z,L):
     else:
         return 0.0
 
-
+@njit
 def phi_tq(z,L):
     """ Stability function for the heat and moisture flux.
     """
@@ -262,13 +283,13 @@ def phi_tq(z,L):
     else:
         return 0.0
 
-
+@njit
 def ustar(u2,z,z0,L):
     """ Friction velocity. 
     """
     return (0.41*u2) / (np.log(z/z0)-phi_m(z,L))
 
-
+@njit
 def MO(rho, ust, T2, H):
     """ Monin-Obukhov length
     """
@@ -278,20 +299,21 @@ def MO(rho, ust, T2, H):
     else:
         return 0.0
 
-
-
-def eb_optim(T0, GRID, alpha, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=None):
+@njit
+def eb_optim(T0, GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=None):
     ''' Optimization function to solve for surface temperature T0 '''
 
     # Get surface fluxes for surface temperature T0
-    (Li,Lo,H,L,B,Qrr, SWnet,rho,Lv,Cs_t,Cs_q,q0,q2) = eb_fluxes(GRID, T0, alpha, z0, T2, rH2, p, G,
+    (Li,Lo,H,L,B,Qrr, SWnet,rho,Lv,Cs_t,Cs_q,q0,q2) = eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G,
                                                                u2, RAIN, SLOPE, LWin, N)
 
     # Return the residual (is minimized by the optimization function)
-    return np.abs(SWnet+Li+Lo+H+L+B+Qrr)
+    if sfc_temperature_method == 'Newton':
+        return (SWnet+Li+Lo+H+L+B+Qrr)
+    else:
+        return np.abs(SWnet+Li+Lo+H+L+B+Qrr)
 
-
-
+@njit
 def method_EW_Sonntag(T):
     ''' Saturation vapor pressure 
     
@@ -304,5 +326,12 @@ def method_EW_Sonntag(T):
     else:
         # over ice
         Ew = 6.112 * np.exp((22.46*(T-273.16)) / ((T-0.55)))
-
     return Ew
+
+@njit
+def fast_jac(x0, GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=None):
+    ''' compute gradient outside of scipy to accelerate with numba '''
+    h = 1e-9
+    f_0 = eb_optim(x0, GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin, N)
+    f_h = eb_optim((x0+h), GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin, N)
+    return (f_h - f_0)/h
