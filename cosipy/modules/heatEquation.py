@@ -1,18 +1,22 @@
 import numpy as np
+from numba import njit
 
-from scipy import sparse
-from scipy.sparse.linalg import spsolve
-
+@njit
 def solveHeatEquation(GRID, dt):
     """ Solves the heat equation on a non-uniform grid
 
     dt  ::  integration time
     
     """
-    
+    # number of layers
     nl = GRID.get_number_layers()
 
-    # Calculate thermal diffusivity [m2 s-1]
+    # Define index arrays 
+    k   = np.arange(1,nl-1) # center points
+    kl  = np.arange(2,nl)   # lower points
+    ku  = np.arange(0,nl-2) # upper points
+    
+    # Get thermal diffusivity [m2 s-1]
     K = np.asarray(GRID.get_thermal_diffusivity()) 
     
     # Get snow layer heights    
@@ -20,26 +24,28 @@ def solveHeatEquation(GRID, dt):
 
     # Get grid spacing
     diff = ((hlayers[0:nl-1]/2.0)+(hlayers[1:nl]/2.0))
-    hk = diff[0:nl-2] 
-    hk1 = diff[1:nl-1]
-
-    # Introduce C for matrix
-    C1 = np.zeros(nl-1)
-    C2 = np.ones(nl)
-    C3 = np.zeros(nl-1)
+    hk = diff[0:nl-2]  # between z-1 and z
+    hk1 = diff[1:nl-1] # between z and z+1
     
-    C1[0:nl-2] = -(2*K[1:nl-1]*dt)/(hk*(hk+hk1))
-    C2[1:nl-1] = 1+(2*K[1:nl-1]*dt)/(hk*hk1)
-    C3[1:nl-1] = -(2*K[1:nl-1]*dt)/(hk1*(hk+hk1))
+    # Get temperature array from grid|
+    T = np.array(GRID.get_temperature())
+    Tnew = T.copy()
     
-    # Create tridiagonal matrix
-    A = sparse.diags([C1, C2, C3], [-1,0,1], format='csc')
+    Kl = (K[1:nl-1]+K[2:nl])/2.0
+    Ku = (K[0:nl-2]+K[1:nl-1])/2.0
+    
+    stab_t = 0.0
+    c_stab = 0.8
+    dt_stab  = c_stab * (min([min(diff[0:nl-2]**2/(2*Ku)),min(diff[1:nl-1]**2/(2*Kl))]))
+    
+    while stab_t < dt:
 
-    # Initial vector
-    b = np.asarray(GRID.get_temperature())
+        dt_use = np.minimum(dt_stab, dt-stab_t)
+        stab_t = stab_t + dt_use
 
-    # Solve equation
-    x = spsolve(A,b)
-
+        # Update the temperatures
+        Tnew[k] += ((Kl*dt_use*(T[kl]-T[k])/(hk1)) - (Ku*dt_use*(T[k]-T[ku])/(hk))) / (0.5*(hk+hk1))
+        T = Tnew.copy()
+        
     # Write results to GRID
-    GRID.set_temperature(x)
+    GRID.set_temperature(T)
