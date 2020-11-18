@@ -37,7 +37,6 @@ center_snow_transfer_function = 1.0             # center (50/50) when total prec
 spread_snow_transfer_function = 1               # 1: +-2.5
 mult_factor_RRR = 1.0                           # multiplication factor for RRR
 
-minimum_snow_to_reset_albedo = 0.01             # minimum snowfall to reset hours since last snowfall! Default was 0.005
 minimum_snow_layer_height = 0.001               # minimum layer height
 
 
@@ -66,7 +65,6 @@ roughness_firn = 4.0                            # surface roughness length for a
 aging_factor_roughness = 0.0026                 # effect of ageing on roughness lenght (hours) 60 days from 0.24 to 4.0 => 0.0026
 
 snow_ice_threshold = 900.0                      # pore close of density [kg m^(-3)]
-snow_firn_threshold = 555.0                     #
 
 lat_heat_melting = 3.34e5                       # latent heat for melting [J kg-1]
 lat_heat_vaporize = 2.5e6                       # latent heat for vaporization [J kg-1]

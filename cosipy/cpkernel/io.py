@@ -262,7 +262,6 @@ class IOClass:
         self.RESULT.attrs['Center_snow_transfer_function'] = center_snow_transfer_function
         self.RESULT.attrs['Spread_snow_transfer_function'] = spread_snow_transfer_function
         self.RESULT.attrs['Multiplication_factor_for_RRR_or_SNOWFALL'] = mult_factor_RRR
-        self.RESULT.attrs['Minimum_snow_to_reset_albedo'] = minimum_snow_to_reset_albedo
         self.RESULT.attrs['Minimum_snow_layer_height'] = minimum_snow_layer_height
 
         self.RESULT.attrs['Remesh_method'] = remesh_method
@@ -285,7 +284,6 @@ class IOClass:
         self.RESULT.attrs['Roughness_firn'] = roughness_firn
         self.RESULT.attrs['Aging_factor_roughness'] = aging_factor_roughness
         self.RESULT.attrs['Snow_ice_threshold'] = snow_ice_threshold
-        self.RESULT.attrs['Snow_firn_threshold'] = snow_firn_threshold
 
         self.RESULT.attrs['lat_heat_melting'] = lat_heat_melting
         self.RESULT.attrs['lat_heat_vaporize'] = lat_heat_vaporize

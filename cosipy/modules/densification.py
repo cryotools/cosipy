@@ -1,6 +1,6 @@
 import numpy as np
 from constants import densification_method, snow_ice_threshold, minimum_snow_layer_height, \
-                      zero_temperature
+                      zero_temperature, ice_density
 from numba import njit
 
 def densification(GRID,SLOPE,dt):

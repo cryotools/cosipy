@@ -2,7 +2,8 @@ import numpy as np
 
 from constants import mult_factor_RRR, densification_method, ice_density, water_density, \
                       minimum_snow_layer_height, zero_temperature, lat_heat_sublimation, \
-                      lat_heat_melting, lat_heat_vaporize
+                      lat_heat_melting, lat_heat_vaporize, center_snow_transfer_function, \
+                      spread_snow_transfer_function, constant_density
 from config import force_use_TP, force_use_N, stake_evaluation, full_field, WRF_X_CSPY 
 
 from cosipy.modules.albedo import updateAlbedo
