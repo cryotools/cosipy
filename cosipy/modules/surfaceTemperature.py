@@ -49,12 +49,12 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
     if sfc_temperature_method == 'L-BFGS-B' or sfc_temperature_method == 'SLSQP':
         # Get surface temperature by minimizing the energy balance function (SWnet+Li+Lo+H+L=0)
         res = minimize(eb_optim, GRID.get_node_temperature(0), method=sfc_temperature_method,
-                       bounds=((220.0, zero_temperature),),tol=1e-1, #jac=fast_jac,
+                       bounds=((220.0, zero_temperature),),tol=1e-2,
                        args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin, N))
 		       
     elif sfc_temperature_method == 'Newton':
         try:
-            res = newton(eb_optim, GRID.get_node_temperature(0), tol=1e-1, maxiter=50,
+            res = newton(eb_optim, GRID.get_node_temperature(0), tol=1e-2, maxiter=50,
                         args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin, N))
 
         except RuntimeError:
@@ -328,10 +328,3 @@ def method_EW_Sonntag(T):
         Ew = 6.112 * np.exp((22.46*(T-273.16)) / ((T-0.55)))
     return Ew
 
-@njit
-def fast_jac(x0, GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=None):
-    ''' compute gradient outside of scipy to accelerate with numba '''
-    h = 1e-9
-    f_0 = eb_optim(x0, GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin, N)
-    f_h = eb_optim((x0+h), GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin, N)
-    return (f_h - f_0)/h
