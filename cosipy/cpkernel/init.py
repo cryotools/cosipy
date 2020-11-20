@@ -13,61 +13,57 @@ def init_snowpack(DATA):
     ##--------------------------------------
     if ('SNOWHEIGHT' in DATA):
         initial_snowheight = DATA.SNOWHEIGHT.values
-    else:
+        if np.isnan(initial_snowheight):
+            initial_snowheight = 0.0
+        temperature_top = np.minimum(DATA.T2.values[0], 273.16)
+
         initial_snowheight = initial_snowheight_constant
-
-    if ('SWE' in DATA):
-        rho_mean = (DATA.SWE.values/DATA.SNOWHEIGHT.values)*1000
-        initial_top_density_snowpack = rho_mean
-        initial_bottom_density_snowpack = rho_mean
-
-    if ('TSK' in DATA):
-        temperature_top = DATA.TSK.values       
-    else:
-        temperature_top = temperature_top_constant
-   
-    #-------------------------------------- 
+        temperature_top = np.minimum(DATA.T2.values[0], 273.16)
+	
+    #--------------------------------------
     # Do the vertical interpolation
-    #-------------------------------------- 
-    # Init layers
-    if (initial_snowheight > 0.0):
-        layer_heights =  np.ones(int(np.floor(initial_snowheight / initial_snow_layer_heights))) * initial_snow_layer_heights
-        layer_heights =  np.append(layer_heights, np.ones(int(np.floor(initial_glacier_height / initial_glacier_layer_heights))) * initial_glacier_layer_heights)
-    else:
-        layer_heights = np.ones(int(np.floor(initial_glacier_height / initial_glacier_layer_heights))) * initial_glacier_layer_heights
-
-    number_layers = len(layer_heights)
-
-    # Init properties
-    layer_density = ice_density * np.ones(len(layer_heights))
-    layer_T = temperature_bottom * np.ones(len(layer_heights))
-    layer_liquid_water = np.zeros(number_layers)
-
-    if (initial_snowheight > 0.0):
-        # Init density
-        rho_top = initial_top_density_snowpack_constant
-        rho_bottom = initial_bottom_density_snowpack_constant
-        density_gradient = (rho_top-rho_bottom)/(np.floor(initial_snowheight/initial_snow_layer_heights))
-        for i in np.arange((np.floor(initial_snowheight/initial_snow_layer_heights))):
-            layer_density[int(i)] = rho_top - density_gradient * i
+    #--------------------------------------
+    layer_heights = []
+    layer_densities = []
+    layer_T = []
+    layer_liquid_water = []
     
-    # Init temperature new
-    temperature_gradient = (temperature_top - temperature_bottom) / (np.floor(initial_glacier_height / initial_glacier_layer_heights))
-
-    total_height = 0
-
-    for i in np.arange(0 ,(np.floor(initial_glacier_height / initial_glacier_layer_heights))):
-
-        # Total height of overlying snowpack
-        if int(i) > 0:
-            total_height = total_height + layer_heights[int(i)]
-
-        # Exponential decay of
-        layer_T[int(i)] = float(temperature_bottom + (temperature_top - temperature_bottom) *  math.exp(const_init_temp * -total_height))
-
+    if (initial_snowheight > 0.0):
+        optimal_height = 0.1 # 10 cm
+        nlayers = int(min(initial_snowheight / optimal_height, 5))
+        dT = (temperature_top-temperature_bottom)/(initial_snowheight+initial_glacier_height)
+        if nlayers == 0:
+            layer_heights = np.array([initial_snowheight])
+            layer_densities = np.array([initial_top_density_snowpack])
+            layer_T = np.array([temperature_top])
+            layer_liquid_water = np.array([0.0])
+        elif nlayers > 0:
+            drho = (initial_top_density_snowpack-initial_bottom_density_snowpack)/initial_snowheight
+            layer_heights = np.ones(nlayers) * (initial_snowheight/nlayers)
+            layer_densities = np.array([initial_top_density_snowpack-drho*(initial_snowheight/nlayers)*i for i in range(1,nlayers+1)])
+            layer_T = np.array([temperature_top-dT*(initial_snowheight/nlayers)*i for i in range(1,nlayers+1)])
+            layer_liquid_water = np.zeros(nlayers)
+	    
+        # add glacier
+        nlayers = int(initial_glacier_height/initial_glacier_layer_heights)
+        layer_heights = np.append(layer_heights, np.ones(nlayers)*initial_glacier_layer_heights)
+        layer_densities = np.append(layer_densities, np.ones(nlayers)*ice_density)
+        layer_T = np.append(layer_T, [layer_T[-1]-dT*initial_glacier_layer_heights*i for i in range(1,nlayers+1)])
+        layer_liquid_water = np.append(layer_liquid_water, np.zeros(nlayers))
+	
+    else:
+    
+        # only glacier
+        nlayers = int(initial_glacier_height/initial_glacier_layer_heights)
+        dT = (temperature_top-temperature_bottom)/initial_glacier_height
+        layer_heights = np.ones(nlayers)*initial_glacier_layer_heights
+        layer_densities = np.ones(nlayers)*ice_density
+        layer_T = np.array([temperature_top-dT*initial_glacier_layer_heights*i for i in range(1,nlayers+1)])
+        layer_liquid_water = np.zeros(nlayers)
+	
     # Initialize grid, the grid class contains all relevant grid information
-    GRID = Grid(layer_heights, layer_density, layer_T, layer_liquid_water)
-
+    GRID = Grid(np.array(layer_heights), np.array(layer_densities), np.array(layer_T), np.array(layer_liquid_water))
+    
     return GRID
 
 

@@ -24,10 +24,10 @@ initial_snow_layer_heights = 0.10               # Initial thickness of snow laye
 initial_glacier_height = 40.0                   # Initial glacier height without snowlayers
 initial_glacier_layer_heights = 0.5             # Initial thickness of glacier ice layers
 
-initial_top_density_snowpack_constant = 300.    # Top density for initial snowpack
-initial_bottom_density_snowpack_constant = 600. # Bottom density for initial snowpack
+initial_top_density_snowpack = 300.0            # Top density for initial snowpack
+initial_bottom_density_snowpack = 600.0         # Bottom density for initial snowpack
 
-temperature_top_constant = 271.16               # Upper boundary condition for initial temperature profile (K)
+temperature_top = 271.16                        # Upper boundary condition for initial temperature profile (K)
 temperature_bottom = 270.16                     # Lower boundary condition for initial temperature profile (K)
 const_init_temp = 0.1                           # constant for init temperature profile used in exponential function (exponential decay)
 
