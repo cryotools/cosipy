@@ -1,6 +1,5 @@
 import sys
 import numpy as np
-import math
 from constants import *
 from config import *
 from cosipy.cpkernel.grid import *
@@ -15,10 +14,9 @@ def init_snowpack(DATA):
         initial_snowheight = DATA.SNOWHEIGHT.values
         if np.isnan(initial_snowheight):
             initial_snowheight = 0.0
-        temperature_top = np.minimum(DATA.T2.values[0], 273.16)
-
+    else: 
         initial_snowheight = initial_snowheight_constant
-        temperature_top = np.minimum(DATA.T2.values[0], 273.16)
+    temperature_top = np.minimum(DATA.T2.values[0], 273.16)
 	
     #--------------------------------------
     # Do the vertical interpolation

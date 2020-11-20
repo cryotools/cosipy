@@ -57,7 +57,7 @@ if WRF:
     easting = 'west_east'                                   # name of dimension in WRF in- and output
 
 #Interactive simulation with WRF
-WRF_X_CSPY = True
+WRF_X_CSPY = False
 
 #-----------------------------------
 # COMPRESSION of output netCDF
