@@ -24,7 +24,8 @@ spec['grid'] = types.ListType(node_type)
 @jitclass(spec)
 class Grid:
 
-    def __init__(self, layer_heights, layer_densities, layer_temperatures, layer_liquid_water_content):
+    def __init__(self, layer_heights, layer_densities, layer_temperatures, layer_liquid_water_content, 
+                 new_snow_height=None, new_snow_timestamp=None, old_snow_timestamp=None):
         """ The Grid-class controls the numerical mesh. 
         
         The grid consists of a list of nodes (layers) that store the information 
@@ -58,9 +59,16 @@ class Grid:
 
         # Track the fresh snow layer (new_snow_height, new_snow_timestamp) as well as the old
         # snow layer age (old_snow_timestamp)
-        self.new_snow_height = 0.0      # meter snow accumulation
-        self.new_snow_timestamp = 0.0   # seconds since snowfall
-        self.old_snow_timestamp = 0.0   # snow age below fresh snow layer
+        if (new_snow_height is not None) and (new_snow_timestamp is not None) and \
+           (new_snow_timestamp is not None):
+            self.new_snow_height = new_snow_height         # meter snow accumulation
+            self.new_snow_timestamp = new_snow_timestamp   # seconds since snowfall
+            self.old_snow_timestamp = old_snow_timestamp   # snow age below fresh snow layer
+        else:
+	    #TO DO: pick better initialization values
+            self.new_snow_height = 0.0      
+            self.new_snow_timestamp = 0.0   
+            self.old_snow_timestamp = 0.0  
 
         # Do the grid initialization
         self.grid = typed.List.empty_list(node_type)
@@ -553,10 +561,6 @@ class Grid:
         layer.
         """
         self.new_snow_height = height
-	
-    def set_snow_timestamp_wrf_x_cspy(self, timestamp):
-        """ set time of last snowfall in WRF_X_CSPY """
-        self.new_snow_timestamp = timestamp
 	
     def get_fresh_snow_props(self):
         """ Returns the properties of the first snow layer.
