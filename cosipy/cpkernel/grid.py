@@ -568,7 +568,7 @@ class Grid:
         The function is used internally to keep track of the albedo properties oir the first snow
         layer.
         """
-        return self.new_snow_height, self.new_snow_timestamp
+        return self.new_snow_height, self.new_snow_timestamp, self.old_snow_timestamp
 
 
     def set_node_temperature(self, idx, temperature):

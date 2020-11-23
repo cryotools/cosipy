@@ -379,6 +379,10 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
 
     # Restart
     if not WRF_X_CSPY:
+        new_snow_height, new_snow_timestamp, old_snow_timestamp = GRID.get_fresh_snow_props()
+        RESTART['new_snow_height'] = new_snow_height
+        RESTART['new_snow_timestamp'] = new_snow_timestamp
+        RESTART['old_snow_timestamp'] = old_snow_timestamp
         RESTART['NLAYERS'] = GRID.get_number_layers()
         RESTART.LAYER_HEIGHT[0:GRID.get_number_layers()] = GRID.get_height()
         RESTART.LAYER_RHO[0:GRID.get_number_layers()] = GRID.get_density()

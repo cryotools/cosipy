@@ -18,7 +18,7 @@ def method_Oerlemans(GRID,timestamp):
 
     # Get hours since the last snowfall
     # First get fresh snow properties (height and timestamp)
-    fresh_snow_height, fresh_snow_timestamp  = GRID.get_fresh_snow_props()
+    fresh_snow_height, fresh_snow_timestamp, _  = GRID.get_fresh_snow_props()
     
     # Get time difference between last snowfall and now
     hours_since_snowfall = (timestamp-fresh_snow_timestamp)/3600.0
@@ -27,7 +27,7 @@ def method_Oerlemans(GRID,timestamp):
     # to the old values of the underlying snowpack
     if (hours_since_snowfall<(albedo_mod_snow_aging*24)) & (fresh_snow_height<0.0):
         GRID.set_fresh_snow_props_to_old_props()
-        fresh_snow_height, fresh_snow_timestamp  = GRID.get_fresh_snow_props()
+        fresh_snow_height, fresh_snow_timestamp, _  = GRID.get_fresh_snow_props()
         
         # Update time difference between last snowfall and now
         hours_since_snowfall = (timestamp-fresh_snow_timestamp)/3600.0
