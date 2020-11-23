@@ -60,8 +60,9 @@ def init_snowpack(DATA):
         layer_liquid_water = np.zeros(nlayers)
 	
     # Initialize grid, the grid class contains all relevant grid information
-    GRID = Grid(np.array(layer_heights), np.array(layer_densities), np.array(layer_T), np.array(layer_liquid_water),
-           None, None, None)
+    GRID = Grid(np.array(layer_heights, dtype=np.float64), np.array(layer_densities, dtype=np.float64), 
+                np.array(layer_T, dtype=np.float64), np.array(layer_liquid_water, dtype=np.float64),
+                None, None, None)
     
     return GRID
 

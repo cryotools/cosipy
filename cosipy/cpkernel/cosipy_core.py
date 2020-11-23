@@ -282,7 +282,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Percolation
         #--------------------------------------------
-        Q  = percolation(GRID, melt + evaporation + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
+        Q  = percolation(GRID, melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
 
         #--------------------------------------------
         # Refreezing
@@ -302,7 +302,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate mass balance
         #--------------------------------------------
-        surface_mass_balance = SNOWFALL * (density_fresh_snow / ice_density) - melt + sublimation + deposition
+        surface_mass_balance = SNOWFALL * (density_fresh_snow / ice_density) - melt + sublimation + deposition + evaporation
         internal_mass_balance = water_refreezed - subsurface_melt
         mass_balance = surface_mass_balance + internal_mass_balance
 
