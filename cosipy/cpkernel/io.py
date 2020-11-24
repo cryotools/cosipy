@@ -609,6 +609,9 @@ class IOClass:
     #==============================================================================
     def create_global_restart_arrays(self):
         self.RES_NLAYERS = np.full((self.ny,self.nx), np.nan)
+        self.RES_NEWSNOWHEIGHT = np.full((self.ny, self.nx), np.nan)
+        self.RES_NEWSNOWTIMESTAMP = np.full((self.ny, self.nx), np.nan)
+        self.RES_OLDSNOWTIMESTAMP = np.full((self.ny, self.nx), np.nan)
         self.RES_LAYER_HEIGHT = np.full((self.ny,self.nx,max_layers), np.nan)
         self.RES_LAYER_RHO = np.full((self.ny,self.nx,max_layers), np.nan)
         self.RES_LAYER_T = np.full((self.ny,self.nx,max_layers), np.nan)
@@ -634,6 +637,10 @@ class IOClass:
         self.RESTART.coords['layer'] = np.arange(max_layers)
         
         self.add_variable_along_scalar(self.RESTART, np.full((1), np.nan), 'NLAYERS', '-', 'Number of layers')
+        self.add_variable_along_scalar(self.RESTART, np.full((1), np.nan), 'NEWSNOWHEIGHT', 'm .w.e', 'New snow height')
+        self.add_variable_along_scalar(self.RESTART, np.full((1), np.nan), 'NEWSNOWTIMESTAMP', 's', 'New snow timestamp')
+        self.add_variable_along_scalar(self.RESTART, np.full((1), np.nan), 'OLDSNOWTIMESTAMP', 's', 'Old snow timestamp')
+
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_HEIGHT', 'm', 'Layer height')
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_RHO', 'kg m^-3', 'Density of layer')
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_T', 'K', 'Layer temperature')
@@ -647,7 +654,10 @@ class IOClass:
     # numpy arrays. The y and x values are the lat/lon indices.
     #==============================================================================
     def copy_local_restart_to_global(self,y,x,local_restart):
-        self.RES_NLAYERS[y,x] = local_restart.NLAYERS 
+        self.RES_NLAYERS[y,x] = local_restart.NLAYERS
+        self.RES_NEWSNOWHEIGHT[y,x] = local_restart.NEWSNOWHEIGHT
+        self.RES_NEWSNOWTIMESTAMP[y,x] = local_restart.NEWSNOWTIMESTAMP
+        self.RES_OLDSNOWTIMESTAMP[y,x] = local_restart.OLDSNOWTIMESTAMP
         self.RES_LAYER_HEIGHT[y,x,:] = local_restart.LAYER_HEIGHT 
         self.RES_LAYER_RHO[y,x,:] = local_restart.LAYER_RHO
         self.RES_LAYER_T[y,x,:] = local_restart.LAYER_T
@@ -659,6 +669,9 @@ class IOClass:
     #==============================================================================
     def write_restart_to_file(self):
         self.add_variable_along_latlon(self.RESTART, self.RES_NLAYERS, 'NLAYERS', '-', 'Number of layers')
+        self.add_variable_along_latlon(self.RESTART, self.RES_NEWSNOWHEIGHT, 'new_snow_height', 'm .w.e', 'New snow height')
+        self.add_variable_along_latlon(self.RESTART, self.RES_NEWSNOWTIMESTAMP, 'new_snow_timestamp', 's', 'New snow timestamp')
+        self.add_variable_along_latlon(self.RESTART, self.RES_OLDSNOWTIMESTAMP, 'old_snow_timestamp', 's', 'Old snow timestamp')
         self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Height of each layer')
         self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_RHO, 'LAYER_RHO', 'kg m^-3', 'Layer density')
         self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_T, 'LAYER_T', 'K', 'Layer temperature')
