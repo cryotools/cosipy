@@ -60,7 +60,7 @@ class Grid:
         # Track the fresh snow layer (new_snow_height, new_snow_timestamp) as well as the old
         # snow layer age (old_snow_timestamp)
         if (new_snow_height is not None) and (new_snow_timestamp is not None) and \
-           (new_snow_timestamp is not None):
+           (old_snow_timestamp is not None):
             self.new_snow_height = new_snow_height         # meter snow accumulation
             self.new_snow_timestamp = new_snow_timestamp   # seconds since snowfall
             self.old_snow_timestamp = old_snow_timestamp   # snow age below fresh snow layer
