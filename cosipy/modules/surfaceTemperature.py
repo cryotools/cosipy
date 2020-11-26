@@ -173,7 +173,7 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=N
         H0 = np.inf
         diff = np.inf
         optim = True
-        iter = 0
+        niter = 0
 
         # Optimize Obukhov length
         while optim:
@@ -198,9 +198,9 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=N
             diff = np.abs(H0-H)
            
             # Termination criterion
-            if (diff<1e-1) | (iter>5):
+            if (diff<1e-1) | (niter>5):
                 optim = False
-            iter = iter+1
+            niter = niter+1
             
             # Store last heat flux in H0
             H0 = H
@@ -213,7 +213,7 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=N
         
         # Bulk Richardson number
         if (u2!=0):
-            Ri = ( (9.81 * (T2 - T0) * 2.0) / (T2 * np.power(u2, 2)) ).item() #numba can't compare literal & array below
+            Ri = ( (9.81 * (T2 - T0) * z) / (T2 * np.power(u2, 2)) ).item() #numba can't compare literal & array below
         else:
             Ri = 0
         
@@ -322,7 +322,8 @@ def method_EW_Sonntag(T):
     '''
     if T==273.16:
         # over water
-        Ew = 6.112 * np.exp((17.67*(T-273.16)) / ((T-29.66)))
+        #Ew = 6.112 * np.exp((17.67*(T-273.16)) / ((T-29.66)))
+        Ew = 6.112
     else:
         # over ice
         Ew = 6.112 * np.exp((22.46*(T-273.16)) / ((T-0.55)))
