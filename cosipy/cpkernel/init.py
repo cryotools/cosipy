@@ -81,9 +81,9 @@ def load_snowpack(GRID_RESTART):
     layer_T = GRID_RESTART.LAYER_T.values[0:num_layers]
     layer_LWC = GRID_RESTART.LAYER_LWC.values[0:num_layers]
 
-    new_snow_height = np.float(GRID_RESTART.new_snow_height.values)
-    new_snow_timestamp = np.float(GRID_RESTART.new_snow_timestamp.values)
-    old_snow_timestamp = np.float(GRID_RESTART.old_snow_timestamp.values)
+    new_snow_height = np.float64(GRID_RESTART.new_snow_height.values)
+    new_snow_timestamp = np.float64(GRID_RESTART.new_snow_timestamp.values)
+    old_snow_timestamp = np.float64(GRID_RESTART.old_snow_timestamp.values)
    
     GRID = Grid(layer_heights, layer_density, layer_T, layer_LWC, new_snow_height, 
                 new_snow_timestamp, old_snow_timestamp)
