@@ -27,7 +27,6 @@ initial_glacier_layer_heights = 0.5             # Initial thickness of glacier i
 initial_top_density_snowpack = 300.0            # Top density for initial snowpack
 initial_bottom_density_snowpack = 600.0         # Bottom density for initial snowpack
 
-temperature_top = 271.16                        # Upper boundary condition for initial temperature profile (K)
 temperature_bottom = 270.16                     # Lower boundary condition for initial temperature profile (K)
 const_init_temp = 0.1                           # constant for init temperature profile used in exponential function (exponential decay)
 
@@ -38,6 +37,7 @@ spread_snow_transfer_function = 1               # 1: +-2.5
 mult_factor_RRR = 1.0                           # multiplication factor for RRR
 
 minimum_snow_layer_height = 0.001               # minimum layer height
+minimum_snowfall = 0.001                        # minimum snowfall per time step in m which is added as new snow
 
 
 ' REMESHING OPTIONS'

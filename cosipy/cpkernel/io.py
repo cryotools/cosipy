@@ -255,7 +255,6 @@ class IOClass:
         self.RESULT.attrs['Initial_glacier_layer_heights'] = initial_glacier_layer_heights
         self.RESULT.attrs['Initial_top_density_snowpack'] = initial_top_density_snowpack
         self.RESULT.attrs['Initial_bottom_density_snowpack'] = initial_bottom_density_snowpack
-        self.RESULT.attrs['Temperature_top'] = temperature_top
         self.RESULT.attrs['Temperature_bottom'] = temperature_bottom
         self.RESULT.attrs['Const_init_temp'] = const_init_temp
 
@@ -263,6 +262,7 @@ class IOClass:
         self.RESULT.attrs['Spread_snow_transfer_function'] = spread_snow_transfer_function
         self.RESULT.attrs['Multiplication_factor_for_RRR_or_SNOWFALL'] = mult_factor_RRR
         self.RESULT.attrs['Minimum_snow_layer_height'] = minimum_snow_layer_height
+        self.RESULT.attrs['Minimum_snowfall'] = minimum_snowfall
 
         self.RESULT.attrs['Remesh_method'] = remesh_method
         self.RESULT.attrs['First_layer_height_log_profile'] = first_layer_height

@@ -186,4 +186,3 @@ def method_empirical(GRID,SLOPE,dt):
 
             # Set height change
             GRID.set_node_height(idxNode, (1-(dRho/GRID.get_node_density(idxNode)))*GRID.get_node_height(idxNode))
-

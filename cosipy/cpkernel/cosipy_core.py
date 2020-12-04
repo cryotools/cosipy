@@ -1,7 +1,8 @@
 import numpy as np
+import pandas as pd
 
 from constants import mult_factor_RRR, densification_method, ice_density, water_density, \
-                      minimum_snow_layer_height, zero_temperature, lat_heat_sublimation, \
+                      minimum_snowfall, zero_temperature, lat_heat_sublimation, \
                       lat_heat_melting, lat_heat_vaporize, center_snow_transfer_function, \
                       spread_snow_transfer_function, constant_density
 from config import force_use_TP, force_use_N, stake_evaluation, full_field, WRF_X_CSPY 
@@ -195,11 +196,11 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000.0
 
         # if snowfall is smaller than the threshold
-        if SNOWFALL<minimum_snow_layer_height:
+        if SNOWFALL<minimum_snowfall:
             SNOWFALL = 0.0
 
         # if rainfall is smaller than the threshold
-        if RAIN<(minimum_snow_layer_height*(density_fresh_snow/ice_density)*1000.0):
+        if RAIN<(minimum_snowfall*(density_fresh_snow/ice_density)*1000.0):
             RAIN = 0.0
 
         if SNOWFALL > 0.0:
