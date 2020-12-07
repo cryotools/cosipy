@@ -16,7 +16,7 @@ penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
 roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
 thermal_conductivity_method = 'bulk'		# possibilities: 'bulk', 'empirical'
-sfc_temperature_method = 'SLSQP'                # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Newton' (Secant, fastest, no lower bound)'
+sfc_temperature_method = 'Newton'               # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Newton' (Secant, fastest, no lower bound)'
 
 ' INITIAL CONDITIONS '
 initial_snowheight_constant = 0.2               # Initial snowheight

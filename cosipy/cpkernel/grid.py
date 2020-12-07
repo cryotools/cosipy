@@ -5,7 +5,7 @@ from cosipy.cpkernel.node import *
 import os
 
 from collections import OrderedDict
-from numba import types, typed, intp, float64
+from numba import types, typed, intp, float64, optional
 from numba.experimental import jitclass
 
 node_type = Node.class_type.instance_type
@@ -15,6 +15,7 @@ spec['layer_heights'] = float64[:]
 spec['layer_densities'] = float64[:]
 spec['layer_temperatures'] = float64[:]
 spec['layer_liquid_water_content'] = float64[:]
+spec['layer_ice_fraction'] = optional(float64[:])
 spec['number_nodes'] = intp
 spec['new_snow_height'] = float64
 spec['new_snow_timestamp'] = float64
@@ -24,8 +25,8 @@ spec['grid'] = types.ListType(node_type)
 @jitclass(spec)
 class Grid:
 
-    def __init__(self, layer_heights, layer_densities, layer_temperatures, layer_liquid_water_content, 
-                 new_snow_height=None, new_snow_timestamp=None, old_snow_timestamp=None):
+    def __init__(self, layer_heights, layer_densities, layer_temperatures, layer_liquid_water_content, layer_ice_fraction=None,
+        new_snow_height=None, new_snow_timestamp=None, old_snow_timestamp=None):
         """ The Grid-class controls the numerical mesh. 
         
         The grid consists of a list of nodes (layers) that store the information 
@@ -53,6 +54,7 @@ class Grid:
         self.layer_densities = layer_densities
         self.layer_temperatures = layer_temperatures
         self.layer_liquid_water_content = layer_liquid_water_content
+        self.layer_ice_fraction = layer_ice_fraction
 
         # Number of total nodes
         self.number_nodes = len(layer_heights)
@@ -68,25 +70,26 @@ class Grid:
 	    #TO DO: pick better initialization values
             self.new_snow_height = 0.0      
             self.new_snow_timestamp = 0.0   
-            self.old_snow_timestamp = 0.0  
+            self.old_snow_timestamp = 0.0
 
         # Do the grid initialization
         self.grid = typed.List.empty_list(node_type)
+
         self.init_grid()
 
     
     def init_grid(self):
         """ Initialize the grid with according to the input data """
-
         # Fill the list with node instances and fill it with user defined data
         for idxNode in range(self.number_nodes):
+            layer_IF = None
+            if self.layer_ice_fraction is not None:
+                layer_IF = self.layer_ice_fraction[idxNode]
             self.grid.append(Node(self.layer_heights[idxNode], self.layer_densities[idxNode],
-                      self.layer_temperatures[idxNode], self.layer_liquid_water_content[idxNode], None))
+                self.layer_temperatures[idxNode], self.layer_liquid_water_content[idxNode], layer_IF))
 
 
-
-    
-    def add_fresh_snow(self, height, density, temperature, liquid_water_content, timestamp):
+    def add_fresh_snow(self, height, density, temperature, liquid_water_content):
         """ Adds a fresh snow layer (node) at the beginning of the node list (upper layer) 
 
         Parameters
@@ -99,9 +102,6 @@ class Grid:
                 Temperature of the layer [:math:`K`]
             liquid_water_content : float
                 Liquid water content of the layer [:math:`m~w.e.`]
-            timestamp : float
-            Seconds since the simulation start [:math:`s`]. The timestamp is used to track
-                the age of snow layers.
         """
 	
         # Add new node
@@ -111,7 +111,7 @@ class Grid:
         self.number_nodes += 1
 
         # Set the fresh snow properties for albedo calculation (height and timestamp)
-        self.set_fresh_snow_props(height, timestamp)
+        self.set_fresh_snow_props(height)
 
 
 
@@ -284,6 +284,8 @@ class Grid:
 
         # First, the snowpack is remeshed
         idx = 0
+
+
         while (idx < self.get_number_snow_layers()):
 
             if (hrest>=last_layer_height):
@@ -529,30 +531,42 @@ class Grid:
     # Getter and setter functions
     #===============================================================================
 
-    def set_fresh_snow_props(self, height, timestamp):
+    def set_fresh_snow_props(self, height):
         """ Keeps track of the new snowheight.
         
         Parameters
         ----------
             height : float
                 Height of the fresh snow layer [:math:`m`].
-            timestamp : float
-                Seconds since simulation start in order to track the age of the snow layer
-                [:math:`s`].
         """
         self.new_snow_height = height
         # Keep track of the old snow age
         self.old_snow_timestamp = self.new_snow_timestamp
-        # Set the timestamp when fresh snowfall occurred
-        self.new_snow_timestamp = timestamp
+        # Set the timestamp to zero
+        self.new_snow_timestamp = 0
 
     def set_fresh_snow_props_to_old_props(self):
-        """ Sets the timestamp of the frsh snow properties back to the timestamp of the underlying snow layer. 
+        """ Sets the timestamp of the fresh snow properties back to the timestamp of the underlying snow layer.
         
         The function is used internally to keep track of the albedo properties of the first snow
         layer.
         """
         self.new_snow_timestamp = self.old_snow_timestamp
+
+    def set_fresh_snow_props_update_time(self, seconds):
+        """ Update timestamp of snow props.
+
+        Parameters
+        ----------
+            height : float
+                Height of the fresh snow layer [:math:`m`].
+            seconds : float
+                seconds without snowfall
+                [:math:`s`].
+        """
+        self.old_snow_timestamp = self.old_snow_timestamp + seconds
+        # Set the timestamp to zero
+        self.new_snow_timestamp = self.new_snow_timestamp + seconds
 
     def set_fresh_snow_props_height(self, height):
         """ Updates the fresh snow layer height property.

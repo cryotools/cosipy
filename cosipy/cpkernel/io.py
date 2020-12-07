@@ -616,6 +616,8 @@ class IOClass:
         self.RES_LAYER_RHO = np.full((self.ny,self.nx,max_layers), np.nan)
         self.RES_LAYER_T = np.full((self.ny,self.nx,max_layers), np.nan)
         self.RES_LAYER_LWC = np.full((self.ny,self.nx,max_layers), np.nan)
+        self.RES_LAYER_IF = np.full((self.ny,self.nx,max_layers), np.nan)
+
 
     #----------------------------------------------
     # Initializes the local restart xarray dataset
@@ -645,6 +647,8 @@ class IOClass:
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_RHO', 'kg m^-3', 'Density of layer')
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_T', 'K', 'Layer temperature')
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_LWC', '-', 'Layer liquid water content')
+        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_IF', '-', 'Layer ice fraction')
+
 
         return self.RESTART
     
@@ -662,6 +666,8 @@ class IOClass:
         self.RES_LAYER_RHO[y,x,:] = local_restart.LAYER_RHO
         self.RES_LAYER_T[y,x,:] = local_restart.LAYER_T
         self.RES_LAYER_LWC[y,x,:] = local_restart.LAYER_LWC
+        self.RES_LAYER_IF[y,x,:] = local_restart.LAYER_IF
+
     
     #==============================================================================
     # This function adds the global numpy arrays to the RESULT dataset which will
@@ -676,6 +682,7 @@ class IOClass:
         self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_RHO, 'LAYER_RHO', 'kg m^-3', 'Layer density')
         self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_T, 'LAYER_T', 'K', 'Layer temperature')
         self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_LWC, 'LAYER_LWC', '-', 'Layer liquid water content')
+        self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_IF, 'LAYER_IF', '-', 'Layer ice fraction')
 
 
     # TODO: Make it Pythonian - Finish the getter/setter functions

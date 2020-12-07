@@ -205,7 +205,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
 
         if SNOWFALL > 0.0:
             # Add a new snow node on top
-           GRID.add_fresh_snow(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0, timestamp)
+           GRID.add_fresh_snow(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0)
+        else:
+           GRID.set_fresh_snow_props_update_time(dt)
 
         # Guarantee that solar radiation is greater equal zero
         if (G[t]<0.0):
@@ -219,12 +221,12 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate albedo and roughness length changes if first layer is snow
         #--------------------------------------------
-        alpha = updateAlbedo(GRID, timestamp)
+        alpha = updateAlbedo(GRID)
 
         #--------------------------------------------
         # Update roughness length
         #--------------------------------------------
-        z0 = updateRoughness(GRID, timestamp)
+        z0 = updateRoughness(GRID)
 
         #--------------------------------------------
         # Surface Energy Balance
@@ -389,6 +391,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         RESTART.LAYER_RHO[0:GRID.get_number_layers()] = GRID.get_density()
         RESTART.LAYER_T[0:GRID.get_number_layers()] = GRID.get_temperature()
         RESTART.LAYER_LWC[0:GRID.get_number_layers()] = GRID.get_liquid_water_content()
+        RESTART.LAYER_IF[0:GRID.get_number_layers()] = GRID.get_ice_fraction()
 
     return (indY,indX,RESTART,_RAIN,_SNOWFALL,_LWin,_LWout,_H,_LE,_B, _QRR, \
             _MB,_surfMB,_Q,_SNOWHEIGHT,_TOTALHEIGHT,_TS,_ALBEDO,_NLAYERS, \
