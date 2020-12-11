@@ -16,7 +16,7 @@ penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
 roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
 thermal_conductivity_method = 'bulk'		# possibilities: 'bulk', 'empirical'
-sfc_temperature_method = 'SLSQP'               # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Newton' (Secant, fastest, no lower bound)'
+sfc_temperature_method = 'SLSQP'                # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Newton' (Secant, fastest, no lower bound)'
 
 ' INITIAL CONDITIONS '
 initial_snowheight_constant = 0.2               # Initial snowheight
@@ -30,6 +30,8 @@ initial_bottom_density_snowpack = 600.0         # Bottom density for initial sno
 temperature_bottom = 270.16                     # Lower boundary condition for initial temperature profile (K)
 const_init_temp = 0.1                           # constant for init temperature profile used in exponential function (exponential decay)
 
+zlt1 = 0.06					# First depth for temperature interpolation which is used for calculation of ground heat flux
+zlt2 = 0.1					# Second depth for temperature interpolation which is used for calculation of ground heat flux
 
 ' MODEL CONSTANTS '
 center_snow_transfer_function = 1.0             # center (50/50) when total precipitation is transferred to snow and rain
@@ -75,7 +77,7 @@ spec_heat_ice = 2050.00                         # specific heat of ice [J Kg-1 K
 spec_heat_water = 4217.00                       # specific heat of water [J Kg-1 K-1]
 
 k_i = 2.22                                      # thermal conductivity ice [W m^-1 K^-1]
-k_w = 0.55                                    # thermal conductivity water [W m^-1 K^-1]
+k_w = 0.55                                      # thermal conductivity water [W m^-1 K^-1]
 k_a = 0.024                                     # thermal conductivity air [W m^-1 K^-1]
 
 water_density = 1000.0                          # density of water [kg m^(-3)]

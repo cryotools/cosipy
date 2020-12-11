@@ -1,7 +1,7 @@
 import numpy as np
 from constants import sfc_temperature_method, saturation_water_vapour_method, zero_temperature, \
                       lat_heat_sublimation, lat_heat_vaporize, stability_correction, spec_heat_air, \
-                      spec_heat_water, water_density, surface_emission_coeff, sigma
+                      spec_heat_water, water_density, surface_emission_coeff, sigma, zlt1, zlt2
 from scipy.optimize import minimize, newton
 from numba import njit
 from types import SimpleNamespace
@@ -240,11 +240,40 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=N
     # Get thermal conductivity
     lam = GRID.get_node_thermal_conductivity(0) 
    
+    # Cumulative layer depths
+    layer_heights_cum = np.cumsum(np.array(GRID.get_height()))
+
+    # Find indexes of two depths for temperature interpolation
+    idx1_depth_1 = np.abs(layer_heights_cum - zlt1).argmin()
+    depth_1 = layer_heights_cum.flat[np.abs(layer_heights_cum - zlt1).argmin()]
+
+    if depth_1 > zlt1:
+        idx2_depth_1 = idx1_depth_1 - 1
+    else:
+        idx2_depth_1 = idx1_depth_1 + 1
+    Tz1 = GRID.get_node_temperature(idx1_depth_1) + \
+		((GRID.get_node_temperature(idx1_depth_1) - GRID.get_node_temperature(idx2_depth_1)) / \
+            	(layer_heights_cum[idx1_depth_1] - layer_heights_cum[idx2_depth_1])) * \
+		(zlt1 - layer_heights_cum[idx1_depth_1])
+
+    idx1_depth_2 = np.abs(layer_heights_cum - zlt2).argmin()
+    depth_2 = layer_heights_cum.flat[np.abs(layer_heights_cum - zlt2).argmin()]
+
+    if depth_2 > zlt2:
+        idx2_depth_2 = idx1_depth_2 - 1
+    else:
+        idx2_depth_2 = idx1_depth_2 + 1
+
+    Tz2 = GRID.get_node_temperature(idx1_depth_2) + \
+		((GRID.get_node_temperature(idx1_depth_2) - GRID.get_node_temperature(idx2_depth_2)) / \
+        	(layer_heights_cum[idx1_depth_2] - layer_heights_cum[idx2_depth_2])) * \
+		(zlt2 - layer_heights_cum[idx1_depth_2])
+
+    hminus = zlt1
+    hplus = zlt2 - zlt1
+
     # Ground heat flux
-    hminus = GRID.get_node_depth(1)-GRID.get_node_depth(0)
-    hplus = GRID.get_node_depth(2)-GRID.get_node_depth(1)
-    B = lam * (hminus/(hplus+hminus)) * \
-            ((GRID.get_node_temperature(2)-GRID.get_node_temperature(1))/hplus) + (hplus/(hplus+hminus))*((GRID.get_node_temperature(1)-T0)/hminus)
+    B = lam * (hminus/(hplus+hminus)) * ((Tz2-Tz1)/hplus) + (hplus/(hplus+hminus)) * ((Tz1-T0)/hminus)
 
     # Rain heat flux
     QRR = water_density * spec_heat_water * (RAIN/1000/dt) * (T2 - T0)
@@ -320,10 +349,9 @@ def method_EW_Sonntag(T):
     Input:
         T   ::  Temperature [K]
     '''
-    if T==273.16:
+    if T >= 273.16:
         # over water
-        #Ew = 6.112 * np.exp((17.67*(T-273.16)) / ((T-29.66)))
-        Ew = 6.112
+        Ew = 6.112 * np.exp((17.67*(T-273.16)) / ((T-29.66)))
     else:
         # over ice
         Ew = 6.112 * np.exp((22.46*(T-273.16)) / ((T-0.55)))
