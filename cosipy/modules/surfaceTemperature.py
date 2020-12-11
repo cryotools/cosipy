@@ -170,7 +170,7 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=N
     # Monin-Obukhov stability correction
     if stability_correction == 'MO':
         L = 0.0
-        H0 = np.inf
+        H0 = np.full(1,np.inf)		#numba: H is an ndarray, to allow subtraction
         diff = np.inf
         optim = True
         niter = 0
@@ -295,7 +295,7 @@ def MO(rho, ust, T2, H):
     """
     # Monin-Obukhov length
     if H!=0:
-        return (rho*spec_heat_air*np.power(ust,3)*T2)/(0.41*9.81*H)
+        return ((rho*spec_heat_air*np.power(ust,3)*T2)/(0.41*9.81*H)).item()	#numba: L should be a float
     else:
         return 0.0
 
