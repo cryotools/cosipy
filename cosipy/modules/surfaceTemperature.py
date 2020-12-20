@@ -45,26 +45,32 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
         q2      ::  Mixing ratio at measurement height [kg kg^-1]
         phi     ::  Stability correction term [-]
     """
-     
+    
+    #Interpolate subsurface temperatures to selected subsurface depths for GHF computation
+    B_Ts = interp_subT(GRID)
+    
+    #Update surface temperature
+    lower_bnd_ts = 220.
+    
     if sfc_temperature_method == 'L-BFGS-B' or sfc_temperature_method == 'SLSQP':
         # Get surface temperature by minimizing the energy balance function (SWnet+Li+Lo+H+L=0)
         res = minimize(eb_optim, GRID.get_node_temperature(0), method=sfc_temperature_method,
-                       bounds=((220.0, zero_temperature),),tol=1e-2,
-                       args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin, N))
+                       bounds=((lower_bnd_ts, zero_temperature),),tol=1e-2,
+                       args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin, N))
 		       
     elif sfc_temperature_method == 'Newton':
         try:
             res = newton(eb_optim, np.array([GRID.get_node_temperature(0)]), tol=1e-2, maxiter=50,
-                        args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin, N))
-            if res < 220.:
+                        args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin, N))
+            if res < lower_bnd_ts:
                 raise ValueError("TS Solution is out of bounds")
             res = SimpleNamespace(**{'x':min(zero_temperature,res),'fun':None})
 	    
         except (RuntimeError,ValueError):
              #Workaround for non-convergence and unboundedness
              res = minimize(eb_optim, GRID.get_node_temperature(0), method='SLSQP',
-                       bounds=((220.0, zero_temperature),),tol=1e-2,
-                       args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin, N))
+                       bounds=((lower_bnd_ts, zero_temperature),),tol=1e-2,
+                       args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin, N))
     else:
         print('Invalid method for minimizing the residual')
 
@@ -72,10 +78,11 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
     GRID.set_node_temperature(0, float(res.x))
  
     (Li, Lo, H, L, B, Qrr, SWnet, rho, Lv, Cs_t, Cs_q, q0, q2) = eb_fluxes(GRID, res.x, dt, alpha, 
-                                                             z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin, N,)
-    
+                                                             z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, 
+                                                             B_Ts, LWin, N,)
+     
     # Consistency check
-    if (float(res.x)>zero_temperature) or (float(res.x)<220.):
+    if (float(res.x)>zero_temperature) or (float(res.x)<lower_bnd_ts):
         print('Surface temperature is outside bounds:',GRID.get_node_temperature(0))
 
     # Return fluxes
@@ -83,7 +90,42 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
 
 
 @njit
-def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=None):
+def interp_subT(GRID):
+    ''' Interpolate subsurface temperature to depths used for ground heat flux computation'''
+    
+    # Cumulative layer depths
+    layer_heights_cum = np.cumsum(np.array(GRID.get_height()))
+
+    # Find indexes of two depths for temperature interpolation
+    idx1_depth_1 = np.abs(layer_heights_cum - zlt1).argmin()
+    depth_1 = layer_heights_cum.flat[np.abs(layer_heights_cum - zlt1).argmin()]
+
+    if depth_1 > zlt1:
+        idx2_depth_1 = idx1_depth_1 - 1
+    else:
+        idx2_depth_1 = idx1_depth_1 + 1
+    Tz1 = GRID.get_node_temperature(idx1_depth_1) + \
+		((GRID.get_node_temperature(idx1_depth_1) - GRID.get_node_temperature(idx2_depth_1)) / \
+            	(layer_heights_cum[idx1_depth_1] - layer_heights_cum[idx2_depth_1])) * \
+		(zlt1 - layer_heights_cum[idx1_depth_1])
+
+    idx1_depth_2 = np.abs(layer_heights_cum - zlt2).argmin()
+    depth_2 = layer_heights_cum.flat[np.abs(layer_heights_cum - zlt2).argmin()]
+
+    if depth_2 > zlt2:
+        idx2_depth_2 = idx1_depth_2 - 1
+    else:
+        idx2_depth_2 = idx1_depth_2 + 1
+
+    Tz2 = GRID.get_node_temperature(idx1_depth_2) + \
+		((GRID.get_node_temperature(idx1_depth_2) - GRID.get_node_temperature(idx2_depth_2)) / \
+        	(layer_heights_cum[idx1_depth_2] - layer_heights_cum[idx2_depth_2])) * \
+		(zlt2 - layer_heights_cum[idx1_depth_2])
+    return np.array([Tz1,Tz2])
+    
+
+@njit
+def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin=None, N=None):
     ''' This functions returns the surface fluxes with Monin-Obukhov stability correction.
 
     Given:
@@ -171,7 +213,7 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=N
     # Monin-Obukhov stability correction
     if stability_correction == 'MO':
         L = 0.0
-        H0 = np.full(1,np.inf)
+        H0 = np.full(1,np.inf)		#numba: allow subtraction from H (ndarray)
         diff = np.inf
         optim = True
         niter = 0
@@ -241,39 +283,10 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=N
     # Get thermal conductivity
     lam = GRID.get_node_thermal_conductivity(0) 
    
-    # Cumulative layer depths
-    layer_heights_cum = np.cumsum(np.array(GRID.get_height()))
-
-    # Find indexes of two depths for temperature interpolation
-    idx1_depth_1 = np.abs(layer_heights_cum - zlt1).argmin()
-    depth_1 = layer_heights_cum.flat[np.abs(layer_heights_cum - zlt1).argmin()]
-
-    if depth_1 > zlt1:
-        idx2_depth_1 = idx1_depth_1 - 1
-    else:
-        idx2_depth_1 = idx1_depth_1 + 1
-    Tz1 = GRID.get_node_temperature(idx1_depth_1) + \
-		((GRID.get_node_temperature(idx1_depth_1) - GRID.get_node_temperature(idx2_depth_1)) / \
-            	(layer_heights_cum[idx1_depth_1] - layer_heights_cum[idx2_depth_1])) * \
-		(zlt1 - layer_heights_cum[idx1_depth_1])
-
-    idx1_depth_2 = np.abs(layer_heights_cum - zlt2).argmin()
-    depth_2 = layer_heights_cum.flat[np.abs(layer_heights_cum - zlt2).argmin()]
-
-    if depth_2 > zlt2:
-        idx2_depth_2 = idx1_depth_2 - 1
-    else:
-        idx2_depth_2 = idx1_depth_2 + 1
-
-    Tz2 = GRID.get_node_temperature(idx1_depth_2) + \
-		((GRID.get_node_temperature(idx1_depth_2) - GRID.get_node_temperature(idx2_depth_2)) / \
-        	(layer_heights_cum[idx1_depth_2] - layer_heights_cum[idx2_depth_2])) * \
-		(zlt2 - layer_heights_cum[idx1_depth_2])
-
+    # Ground heat flux
     hminus = zlt1
     hplus = zlt2 - zlt1
-
-    # Ground heat flux
+    Tz1, Tz2 = B_Ts
     B = lam * (hminus/(hplus+hminus)) * ((Tz2-Tz1)/hplus) + (hplus/(hplus+hminus)) * ((Tz1-T0)/hminus)
 
     # Rain heat flux
@@ -282,6 +295,7 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=N
     # Return surface fluxes
     # Numba: No implementation of function Function(<class 'float'>) found for signature: >>> float(array(float64, 1d, C))
     return (Li.item(), Lo.item(), H.item(), LE.item(), B.item(), QRR.item(), SWnet.item(), rho, Lv, Cs_t, Cs_q, q0, q2)
+
 
 @njit
 def phi_m(z,L):
@@ -298,6 +312,7 @@ def phi_m(z,L):
     else:
         return 0.0
 
+
 @njit
 def phi_tq(z,L):
     """ Stability function for the heat and moisture flux.
@@ -313,11 +328,13 @@ def phi_tq(z,L):
     else:
         return 0.0
 
+
 @njit
 def ustar(u2,z,z0,L):
     """ Friction velocity. 
     """
     return (0.41*u2) / (np.log(z/z0)-phi_m(z,L))
+
 
 @njit
 def MO(rho, ust, T2, H):
@@ -330,18 +347,19 @@ def MO(rho, ust, T2, H):
         return 0.0
 
 @njit
-def eb_optim(T0, GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=None):
+def eb_optim(T0, GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin=None, N=None):
     ''' Optimization function to solve for surface temperature T0 '''
 
     # Get surface fluxes for surface temperature T0
     (Li,Lo,H,L,B,Qrr, SWnet,rho,Lv,Cs_t,Cs_q,q0,q2) = eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G,
-                                                               u2, RAIN, SLOPE, LWin, N)
+                                                               u2, RAIN, SLOPE, B_Ts, LWin, N)
 
     # Return the residual (is minimized by the optimization function)
     if sfc_temperature_method == 'Newton':
         return (SWnet+Li+Lo+H+L+B+Qrr)
     else:
         return np.abs(SWnet+Li+Lo+H+L+B+Qrr)
+
 
 @njit
 def method_EW_Sonntag(T):
