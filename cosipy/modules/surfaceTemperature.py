@@ -45,7 +45,7 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
         q2      ::  Mixing ratio at measurement height [kg kg^-1]
         phi     ::  Stability correction term [-]
     """
-    
+     
     if sfc_temperature_method == 'L-BFGS-B' or sfc_temperature_method == 'SLSQP':
         # Get surface temperature by minimizing the energy balance function (SWnet+Li+Lo+H+L=0)
         res = minimize(eb_optim, GRID.get_node_temperature(0), method=sfc_temperature_method,
@@ -54,16 +54,17 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
 		       
     elif sfc_temperature_method == 'Newton':
         try:
-            res = newton(eb_optim, GRID.get_node_temperature(0), tol=1e-2, maxiter=50,
+            res = newton(eb_optim, np.array([GRID.get_node_temperature(0)]), tol=1e-2, maxiter=50,
                         args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin, N))
-
-        except RuntimeError:
-             #lazy workaround for non-convergence that is most reasonable in WRF_X_CSPY (dt ~O(10s))
-             print('bypassing non-convergence in surface temperature update')
-             res = GRID.get_node_temperature(0)	
-	     
-        res = SimpleNamespace(**{'x':min(zero_temperature,res),'fun':None})
-
+            if res < 220.:
+                raise ValueError("TS Solution is out of bounds")
+            res = SimpleNamespace(**{'x':min(zero_temperature,res),'fun':None})
+	    
+        except (RuntimeError,ValueError):
+             #Workaround for non-convergence and unboundedness
+             res = minimize(eb_optim, GRID.get_node_temperature(0), method='SLSQP',
+                       bounds=((220.0, zero_temperature),),tol=1e-2,
+                       args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin, N))
     else:
         print('Invalid method for minimizing the residual')
 
@@ -170,7 +171,7 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=N
     # Monin-Obukhov stability correction
     if stability_correction == 'MO':
         L = 0.0
-        H0 = np.full(1,np.inf)		#numba: H is an ndarray, to allow subtraction
+        H0 = np.full(1,np.inf)
         diff = np.inf
         optim = True
         niter = 0
@@ -324,7 +325,7 @@ def MO(rho, ust, T2, H):
     """
     # Monin-Obukhov length
     if H!=0:
-        return ((rho*spec_heat_air*np.power(ust,3)*T2)/(0.41*9.81*H)).item()	#numba: L should be a float
+        return ((rho*spec_heat_air*np.power(ust,3)*T2)/(0.41*9.81*H)).item()	#numba: expects a float
     else:
         return 0.0
 
