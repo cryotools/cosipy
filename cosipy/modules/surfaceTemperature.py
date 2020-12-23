@@ -64,7 +64,7 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
                         args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin, N))
             if res < lower_bnd_ts:
                 raise ValueError("TS Solution is out of bounds")
-            res = SimpleNamespace(**{'x':min(zero_temperature,res),'fun':None})
+            res = SimpleNamespace(**{'x':min(np.array([zero_temperature]),res),'fun':None})
 	    
         except (RuntimeError,ValueError):
              #Workaround for non-convergence and unboundedness
@@ -213,7 +213,7 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, 
     # Monin-Obukhov stability correction
     if stability_correction == 'MO':
         L = 0.0
-        H0 = np.full(1,np.inf)		#numba: allow subtraction from H (ndarray)
+        H0 = T0*0. + np.inf           #numba: consistent typing of H0
         diff = np.inf
         optim = True
         niter = 0
