@@ -209,7 +209,6 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, 
     z0t = z0/100    # Roughness length for sensible heat
     z0q = z0/10     # Roughness length for moisture
 
-    stability_corretctions_allowed = ['Ri', 'MO']
     # Monin-Obukhov stability correction
     if stability_correction == 'MO':
         L = 0.0
@@ -255,18 +254,16 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, 
         Cs_q = np.power(0.41,2.0) / ( np.log(z/z0) * np.log(z/z0q) )    # Dalton-Number
         
         # Bulk Richardson number
+        Ri = 0
         if (u2!=0):
             Ri = ( (9.81 * (T2 - T0) * z) / (T2 * np.power(u2, 2)) ).item() #numba can't compare literal & array below
-        else:
-            Ri = 0
         
         # Stability correction
+        phi = 1
         if (Ri > 0.01) & (Ri <= 0.2):
             phi = np.power(1-5*Ri,2)
         elif Ri > 0.2:
-            phi = 0
-        else:
-            phi = 1
+            phi = 0            
 
         # Sensible heat flux
         H = rho * spec_heat_air * Cs_t * u2 * (T2-T0) * phi * np.cos(np.radians(SLOPE))
@@ -275,7 +272,7 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, 
         LE = rho * Lv * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
 
     else:
-        raise ValueError("Stability correction = \"{:s}\" is not allowed, must be one of {:s}".format(stability_correction, ", ".join(stability_corretctions_allowed)))
+        raise ValueError("Stability correction",stability_correction,"is not supported")      #numba refuses to print str(list)    
     
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(T0, 4.0)
@@ -342,7 +339,7 @@ def MO(rho, ust, T2, H):
     """
     # Monin-Obukhov length
     if H!=0:
-        return ((rho*spec_heat_air*np.power(ust,3)*T2)/(0.41*9.81*H)).item()	#numba: expects a float
+        return ((-1*rho*spec_heat_air*np.power(ust,3)*T2)/(0.41*9.81*H)).item()	#numba: expects a float
     else:
         return 0.0
 
