@@ -26,9 +26,11 @@ developed on:
 The model requires the following libraries:
 
  * xarray
- * dask-jobqueue
  * netcdf4
+ * numba
+ * dask_jobqueue
  * numpy (included in Anaconda)
+ * pandas (included in Anaconda)
  * scipy (included in Anaconda)
  * distributed (included in Anaconda)
 
