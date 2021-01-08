@@ -393,7 +393,9 @@ class IOClass:
         if ('Z0' in self.atm):
             self.Z0 = np.full((self.time,self.ny,self.nx), np.nan)
         if ('surfM' in self.internal):
-            self.surfM= np.full((self.time,self.ny,self.nx), np.nan)
+            self.surfM = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('MOL' in self.internal):
+            self.MOL = np.full((self.time,self.ny,self.nx), np.nan)
 
         if full_field:
             if ('HEIGHT' in self.full):
@@ -423,9 +425,9 @@ class IOClass:
     def copy_local_to_global(self,y,x,local_RAIN,local_SNOWFALL,local_LWin,local_LWout,local_H,local_LE,local_B,local_QRR,
                              local_MB, local_surfMB,local_Q,local_SNOWHEIGHT,local_TOTALHEIGHT,local_TS,local_ALBEDO, \
                              local_LAYERS,local_ME,local_intMB,local_EVAPORATION,local_SUBLIMATION,local_CONDENSATION, \
-                             local_DEPOSITION,local_REFREEZE,local_subM,local_Z0,local_surfM,local_LAYER_HEIGHT,local_LAYER_RHO, \
-                             local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY,local_LAYER_ICE_FRACTION, \
-                             local_LAYER_IRREDUCIBLE_WATER,local_LAYER_REFREEZE):
+                             local_DEPOSITION,local_REFREEZE,local_subM,local_Z0,local_surfM,local_MOL,local_LAYER_HEIGHT, \
+			     local_LAYER_RHO,local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY, \
+			     local_LAYER_ICE_FRACTION,local_LAYER_IRREDUCIBLE_WATER,local_LAYER_REFREEZE):
 
         if ('RAIN' in self.atm):
             self.RAIN[:,y,x] = local_RAIN
@@ -479,6 +481,8 @@ class IOClass:
             self.Z0[:,y,x] = local_Z0 
         if ('surfM' in self.internal):
             self.surfM[:,y,x] = local_surfM 
+        if ('MOL' in self.internal):
+            self.MOL[:,y,x] = local_MOL 
 
         if full_field:
             if ('HEIGHT' in self.full):
@@ -558,7 +562,9 @@ class IOClass:
             self.add_variable_along_latlontime(self.RESULT, self.Z0, 'Z0', 'm', 'Roughness length') 
         if ('surfM' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.surfM, 'surfM', 'm w.e.', 'Surface melt') 
-        
+        if ('MOL' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.MOL, 'MOL', '', 'Monin Obukhov length') 
+	            
         if full_field:
             if ('HEIGHT' in self.full):
                 self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Layer height') 

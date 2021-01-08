@@ -1,3 +1,4 @@
+from config import WRF_X_CSPY
 """
     Declaration of constants
     Do not modify unless you are absolutely sure what you are doing.
@@ -17,6 +18,12 @@ roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
 thermal_conductivity_method = 'bulk'		# possibilities: 'bulk', 'empirical'
 sfc_temperature_method = 'SLSQP'                # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Newton' (Secant, fastest)'
+
+#WRF_X_CSPY: for efficiency and consistency
+if WRF_X_CSPY:
+    stability_correction = 'MO'
+    sfc_temperature_method = 'Newton'
+
 
 ' INITIAL CONDITIONS '
 initial_snowheight_constant = 0.2               # Initial snowheight

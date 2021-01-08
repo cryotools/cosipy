@@ -79,6 +79,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     _subM = np.full(nt, np.nan)
     _Z0 = np.full(nt, np.nan)
     _surfM = np.full(nt, np.nan)
+    _MOL = np.full(nt, np.nan)
 
     _LAYER_HEIGHT = np.full((nt,max_layers), np.nan)
     _LAYER_RHO = np.full((nt,max_layers), np.nan)
@@ -247,12 +248,12 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         if LWin is not None:
             # Find new surface temperature (LW is used from the input file)
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
-                ground_heat_flux, rain_heat_flux, sw_radiation_net, rho, Lv, Cs_t, Cs_q, q0, q2 \
+                ground_heat_flux, rain_heat_flux, sw_radiation_net, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
                 = update_surface_temperature(GRID, dt, alpha, z, z0, T2[t], RH2[t], PRES[t], G_resid, U2[t], RAIN, SLOPE, LWin=LWin[t])
         else:
             # Find new surface temperature (LW is parametrized using cloud fraction)
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
-                ground_heat_flux, rain_heat_flux, sw_radiation_net, rho, Lv, Cs_t, Cs_q, q0, q2 \
+                ground_heat_flux, rain_heat_flux, sw_radiation_net, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
                 = update_surface_temperature(GRID, dt, alpha, z, z0, T2[t], RH2[t], PRES[t], G_resid, U2[t], RAIN, SLOPE, N=N[t])
 
         #--------------------------------------------
@@ -348,6 +349,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         _subM[t] = subsurface_melt
         _Z0[t] = z0
         _surfM[t] = melt
+        _MOL[t] = MOL
 
         if full_field:
             if GRID.get_number_layers()>max_layers:
@@ -396,6 +398,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     return (indY,indX,RESTART,_RAIN,_SNOWFALL,_LWin,_LWout,_H,_LE,_B, _QRR, \
             _MB,_surfMB,_Q,_SNOWHEIGHT,_TOTALHEIGHT,_TS,_ALBEDO,_NLAYERS, \
             _ME,_intMB,_EVAPORATION,_SUBLIMATION,_CONDENSATION,_DEPOSITION,_REFREEZE, \
-            _subM,_Z0,_surfM, \
+            _subM,_Z0,_surfM, _MOL, \
             _LAYER_HEIGHT,_LAYER_RHO,_LAYER_T,_LAYER_LWC,_LAYER_CC,_LAYER_POROSITY,_LAYER_ICE_FRACTION, \
             _LAYER_IRREDUCIBLE_WATER,_LAYER_REFREEZE,stake_names,_stat,_df)

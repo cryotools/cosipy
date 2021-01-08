@@ -39,6 +39,7 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
         SWnet   ::  Shortwave radiation budget [W m^-2]
         rho     ::  Air density [kg m^-3]
         Lv      ::  Latent heat of vaporization [J kg^-1]
+	MOL     ::  Monin-Obukhov length
         Cs_t    ::  Stanton number [-]
         Cs_q    ::  Dalton number [-]
         q0      ::  Mixing ratio at the surface [kg kg^-1]
@@ -77,7 +78,7 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
     # Set surface temperature
     GRID.set_node_temperature(0, float(res.x))
  
-    (Li, Lo, H, L, B, Qrr, SWnet, rho, Lv, Cs_t, Cs_q, q0, q2) = eb_fluxes(GRID, res.x, dt, alpha, 
+    (Li, Lo, H, L, B, Qrr, SWnet, rho, Lv, MOL, Cs_t, Cs_q, q0, q2) = eb_fluxes(GRID, res.x, dt, alpha, 
                                                              z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, 
                                                              B_Ts, LWin, N,)
      
@@ -86,7 +87,7 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
         print('Surface temperature is outside bounds:',GRID.get_node_temperature(0))
 
     # Return fluxes
-    return res.fun, res.x, Li, Lo, H, L, B, Qrr, SWnet, rho, Lv, Cs_t, Cs_q, q0, q2
+    return res.fun, res.x, Li, Lo, H, L, B, Qrr, SWnet, rho, Lv, MOL, Cs_t, Cs_q, q0, q2
 
 
 @njit
@@ -157,6 +158,7 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, 
         SWnet   ::  Shortwave radiation budget [W m^-2]
         rho     ::  Air density [kg m^-3]
         Lv      ::  Latent heat of vaporization [J kg^-1]
+	MOL     ::  Monin Obhukov length
         Cs_t    ::  Stanton number [-]
         Cs_q    ::  Dalton number [-]
         q0      ::  Mixing ratio at the surface [kg kg^-1]
@@ -208,11 +210,12 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, 
     # Bulk transfer coefficient 
     z0t = z0/100    # Roughness length for sensible heat
     z0q = z0/10     # Roughness length for moisture
-
+    L = None
+ 
     # Monin-Obukhov stability correction
     if stability_correction == 'MO':
         L = 0.0
-        H0 = T0*0. + np.inf           #numba: consistent typing of H0
+        H0 = T0*0. + np.inf		#numba: consistent typing of H0
         diff = np.inf
         optim = True
         niter = 0
@@ -235,7 +238,7 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, 
         
             # Monin-Obukhov length
             L = MO(rho, ust, T2, H)
-            
+	    
             # Heat flux differences between iterations
             diff = np.abs(H0-H)
            
@@ -257,13 +260,13 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, 
         Ri = 0
         if (u2!=0):
             Ri = ( (9.81 * (T2 - T0) * z) / (T2 * np.power(u2, 2)) ).item() #numba can't compare literal & array below
-        
+
         # Stability correction
         phi = 1
         if (Ri > 0.01) & (Ri <= 0.2):
             phi = np.power(1-5*Ri,2)
         elif Ri > 0.2:
-            phi = 0            
+            phi = 0
 
         # Sensible heat flux
         H = rho * spec_heat_air * Cs_t * u2 * (T2-T0) * phi * np.cos(np.radians(SLOPE))
@@ -272,7 +275,7 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, 
         LE = rho * Lv * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
 
     else:
-        raise ValueError("Stability correction",stability_correction,"is not supported")      #numba refuses to print str(list)    
+        raise ValueError("Stability correction",stability_correction,"is not supported")	#numba refuses to print str(list)
     
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(T0, 4.0)
@@ -291,7 +294,7 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, 
 
     # Return surface fluxes
     # Numba: No implementation of function Function(<class 'float'>) found for signature: >>> float(array(float64, 1d, C))
-    return (Li.item(), Lo.item(), H.item(), LE.item(), B.item(), QRR.item(), SWnet.item(), rho, Lv, Cs_t, Cs_q, q0, q2)
+    return (Li.item(), Lo.item(), H.item(), LE.item(), B.item(), QRR.item(), SWnet.item(), rho, Lv, L, Cs_t, Cs_q, q0, q2)
 
 
 @njit
@@ -339,7 +342,7 @@ def MO(rho, ust, T2, H):
     """
     # Monin-Obukhov length
     if H!=0:
-        return ((-1*rho*spec_heat_air*np.power(ust,3)*T2)/(0.41*9.81*H)).item()	#numba: expects a float
+        return ((rho*spec_heat_air*np.power(ust,3)*T2)/(0.41*9.81*H)).item()	#numba: expects a float
     else:
         return 0.0
 
@@ -348,7 +351,7 @@ def eb_optim(T0, GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, L
     ''' Optimization function to solve for surface temperature T0 '''
 
     # Get surface fluxes for surface temperature T0
-    (Li,Lo,H,L,B,Qrr, SWnet,rho,Lv,Cs_t,Cs_q,q0,q2) = eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G,
+    (Li,Lo,H,L,B,Qrr, SWnet,rho,Lv,MOL,Cs_t,Cs_q,q0,q2) = eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G,
                                                                u2, RAIN, SLOPE, B_Ts, LWin, N)
 
     # Return the residual (is minimized by the optimization function)
