@@ -30,10 +30,10 @@ About
 
 :Citation:
     .. image:: https://img.shields.io/badge/Citation-GMD%20paper-orange.svg
-        :target: https://www.geosci-model-dev-discuss.net/gmd-2020-21/#discussion
+        :target: https://gmd.copernicus.org/articles/13/5645/2020/
 
     .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3902191.svg
-        :target: https://doi.org/10.5281/zenodo.3902191
+        :target: https://doi.org/10.5281/zenodo.2579668
 
 :License:
     .. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
