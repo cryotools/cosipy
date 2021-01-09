@@ -62,11 +62,11 @@ temperature_threshold_merging = 0.01            # If mering is true threshold fo
 ' PHYSICAL CONSTANTS '
 constant_density = 300.                         # constant density of freshly fallen snow [kg m-3], if densification_method is set to 'constant'
 
-albedo_fresh_snow = 0.80                        # albedo of fresh snow [-] (Moelg et al. 2012, TC)
-albedo_firn = 0.50                              # albedo of firn [-] (Moelg et al. 2012, TC)
+albedo_fresh_snow = 0.85                        # albedo of fresh snow [-] (Moelg et al. 2012, TC)
+albedo_firn = 0.55                              # albedo of firn [-] (Moelg et al. 2012, TC)
 albedo_ice = 0.3                                # albedo of ice [-] (Moelg et al. 2012, TC)
-albedo_mod_snow_aging = 21.0                    # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
-albedo_mod_snow_depth = 3.0                     # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
+albedo_mod_snow_aging = 6                       # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
+albedo_mod_snow_depth = 8                       # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
 
 roughness_fresh_snow = 0.24                     # surface roughness length for fresh snow [mm] (Moelg et al. 2012, TC)
 roughness_ice = 1.7                             # surface roughness length for ice [mm] (Moelg et al. 2012, TC)
