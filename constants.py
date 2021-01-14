@@ -65,8 +65,12 @@ constant_density = 300.                         # constant density of freshly fa
 albedo_fresh_snow = 0.85                        # albedo of fresh snow [-] (Moelg et al. 2012, TC)
 albedo_firn = 0.55                              # albedo of firn [-] (Moelg et al. 2012, TC)
 albedo_ice = 0.3                                # albedo of ice [-] (Moelg et al. 2012, TC)
-albedo_mod_snow_aging = 6                       # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
-albedo_mod_snow_depth = 8                       # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
+albedo_mod_snow_aging = 22                      # effect of ageing on snow albedo [days] (Oerlemans and Knap 1998, J. Glaciol.)
+albedo_mod_snow_depth = 3                       # effect of snow depth on albedo [cm] (Oerlemans and Knap 1998, J. Glaciol.)
+
+### For tropical glaciers or High Mountain Asia summer-accumulation glaciers (low latitude), the Moelg et al. 2012, TC should be tested for a possible better albedo fit 
+#albedo_mod_snow_aging = 6                      # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
+#albedo_mod_snow_depth = 8                      # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
 
 roughness_fresh_snow = 0.24                     # surface roughness length for fresh snow [mm] (Moelg et al. 2012, TC)
 roughness_ice = 1.7                             # surface roughness length for ice [mm] (Moelg et al. 2012, TC)
