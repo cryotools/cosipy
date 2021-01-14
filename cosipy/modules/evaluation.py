@@ -1,7 +1,6 @@
 import numpy as np
-from constants import *
-from config import *
-import sys
+from config import eval_method, obs_type
+
 
 def evaluate(stake_names, stake_data, df_):
     """ This methods evaluates the simulation with the stake measurements

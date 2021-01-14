@@ -1,9 +1,8 @@
 import numpy as np
-from constants import *
-from config import *
-import logging
+from numba import njit
 
-def percolation(GRID, water, t):
+@njit
+def percolation(GRID, water, dt):
     """ Percolation and refreezing of melt water through the snow- and firn pack
 
     Args:
@@ -13,9 +12,6 @@ def percolation(GRID, water, t):
         dt      ::  Integration time
 
     """
-
-    # Start logging
-    logger = logging.getLogger(__name__)
 
     # convert m to mm = kg/m2, not needed because of change to fraction
     # water = water * 1000
@@ -34,7 +30,9 @@ def percolation(GRID, water, t):
     GRID.set_node_liquid_water_content(0, GRID.get_node_liquid_water_content(0)+float(water))
 
     # for consistency check
-    total_start = np.sum(GRID.get_liquid_water_content())
+    #numba expect numpy type in np.sum()
+    total_start = np.sum(np.array(GRID.get_liquid_water_content()))
+
     
     # Loop over all internal grid points for percolation 
     for idxNode in range(0, GRID.number_nodes-1, 1):
@@ -67,10 +65,6 @@ def percolation(GRID, water, t):
     GRID.set_node_liquid_water_content(GRID.number_nodes-1, 0.0)
 
     # for consistency check
-    total_end = np.sum(GRID.get_liquid_water_content())
-
-    # Check mass consistency
-#    if (total_start-total_end-Q) > 1e-8:
-#        logger.error('Percolation module is not mass consistent')
+    total_end = np.sum(np.array(GRID.get_liquid_water_content()))
 
     return Q
