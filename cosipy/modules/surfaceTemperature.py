@@ -14,9 +14,9 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
 
         GRID    ::  Grid structure
         T0      ::  Surface temperature [K]
-	dt      ::  Integration time [s] -- can vary in WRF_X_CSPY
+	    dt      ::  Integration time [s] -- can vary in WRF_X_CSPY
         alpha   ::  Albedo [-]
-	z       ::  Measurement height [m] -- varies in WRF_X_CSPY
+	    z       ::  Measurement height [m] -- varies in WRF_X_CSPY
         z0      ::  Roughness length [m]
         T2      ::  Air temperature [K]
         rH2     ::  Relative humidity [%]
@@ -39,7 +39,7 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
         SWnet   ::  Shortwave radiation budget [W m^-2]
         rho     ::  Air density [kg m^-3]
         Lv      ::  Latent heat of vaporization [J kg^-1]
-	MOL     ::  Monin-Obukhov length
+	    MOL     ::  Monin-Obukhov length
         Cs_t    ::  Stanton number [-]
         Cs_q    ::  Dalton number [-]
         q0      ::  Mixing ratio at the surface [kg kg^-1]
@@ -135,7 +135,7 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, 
         T0      ::  Surface temperature [K]
         dt      ::  Integration time [s]
         alpha   ::  Albedo [-]
-	z       ::  Measurement height [m]
+	    z       ::  Measurement height [m]
         z0      ::  Roughness length [m]
         T2      ::  Air temperature [K]
         rH2     ::  Relative humidity [%]
@@ -158,7 +158,7 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, 
         SWnet   ::  Shortwave radiation budget [W m^-2]
         rho     ::  Air density [kg m^-3]
         Lv      ::  Latent heat of vaporization [J kg^-1]
-	MOL     ::  Monin Obhukov length
+	    MOL     ::  Monin Obhukov length
         Cs_t    ::  Stanton number [-]
         Cs_q    ::  Dalton number [-]
         q0      ::  Mixing ratio at the surface [kg kg^-1]

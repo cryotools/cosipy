@@ -56,7 +56,7 @@ if WRF:
     northing = 'south_north'                                # name of dimension in WRF in- and output
     easting = 'west_east'                                   # name of dimension in WRF in- and output
 
-#Interactive simulation with WRF
+# Interactive simulation with WRF
 WRF_X_CSPY = False
 
 #-----------------------------------

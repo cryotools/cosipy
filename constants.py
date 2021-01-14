@@ -16,10 +16,10 @@ densification_method = 'Boone'                  # possibilities: 'Boone','empiri
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
 roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
-thermal_conductivity_method = 'bulk'		# possibilities: 'bulk', 'empirical'
+thermal_conductivity_method = 'bulk'		    # possibilities: 'bulk', 'empirical'
 sfc_temperature_method = 'SLSQP'                # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Newton' (Secant, fastest)'
 
-#WRF_X_CSPY: for efficiency and consistency
+# WRF_X_CSPY: for efficiency and consistency
 if WRF_X_CSPY:
     stability_correction = 'MO'
     sfc_temperature_method = 'Newton'
@@ -37,8 +37,8 @@ initial_bottom_density_snowpack = 600.0         # Bottom density for initial sno
 temperature_bottom = 270.16                     # Lower boundary condition for initial temperature profile (K)
 const_init_temp = 0.1                           # constant for init temperature profile used in exponential function (exponential decay)
 
-zlt1 = 0.06					# First depth for temperature interpolation which is used for calculation of ground heat flux
-zlt2 = 0.1					# Second depth for temperature interpolation which is used for calculation of ground heat flux
+zlt1 = 0.06					                    # First depth for temperature interpolation which is used for calculation of ground heat flux
+zlt2 = 0.1					                    # Second depth for temperature interpolation which is used for calculation of ground heat flux
 
 ' MODEL CONSTANTS '
 center_snow_transfer_function = 1.0             # center (50/50) when total precipitation is transferred to snow and rain
