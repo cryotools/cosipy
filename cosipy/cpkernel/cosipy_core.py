@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 
 from constants import mult_factor_RRR, densification_method, water_density, \
-                      minimum_snowfall, zero_temperature, lat_heat_sublimation, \
-                      lat_heat_melting, lat_heat_vaporize, center_snow_transfer_function, \
+                      zero_temperature, lat_heat_sublimation, lat_heat_melting, \
+		      lat_heat_vaporize, center_snow_transfer_function, \
                       spread_snow_transfer_function, constant_density
 from config import force_use_TP, force_use_N, stake_evaluation, full_field, WRF_X_CSPY 
 
@@ -190,17 +190,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             SNOWFALL = (RRR[t]/1000.0)*(water_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) - center_snow_transfer_function) * spread_snow_transfer_function) + 1.0))
             RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/water_density) * 1000.0
 
-        # if snowfall is smaller than the threshold
-        if SNOWFALL<minimum_snowfall:
-            SNOWFALL = 0.0
-
-        # if rainfall is smaller than the threshold
-        if RAIN<(minimum_snowfall*(density_fresh_snow/water_density)*1000.0):
-            RAIN = 0.0
-
         if SNOWFALL > 0.0:
             # Add a new snow node on top
-           GRID.add_fresh_snow(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0)
+           GRID.add_fresh_snow(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0, dt)
         else:
            GRID.set_fresh_snow_props_update_time(dt)
 

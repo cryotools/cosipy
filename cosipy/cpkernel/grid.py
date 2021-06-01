@@ -89,7 +89,7 @@ class Grid:
                 self.layer_temperatures[idxNode], self.layer_liquid_water_content[idxNode], layer_IF))
 
 
-    def add_fresh_snow(self, height, density, temperature, liquid_water_content):
+    def add_fresh_snow(self, height, density, temperature, liquid_water_content, dt):
         """ Adds a fresh snow layer (node) at the beginning of the node list (upper layer) 
 
         Parameters
@@ -102,6 +102,8 @@ class Grid:
                 Temperature of the layer [:math:`K`]
             liquid_water_content : float
                 Liquid water content of the layer [:math:`m~w.e.`]
+            dt: float
+                Timestep [s]
         """
 	
         # Add new node
@@ -110,8 +112,12 @@ class Grid:
         # Increase node counter
         self.number_nodes += 1
 
-        # Set the fresh snow properties for albedo calculation (height and timestamp)
-        self.set_fresh_snow_props(height)
+        if height < minimum_snowfall:
+            # Ignore impact of small snowfall on fresh snow layer properties
+            self.set_fresh_snow_props_update_time(dt)
+        else:
+           # Set the fresh snow properties for albedo calculation (height and timestamp)
+           self.set_fresh_snow_props(height)
 
 
 
