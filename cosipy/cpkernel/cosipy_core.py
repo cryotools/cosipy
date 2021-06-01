@@ -80,6 +80,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     _Z0 = np.full(nt, np.nan)
     _surfM = np.full(nt, np.nan)
     _MOL = np.full(nt, np.nan)
+    _new_snow_height = np.full(nt, np.nan) 
+    _new_snow_timestamp = np.full(nt, np.nan)
+    _old_snow_timestamp = np.full(nt, np.nan)
 
     _LAYER_HEIGHT = np.full((nt,max_layers), np.nan)
     _LAYER_RHO = np.full((nt,max_layers), np.nan)
@@ -350,6 +353,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         _Z0[t] = z0
         _surfM[t] = melt
         _MOL[t] = MOL
+        _new_snow_height[t], _new_snow_timestamp[t], _old_snow_timestamp[t] = GRID.get_fresh_snow_props()
 
         if full_field:
             if GRID.get_number_layers()>max_layers:
@@ -384,11 +388,10 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
 
     # Restart
     if not WRF_X_CSPY:
-        new_snow_height, new_snow_timestamp, old_snow_timestamp = GRID.get_fresh_snow_props()
         RESTART.NLAYERS.values[:] = GRID.get_number_layers()
-        RESTART.NEWSNOWHEIGHT.values[:] = new_snow_height
-        RESTART.NEWSNOWTIMESTAMP.values[:] = new_snow_timestamp
-        RESTART.OLDSNOWTIMESTAMP.values[:] = old_snow_timestamp
+        RESTART.NEWSNOWHEIGHT.values[:] = _new_snow_height[t]
+        RESTART.NEWSNOWTIMESTAMP.values[:] = _new_snow_timestamp[t]
+        RESTART.OLDSNOWTIMESTAMP.values[:] = _old_snow_timestamp[t]
         RESTART.LAYER_HEIGHT[0:GRID.get_number_layers()] = GRID.get_height()
         RESTART.LAYER_RHO[0:GRID.get_number_layers()] = GRID.get_density()
         RESTART.LAYER_T[0:GRID.get_number_layers()] = GRID.get_temperature()
@@ -398,6 +401,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     return (indY,indX,RESTART,_RAIN,_SNOWFALL,_LWin,_LWout,_H,_LE,_B, _QRR, \
             _MB,_surfMB,_Q,_SNOWHEIGHT,_TOTALHEIGHT,_TS,_ALBEDO,_NLAYERS, \
             _ME,_intMB,_EVAPORATION,_SUBLIMATION,_CONDENSATION,_DEPOSITION,_REFREEZE, \
-            _subM,_Z0,_surfM, _MOL, \
+            _subM,_Z0,_surfM,_new_snow_height,_new_snow_timestamp,_old_snow_timestamp,_MOL, \
             _LAYER_HEIGHT,_LAYER_RHO,_LAYER_T,_LAYER_LWC,_LAYER_CC,_LAYER_POROSITY,_LAYER_ICE_FRACTION, \
             _LAYER_IRREDUCIBLE_WATER,_LAYER_REFREEZE,stake_names,_stat,_df)
