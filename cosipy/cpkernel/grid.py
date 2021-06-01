@@ -5,7 +5,7 @@ from cosipy.cpkernel.node import *
 import os
 
 from collections import OrderedDict
-from numba import types, typed, intp, float64, optional
+from numba import types, typed, int64, float64, optional
 from numba.experimental import jitclass
 
 node_type = Node.class_type.instance_type
@@ -16,7 +16,7 @@ spec['layer_densities'] = float64[:]
 spec['layer_temperatures'] = float64[:]
 spec['layer_liquid_water_content'] = float64[:]
 spec['layer_ice_fraction'] = optional(float64[:])
-spec['number_nodes'] = intp
+spec['number_nodes'] = int64
 spec['new_snow_height'] = float64
 spec['new_snow_timestamp'] = float64
 spec['old_snow_timestamp'] = float64
