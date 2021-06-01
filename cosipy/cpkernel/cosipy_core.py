@@ -141,26 +141,17 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     if force_use_TP:
         SNOWF = None
 
-    if ('LWin' in DATA) and ('N' in DATA):
+    LWin = np.array(nt * [None])
+    N = np.array(nt * [None])
+    if ('LWin' in DATA and not force_use_N):
         LWin = DATA.LWin.values
+	
+    if ('N' in DATA):
         N = DATA.N.values
 
-    elif ('LWin' in DATA):
-        LWin = DATA.LWin.values
-
-    else:
-        LWin = None
-        N = DATA.N.values
-
-    # Use N rather than LWin
-    if force_use_N:
-        LWin = None
-
+    SLOPE = 0.0
     if ('SLOPE' in DATA):
         SLOPE = DATA.SLOPE.values
-
-    else:
-        SLOPE = 0.0
 
     # Initial cumulative mass balance variable
     MB_cum = 0
@@ -248,17 +239,12 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Calculate residual incoming shortwave radiation (penetrating part removed)
         G_resid = G[t] - G_penetrating
 
-        if LWin is not None:
-            # Find new surface temperature (LW is used from the input file)
-            fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
-                ground_heat_flux, rain_heat_flux, sw_radiation_net, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
-                = update_surface_temperature(GRID, dt, alpha, z, z0, T2[t], RH2[t], PRES[t], G_resid, U2[t], RAIN, SLOPE, LWin=LWin[t])
-        else:
-            # Find new surface temperature (LW is parametrized using cloud fraction)
-            fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
-                ground_heat_flux, rain_heat_flux, sw_radiation_net, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
-                = update_surface_temperature(GRID, dt, alpha, z, z0, T2[t], RH2[t], PRES[t], G_resid, U2[t], RAIN, SLOPE, N=N[t])
-
+        # Find new surface temperature
+        fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
+             ground_heat_flux, rain_heat_flux, sw_radiation_net, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
+             = update_surface_temperature(GRID, dt, alpha, z, z0, T2[t], RH2[t], PRES[t], G_resid, \
+             U2[t], RAIN, SLOPE, LWin=LWin[t], N=N[t])
+	     
         #--------------------------------------------
         # Surface mass fluxes [m w.e.q.]
         #--------------------------------------------
