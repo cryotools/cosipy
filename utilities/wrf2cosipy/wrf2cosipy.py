@@ -5,18 +5,19 @@ import sys
 import xarray as xr
 import pandas as pd
 import numpy as np
+import xrspatial as xrs
 import time
 from itertools import product
 
 sys.path.append('../../')
 
 from utilities.wrf2cosipy.wrf2cosipyConfig import *
+from constants import densification_method, constant_density, water_density
 
 import argparse
 
 def create_input(wrf_file, cosipy_file, start_date, end_date):
-    """ This function creates an input dataset from the Hintereisferner CR3000 Logger Dataset 
-        Here you need to define how to interpolate the data.
+    """ This function creates an input dataset from WRF data
     """
 
     print('-------------------------------------------')
@@ -33,11 +34,8 @@ def create_input(wrf_file, cosipy_file, start_date, end_date):
     ds = ds.assign_coords(Time=pd.to_datetime(ds['Time'].values).strftime('%Y-%m-%dT%H-%M'))
 
     # Select the specified period
-    #print(pd.to_datetime(ds['Time'].values).strftime('%Y-%m-%dT%H-%M'))
     if ((start_date!=None) & (end_date!=None)):
         ds = ds.sel(Time=slice(start_date,end_date))
-
-    #print(ds.Time.values)
 
     # Create COSIPY input file
     dso = xr.Dataset()
@@ -50,7 +48,7 @@ def create_input(wrf_file, cosipy_file, start_date, end_date):
     dso = add_variable_along_timelatlon(dso, ds.T2.values, 'T2', 'm', 'Temperature at 2 m')
     dso = add_variable_along_timelatlon(dso, wrf_rh(ds.T2.values, ds.Q2.values, ds.PSFC.values), 'RH2', '%', 'Relative humidity at 2 m')
     dso = add_variable_along_timelatlon(dso, ds.SWDOWN.values, 'G', 'W m^-2', 'Incoming shortwave radiation')
-    dso = add_variable_along_timelatlon(dso, ds.LWDNB.values, 'LWin', 'W m^-2', 'Incoming longwave radiation')
+    dso = add_variable_along_timelatlon(dso, ds.GLW.values, 'LWin', 'W m^-2', 'Incoming longwave radiation')
     dso = add_variable_along_timelatlon(dso, ds.PSFC.values/100.0, 'PRES', 'hPa', 'Atmospheric Pressure')
     dso = add_variable_along_latlon(dso, ds.SNOWH[0], 'SNOWHEIGHT', 'm', 'Initial snowheight')
     dso = add_variable_along_latlon(dso, ds.SNOW[0], 'SWE', 'kg m^-2', 'Snow Water Equivalent')
@@ -63,7 +61,6 @@ def create_input(wrf_file, cosipy_file, start_date, end_date):
     z0 = 0.0040 # Roughness length for momentum
     umag = np.sqrt(ds.V10.values**2+ds.U10.values**2)   # Mean wind velocity
     U2 = umag * (np.log(2 / z0) / np.log(10 / z0))
-
     dso = add_variable_along_timelatlon(dso, U2, 'U2', 'm s^-1', 'Wind velocity at 2 m')
 
     # Add glacier mask to file (derived from the land use category)
@@ -73,26 +70,36 @@ def create_input(wrf_file, cosipy_file, start_date, end_date):
     dso = add_variable_along_latlon(dso, mask, 'MASK', '-', 'Glacier mask')
     
     # Derive precipitation from accumulated values
-    rrr = np.full_like(ds.T2, np.nan)
-    for t in np.arange(len(dso.time)):
-        if (t==0):
-            rrr[t,:,:] = ds.RAINNC[t,:,:] + ds.RAINC[t,:,:]
-        else:
-            rrr[t,:,:] = (ds.RAINNC[t,:,:] + ds.RAINC[t,:,:])  - (ds.RAINNC[t-1,:,:] + ds.RAINC[t-1,:,:])    
+    rrr = np.full_like(ds.T2, 0.)
+    for t in np.arange(1,len(dso.time)):
+        rrr[t,:,:] = (ds.RAINNC[t,:,:] + ds.RAINC[t,:,:])  - (ds.RAINNC[t-1,:,:] + ds.RAINC[t-1,:,:])    
     dso = add_variable_along_timelatlon(dso, rrr, 'RRR', 'mm', 'Total precipitation')
  
+    # Calc fresh snow density
+    if (densification_method!='constant'):
+        density_fresh_snow = np.maximum(109.0+6.0*(ds.T2.values-273.16)+26.0*np.sqrt(U2), 50.0)
+    else:
+        density_fresh_snow = constant_density 	
+ 
     # Derive snowfall from accumulated values
-    snowf = np.full_like(ds.T2, np.nan)
-    for t in np.arange(len(dso.time)):
-        if (t==0):
-            snowf[t,:,:] = ds.SNOWNC[t,:,:]
-        else:
-            snowf[t,:,:] = ds.SNOWNC[t,:,:]-ds.SNOWNC[t-1,:,:]    
-    dso = add_variable_along_timelatlon(dso, snowf/1000.0, 'SNOWFALL', 'm', 'Snowfall')
-   
+    snowf = np.full_like(ds.T2, 0.)
+    for t in np.arange(1,len(dso.time)):
+        snowf[t,:,:] = ds.SNOWNC[t,:,:]-ds.SNOWNC[t-1,:,:]   
+    snowf = (snowf/1000.0)*(water_density/density_fresh_snow)
+    dso = add_variable_along_timelatlon(dso, snowf, 'SNOWFALL', 'm', 'Snowfall')
+    
+    # Compute slope & aspect from HGT
+    DX = ds.attrs.get('DX').astype("float")
+    DY = ds.attrs.get('DY').astype("float")
+    HGT = ds.HGT[0]
+    HGT.attrs['res'] = (DX,DY)
+    slope = xrs.slope(HGT)
+    aspect = xrs.aspect(HGT)
+    dso = add_variable_along_latlon(dso, slope, 'SLOPE', 'degrees', 'Slope')
+    dso = add_variable_along_latlon(dso, aspect, 'ASPECT', 'degrees', 'Aspect')
+
     # Write file
     dso.to_netcdf(cosipy_file)
-    print(dso.dims['south_north']) 
   
     # Do some checks 
     check(dso.T2,316.16,223.16)
@@ -101,7 +108,7 @@ def create_input(wrf_file, cosipy_file, start_date, end_date):
     check(dso.U2,50.0,0.0)
     check(dso.G,1600.0,0.0)
     check(dso.PRES,1080.0,200.0)
-    check(dso.LWin,400.0,200.0)
+    check(dso.LWin,500.0,100.0)
 
 
 def add_variable_along_latlon(ds, var, name, units, long_name):
