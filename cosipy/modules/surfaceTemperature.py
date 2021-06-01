@@ -2,9 +2,11 @@ import numpy as np
 from constants import sfc_temperature_method, saturation_water_vapour_method, zero_temperature, \
                       lat_heat_sublimation, lat_heat_vaporize, stability_correction, spec_heat_air, \
                       spec_heat_water, water_density, surface_emission_coeff, sigma, zlt1, zlt2
-from scipy.optimize import minimize, newton
-from numba import njit
+from config import WRF_X_CSPY
+from scipy.optimize import minimize
+from cosipy.modules.secant import secant
 from types import SimpleNamespace
+from numba import njit
 
 
 def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=None):
@@ -50,7 +52,7 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
     #Interpolate subsurface temperatures to selected subsurface depths for GHF computation
     B_Ts = interp_subT(GRID)
     
-    #Update surface temperature
+    #Lower bound for surface temperature
     lower_bnd_ts = 220.
     
     if sfc_temperature_method == 'L-BFGS-B' or sfc_temperature_method == 'SLSQP':
@@ -59,12 +61,10 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
                        bounds=((lower_bnd_ts, zero_temperature),),tol=1e-2,
                        args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin, N))
 		       
-    elif sfc_temperature_method == 'Newton':
+    elif sfc_temperature_method == 'Secant':
         try:
-            res = newton(eb_optim, np.array([GRID.get_node_temperature(0)]), tol=1e-2, maxiter=50,
-                        args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin, N))
-            if res < lower_bnd_ts:
-                raise ValueError("TS Solution is out of bounds")
+            res = call_secant_jitted(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, 
+                                     B_Ts, lower_bnd_ts, LWin, N)
             res = SimpleNamespace(**{'x':min(np.array([zero_temperature]),res),'fun':None})
 	    
         except (RuntimeError,ValueError):
@@ -73,14 +73,13 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
                        bounds=((lower_bnd_ts, zero_temperature),),tol=1e-2,
                        args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin, N))
     else:
-        print('Invalid method for minimizing the residual')
+        raise RuntimeError('Invalid method for minimizing the residual')
 
     # Set surface temperature
     GRID.set_node_temperature(0, float(res.x))
  
     (Li, Lo, H, L, B, Qrr, SWnet, rho, Lv, MOL, Cs_t, Cs_q, q0, q2) = eb_fluxes(GRID, res.x, dt, alpha, 
-                                                             z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, 
-                                                             B_Ts, LWin, N,)
+                                                  z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin, N)
      
     # Consistency check
     if (float(res.x)>zero_temperature) or (float(res.x)<lower_bnd_ts):
@@ -88,6 +87,16 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
 
     # Return fluxes
     return res.fun, res.x, Li, Lo, H, L, B, Qrr, SWnet, rho, Lv, MOL, Cs_t, Cs_q, q0, q2
+
+
+@njit
+def call_secant_jitted(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, lower_bnd_ts, LWin=None, N=None):
+    """ A jitted call to secant.py """
+    res = secant(eb_optim, np.array([GRID.get_node_temperature(0)]), tol=1e-2, maxiter=50,
+        args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin, N))
+    if res.item() < lower_bnd_ts:
+        raise RuntimeError("TS Solution is out of bounds")
+    return res
 
 
 @njit
@@ -361,7 +370,7 @@ def eb_optim(T0, GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, L
                                                                u2, RAIN, SLOPE, B_Ts, LWin, N)
 
     # Return the residual (is minimized by the optimization function)
-    if sfc_temperature_method == 'Newton':
+    if sfc_temperature_method == 'Secant':
         return (SWnet+Li+Lo+H+L+B+Qrr)
     else:
         return np.abs(SWnet+Li+Lo+H+L+B+Qrr)

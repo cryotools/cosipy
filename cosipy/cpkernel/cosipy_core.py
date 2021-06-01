@@ -171,7 +171,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # get seconds since start
         timestamp = dt*t
         if WRF_X_CSPY:
-            timestamp = np.float64(DATA.CURR_SECS.values)
+            timestamp = np.float64(DATA.time.values)
 
         # Calc fresh snow density
         if (densification_method!='constant'):

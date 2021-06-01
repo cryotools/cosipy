@@ -16,13 +16,13 @@ densification_method = 'Boone'                  # possibilities: 'Boone','empiri
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
 roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
-thermal_conductivity_method = 'bulk'		    # possibilities: 'bulk', 'empirical'
-sfc_temperature_method = 'SLSQP'                # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Newton' (Secant, fastest)'
+thermal_conductivity_method = 'bulk'		# possibilities: 'bulk', 'empirical'
+sfc_temperature_method = 'Secant'               # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Secant'(fastest)
 
 # WRF_X_CSPY: for efficiency and consistency
 if WRF_X_CSPY:
     stability_correction = 'MO'
-    sfc_temperature_method = 'Newton'
+    sfc_temperature_method = 'Secant'
 
 
 ' INITIAL CONDITIONS '
