@@ -205,8 +205,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
            GRID.set_fresh_snow_props_update_time(dt)
 
         # Guarantee that solar radiation is greater equal zero
-        if (G[t]<0.0):
-            G[t] = 0.0
+        G[t] = max(G[t],0.0)
 
         #--------------------------------------------
         # Merge grid layers, if necessary
