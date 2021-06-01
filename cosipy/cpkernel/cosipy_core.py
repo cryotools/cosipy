@@ -43,7 +43,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     """
     
     # Replace values from constants.py if coupled
-    from constants import max_layers, dt, z	#WTF python!
+    from constants import max_layers, dt, z
     if WRF_X_CSPY:
         dt = int(DATA.DT.values)
         max_layers = int(DATA.max_layers.values)
@@ -250,11 +250,11 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         if surface_temperature < zero_temperature:
             sublimation = min(latent_heat_flux / (water_density * lat_heat_sublimation), 0) * dt
             deposition = max(latent_heat_flux / (water_density * lat_heat_sublimation), 0) * dt
-            evaporation = 0
-            condensation = 0
+            evaporation = 0.
+            condensation = 0.
         else:
-            sublimation = 0
-            deposition = 0
+            sublimation = 0.
+            deposition = 0.
             evaporation = min(latent_heat_flux / (water_density * lat_heat_vaporize), 0) * dt
             condensation = max(latent_heat_flux / (water_density * lat_heat_vaporize), 0) * dt
 
@@ -262,7 +262,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Melt process - mass changes of snowpack (melting, sublimation, deposition, evaporation, condensation)
         #--------------------------------------------
         # Melt energy in [W m^-2 or J s^-1 m^-2]
-        melt_energy = max(0, sw_radiation_net + lw_radiation_in + lw_radiation_out + ground_heat_flux + rain_heat_flux +
+        melt_energy = max(0., sw_radiation_net + lw_radiation_in + lw_radiation_out + ground_heat_flux + rain_heat_flux +
                           sensible_heat_flux + latent_heat_flux)
 
         # Convert melt energy to m w.e.q.
