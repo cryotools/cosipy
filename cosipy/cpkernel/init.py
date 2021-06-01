@@ -1,8 +1,8 @@
-import sys
 import numpy as np
 from constants import *
 from config import *
 from cosipy.cpkernel.grid import *
+from numba import njit
 
 def init_snowpack(DATA):
     ''' INITIALIZATION '''
@@ -60,7 +60,7 @@ def init_snowpack(DATA):
         layer_liquid_water = np.zeros(nlayers)
 	
     # Initialize grid, the grid class contains all relevant grid information
-    GRID = Grid(np.array(layer_heights, dtype=np.float64), np.array(layer_densities, dtype=np.float64), 
+    GRID = create_grid_jitted(np.array(layer_heights, dtype=np.float64), np.array(layer_densities, dtype=np.float64), 
                 np.array(layer_T, dtype=np.float64), np.array(layer_liquid_water, dtype=np.float64),
                 None, None, None, None)
     
@@ -86,11 +86,22 @@ def load_snowpack(GRID_RESTART):
     new_snow_timestamp = np.float64(GRID_RESTART.new_snow_timestamp.values)
     old_snow_timestamp = np.float64(GRID_RESTART.old_snow_timestamp.values)
    
+    GRID = create_grid_jitted(layer_heights, layer_density, layer_T, layer_LWC, layer_IF, new_snow_height,
+                new_snow_timestamp, old_snow_timestamp)
+
+    return GRID
+    
+    
+@njit
+def create_grid_jitted(layer_heights, layer_density, layer_T, layer_LWC, layer_IF, new_snow_height,
+                new_snow_timestamp, old_snow_timestamp):
+    ''' jitted creation of GRID '''
+    
     GRID = Grid(layer_heights, layer_density, layer_T, layer_LWC, layer_IF, new_snow_height,
                 new_snow_timestamp, old_snow_timestamp)
 
     if np.isnan(layer_T).any():
         GRID.grid_info_screen()
-        sys.exit(1) 
-    
+        raise ValueError("NaNs encountered in GRID creation")
+	
     return GRID
