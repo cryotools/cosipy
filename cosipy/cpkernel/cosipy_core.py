@@ -248,15 +248,15 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Surface mass fluxes [m w.e.q.]
         #--------------------------------------------
         if surface_temperature < zero_temperature:
-            sublimation = min(latent_heat_flux / (water_density * lat_heat_sublimation), 0) * dt
-            deposition = max(latent_heat_flux / (water_density * lat_heat_sublimation), 0) * dt
+            sublimation = min(latent_heat_flux / (water_density * lat_heat_sublimation), 0.) * dt
+            deposition = max(latent_heat_flux / (water_density * lat_heat_sublimation), 0.) * dt
             evaporation = 0.
             condensation = 0.
         else:
             sublimation = 0.
             deposition = 0.
-            evaporation = min(latent_heat_flux / (water_density * lat_heat_vaporize), 0) * dt
-            condensation = max(latent_heat_flux / (water_density * lat_heat_vaporize), 0) * dt
+            evaporation = min(latent_heat_flux / (water_density * lat_heat_vaporize), 0.) * dt
+            condensation = max(latent_heat_flux / (water_density * lat_heat_vaporize), 0.) * dt
 
         #--------------------------------------------
         # Melt process - mass changes of snowpack (melting, sublimation, deposition, evaporation, condensation)
