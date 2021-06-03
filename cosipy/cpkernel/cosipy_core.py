@@ -109,9 +109,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         IO = IOClass(DATA)
         RESTART = IO.create_local_restart_dataset()
 
-    # hours since the last snowfall (albedo module)
-    hours_since_snowfall = 0
-
     #--------------------------------------------
     # Get data from file
     #--------------------------------------------
