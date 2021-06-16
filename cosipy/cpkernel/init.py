@@ -4,8 +4,12 @@ from constants import *
 from config import *
 from cosipy.cpkernel.grid import *
 
-def init_snowpack(DATA):
+
+def init_snowpack(DATA, opt_dict):
     ''' INITIALIZATION '''
+
+    # Read and set options
+    read_opt(opt_dict)
 
     ##--------------------------------------
     ## Check for WRF data
@@ -94,3 +98,10 @@ def load_snowpack(GRID_RESTART):
         sys.exit(1) 
     
     return GRID
+
+
+def read_opt(opt_dict):
+    """ Reads the opt_dict and sets the keys as variables with the values of the dictionary """
+    if opt_dict is not None:
+        for key in opt_dict:
+            globals()[key] = opt_dict[key]

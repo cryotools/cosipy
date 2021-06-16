@@ -3,12 +3,15 @@ from constants import densification_method, snow_ice_threshold, minimum_snow_lay
                       zero_temperature, ice_density
 from numba import njit
 
-def densification(GRID,SLOPE,dt):
+def densification(GRID,SLOPE,dt,opt_dict=None):
     """ Densification of the snowpack
     Args:
         GRID    ::  GRID-Structure
 	dt      ::  integration time
     """
+
+    # Read and set the options
+    read_opt(opt_dict) 
 
     densification_allowed = ['Boone', 'Vionnet', 'empirical', 'constant']
     if densification_method == 'Boone':
@@ -186,3 +189,10 @@ def method_empirical(GRID,SLOPE,dt):
 
             # Set height change
             GRID.set_node_height(idxNode, (1-(dRho/GRID.get_node_density(idxNode)))*GRID.get_node_height(idxNode))
+
+
+def read_opt(opt_dict):
+    """ Reads the opt_dict and sets the keys as variables with the values of the dictionary """
+    if opt_dict is not None:
+        for key in opt_dict:
+            globals()[key] = opt_dict[key]

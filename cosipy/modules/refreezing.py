@@ -3,8 +3,23 @@ from constants import zero_temperature, spec_heat_ice, ice_density, \
                       water_density, lat_heat_melting
 from numba import njit
 
-@njit
-def refreezing(GRID):
+def refreezing(GRID, opt_dict=None):
+    
+    # Read and set options
+    read_opt(opt_dict)
+
+    refreezing_method = 'default'
+    refreezing_allowed = ['default']
+
+    if refreezing_method == 'default':
+        water_refreezed = refreezing_default(GRID)
+    else:
+        raise ValueError("Refreezing method = \"{:s}\" is not allowed, must be one of {:s}".format(refreezing_method, ", ".join(refreezing_allowed)))
+
+    return water_refreezed
+
+#@njit
+def refreezing_default(GRID):
 
     # water refreezed
     water_refreezed = 0.0
@@ -58,3 +73,8 @@ def refreezing(GRID):
     return water_refreezed
 
 
+def read_opt(opt_dict):
+    """ Reads the opt_dict and sets the keys as variables with the values of the dictionary """
+    if opt_dict is not None:
+        for key in opt_dict:
+            globals()[key] = opt_dict[key]

@@ -2,7 +2,10 @@ from constants import roughness_method, roughness_fresh_snow, \
                       roughness_firn, roughness_ice, snow_ice_threshold, \
                       aging_factor_roughness
 
-def updateRoughness(GRID):
+def updateRoughness(GRID, opt_dict=None):
+    
+    # Read and set options
+    read_opt(opt_dict)
 
     roughness_allowed = ['Moelg12']
     if roughness_method == 'Moelg12':
@@ -36,3 +39,10 @@ def method_Moelg(GRID):
         sigma = roughness_ice
 
     return (sigma / 1000)
+
+
+def read_opt(opt_dict):
+    """ Reads the opt_dict and sets the keys as variables with the values of the dictionary """
+    if opt_dict is not None:
+        for key in opt_dict:
+            globals()[key] = opt_dict[key]

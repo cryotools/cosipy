@@ -1,8 +1,23 @@
 import numpy as np
 from numba import njit
 
+def percolation(GRID, water, dt, opt_dict=None):
+    
+    # Read and set options
+    read_opt(opt_dict)
+
+    percolation_method = 'bucket'
+    percolation_allowed = ['bucket']
+
+    if percolation_method == 'bucket':
+        Q = bucket(GRID,water,dt)
+    else:
+        raise ValueError("Percolation method = \"{:s}\" is not allowed, must be one of {:s}".format(percolation_method, ", ".join(percolation_allowed)))
+
+    return Q
+
 @njit
-def percolation(GRID, water, dt):
+def bucket(GRID, water, dt):
     """ Percolation and refreezing of melt water through the snow- and firn pack
 
     Args:
@@ -12,7 +27,6 @@ def percolation(GRID, water, dt):
         dt      ::  Integration time
 
     """
-
     # convert m to mm = kg/m2, not needed because of change to fraction
     # water = water * 1000
 
@@ -68,3 +82,10 @@ def percolation(GRID, water, dt):
     total_end = np.sum(np.array(GRID.get_liquid_water_content()))
 
     return Q
+
+
+def read_opt(opt_dict):
+    """ Reads the opt_dict and sets the keys as variables with the values of the dictionary """
+    if opt_dict is not None:
+        for key in opt_dict:
+            globals()[key] = opt_dict[key]

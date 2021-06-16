@@ -3,7 +3,11 @@ from constants import penetrating_method, snow_ice_threshold, spec_heat_ice, \
                       zero_temperature, ice_density, water_density, lat_heat_melting
 from numba import njit
 
-def penetrating_radiation(GRID, SWnet, dt):
+def penetrating_radiation(GRID, SWnet, dt, opt_dict=None):
+
+    # Read and set options
+    read_opt(opt_dict)
+
     penetrating_allowed = ['Bintanja95']
     if penetrating_method == 'Bintanja95':
         subsurface_melt, Si = method_Bintanja(GRID, SWnet, dt)
@@ -73,3 +77,10 @@ def method_Bintanja(GRID, SWnet, dt):
         GRID.remove_node(list_of_layers_to_remove)
 
     return subsurface_melt, Si
+
+
+def read_opt(opt_dict):
+    """ Reads the opt_dict and sets the keys as variables with the values of the dictionary """
+    if opt_dict is not None:
+        for key in opt_dict:
+            globals()[key] = opt_dict[key]

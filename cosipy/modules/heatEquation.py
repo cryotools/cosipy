@@ -1,8 +1,22 @@
 import numpy as np
 from numba import njit
 
+
+def solveHeatEquation(GRID, dt, opt_dict=None):
+    
+    # Read and set options
+    read_opt(opt_dict)
+
+    heatEquation_method = 'default'
+    heatEquation_allowed = ['default']
+
+    if heatEquation_method == 'default':
+        heatEquation_default(GRID,dt)
+    else:
+        raise ValueError("Heat equation = \"{:s}\" is not allowed, must be one of {:s}".format(heatEquation_method, ", ".join(heatEquation_allowed)))
+
 @njit
-def solveHeatEquation(GRID, dt):
+def heatEquation_default(GRID, dt):
     """ Solves the heat equation on a non-uniform grid
 
     dt  ::  integration time
@@ -49,3 +63,10 @@ def solveHeatEquation(GRID, dt):
         
     # Write results to GRID
     GRID.set_temperature(T)
+
+
+def read_opt(opt_dict):
+    """ Reads the opt_dict and sets the keys as variables with the values of the dictionary """
+    if opt_dict is not None:
+        for key in opt_dict:
+            globals()[key] = opt_dict[key]

@@ -7,7 +7,8 @@ from numba import njit
 from types import SimpleNamespace
 
 
-def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=None):
+def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None,
+                               N=None, opt_dict=None):
     """ This methods updates the surface temperature and returns the surface fluxes
 
     Given:
@@ -46,7 +47,10 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
         q2      ::  Mixing ratio at measurement height [kg kg^-1]
         phi     ::  Stability correction term [-]
     """
-    
+   
+    # Read and set options
+    read_opt(opt_dict)
+
     #Interpolate subsurface temperatures to selected subsurface depths for GHF computation
     B_Ts = interp_subT(GRID)
     
@@ -376,3 +380,9 @@ def method_EW_Sonntag(T):
         Ew = 6.112 * np.exp((22.46*(T-273.16)) / ((T-0.55)))
     return Ew
 
+
+def read_opt(opt_dict):
+    """ Reads the opt_dict and sets the keys as variables with the values of the dictionary """
+    if opt_dict is not None:
+        for key in opt_dict:
+            globals()[key] = opt_dict[key]

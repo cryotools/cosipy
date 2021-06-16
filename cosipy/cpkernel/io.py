@@ -16,8 +16,11 @@ import configparser
 
 class IOClass:
 
-    def __init__(self, DATA=None):
+    def __init__(self, DATA=None, opt_dict=None):
         """ Init IO Class"""
+
+        # Read and set options
+        self.read_opt(opt_dict)
 
         # Read variable list from file
         config = configparser.ConfigParser()
@@ -34,6 +37,12 @@ class IOClass:
         # If local IO class is initialized we need to get the dimensions of the dataset
         if DATA is not None:
             self.time = self.DATA.dims['time']
+
+    def read_opt(self, opt_dict):
+        """ Reads the opt_dict and sets the keys as variables with the values of the dictionary """
+        if opt_dict is not None:
+            for key in opt_dict:
+                globals()[key] = opt_dict[key]
 
     #==============================================================================
     # Creates the input data and reads the restart file, if necessary. The function

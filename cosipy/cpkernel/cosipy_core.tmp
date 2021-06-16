@@ -50,6 +50,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
 
     # If the opt_dict is not empty, replace the variable (key) with the given value in the dictionary 
     read_opt(opt_dict)
+    print(mult_factor_RRR)
 
     # Local variables
     nt = len(DATA.time.values)         #accessing DATA is expensive 		

@@ -2,7 +2,11 @@ import numpy as np
 from constants import albedo_method, albedo_fresh_snow, albedo_firn, albedo_ice, \
                       albedo_mod_snow_aging, albedo_mod_snow_depth, snow_ice_threshold
 
-def updateAlbedo(GRID):
+def updateAlbedo(GRID, opt_dict=None):
+
+    # Read and set options
+    read_opt(opt_dict)
+
     """ This methods updates the albedo """
     albedo_allowed = ['Oerlemans98']
     if albedo_method == 'Oerlemans98':
@@ -50,3 +54,10 @@ def method_Oerlemans(GRID):
 
 ### idea; albedo decay like (Brock et al. 2000)? or?
 ### Schmidt et al 2017 >doi:10.5194/tc-2017-67, 2017 use the same albedo parameterisation from Oerlemans and Knap 1998 with a slight updated implementation of considering the surface temperature?
+
+def read_opt(opt_dict):
+    """ Reads the opt_dict and sets the keys as variables with the values of the dictionary """
+    if opt_dict is not None:
+        for key in opt_dict:
+            globals()[key] = opt_dict[key]
+
