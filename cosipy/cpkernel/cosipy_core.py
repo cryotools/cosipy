@@ -161,9 +161,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     # TIME LOOP
     #--------------------------------------------    
     for t in np.arange(nt):
-        
-        # Check grid
-        GRID.grid_check()
 
         # Calc fresh snow density
         if (densification_method!='constant'):
@@ -281,9 +278,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         surface_mass_balance = SNOWFALL * (density_fresh_snow / water_density) - melt + sublimation + deposition + evaporation
         internal_mass_balance = water_refreezed - subsurface_melt
         mass_balance = surface_mass_balance + internal_mass_balance
-
-        internal_mass_balance2 = melt-Q  + subsurface_melt
-        mass_balance_check = surface_mass_balance + internal_mass_balance2
 
         # Cumulative mass balance for stake evaluation 
         MB_cum = MB_cum + mass_balance

@@ -19,7 +19,7 @@ def densification(GRID,SLOPE,dt):
     elif densification_method == 'constant':
         pass
     else:
-        raise ValueError("Densification method",densification_method,"is not allowed, must be one of",densification_allowed)
+        raise ValueError("Densification method = \"{:s}\" is not allowed, must be one of {:s}".format(densification_method, ", ".join(densification_allowed)))
 
 @njit
 def method_Boone(GRID,SLOPE,dt):
