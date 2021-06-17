@@ -6,11 +6,14 @@ from itertools import product
 from dask.distributed import Client, as_completed, progress
 from cosipy.cpkernel.cosipy_core import cosipy_core
 from cosipy.cpkernel.io import IOClass
+from config import northing, easting
+from cosipy.utils.options import OPTIONS
+import pandas as pd
 
-def create_IO(NAMELIST, restart=False):
+def create_IO(opt_dict=None, restart=False):
     '''Create io, data, results for the run'''
     # Create the essentials.
-    IO = IOClass(NAMELIST)
+    IO = IOClass(opt_dict=opt_dict)
     DATA = IO.create_data_file()
     RESULT = IO.create_result_file()
 
@@ -23,15 +26,15 @@ def create_IO(NAMELIST, restart=False):
     return IO, DATA, RESULT
 
 
-def run_model(DATA, IO, NAMELIST, RESULT, RESTART=None,
+def run_model(DATA, IO, RESULT, opt_dict=None, RESTART=None,
               stake_names=None, df_stakes_data=None):
     # List to store the jobs "futures"
     futures = []
     # Start initializing the cluster
     with Client() as client:
-        print(f'Model is running, check progress here: Progress is currently diabled')
-        ny = DATA.dims[NAMELIST['northing']]
-        nx = DATA.dims[NAMELIST['easting']]
+        print(f'Model is running, check progress here: Progress is currently disabled')
+        ny = DATA.dims[northing]
+        nx = DATA.dims[easting]
         # We create the jobs that we then submit to the client.
         for y, x in product(range(ny), range(nx)):
             # We check if the data is within the glacier.
@@ -43,8 +46,8 @@ def run_model(DATA, IO, NAMELIST, RESULT, RESTART=None,
                     sys.exit()
                 # If all is good, append the job to the list.
                 futures.append(client.submit(cosipy_core, DATA.isel(lat=y, lon=x), y, x,
-                                             NAMELIST, stake_names=stake_names,
-                                             stake_data=df_stakes_data))
+                                             stake_names=stake_names,
+                                             stake_data=df_stakes_data, opt_dict=opt_dict))
         # Then we can do the jobs.
         progress(futures)
         # Create numpy arrays which aggregates all local results
@@ -77,3 +80,8 @@ def run_model(DATA, IO, NAMELIST, RESULT, RESTART=None,
             # Write results to file
             IO.write_results_to_file()
     print('Finished!')
+
+def print_options(key=None):
+    '''Get a pretty print of the options we can change.'''
+    dict_df = pd.DataFrame.from_dict(OPTIONS, orient='index', columns=['value'])
+    return dict_df.sort_index()
