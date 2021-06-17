@@ -165,11 +165,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Check grid
         GRID.grid_check()
 
-        # get seconds since start
-        timestamp = dt*t
-        if WRF_X_CSPY:
-            timestamp = np.float64(DATA.time.values)
-
         # Calc fresh snow density
         if (densification_method!='constant'):
             density_fresh_snow = np.maximum(109.0+6.0*(T2[t]-273.16)+26.0*np.sqrt(U2[t]), 50.0)
