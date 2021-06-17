@@ -5,9 +5,11 @@ from constants import sfc_temperature_method, saturation_water_vapour_method, ze
 from scipy.optimize import minimize, newton
 from numba import njit
 from types import SimpleNamespace
+from cosipy.utils.options import read_opt
 
 
-def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, LWin=None, N=None):
+def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None,
+                               N=None, opt_dict=None):
     """ This methods updates the surface temperature and returns the surface fluxes
 
     Given:
@@ -47,6 +49,9 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLO
         phi     ::  Stability correction term [-]
     """
     
+    # Read and set options
+    read_opt(opt_dict, globals())
+
     #Interpolate subsurface temperatures to selected subsurface depths for GHF computation
     B_Ts = interp_subT(GRID)
     

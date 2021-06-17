@@ -4,7 +4,6 @@ import sys
 import numpy as np
 from itertools import product
 from dask.distributed import Client, as_completed, progress
-
 from cosipy.cpkernel.cosipy_core import cosipy_core
 from cosipy.cpkernel.io import IOClass
 

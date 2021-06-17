@@ -1,9 +1,12 @@
 import numpy as np
 from constants import albedo_method, albedo_fresh_snow, albedo_firn, albedo_ice, \
                       albedo_mod_snow_aging, albedo_mod_snow_depth, snow_ice_threshold
+from cosipy.utils.options import read_opt
 
-def updateAlbedo(GRID):
+def updateAlbedo(GRID, opt_dict):
     """ This methods updates the albedo """
+    # Read and set options
+    read_opt(opt_dict, globals())
     albedo_allowed = ['Oerlemans98']
     if albedo_method == 'Oerlemans98':
         alphaMod = method_Oerlemans(GRID)

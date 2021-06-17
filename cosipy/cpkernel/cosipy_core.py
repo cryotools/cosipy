@@ -19,9 +19,10 @@ from cosipy.modules.surfaceTemperature import update_surface_temperature
 
 from cosipy.cpkernel.init import init_snowpack, load_snowpack
 from cosipy.cpkernel.io import IOClass
+from cosipy.utils.options import read_opt
 
 
-def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_data=None):
+def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_data=None, opt_dict=None):
     """ Cosipy core function, which perform the calculations on one core.
 
     Params
@@ -49,6 +50,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         max_layers = int(DATA.max_layers.values)
         z = float(DATA.ZLVL.values)
 
+    # Replace imported variables with content of the opt_dict. If it's empty
+    # nothing happens.
+    read_opt(opt_dict, globals())
     # Local variables
     nt = len(DATA.time.values)         #accessing DATA is expensive 		
     _RRR = np.full(nt, np.nan)
@@ -96,14 +100,14 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     # Initialize snowpack or load restart grid
     #--------------------------------------------
     if GRID_RESTART is None:
-        GRID = init_snowpack(DATA)
+        GRID = init_snowpack(DATA, opt_dict)
     else:
         GRID = load_snowpack(GRID_RESTART)
 
     # Create the local output datasets if not coupled
     RESTART = None
     if not WRF_X_CSPY:
-        IO = IOClass(DATA)
+        IO = IOClass(DATA, opt_dict)
         RESTART = IO.create_local_restart_dataset()
 
     # hours since the last snowfall (albedo module)
@@ -222,12 +226,12 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate albedo and roughness length changes if first layer is snow
         #--------------------------------------------
-        alpha = updateAlbedo(GRID)
+        alpha = updateAlbedo(GRID, opt_dict)
 
         #--------------------------------------------
         # Update roughness length
         #--------------------------------------------
-        z0 = updateRoughness(GRID)
+        z0 = updateRoughness(GRID, opt_dict)
 
         #--------------------------------------------
         # Surface Energy Balance
@@ -237,7 +241,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
 
         # Penetrating SW radiation and subsurface melt
         if SWnet > 0.0:
-            subsurface_melt, G_penetrating = penetrating_radiation(GRID, SWnet, dt)
+            subsurface_melt, G_penetrating = penetrating_radiation(GRID, SWnet, dt, opt_dict)
         else:
             subsurface_melt = 0.0
             G_penetrating = 0.0
@@ -248,13 +252,15 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         if LWin is not None:
             # Find new surface temperature (LW is used from the input file)
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
-                ground_heat_flux, rain_heat_flux, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
-                = update_surface_temperature(GRID, dt, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, U2[t], RAIN, SLOPE, LWin=LWin[t])
+                ground_heat_flux, rain_heat_flux, sw_radiation_net, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
+                = update_surface_temperature(GRID, dt, alpha, z, z0, T2[t], RH2[t], PRES[t],
+                                             G_resid, U2[t], RAIN, SLOPE, LWin=LWin[t], opt_dict=opt_dict)
         else:
             # Find new surface temperature (LW is parametrized using cloud fraction)
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
-                ground_heat_flux, rain_heat_flux, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
-                = update_surface_temperature(GRID, dt, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, U2[t], RAIN, SLOPE, N=N[t])
+                ground_heat_flux, rain_heat_flux, sw_radiation_net, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
+                = update_surface_temperature(GRID, dt, alpha, z, z0, T2[t], RH2[t], PRES[t],
+                                             G_resid, U2[t], RAIN, SLOPE, N=N[t], opt_dict=opt_dict)
 
         #--------------------------------------------
         # Surface mass fluxes [m w.e.q.]
@@ -286,22 +292,22 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Percolation
         #--------------------------------------------
-        Q  = percolation(GRID, melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
+        Q  = percolation(GRID, melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt, opt_dict)
 
         #--------------------------------------------
         # Refreezing
         #--------------------------------------------
-        water_refreezed = refreezing(GRID)
+        water_refreezed = refreezing(GRID, opt_dict)
 
         #--------------------------------------------
         # Solve the heat equation
         #--------------------------------------------
-        solveHeatEquation(GRID, dt)
+        solveHeatEquation(GRID, dt, opt_dict)
 
         #--------------------------------------------
         # Calculate new density to densification
         #--------------------------------------------
-        densification(GRID, SLOPE, dt)
+        densification(GRID, SLOPE, dt, opt_dict)
 
         #--------------------------------------------
         # Calculate mass balance

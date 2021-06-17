@@ -1,8 +1,12 @@
 from constants import roughness_method, roughness_fresh_snow, \
                       roughness_firn, roughness_ice, snow_ice_threshold, \
                       aging_factor_roughness
+from cosipy.utils.options import read_opt
 
-def updateRoughness(GRID):
+def updateRoughness(GRID, opt_dict=None):
+
+    # Read and set options
+    read_opt(opt_dict, globals())
 
     roughness_allowed = ['Moelg12']
     if roughness_method == 'Moelg12':

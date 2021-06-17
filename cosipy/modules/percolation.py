@@ -1,8 +1,26 @@
 import numpy as np
 from numba import njit
+from cosipy.utils.options import read_opt
+
+
+def percolation(GRID, water, dt, opt_dict=None):
+
+    # Read and set options
+    read_opt(opt_dict, globals())
+
+    percolation_method = 'bucket'
+    percolation_allowed = ['bucket']
+
+    if percolation_method == 'bucket':
+        Q = bucket(GRID,water,dt)
+    else:
+        raise ValueError("Percolation method = \"{:s}\" is not allowed, must be one of {:s}".format(percolation_method, ", ".join(percolation_allowed)))
+
+    return Q
+
 
 @njit
-def percolation(GRID, water, dt):
+def bucket(GRID, water, dt):
     """ Percolation and refreezing of melt water through the snow- and firn pack
 
     Args:

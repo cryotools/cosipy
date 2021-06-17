@@ -13,12 +13,15 @@ from cosipy.modules.radCor import correctRadiation
 from constants import *
 from config import * 
 import configparser
+from cosipy.utils.options import read_opt
 
 class IOClass:
 
-    def __init__(self, DATA=None):
+    def __init__(self, DATA=None, opt_dict=None):
         """ Init IO Class"""
 
+        # Read and set options
+        read_opt(opt_dict, globals())
         # Read variable list from file
         config = configparser.ConfigParser()
         config.read('./cosipy/output')
