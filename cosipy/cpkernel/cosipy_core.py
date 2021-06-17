@@ -320,17 +320,16 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
 
         if full_field:
             if GRID.get_number_layers()>max_layers:
-                print('Maximum number of layers reached')
-            else:
-                _LAYER_HEIGHT[t, 0:GRID.get_number_layers()] = GRID.get_height()
-                _LAYER_RHO[t, 0:GRID.get_number_layers()] = GRID.get_density()
-                _LAYER_T[t, 0:GRID.get_number_layers()] = GRID.get_temperature()
-                _LAYER_LWC[t, 0:GRID.get_number_layers()] = GRID.get_liquid_water_content()
-                _LAYER_CC[t, 0:GRID.get_number_layers()] = GRID.get_cold_content()
-                _LAYER_POROSITY[t, 0:GRID.get_number_layers()] = GRID.get_porosity()
-                _LAYER_ICE_FRACTION[t, 0:GRID.get_number_layers()] = GRID.get_ice_fraction()
-                _LAYER_IRREDUCIBLE_WATER[t, 0:GRID.get_number_layers()] = GRID.get_irreducible_water_content()
-                _LAYER_REFREEZE[t, 0:GRID.get_number_layers()] = GRID.get_refreeze()
+                raise ValueError('Maximum number of layers reached')
+            _LAYER_HEIGHT[t, 0:GRID.get_number_layers()] = GRID.get_height()
+            _LAYER_RHO[t, 0:GRID.get_number_layers()] = GRID.get_density()
+            _LAYER_T[t, 0:GRID.get_number_layers()] = GRID.get_temperature()
+            _LAYER_LWC[t, 0:GRID.get_number_layers()] = GRID.get_liquid_water_content()
+            _LAYER_CC[t, 0:GRID.get_number_layers()] = GRID.get_cold_content()
+            _LAYER_POROSITY[t, 0:GRID.get_number_layers()] = GRID.get_porosity()
+            _LAYER_ICE_FRACTION[t, 0:GRID.get_number_layers()] = GRID.get_ice_fraction()
+            _LAYER_IRREDUCIBLE_WATER[t, 0:GRID.get_number_layers()] = GRID.get_irreducible_water_content()
+            _LAYER_REFREEZE[t, 0:GRID.get_number_layers()] = GRID.get_refreeze()
         else:
             _LAYER_HEIGHT = None
             _LAYER_RHO = None
