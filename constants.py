@@ -29,7 +29,7 @@ if WRF_X_CSPY:
 initial_snowheight_constant = 0.2               # Initial snowheight
 initial_snow_layer_heights = 0.10               # Initial thickness of snow layers
 initial_glacier_height = 40.0                   # Initial glacier height without snowlayers
-initial_glacier_layer_heights = 0.5             # Initial thickness of glacier ice layers
+initial_glacier_layer_heights = 1.0             # Initial thickness of glacier ice layers
 
 initial_top_density_snowpack = 300.0            # Top density for initial snowpack
 initial_bottom_density_snowpack = 600.0         # Bottom density for initial snowpack

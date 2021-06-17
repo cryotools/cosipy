@@ -6,6 +6,7 @@ from numba import njit
 
 def init_snowpack(DATA):
     ''' INITIALIZATION '''
+
     ##--------------------------------------
     ## Check for WRF data
     ##--------------------------------------
@@ -16,16 +17,20 @@ def init_snowpack(DATA):
     else: 
         initial_snowheight = initial_snowheight_constant
     temperature_top = np.minimum(DATA.T2.values[0], 273.16)
+	
     #--------------------------------------
     # Do the vertical interpolation
     #--------------------------------------    
     #glacier 
     nlayers_glac = int(initial_glacier_height/initial_glacier_layer_heights)
-    layer_heights = np.ones(nlayers_glac)*initial_glacier_layer_heights
+    glacier_depths = np.linspace(0,np.sqrt(initial_glacier_height),nlayers_glac)
+    glacier_depths = glacier_depths ** 2
+    layer_heights = np.diff(glacier_depths)  
     layer_densities = np.ones(nlayers_glac)*ice_density
     dT = (temperature_top-temperature_bottom)/initial_glacier_height
-    layer_T = np.array([temperature_top-dT*initial_glacier_layer_heights*i for i in range(1,nlayers_glac+1)])
+    layer_T = np.array([temperature_top-dT*glacier_depths[i] for i in range(nlayers_glac)])
     layer_liquid_water = np.zeros(nlayers_glac)
+    
     #snowpack
     if (initial_snowheight > 0.0):
         optimal_height = 0.1 # 10 cm
@@ -42,14 +47,18 @@ def init_snowpack(DATA):
             snw_layer_densities = np.array([initial_top_density_snowpack-drho*(initial_snowheight/nlayers)*i for i in range(1,nlayers+1)])
             snw_layer_T = np.array([temperature_top-dT*(initial_snowheight/nlayers)*i for i in range(1,nlayers+1)])
             snw_layer_liquid_water = np.zeros(nlayers)
+	   
         layer_heights = np.append(snw_layer_heights, layer_heights)
         layer_densities = np.append(snw_layer_densities, layer_densities)
         layer_T = np.append(snw_layer_T, [snw_layer_T[-1]-dT*initial_glacier_layer_heights*i for i in range(1,nlayers_glac+1)])
         layer_liquid_water = np.append(snw_layer_liquid_water, layer_liquid_water)
+
+	
     # Initialize grid, the grid class contains all relevant grid information
     GRID = create_grid_jitted(np.array(layer_heights, dtype=np.float64), np.array(layer_densities, dtype=np.float64), 
                 np.array(layer_T, dtype=np.float64), np.array(layer_liquid_water, dtype=np.float64),
                 None, None, None, None)
+    
     return GRID
 
 
@@ -58,7 +67,7 @@ def load_snowpack(GRID_RESTART):
 
     # Number of layers
     num_layers = np.int(GRID_RESTART.NLAYERS.values)
-   
+    
     # Init layer height
     # Weird slicing position to accommodate NestedNamespace in WRF_X_CSPY
     layer_heights = GRID_RESTART.LAYER_HEIGHT.values[0:num_layers]
@@ -70,7 +79,7 @@ def load_snowpack(GRID_RESTART):
     new_snow_height = np.float64(GRID_RESTART.new_snow_height.values)
     new_snow_timestamp = np.float64(GRID_RESTART.new_snow_timestamp.values)
     old_snow_timestamp = np.float64(GRID_RESTART.old_snow_timestamp.values)
-   
+
     GRID = create_grid_jitted(layer_heights, layer_density, layer_T, layer_LWC, layer_IF, new_snow_height,
                 new_snow_timestamp, old_snow_timestamp)
 
