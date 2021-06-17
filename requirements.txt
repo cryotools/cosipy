@@ -8,3 +8,4 @@ dask_jobqueue
 netcdf4
 coveralls
 metpy
+matplotlib
