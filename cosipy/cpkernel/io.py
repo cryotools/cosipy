@@ -261,7 +261,7 @@ class IOClass:
         self.RESULT.attrs['Center_snow_transfer_function'] = center_snow_transfer_function
         self.RESULT.attrs['Spread_snow_transfer_function'] = spread_snow_transfer_function
         self.RESULT.attrs['Multiplication_factor_for_RRR_or_SNOWFALL'] = mult_factor_RRR
-        self.RESULT.attrs['Minimum_snow_layer_height'] = minimum_snow_layer_height
+        self.RESULT.attrs['Minimum_layer_height'] = minimum_layer_height
         self.RESULT.attrs['Minimum_snowfall'] = minimum_snowfall
 
         self.RESULT.attrs['Remesh_method'] = remesh_method

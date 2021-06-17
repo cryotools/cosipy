@@ -361,8 +361,7 @@ class Grid:
             if ((dT<=temperature_threshold_merging) & (dRho<=density_threshold_merging) & (self.get_node_height(idx)<=0.1) & (merge_counter<=merge_max)):
                 self.merge_nodes(idx)
                 merge_counter = merge_counter + 1
-            #elif ((self.get_node_height(idx)<=minimum_snow_layer_height) & (dRho<=density_threshold_merging)):
-            elif ((self.get_node_height(idx)<=minimum_snow_layer_height)):
+            elif ((self.get_node_height(idx)<=minimum_layer_height)):
                 self.remove_node([idx])
             else:
                 idx += 1
@@ -470,7 +469,7 @@ class Grid:
             self.adaptive_profile()
 
         # if first layer becomes very small, remove it
-        if (self.get_node_height(0)<minimum_snow_layer_height):
+        if (self.get_node_height(0)<minimum_layer_height):
             self.remove_node([0])
 
 

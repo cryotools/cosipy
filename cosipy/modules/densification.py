@@ -1,6 +1,5 @@
 import numpy as np
-from constants import densification_method, snow_ice_threshold, minimum_snow_layer_height, \
-                      zero_temperature, ice_density
+from constants import densification_method, snow_ice_threshold, minimum_layer_height, zero_temperature, ice_density
 from numba import njit
 
 def densification(GRID,SLOPE,dt):
@@ -20,7 +19,7 @@ def densification(GRID,SLOPE,dt):
     elif densification_method == 'constant':
         pass
     else:
-        raise ValueError("Densification method = \"{:s}\" is not allowed, must be one of {:s}".format(densification_method, ", ".join(densification_allowed)))
+        raise ValueError("Densification method",densification_method,"is not allowed, must be one of",densification_allowed)
 
 @njit
 def method_Boone(GRID,SLOPE,dt):
@@ -51,7 +50,7 @@ def method_Boone(GRID,SLOPE,dt):
     # Loop over all internal snow nodes
     for idxNode in range(0,GRID.get_number_snow_layers() , 1):
 
-        if ((rho[idxNode]<snow_ice_threshold) & (height[idxNode]>minimum_snow_layer_height)):
+        if ((rho[idxNode]<snow_ice_threshold) & (height[idxNode]>minimum_layer_height)):
 
             # Get overburden snow mass
             if (idxNode>0):
@@ -117,7 +116,7 @@ def method_Vionnet(GRID,SLOPE,dt):
     # Loop over all internal snow nodes
     for idxNode in range(0,GRID.get_number_snow_layers() , 1):
 
-        if ((rho[idxNode]<snow_ice_threshold) & (height[idxNode]>minimum_snow_layer_height)):
+        if ((rho[idxNode]<snow_ice_threshold) & (height[idxNode]>minimum_layer_height)):
 
             # Parameter f1
             f1 = 1 / (1+60.0*(lwc[idxNode]/height[idxNode]))
