@@ -236,14 +236,16 @@ class Grid:
             # retention. The rest is assigned to the second layer.
             # if LWC exceeds the irreducible water content of the first layer,
             # then fill the first layer and assign the rest to the second layer
-            if ((self.get_node_liquid_water_content(idx)-self.get_node_irreducible_water_content(idx))>0):
-                lw0 = self.get_node_irreducible_water_content(idx) * self.get_node_height(idx)
-                lw1 = self.get_node_liquid_water_content(idx) * self.get_node_height(idx) - self.get_node_irreducible_water_content(idx) * self.get_node_height(idx)
-            # if LWC<WC_irr, then assign all water to the first layer
-            else:   
-                lw0 = self.get_node_liquid_water_content(idx) * self.get_node_height(idx)
-                lw1 = 0.0
-
+	    
+            total_lw = self.get_node_liquid_water_content(idx) * self.get_node_height(idx)
+            irr_lw0 = self.get_node_irreducible_water_content(idx) * h0
+            if(total_lw > irr_lw0):
+                lw0 = irr_lw0
+                lw1 = total_lw - irr_lw0
+            else:
+                lw0 = total_lw
+                lw1 = 0.
+	    
             # Update ice fraction
             if0 = self.get_node_ice_fraction(idx)
             if1 = self.get_node_ice_fraction(idx)
