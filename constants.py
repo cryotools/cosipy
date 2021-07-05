@@ -37,16 +37,16 @@ initial_bottom_density_snowpack = 600.0         # Bottom density for initial sno
 temperature_bottom = 270.16                     # Lower boundary condition for initial temperature profile (K)
 const_init_temp = 0.1                           # constant for init temperature profile used in exponential function (exponential decay)
 
-zlt1 = 0.06					                    # First depth for temperature interpolation which is used for calculation of ground heat flux
-zlt2 = 0.1					                    # Second depth for temperature interpolation which is used for calculation of ground heat flux
+zlt1 = 0.06					# First depth for temperature interpolation which is used for calculation of ground heat flux
+zlt2 = 0.1					# Second depth for temperature interpolation which is used for calculation of ground heat flux
 
 ' MODEL CONSTANTS '
 center_snow_transfer_function = 1.0             # center (50/50) when total precipitation is transferred to snow and rain
 spread_snow_transfer_function = 1               # 1: +-2.5
 mult_factor_RRR = 1.0                           # multiplication factor for RRR
 
-minimum_layer_height = 0.001                    # minimum layer height
-minimum_snowfall = 0.001                        # minimum snowfall per time step in m which is added as new snow
+minimum_layer_height = 0.001                    # minimum layer height below the first layer
+minimum_snowfall = 0.001                        # minimum snowfall per time step in m which impacts albedo
 
 
 ' REMESHING OPTIONS'
@@ -55,8 +55,8 @@ first_layer_height = 0.01                       # The first layer will always ha
 layer_stretching = 1.20                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
 
 merge_max = 1                                   # How many mergings are allowed per time step
-density_threshold_merging = 5                   # If merging is true threshold for layer densities difference two layer try: 5-10 (kg m^-3)
-temperature_threshold_merging = 0.01            # If mering is true threshold for layer temperatures to merge  try: 0.05-0.1 (K)
+density_threshold_merging = 10                  # If merging is true threshold for layer densities difference two layer try: 5-10 (kg m^-3)
+temperature_threshold_merging = 0.1             # If merging is true threshold for layer temperatures to merge  try: 0.05-0.1 (K)
 
 
 ' PHYSICAL CONSTANTS '
