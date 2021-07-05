@@ -339,38 +339,52 @@ class Grid:
             idx = idx+1
 
 
-
     def adaptive_profile(self):
         """ Remesh according to certain layer state criteria.
         
         This algorithm is an alternative to the logarithmic re-meshing. It checks for similarity of
         two subsequent layers. Layers are merged, if:
-
         (1) the density difference between the layer and the subsequent layer is smaller than the user defined threshold
         (2) the temperature difference is smaller than the user defined threshold
         
         The temperature_threshold_merging and density_threshold_merging variables in the
         configuration file (config.py) define the corresponding thresholds. 
-        """
-        # First, the snowpack is remeshed
-        idx = 0
+        """	
+        # Correct first layer
+        self.correct_layer(0, first_layer_height)
+
+        # Remesh snowpack below first layer
+        idx = 1
         merge_counter = 0
         while ((idx < self.get_number_snow_layers()-1)):
 
             dT = np.abs(self.get_node_temperature(idx)-self.get_node_temperature(idx+1))
             dRho = np.abs(self.get_node_density(idx)-self.get_node_density(idx+1))
 
-            if ((dT<=temperature_threshold_merging) & (dRho<=density_threshold_merging) & (self.get_node_height(idx)<=0.1) & (merge_counter<=merge_max)):
+            if ((dT<=temperature_threshold_merging) & (dRho<=density_threshold_merging) & \
+                (self.get_node_height(idx)<=0.1) & (merge_counter<=merge_max)):
                 self.merge_nodes(idx)
-                merge_counter = merge_counter + 1
-            elif ((self.get_node_height(idx)<=minimum_layer_height)):
-                self.remove_node([idx])
+                merge_counter += 1
+            elif ((self.get_node_height(idx)<minimum_layer_height) & \
+                  (self.get_node_density(idx+1)<snow_ice_threshold)):
+                self.merge_nodes(idx)	#always merge small snow layers unless at snow-ice interface
             else:
                 idx += 1
 
-        # Correct first layer
-        self.correct_layer(0 ,first_layer_height)
+        # Remesh ice	
+        min_ice_idx = max(1,self.get_number_snow_layers())   #remeshing layer 0 done by correct_layer above
+        # Ensure top ice layer has first_layer_height when thin snow layers will be removed in update_grid
+        if( (min_ice_idx == 1) & (self.get_node_height(0) < first_layer_height) ):
+             self.correct_layer(min_ice_idx, first_layer_height) 
+             min_ice_idx += 1
+	
+        idx = min_ice_idx
+        while ((idx < self.get_number_layers()-1)):
 
+            if (self.get_node_height(idx)<minimum_layer_height):
+                self.merge_nodes(idx)
+            else:
+                idx += 1
 
 
     def split_node(self, pos):
@@ -471,7 +485,7 @@ class Grid:
             self.adaptive_profile()
 
         # if first layer becomes very small, remove it
-        if (self.get_node_height(0)<minimum_layer_height):
+        if (self.get_node_height(0)<first_layer_height):
             self.remove_node([0])
 
 
