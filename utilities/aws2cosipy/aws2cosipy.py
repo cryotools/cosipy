@@ -1,8 +1,22 @@
+
 """
  This file reads the input data (model forcing) and write the output to netcdf file.  There is the create_1D_input
  (point model) and create_2D_input (distirbuted simulations) function. In case of the 1D input, the function works
  without a static file, in that file the static variables are created. For both cases, lapse rates can be determined
  in the aws2cosipyConfig.py file.
+
+ This file has been extended to include dynamic lapse rates using data from two weather stations for T2 and RH.
+ For U2 the mean is calculated or a constant value has to be defined in the asw2cosipConfig_2aws.py file.
+ It is possible to weight T2, function has to be changed in this file (aws2cosipy_2aws.py). 
+ It is possible to add a constant value to T2 and RRR (in aws2cosipyConfig_2aws.py).
+ Use "valley" as initial weather station.
+ To executed the script with two meteo-files:
+ python aws2cosipy.py /
+ -cv ../../data/input/meteo-data-weatherstation-valley.csv /
+ -cm ../../data/input/meteo-data-weatherstation-mountain.csv /
+ -o ../../data/input/output-file.nc /
+ -s ../../data/static/static-file.nc /
+ -b yyyymmdd -e yyyymmdd
 """
 import sys
 import xarray as xr
@@ -16,12 +30,12 @@ from itertools import product
 
 sys.path.append('../../')
 
-from utilities.aws2cosipy.aws2cosipyConfig import *
+from utilities.aws2cosipy.aws2cosipyConfig_2aws import *
 from cosipy.modules.radCor import correctRadiation
 
 import argparse
 
-def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
+def create_1D_input(cs_file_valley, cs_file_mountain, cosipy_file, static_file, start_date, end_date):
     """ This function creates an input dataset from an offered csv file with input point data
         Here you need to define how to interpolate the data.
 
@@ -30,30 +44,49 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
         Latest update: 
             Tobias Sauter 07.07.2019
 	        Anselm 04.07.2020
+	    	Christine Seupel 21.06.2021
+		   Change this function to use data of 2 weather stations:
+                   aws_valley and aws_mountain
     """
 
     print('-------------------------------------------')
     print('Create input \n')
-    print('Read input file %s' % (cs_file))
+    print('Read input file valley  %s' % (cs_file_valley))
+    print('Read input file mountain %s' % (cs_file_mountain))
+
 
     #-----------------------------------
     # Read data
     #-----------------------------------
     date_parser = lambda x: dateutil.parser.parse(x, ignoretz=True)
-    df = pd.read_csv(cs_file,
+    df_v = pd.read_csv(cs_file_valley,
+       delimiter=',', index_col=['TIMESTAMP'],
+        parse_dates=['TIMESTAMP'], na_values='NAN',date_parser=date_parser)
+    df_m = pd.read_csv(cs_file_mountain,
        delimiter=',', index_col=['TIMESTAMP'],
         parse_dates=['TIMESTAMP'], na_values='NAN',date_parser=date_parser)
 
-    print(df[pd.isnull(df).any(axis=1)])
-    df = df.fillna(method='ffill')
-    print(df[pd.isnull(df).any(axis=1)])
+    print(df_v[pd.isnull(df_v).any(axis=1)])
+    df_v = df_v.fillna(method='ffill')
+    print(df_v[pd.isnull(df_v).any(axis=1)])
+    
+    print(df_m[pd.isnull(df_m).any(axis=1)])
+    df_m = df_m.fillna(method='ffill')
+    print(df_m[pd.isnull(df_m).any(axis=1)])
 
-    if (LWin_var not in df):
-        df[LWin_var] = np.nan
-    if (N_var not in df):
-        df[N_var] = np.nan
-    if (SNOWFALL_var not in df):
-        df[SNOWFALL_var] = np.nan
+    if (LWin_var not in df_v):
+        df_v[LWin_var] = np.nan
+    if (N_var not in df_v):
+        df_v[N_var] = np.nan
+    if (SNOWFALL_var not in df_v):
+        df_v[SNOWFALL_var] = np.nan
+        
+    if (LWin_var not in df_m):
+        df_m[LWin_var] = np.nan
+    if (N_var not in df_m):
+        df_m[N_var] = np.nan
+    if (SNOWFALL_var not in df_m):
+        df_m[SNOWFALL_var] = np.nan
  
     # Improved function to sum dataframe columns which contain nan's
     def nansumwrapper(a, **kwargs):
@@ -63,17 +96,25 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
             return np.nansum(a, **kwargs)
 
     col_list = [T2_var,RH2_var,U2_var,G_var,RRR_var,PRES_var,LWin_var,N_var,SNOWFALL_var]
-    df = df[col_list]
+    df_v = df_v[col_list]
+    df_m = df_m[col_list]
     
-    df = df.resample('1H').agg({T2_var:np.mean, RH2_var:np.mean, U2_var:np.mean, G_var:np.mean, PRES_var:np.mean, RRR_var:nansumwrapper, LWin_var:np.mean, N_var:np.mean, SNOWFALL_var:nansumwrapper})
-    df = df.dropna(axis=1,how='all')
-    print(df.head())
+    #df_v = df_v.resample('1H').agg({T2_var:np.mean, RH2_var:np.mean, U2_var:np.mean, G_var:np.mean, PRES_var:np.mean, RRR_var:nansumwrapper, LWin_var:np.mean, N_var:np.mean, SNOWFALL_var:nansumwrapper})
+    df_v = df_v.dropna(axis=1,how='all')
+    print(df_v.head())
+    
+    #df_m = df_m.resample('1H').agg({T2_var:np.mean, RH2_var:np.mean, U2_var:np.mean, G_var:np.mean, PRES_var:np.mean, RRR_var:nansumwrapper, LWin_var:np.mean, N_var:np.mean, SNOWFALL_var:nansumwrapper})
+    df_m = df_m.dropna(axis=1,how='all')
+    print(df_m.head())
 
     #-----------------------------------
     # Select time slice
     #-----------------------------------
     if ((start_date != None) & (end_date !=None)): 
-        df = df.loc[start_date:end_date]
+        df_v = df_v.loc[start_date:end_date]
+        
+    if ((start_date != None) & (end_date !=None)): 
+        df_m = df_m.loc[start_date:end_date]
 
     #-----------------------------------
     # Load static data
@@ -92,10 +133,11 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
             ds = ds.sel(lat=plat,lon=plon,method='nearest')
             ds.coords['lon'] = np.array([ds.lon.values])
             ds.coords['lat'] = np.array([ds.lat.values])
-
+            print('ds: ', ds)
         else:
             ds = xr.Dataset()
             ds.coords['lon'] = np.array([plon])
+
             ds.coords['lat'] = np.array([plat])
 
         ds.lon.attrs['standard_name'] = 'lon'
@@ -107,61 +149,147 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
         ds.lat.attrs['long_name'] = 'latitude'
         ds.lat.attrs['units'] = 'degrees_north'
 
-    ds.coords['time'] = (('time'), df.index.values)
+    ds.coords['time'] = (('time'), df_v.index.values)
 
     #-----------------------------------
-    # Order variables
+    # Order variables valley
     #-----------------------------------
-    df[T2_var] = df[T2_var].apply(pd.to_numeric, errors='coerce')
-    df[RH2_var] = df[RH2_var].apply(pd.to_numeric, errors='coerce')
-    df[U2_var] = df[U2_var].apply(pd.to_numeric, errors='coerce')
-    df[G_var] = df[G_var].apply(pd.to_numeric, errors='coerce')
-    df[PRES_var] = df[PRES_var].apply(pd.to_numeric, errors='coerce')
     
-    if (RRR_var in df):
-        df[RRR_var] = df[RRR_var].apply(pd.to_numeric, errors='coerce')
+    if (in_K):
+        df_v[T2_var] = df_v[T2_var].apply(pd.to_numeric, errors='coerce')
+    else:
+        df_v[T2_var] = df_v[T2_var].values + 273.16
+        df_v[T2_var] = df_v[T2_var].apply(pd.to_numeric, errors='coerce')
 
-    if (PRES_var not in df):
-        df[PRES_var] = 660.00
+    if np.nanmax(df_v[T2_var]) > 373.16:
+        print('Maximum temperature is: %s K please check the input temperature' % (np.nanmax(T2)))
+        sys.exit()
+    elif np.nanmin(df_v[T2_var]) < 173.16:
+        print('Minimum temperature is: %s K please check the input temperature' % (np.nanmin(T2)))
+        sys.exit()
+    
+    df_v[RH2_var] = df_v[RH2_var].apply(pd.to_numeric, errors='coerce')
+    df_v[U2_var] = df_v[U2_var].apply(pd.to_numeric, errors='coerce')
+    df_v[G_var] = df_v[G_var].apply(pd.to_numeric, errors='coerce')
+    df_v[PRES_var] = df_v[PRES_var].apply(pd.to_numeric, errors='coerce')
+    
+    if (RRR_var in df_v):
+        df_v[RRR_var] = df_v[RRR_var].apply(pd.to_numeric, errors='coerce')
 
-    if (LWin_var not in df and N_var not in df):
+    if (PRES_var not in df_v):
+        df_v[PRES_var] = 660.00
+
+    if (LWin_var not in df_v and N_var not in df_v):
         print("ERROR no longwave incoming or cloud cover data")
         sys.exit()
 
-    elif (LWin_var in df):
-        df[LWin_var] = df[LWin_var].apply(pd.to_numeric, errors='coerce')
+    elif (LWin_var in df_v):
+        df_v[LWin_var] = df_v[LWin_var].apply(pd.to_numeric, errors='coerce')
 
-    elif (N_var in df):
-        df[N_var] = df[N_var].apply(pd.to_numeric, errors='coerce')
+    elif (N_var in df_v):
+        df_v[N_var] = df_v[N_var].apply(pd.to_numeric, errors='coerce')
 
-    if (SNOWFALL_var in df):
-        df[SNOWFALL_var] = df[SNOWFALL_var].apply(pd.to_numeric, errors='coerce')
+    if (SNOWFALL_var in df_v):
+        df_v[SNOWFALL_var] = df_v[SNOWFALL_var].apply(pd.to_numeric, errors='coerce')
+     
+    #-----------------------------------
+    # Order variables mountain
+    #-----------------------------------
+    
+    if (in_K):
+        df_m[T2_var] = df_m[T2_var].apply(pd.to_numeric, errors='coerce')
+    else:
+        df_m[T2_var] = df_m[T2_var].values + 273.16
+        df_m[T2_var] = df_m[T2_var].apply(pd.to_numeric, errors='coerce')
+
+    if np.nanmax(df_m[T2_var]) > 373.16:
+        print('Maximum temperature is: %s K please check the input temperature' % (np.nanmax(T2)))
+        sys.exit()
+    elif np.nanmin(df_m[T2_var]) < 173.16:
+        print('Minimum temperature is: %s K please check the input temperature' % (np.nanmin(T2)))
+        sys.exit()
+    
+    df_m[RH2_var] = df_m[RH2_var].apply(pd.to_numeric, errors='coerce')
+    df_m[U2_var] = df_m[U2_var].apply(pd.to_numeric, errors='coerce')
+    df_m[G_var] = df_m[G_var].apply(pd.to_numeric, errors='coerce')
+    df_m[PRES_var] = df_m[PRES_var].apply(pd.to_numeric, errors='coerce')
+    
+    if (RRR_var in df_m):
+        df_m[RRR_var] = df_m[RRR_var].apply(pd.to_numeric, errors='coerce')
+
+    if (PRES_var not in df_m):
+        df_m[PRES_var] = 660.00
+
+    if (LWin_var not in df_m and N_var not in df_m):
+        print("ERROR no longwave incoming or cloud cover data")
+        sys.exit()
+
+    elif (LWin_var in df_m):
+        df_m[LWin_var] = df_m[LWin_var].apply(pd.to_numeric, errors='coerce')
+
+    elif (N_var in df_m):
+        df_m[N_var] = df_m[N_var].apply(pd.to_numeric, errors='coerce')
+
+    if (SNOWFALL_var in df_m):
+        df_m[SNOWFALL_var] = df_m[SNOWFALL_var].apply(pd.to_numeric, errors='coerce')
+
+    #----------------------------------------------------------
+    # define lapse rates for T2 and RH, weight T, cal U2_mean
+    #----------------------------------------------------------
+    
+    diffAlt = stationAlt_m - stationAlt_v
+    diffAlt_mean_m_v = stationAlt_v + diffAlt/2 
+    
+    lapse_T = (df_m[T2_var].values - df_v[T2_var].values) / diffAlt
+    if (T2_weighted):    
+        T2_mean_weighted = ((2*df_m[T2_var].values + df_v[T2_var].values) / 3)
+    else:
+        T2_mean_weighted = np.nan
+
+    lapse_RH = (df_m[RH2_var].values - df_v[RH2_var].values) / diffAlt
+    
+    if (U2_constant):
+        U2_mean_aws = np.full(len(df_v), U2_const)
+    else:
+        U2_mean_aws = abs((df_m[U2_var].values + df_v[U2_var].values) / 2)
+    
+    #------------------------------------
+    # print which weather station should be used as initial value
+    #------------------------------------
+    
+    if (intialValley):
+        df = df_v
+        stationAlt = stationAlt_v
+        print('weather station used for calculation: %s' % (stationName_valley))
+    else:
+        df = df_m
+        stationAlt = stationAlt_m
+        print('weather station used for calculation: %s' % (stationName_mountain))
 
     #-----------------------------------
     # Get values from file
     #-----------------------------------
-    if (in_K):
-        T2 = df[T2_var].values + (hgt - stationAlt) * lapse_T                                   # Temperature
+    
+    if (T2_weighted):
+        T2 = T2_mean_weighted + (hgt - diffAlt_mean_m_v) * lapse_T + T_const			# Temperature
     else:
-        T2 = df[T2_var].values + 273.16 + (hgt - stationAlt) * lapse_T
+        T2 = df[T2_var].values + (hgt - stationAlt) * lapse_T + T_const
 
-    if np.nanmax(T2) > 373.16:
-        print('Maximum temperature is: %s K please check the input temperature' % (np.nanmax(T2)))
-        sys.exit()
-    elif np.nanmin(T2) < 173.16:
-        print('Minimum temperature is: %s K please check the input temperature' % (np.nanmin(T2)))
-        sys.exit()
-
-    RH2 = df[RH2_var].values + (hgt - stationAlt) * lapse_RH                                    # Relative humidity
-    U2 = df[U2_var].values                                                                      # Wind velocity
-    G = df[G_var].values                                                                        # Incoming shortwave radiation
-
+    RH2 = df[RH2_var].values + (hgt - stationAlt) * lapse_RH					# Relative humidity
+    U2 = U2_mean_aws										# Wind velocity
+    G = df[G_var].values          # Incoming shortwave radiation
+ 
     SLP = df[PRES_var].values / np.power((1 - (0.0065 * stationAlt) / (288.15)), 5.255)
-    PRES = SLP * np.power((1 - (0.0065 * hgt)/(288.15)), 5.22)                                  # Pressure
-
+    PRES = SLP * np.power((1 - (0.0065 * hgt)/(288.15)), 5.22)				# Pressure
 
     if (RRR_var in df):
-        RRR = np.maximum(df[RRR_var].values + (hgt - stationAlt) * lapse_RRR, 0)                 # Precipitation
+        RRR = df[RRR_var].values       # Precipitation
+        RRR_additional = np.zeros(len(df[RRR_var]))
+
+        # add additional precipitation
+        RRR_additional = ((RRR/100)* RRR_additional_in_percentage)
+        RRR = RRR + RRR_additional
+        RRR = np.where(RRR == 0.0, 0, np.maximum(RRR + (hgt - stationAlt_RRR_mean) * lapse_RRR, 0)) 
 
     if(SNOWFALL_var in df):
         SNOWFALL = np.maximum(df[SNOWFALL_var].values + (hgt-stationAlt) * lapse_SNOWFALL, 0)   # SNOWFALL
@@ -248,7 +376,7 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     if (N_var in df):
         check(ds.N, 1.0, 0.0)
 
-def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=None, x1=None, y0=None, y1=None):
+def create_2D_input(cs_file_valley, cs_file_mountain, cosipy_file, static_file, start_date, end_date, x0=None, x1=None, y0=None, y1=None):
     """ This function creates an input dataset from an offered csv file with input point data
         Here you need to define how to interpolate the data.
 
@@ -256,18 +384,26 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
 
         Latest update: 
         Tobias Sauter 07.07.2019
-	    Anselm 01.07.2020
+	Anselm 01.07.2020
+
+	Christine Seupel 21.06.2021
+	   Change this function to use data of 2 weather stations:
+           aws_valley and aws_mountain
 	"""
 
     print('-------------------------------------------')
     print('Create input \n')
-    print('Read input file %s' % (cs_file))
+    print('Read input file aws valley %s' % (cs_file_valley))
+    print('Read input file aws mountain %s' % (cs_file_mountain))
 
     #-----------------------------------
     # Read data
     #-----------------------------------
     date_parser = lambda x: dateutil.parser.parse(x, ignoretz=True)
-    df = pd.read_csv(cs_file, 
+    df_v = pd.read_csv(cs_file_valley,
+        delimiter=delimiter, index_col=['TIMESTAMP'], parse_dates=['TIMESTAMP'],
+        na_values='NAN',date_parser=date_parser)
+    df_m = pd.read_csv(cs_file_mountain,
         delimiter=delimiter, index_col=['TIMESTAMP'], parse_dates=['TIMESTAMP'],
         na_values='NAN',date_parser=date_parser)
 
@@ -275,47 +411,86 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     # Select time slice
     #-----------------------------------
     if ((start_date != None) & (end_date !=None)): 
-        df = df.loc[start_date:end_date]
-
+        df_v = df_v.loc[start_date:end_date]
+        df_m = df_m.loc[start_date:end_date]
+        
     #-----------------------------------
     # Aggregate data to selected value
     #-----------------------------------
     if aggregate:
-        if ((N_var in df) and (RRR_var in df) and (LWin_var in df) and (SNOWFALL_var in df)):
-            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+        if ((N_var in df_v) and (RRR_var in df_v) and (LWin_var in df_v) and (SNOWFALL_var in df_v)):
+            df_v = df_v.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
                 RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
 
-        elif ((N_var in df) and (RRR_var in df) and (LWin_var in df)):
-            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+        elif ((N_var in df_v) and (RRR_var in df_v) and (LWin_var in df_v)):
+            df_v = df_v.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
                 RRR_var:'sum', LWin_var:'mean'})
 
-        elif ((N_var in df) and (RRR_var in df) and (SNOWFALL_var in df)):
-            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+        elif ((N_var in df_v) and (RRR_var in df_v) and (SNOWFALL_var in df_v)):
+            df_v = df_v.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
                 RRR_var:'sum', SNOWFALL_var:'sum'})
 
-        elif ((N_var in df) and (LWin_var in df) and (SNOWFALL_var in df)):
-            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+        elif ((N_var in df_v) and (LWin_var in df_v) and (SNOWFALL_var in df_v)):
+            df_v = df_v.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
                 LWin_var:'mean', SNOWFALL_var:'sum'})
 
-        elif ((RRR_var in df) and (LWin_var in df) and (SNOWFALL_var in df)):
-            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', RRR_var:'sum',
+        elif ((RRR_var in df_v) and (LWin_var in df_v) and (SNOWFALL_var in df_v)):
+            df_v = df_v.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', RRR_var:'sum',
                 LWin_var:'mean', SNOWFALL_var:'sum'})
 
-        elif ((N_var in df) and (RRR_var in df)):
-            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
-                RRR_var:'sum'})
+        elif ((N_var in df_v) and (RRR_var in df_v)):
+            df_v = df_v.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
 
-        elif ((N_var in df) and (SNOWFALL_var in df)):
-            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
-                SNOWFALL_var:'sum'})
+        elif ((N_var in df_v) and (SNOWFALL_var in df_v)):
+            df_v = df_v.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
 
-        elif ((RRR_var in df) and (LWin_var in df)):
-            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', RRR_var:'sum',
-                LWin_var:'mean'})
+        elif ((RRR_var in df_v) and (LWin_var in df_v)):
+            df_v = df_v.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
 
-        elif ((LWin_var in df) and (SNOWFALL_var in df)):
-            df = df.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', LWin_var:'mean',
-                SNOWFALL_var:'sum'})
+        elif ((LWin_var in df_v) and (SNOWFALL_var in df_v)):
+            df_v = df_v.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
+            
+            
+        if ((N_var in df_m) and (RRR_var in df_m) and (LWin_var in df_m) and (SNOWFALL_var in df_m)):
+            df_m = df_m.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
+
+        elif ((N_var in df_m) and (RRR_var in df_m) and (LWin_var in df_m)):
+            df_m = df_m.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean'})
+
+        elif ((N_var in df_m) and (RRR_var in df_m) and (SNOWFALL_var in df_m)):
+            df_m = df_m.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', SNOWFALL_var:'sum'})
+
+        elif ((N_var in df_m) and (LWin_var in df_m) and (SNOWFALL_var in df_m)):
+            df_m = df_m.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                LWin_var:'mean', SNOWFALL_var:'sum'})
+
+        elif ((RRR_var in df_m) and (LWin_var in df_m) and (SNOWFALL_var in df_m)):
+            df_m = df_m.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', RRR_var:'sum',
+                LWin_var:'mean', SNOWFALL_var:'sum'})
+
+        elif ((N_var in df_m) and (RRR_var in df_m)):
+            df_m = df_m.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
+
+        elif ((N_var in df_m) and (SNOWFALL_var in df_m)):
+            df_m = df_m.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
+
+        elif ((RRR_var in df_m) and (LWin_var in df_m)):
+            df_m = df_m.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
+
+        elif ((LWin_var in df_m) and (SNOWFALL_var in df_m)):
+            df_m = df_m.resample(aggregation_step).agg({PRES_var:'mean', T2_var:'mean', RH2_var:'mean', G_var:'mean', U2_var:'mean', N_var:'mean',
+                RRR_var:'sum', LWin_var:'mean', SNOWFALL_var:'sum'})
+        
 
     #-----------------------------------
     # Load static data
@@ -337,56 +512,135 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
 
     else:
         dso = ds    
-        dso.coords['time'] = df.index.values
-
+        dso.coords['time'] = df_v.index.values
+        dso.coords['time'] = df_m.index.values
+        
     #-----------------------------------
-    # Order variables
+    # Order variables aws_valley
     #-----------------------------------
-    df[T2_var] = df[T2_var].apply(pd.to_numeric, errors='coerce')
-    df[RH2_var] = df[RH2_var].apply(pd.to_numeric, errors='coerce')
-    df[U2_var] = df[U2_var].apply(pd.to_numeric, errors='coerce')
-    df[G_var] = df[G_var].apply(pd.to_numeric, errors='coerce')
-    df[PRES_var] = df[PRES_var].apply(pd.to_numeric, errors='coerce')
 
-    #if (PRES_var not in df):
-    #    df[PRES_var] = 660.00
+    if (in_K):
+        df_v[T2_var] = df_v[T2_var].apply(pd.to_numeric, errors='coerce')
+    else:
+        df_v[T2_var] = df_v[T2_var].values + 273.16
+        df_v[T2_var] = df_v[T2_var].apply(pd.to_numeric, errors='coerce')
 
-    if (RRR_var in df):
-        df[RRR_var] = df[RRR_var].apply(pd.to_numeric, errors='coerce')
+    if np.nanmax(df_v[T2_var]) > 373.16:
+        print('Maximum temperature is: %s K please check the input temperature' % (np.nanmax(T2)))
+        sys.exit()
+    elif np.nanmin(df_v[T2_var]) < 173.16:
+        print('Minimum temperature is: %s K please check the input temperature' % (np.nanmin(T2)))
+        sys.exit()
 
-    if (LWin_var not in df and N_var not in df):
+    df_v[RH2_var] = df_v[RH2_var].apply(pd.to_numeric, errors='coerce')
+    df_v[U2_var] = df_v[U2_var].apply(pd.to_numeric, errors='coerce')
+    df_v[G_var] = df_v[G_var].apply(pd.to_numeric, errors='coerce')
+    df_v[PRES_var] = df_v[PRES_var].apply(pd.to_numeric, errors='coerce')
+
+    if (PRES_var not in df_v):
+        df_v[PRES_var] = 660.00
+
+    if (RRR_var in df_v):
+        df_v[RRR_var] = df_v[RRR_var].apply(pd.to_numeric, errors='coerce')
+
+    if (LWin_var not in df_v and N_var not in df_v):
         print("ERROR no longwave incoming or cloud cover data")
         sys.exit()
 
-    elif (LWin_var in df):
-        df[LWin_var] = df[LWin_var].apply(pd.to_numeric, errors='coerce')
+    elif (LWin_var in df_v):
+        df_v[LWin_var] = df_v[LWin_var].apply(pd.to_numeric, errors='coerce')
         print("LWin in data")
 
-    elif (N_var in df):
-        df[N_var] = df[N_var].apply(pd.to_numeric, errors='coerce')
+    elif (N_var in df_v):
+        df_v[N_var] = df_v[N_var].apply(pd.to_numeric, errors='coerce')
 
-    if (SNOWFALL_var in df):
-        df[SNOWFALL_var] = df[SNOWFALL_var].apply(pd.to_numeric, errors='coerce')
+    if (SNOWFALL_var in df_v):
+        df_v[SNOWFALL_var] = df_v[SNOWFALL_var].apply(pd.to_numeric, errors='coerce')
+
+    #-----------------------------------
+    # Order variables aws_mountain
+    #-----------------------------------
+
+    if (in_K):
+        df_m[T2_var] = df_m[T2_var].apply(pd.to_numeric, errors='coerce')
+    else:
+        df_m[T2_var] = df_m[T2_var].values + 273.16
+        df_m[T2_var] = df_m[T2_var].apply(pd.to_numeric, errors='coerce')
+
+    if np.nanmax(df_m[T2_var]) > 373.16:
+        print('Maximum temperature is: %s K please check the input temperature' % (np.nanmax(T2)))
+        sys.exit()
+    elif np.nanmin(df_m[T2_var]) < 173.16:
+        print('Minimum temperature is: %s K please check the input temperature' % (np.nanmin(T2)))
+        sys.exit()
+
+    df_m[RH2_var] = df_m[RH2_var].apply(pd.to_numeric, errors='coerce')
+    df_m[U2_var] = df_m[U2_var].apply(pd.to_numeric, errors='coerce')
+    df_m[G_var] = df_m[G_var].apply(pd.to_numeric, errors='coerce')
+    df_m[PRES_var] = df_m[PRES_var].apply(pd.to_numeric, errors='coerce')
+
+    if (PRES_var not in df_m):
+        df_m[PRES_var] = 660.00
+
+    if (RRR_var in df_m):
+        df_m[RRR_var] = df_m[RRR_var].apply(pd.to_numeric, errors='coerce')
+
+    if (LWin_var not in df_m and N_var not in df_m):
+        print("ERROR no longwave incoming or cloud cover data")
+        sys.exit()
+
+    elif (LWin_var in df_m):
+        df_m[LWin_var] = df_m[LWin_var].apply(pd.to_numeric, errors='coerce')
+        print("LWin in data")
+
+    elif (N_var in df_m):
+        df_m[N_var] = df_m[N_var].apply(pd.to_numeric, errors='coerce')
+
+    if (SNOWFALL_var in df_m):
+        df_m[SNOWFALL_var] = df_m[SNOWFALL_var].apply(pd.to_numeric, errors='coerce')
+    
+    #---------------------------------------------------------
+    # define lapse rates for T2 and RH, weight T, cal U2_mean
+    #---------------------------------------------------------
+    
+    diffAlt = stationAlt_m - stationAlt_v
+    diffAlt_mean_m_v = stationAlt_v + diffAlt/2 
+    
+    lapse_T = (df_m[T2_var] - df_v[T2_var]) / diffAlt
+    if (T2_weighted):    
+        T2_mean_weighted = ((2*df_m[T2_var].values + df_v[T2_var].values) / 3)
+    else:
+        T2_mean_weighted = np.nan    
+
+    lapse_RH = (df_m[RH2_var] - df_v[RH2_var]) / diffAlt
+
+    if (U2_constant):
+        U2_mean_aws = np.full(len(df_v), U2_const)
+    else:
+        U2_mean_aws = abs((df_m[U2_var].values + df_v[U2_var].values) / 2)
+    
+    #------------------------------------
+    # print which weather station should be used as initial value
+    #------------------------------------
+    
+    if (intialValley):
+        df = df_v
+        stationAlt = stationAlt_v
+        print('weather station used for calculation: %s' % (stationName_valley))
+    else:
+        df = df_m
+        stationAlt = stationAlt_m
+        print('weather station used for calculation: %s' % (stationName_mountain))
+
 
     #-----------------------------------
     # Get values from file
     #-----------------------------------
+    T2 = df[T2_var]         # Temperature
     RH2 = df[RH2_var]       # Relative humidity
     U2 = df[U2_var]         # Wind velocity
     G = df[G_var]           # Incoming shortwave radiation
     PRES = df[PRES_var]     # Pressure
-
-    if (in_K):
-        T2 = df[T2_var].values         # Temperature
-    else:
-        T2 = df[T2_var].values + 273.16      
-
-    if np.nanmax(T2) > 373.16:
-        print('Maximum temperature is: %s K please check the input temperature' % (np.nanmax(T2)))
-        sys.exit()
-    elif np.nanmin(T2) < 173.16:
-        print('Minimum temperature is: %s K please check the input temperature' % (np.nanmin(T2)))
-        sys.exit()
 
     #-----------------------------------
     # Create numpy arrays for the 2D fields
@@ -399,6 +653,11 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
 
     if (RRR_var in df):
         RRR = df[RRR_var]       # Precipitation
+        RRR_additional = np.zeros(len(df[RRR_var]))
+	
+        # add additional precipitation
+        RRR_additional = ((RRR/100)* RRR_additional_in_percentage)
+        RRR = RRR + RRR_additional
         RRR_interp = np.zeros([len(dso.time), len(ds.lat), len(ds.lon)])
 
     if(SNOWFALL_var in df):
@@ -420,17 +679,25 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
    
     # Interpolate data (T, RH, RRR, U)  to grid using lapse rates
     for t in range(len(dso.time)):
-        T_interp[t,:,:] = (T2[t]) + (ds.HGT.values-stationAlt)*lapse_T
-        RH_interp[t,:,:] = RH2[t] + (ds.HGT.values-stationAlt)*lapse_RH
-        U_interp[t,:,:] = U2[t]
+        
+        if (T2_weighted):
+            T_interp[t,:,:] = (T2_mean_weighted[t])+(ds.HGT.values-diffAlt_mean_m_v)*lapse_T[t] + T_const
+        else:
+            T_interp[t,:,:] = (T2[t]) + (ds.HGT.values-stationAlt)*lapse_T[t]+T_const
+
+        RH_interp[t,:,:] = RH2[t] + (ds.HGT.values-stationAlt)*lapse_RH[t]
+        U_interp[t,:,:] = U2_mean_aws[t]
 
         # Interpolate pressure using the barometric equation
         SLP = PRES[t]/np.power((1-(0.0065*stationAlt)/(288.15)), 5.255)
         P_interp[t,:,:] = SLP * np.power((1-(0.0065*ds.HGT.values)/(288.15)), 5.255)
 
         if (RRR_var in df):
-            RRR_interp[t,:,:] = np.maximum(RRR[t] + (ds.HGT.values-stationAlt)*lapse_RRR, 0.0)
-        
+            if RRR[t] == 0:
+                RRR_interp[t,:,:] = 0.0
+            else:
+                RRR_interp[t,:,:] = np.maximum(RRR[t] + (ds.HGT.values-stationAlt_RRR_mean)*lapse_RRR, 0.0)
+
         if (SNOWFALL_var in df):
             SNOWFALL_interp[t, :, :] = SNOWFALL[t] + (ds.HGT.values-stationAlt)*lapse_SNOWFALL
 
@@ -492,15 +759,16 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     add_variable_along_timelatlon(dso, U_interp, 'U2', 'm s\u207b\xb9', 'Wind velocity at 2 m')
     add_variable_along_timelatlon(dso, G_interp, 'G', 'W m\u207b\xb2', 'Incoming shortwave radiation')
     add_variable_along_timelatlon(dso, P_interp, 'PRES', 'hPa', 'Atmospheric Pressure')
-    
+
     if (RRR_var in df):
         add_variable_along_timelatlon(dso, RRR_interp, 'RRR', 'mm', 'Total precipitation (liquid+solid)')
-    
+
     if(SNOWFALL_var in df):
         add_variable_along_timelatlon(dso, SNOWFALL_interp, 'SNOWFALL', 'm', 'Snowfall')
 
     if(LWin_var in df):
         add_variable_along_timelatlon(dso, LW_interp, 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation')
+
     if(N_var in df):
         add_variable_along_timelatlon(dso, N_interp, 'N', '%', 'Cloud cover fraction')
 
@@ -617,7 +885,8 @@ def compute_scale_and_offset(min, max, n):
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='Create 2D input file from csv file.')
-    parser.add_argument('-c', '-csv_file', dest='csv_file', help='Csv file(see readme for file convention)')
+    parser.add_argument('-cv', '-csv_file_valley', dest='csv_file_valley', help='Csv file valley weather station (see readme for file convention)')
+    parser.add_argument('-cm', '-csv_file_mountain', dest='csv_file_mountain', help='Csv file mountain weather station (see readme for file convention)')
     parser.add_argument('-o', '-cosipy_file', dest='cosipy_file', help='Name of the resulting COSIPY file')
     parser.add_argument('-s', '-static_file', dest='static_file', help='Static file containing DEM, Slope etc.')
     parser.add_argument('-b', '-start_date', dest='start_date', help='Start date')
@@ -629,6 +898,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     if point_model:
-        create_1D_input(args.csv_file, args.cosipy_file, args.static_file, args.start_date, args.end_date) 
+        create_1D_input(args.csv_file_valley, args.csv_file_mountain, args.cosipy_file, args.static_file, args.start_date, args.end_date) 
     else:
-        create_2D_input(args.csv_file, args.cosipy_file, args.static_file, args.start_date, args.end_date, args.xl, args.xr, args.yl, args.yu) 
+        create_2D_input(args.csv_file_valley, args.csv_file_mountain, args.cosipy_file, args.static_file, args.start_date, args.end_date, args.xl, args.xr, args.yl, args.yu) 
