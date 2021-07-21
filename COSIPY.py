@@ -202,6 +202,14 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             stakes_loc = None
             df_stakes_data = None
 
+        if available_water is True:
+#            available_water_gridpoint = available_water_volume / np.nansum(DATA.MASK_ARTIFICIAL_SNOW[DATA.MASK_ARTIFICIAL_SNOW==1])
+            available_water_gridpoint = available_water_volume / np.nansum(DATA.MASK_ARTIFICIAL_SNOW)
+#            print('glacier points with artficial snow: ' ,np.nansum(DATA.MASK_ARTIFICIAL_SNOW[DATA.MASK_ARTIFICIAL_SNOW==1]))
+            print('glacier points with artficial snow: ' ,np.nansum(DATA.MASK_ARTIFICIAL_SNOW))
+            print('available water per gridpoint: ',available_water_gridpoint)
+        else:
+            available_water_gridpoint = np.nan
 
         # Distribute data and model to workers
         start_res = datetime.now()
@@ -219,32 +227,36 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 mask = DATA.MASK.sel(south_north=y, west_east=x)
 	        # Provide restart grid if necessary
                 if ((mask==1) & (restart==False)):
-                    if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
-                        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
-                        sys.exit()
-                    futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
+#                    if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
+#                        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
+#                        sys.exit()
+                    futures.append(client.submit(cosipy_coremeld, DATA.sel(south_north=y, west_east=x), y, x, stake_names=stake_names, stake_data=df_stakes_data, 
+                                                 mask_artificial_snow=DATA.isel(lat=y, lon=x).MASK_ARTIFICIAL_SNOW.values), available_water_gridpoint = available_water_gridpoint)
+
                 elif ((mask==1) & (restart==True)):
-                    if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
-                        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
-                        sys.exit()
+#                    if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
+#                        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
+#                        sys.exit()
                     futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, 
                                              GRID_RESTART=IO.create_grid_restart().sel(south_north=y, west_east=x), 
-                                             stake_names=stake_names, stake_data=df_stakes_data))
+                                             stake_names=stake_names, stake_data=df_stakes_data, mask_artificial_snow=DATA.isel(lat=y, lon=x).MASK_ARTIFICIAL_SNOW.values, available_water_gridpoint = available_water_gridpoint))
             else:
                 mask = DATA.MASK.isel(lat=y, lon=x)
 	        # Provide restart grid if necessary
                 if ((mask==1) & (restart==False)):
-                    if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
-                        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
-                        sys.exit()
-                    futures.append(client.submit(cosipy_core, DATA.isel(lat=y, lon=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
+#                    if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
+#                        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
+#                        sys.exit()
+                    futures.append(client.submit(cosipy_core, DATA.isel(lat=y, lon=x), y, x, stake_names=stake_names, stake_data=df_stakes_data, 
+                                             mask_artificial_snow=DATA.isel(lat=y, lon=x).MASK_ARTIFICIAL_SNOW.values, available_water_gridpoint = available_water_gridpoint))
                 elif ((mask==1) & (restart==True)):
-                    if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
-                        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
-                        sys.exit()
+#                    if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
+#                        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
+#                        sys.exit()
                     futures.append(client.submit(cosipy_core, DATA.isel(lat=y, lon=x), y, x, 
                                              GRID_RESTART=IO.create_grid_restart().isel(lat=y, lon=x), 
-                                             stake_names=stake_names, stake_data=df_stakes_data))
+                                             stake_names=stake_names, stake_data=df_stakes_data, mask_artificial_snow=DATA.isel(lat=y, lon=x).MASK_ARTIFICIAL_SNOW.values, available_water_gridpoint = available_water_gridpoint))
+
         # Finally, do the calculations and print the progress
         progress(futures)
 
@@ -266,17 +278,21 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
         for future in as_completed(futures):
 
                 # Get the results from the workers
-                indY,indX,local_restart,RAIN,SNOWFALL,LWin,LWout,H,LE,B,QRR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,NLAYERS, \
-                                ME,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL, \
+                indY,indX,local_restart,RAIN,SNOWFALL,ARTIFICIAL_SNOW,WET_BULB_TEMPERATUR,WATER_CONSUMPTION, \
+                                WATER_CONSUMPTION_SUM,LWin,LWout,H,LE,B,QRR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,NLAYERS, \
+                                ME,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM, \
                                 LAYER_HEIGHT,LAYER_RHO,LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_ICE_FRACTION, \
                                 LAYER_IRREDUCIBLE_WATER,LAYER_REFREEZE,stake_names,stat,df_eval = future.result()
-               
-                IO.copy_local_to_global(indY,indX,RAIN,SNOWFALL,LWin,LWout,H,LE,B,QRR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,NLAYERS, \
-                                ME,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL,LAYER_HEIGHT,LAYER_RHO, \
+#                print('Artificial Snow: ', ARTIFICIAL_SNOW)
+#                print('Wet bulb temperatur: ', WET_BULB_TEMPERATUR)
+
+                IO.copy_local_to_global(indY,indX,RAIN,SNOWFALL,ARTIFICIAL_SNOW,WET_BULB_TEMPERATUR,WATER_CONSUMPTION, \
+                                WATER_CONSUMPTION_SUM,LWin,LWout,H,LE,B,QRR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,NLAYERS, \
+                                ME,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,LAYER_HEIGHT,LAYER_RHO, \
                                 LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_ICE_FRACTION,LAYER_IRREDUCIBLE_WATER,LAYER_REFREEZE)
 
                 IO.copy_local_restart_to_global(indY,indX,local_restart)
-
+                
                 # Write results to file
                 IO.write_results_to_file()
                 

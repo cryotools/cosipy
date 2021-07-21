@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 import time
 from datetime import timedelta
+import logging
 from cosipy.modules.radCor import correctRadiation
 from constants import *
 from config import * 
@@ -19,6 +20,9 @@ class IOClass:
     def __init__(self, DATA=None):
         """ Init IO Class"""
 
+        # start module logging
+        self.logger = logging.getLogger(__name__)
+        
         # Read variable list from file
         config = configparser.ConfigParser()
         config.read('./cosipy/output')
@@ -54,8 +58,8 @@ class IOClass:
                 self.restart_date = self.GRID_RESTART.time+np.timedelta64(dt,'s')     # Get time of the last calculation and add one time step
                 self.init_data_dataset()                       # Read data from the last date to the end of the data file
             else:
-                print('No restart file available for the given date %s' % (timestamp))  # if there is a problem kill the program
-                print('OR start date %s equals end date %s \n' % (time_start, time_end))
+                self.logger.error('No restart file available for the given date %s' % (timestamp))  # if there is a problem kill the program
+                self.logger.error('OR start date %s equals end date %s \n' % (time_start, time_end))
                 sys.exit(1)
         else:
             self.restart_date = None
@@ -242,6 +246,22 @@ class IOClass:
         self.RESULT.attrs['Time_step_input_file_seconds'] = dt
         self.RESULT.attrs['Max_layers'] = max_layers
         self.RESULT.attrs['Z_measurment_height'] = z
+
+        self.RESULT.attrs['add_artificial_snow'] = str(add_artificial_snow)
+        self.RESULT.attrs['artificial_snow_method'] = str(artificial_snow_method)
+        self.RESULT.attrs['wet_bulb_temperature_artificial_snow'] = wet_bulb_temperature_artificial_snow
+        self.RESULT.attrs['wind_speed_artificial_snow'] = wind_speed_artificial_snow
+        self.RESULT.attrs['wet_bulb_temperature_artificial_snow_0_perc'] = wet_bulb_temperature_artificial_snow_0_perc
+        self.RESULT.attrs['wet_bulb_temperature_artificial_snow_100_perc'] = wet_bulb_temperature_artificial_snow_100_perc
+        self.RESULT.attrs['wind_speed_artificial_snow_0_perc'] = wind_speed_artificial_snow_0_perc
+        self.RESULT.attrs['wind_speed_artificial_snow_100_perc'] = wind_speed_artificial_snow_100_perc
+        self.RESULT.attrs['mass_artificial_snow'] = mass_artificial_snow
+        self.RESULT.attrs['use_density_artificial_snow'] = str(use_density_artificial_snow)
+        self.RESULT.attrs['denstiy_artificial_snow'] = density_artificial_snow
+        self.RESULT.attrs['available_water'] = str(available_water)
+        self.RESULT.attrs['available_water_volume'] = available_water_volume
+        self.RESULT.attrs['size_gridpoint'] = size_gridpoint
+
         self.RESULT.attrs['Stability_correction'] = stability_correction
         self.RESULT.attrs['Albedo_method'] = albedo_method
         self.RESULT.attrs['Densification_method'] = densification_method
@@ -253,16 +273,17 @@ class IOClass:
         self.RESULT.attrs['Initial_snow_layer_heights'] = initial_snow_layer_heights
         self.RESULT.attrs['Initial_glacier_height'] = initial_glacier_height
         self.RESULT.attrs['Initial_glacier_layer_heights'] = initial_glacier_layer_heights
-        self.RESULT.attrs['Initial_top_density_snowpack'] = initial_top_density_snowpack
-        self.RESULT.attrs['Initial_bottom_density_snowpack'] = initial_bottom_density_snowpack
+        self.RESULT.attrs['Initial_top_density_snowpack'] = initial_top_density_snowpack_constant
+        self.RESULT.attrs['Initial_bottom_density_snowpack'] = initial_bottom_density_snowpack_constant
+        self.RESULT.attrs['Temperature_top'] = temperature_top_constant
         self.RESULT.attrs['Temperature_bottom'] = temperature_bottom
         self.RESULT.attrs['Const_init_temp'] = const_init_temp
 
         self.RESULT.attrs['Center_snow_transfer_function'] = center_snow_transfer_function
         self.RESULT.attrs['Spread_snow_transfer_function'] = spread_snow_transfer_function
         self.RESULT.attrs['Multiplication_factor_for_RRR_or_SNOWFALL'] = mult_factor_RRR
+        self.RESULT.attrs['Minimum_snow_to_reset_albedo'] = minimum_snow_to_reset_albedo
         self.RESULT.attrs['Minimum_snow_layer_height'] = minimum_snow_layer_height
-        self.RESULT.attrs['Minimum_snowfall'] = minimum_snowfall
 
         self.RESULT.attrs['Remesh_method'] = remesh_method
         self.RESULT.attrs['First_layer_height_log_profile'] = first_layer_height
@@ -284,6 +305,7 @@ class IOClass:
         self.RESULT.attrs['Roughness_firn'] = roughness_firn
         self.RESULT.attrs['Aging_factor_roughness'] = aging_factor_roughness
         self.RESULT.attrs['Snow_ice_threshold'] = snow_ice_threshold
+        self.RESULT.attrs['Snow_firn_threshold'] = snow_firn_threshold
 
         self.RESULT.attrs['lat_heat_melting'] = lat_heat_melting
         self.RESULT.attrs['lat_heat_vaporize'] = lat_heat_vaporize
@@ -304,10 +326,9 @@ class IOClass:
         # Variables given by the input dataset
         self.add_variable_along_latlon(self.RESULT, self.DATA.HGT, 'HGT', 'm', 'Elevation')
         self.add_variable_along_latlon(self.RESULT, self.DATA.MASK, 'MASK', 'boolean', 'Glacier mask')
-        if ('SLOPE' in self.DATA):
-            self.add_variable_along_latlon(self.RESULT, self.DATA.SLOPE, 'SLOPE', 'degrees', 'Terrain slope')
-        if ('ASPECT' in self.DATA):
-            self.add_variable_along_latlon(self.RESULT, self.DATA.ASPECT, 'ASPECT', 'degrees', 'Aspect of slope')
+        self.add_variable_along_latlon(self.RESULT, self.DATA.MASK_ARTIFICIAL_SNOW, 'MASK_ARTIFICIAL_SNOW', 'boolean', 'Artificial Snow on glacier mask')
+        self.add_variable_along_latlon(self.RESULT, self.DATA.SLOPE, 'SLOPE', 'degrees', 'Terrain slope')
+        self.add_variable_along_latlon(self.RESULT, self.DATA.ASPECT, 'ASPECT', 'degrees', 'Aspect of slope')
         self.add_variable_along_latlontime(self.RESULT, self.DATA.T2, 'T2', 'K', 'Air temperature at 2 m')
         self.add_variable_along_latlontime(self.RESULT, self.DATA.RH2, 'RH2', '%', 'Relative humidity at 2 m')
         self.add_variable_along_latlontime(self.RESULT, self.DATA.U2, 'U2', 'm s\u207b\xb9', 'Wind velocity at 2 m')
@@ -346,6 +367,14 @@ class IOClass:
             self.RAIN = np.full((self.time,self.ny,self.nx), np.nan)
         if ('SNOWFALL' in self.atm):
             self.SNOWFALL = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('ARTIFICIAL_SNOW' in self.atm):
+            self.ARTIFICIAL_SNOW = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('WET_BULB_TEMPERATUR' in self.atm):
+            self.WET_BULB_TEMPERATUR = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('WATER_CONSUMPTION' in self.atm):
+            self.WATER_CONSUMPTION = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('WATER_CONSUMPTION_SUM' in self.atm):
+            self.WATER_CONSUMPTION_SUM = np.full((self.time,self.ny,self.nx), np.nan)
         if ('LWin' in self.atm):
             self.LWin = np.full((self.time,self.ny,self.nx), np.nan)
         if ('LWout' in self.atm):
@@ -393,9 +422,7 @@ class IOClass:
         if ('Z0' in self.atm):
             self.Z0 = np.full((self.time,self.ny,self.nx), np.nan)
         if ('surfM' in self.internal):
-            self.surfM = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('MOL' in self.internal):
-            self.MOL = np.full((self.time,self.ny,self.nx), np.nan)
+            self.surfM= np.full((self.time,self.ny,self.nx), np.nan)
 
         if full_field:
             if ('HEIGHT' in self.full):
@@ -422,17 +449,26 @@ class IOClass:
     # This function assigns the local results from the workers to the global
     # numpy arrays. The y and x values are the lat/lon indices.
     #==============================================================================
-    def copy_local_to_global(self,y,x,local_RAIN,local_SNOWFALL,local_LWin,local_LWout,local_H,local_LE,local_B,local_QRR,
+    def copy_local_to_global(self,y,x,local_RAIN,local_SNOWFALL,local_ARTIFICIAL_SNOW,local_WET_BULB_TEMPERATUR, \
+                             local_WATER_CONSUMPTION,local_WATER_CONSUMPTION_SUM,local_LWin,local_LWout,local_H,local_LE,local_B,local_QRR, \
                              local_MB, local_surfMB,local_Q,local_SNOWHEIGHT,local_TOTALHEIGHT,local_TS,local_ALBEDO, \
                              local_LAYERS,local_ME,local_intMB,local_EVAPORATION,local_SUBLIMATION,local_CONDENSATION, \
-                             local_DEPOSITION,local_REFREEZE,local_subM,local_Z0,local_surfM,local_MOL,local_LAYER_HEIGHT, \
-			     local_LAYER_RHO,local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY, \
-			     local_LAYER_ICE_FRACTION,local_LAYER_IRREDUCIBLE_WATER,local_LAYER_REFREEZE):
+                             local_DEPOSITION,local_REFREEZE,local_subM,local_Z0,local_surfM,local_LAYER_HEIGHT,local_LAYER_RHO, \
+                             local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY,local_LAYER_ICE_FRACTION, \
+                             local_LAYER_IRREDUCIBLE_WATER,local_LAYER_REFREEZE):
 
         if ('RAIN' in self.atm):
             self.RAIN[:,y,x] = local_RAIN
         if ('SNOWFALL' in self.atm):
             self.SNOWFALL[:,y,x] = local_SNOWFALL
+        if ('ARTIFICIAL_SNOW' in self.atm):
+            self.ARTIFICIAL_SNOW[:,y,x] = local_ARTIFICIAL_SNOW
+        if ('WET_BULB_TEMPERATUR' in self.atm):
+            self.WET_BULB_TEMPERATUR[:,y,x] = local_WET_BULB_TEMPERATUR
+        if ('WATER_CONSUMPTION' in self.atm):
+            self.WATER_CONSUMPTION[:,y,x] = local_WATER_CONSUMPTION
+        if ('WATER_CONSUMPTION_SUM' in self.atm):
+            self.WATER_CONSUMPTION_SUM[:,y,x] = local_WATER_CONSUMPTION_SUM
         if ('LWin' in self.atm):
             self.LWin[:,y,x] = local_LWin
         if ('LWout' in self.atm):
@@ -481,8 +517,6 @@ class IOClass:
             self.Z0[:,y,x] = local_Z0 
         if ('surfM' in self.internal):
             self.surfM[:,y,x] = local_surfM 
-        if ('MOL' in self.internal):
-            self.MOL[:,y,x] = local_MOL 
 
         if full_field:
             if ('HEIGHT' in self.full):
@@ -513,7 +547,15 @@ class IOClass:
         if ('RAIN' in self.atm):
             self.add_variable_along_latlontime(self.RESULT, self.RAIN, 'RAIN', 'mm', 'Liquid precipitation') 
         if ('SNOWFALL' in self.atm):
-            self.add_variable_along_latlontime(self.RESULT, self.SNOWFALL, 'SNOWFALL', 'm w.e.', 'Snowfall') 
+            self.add_variable_along_latlontime(self.RESULT, self.SNOWFALL, 'SNOWFALL', 'm w.e.', 'Snowfall')
+        if ('ARTIFICIAL_SNOW' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.ARTIFICIAL_SNOW, 'ARTIFICIAL_SNOW', 'm w.e.', 'Artificial snow') 
+        if ('WET_BULB_TEMPERATUR' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.WET_BULB_TEMPERATUR, 'WET_BULB_TEMPERATUR', 'K', 'Wet bulb temperatur') 
+        if ('WATER_CONSUMPTION' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.WATER_CONSUMPTION, 'WATER_CONSUMPTION', 'm w.e.', 'Water consumption') 
+        if ('WATER_CONSUMPTION_SUM' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.WATER_CONSUMPTION_SUM, 'WATER_CONSUMPTION_SUM', 'm³', 'sum of water consumption') 
         if ('LWin' in self.atm):
             self.add_variable_along_latlontime(self.RESULT, self.LWin, 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation') 
         if ('LWout' in self.atm):
@@ -531,9 +573,10 @@ class IOClass:
         if ('MB' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.MB, 'MB', 'm w.e.', 'Mass balance') 
         if ('Q' in self.internal):
+
             self.add_variable_along_latlontime(self.RESULT, self.Q, 'Q', 'm w.e.', 'Runoff') 
         if ('SNOWHEIGHT' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.SNOWHEIGHT, 'SNOWHEIGHT', 'm', 'Snowheight') 
+            self.add_variable_along_latlontime(self.RESULT, self.SNOWHEIGHT, 'SNOWHEIGHT', 'm or m.w.e???', 'Snowheight') 
         if ('TOTALHEIGHT' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.TOTALHEIGHT, 'TOTALHEIGHT', 'm', 'Total domain height') 
         if ('TS' in self.atm):
@@ -562,9 +605,7 @@ class IOClass:
             self.add_variable_along_latlontime(self.RESULT, self.Z0, 'Z0', 'm', 'Roughness length') 
         if ('surfM' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.surfM, 'surfM', 'm w.e.', 'Surface melt') 
-        if ('MOL' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.MOL, 'MOL', '', 'Monin Obukhov length') 
-	            
+        
         if full_field:
             if ('HEIGHT' in self.full):
                 self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Layer height') 
@@ -615,15 +656,10 @@ class IOClass:
     #==============================================================================
     def create_global_restart_arrays(self):
         self.RES_NLAYERS = np.full((self.ny,self.nx), np.nan)
-        self.RES_NEWSNOWHEIGHT = np.full((self.ny, self.nx), np.nan)
-        self.RES_NEWSNOWTIMESTAMP = np.full((self.ny, self.nx), np.nan)
-        self.RES_OLDSNOWTIMESTAMP = np.full((self.ny, self.nx), np.nan)
         self.RES_LAYER_HEIGHT = np.full((self.ny,self.nx,max_layers), np.nan)
         self.RES_LAYER_RHO = np.full((self.ny,self.nx,max_layers), np.nan)
         self.RES_LAYER_T = np.full((self.ny,self.nx,max_layers), np.nan)
         self.RES_LAYER_LWC = np.full((self.ny,self.nx,max_layers), np.nan)
-        self.RES_LAYER_IF = np.full((self.ny,self.nx,max_layers), np.nan)
-
 
     #----------------------------------------------
     # Initializes the local restart xarray dataset
@@ -645,16 +681,10 @@ class IOClass:
         self.RESTART.coords['layer'] = np.arange(max_layers)
         
         self.add_variable_along_scalar(self.RESTART, np.full((1), np.nan), 'NLAYERS', '-', 'Number of layers')
-        self.add_variable_along_scalar(self.RESTART, np.full((1), np.nan), 'NEWSNOWHEIGHT', 'm .w.e', 'New snow height')
-        self.add_variable_along_scalar(self.RESTART, np.full((1), np.nan), 'NEWSNOWTIMESTAMP', 's', 'New snow timestamp')
-        self.add_variable_along_scalar(self.RESTART, np.full((1), np.nan), 'OLDSNOWTIMESTAMP', 's', 'Old snow timestamp')
-
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_HEIGHT', 'm', 'Layer height')
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_RHO', 'kg m^-3', 'Density of layer')
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_T', 'K', 'Layer temperature')
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_LWC', '-', 'Layer liquid water content')
-        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_IF', '-', 'Layer ice fraction')
-
 
         return self.RESTART
     
@@ -664,16 +694,11 @@ class IOClass:
     # numpy arrays. The y and x values are the lat/lon indices.
     #==============================================================================
     def copy_local_restart_to_global(self,y,x,local_restart):
-        self.RES_NLAYERS[y,x] = local_restart.NLAYERS
-        self.RES_NEWSNOWHEIGHT[y,x] = local_restart.NEWSNOWHEIGHT
-        self.RES_NEWSNOWTIMESTAMP[y,x] = local_restart.NEWSNOWTIMESTAMP
-        self.RES_OLDSNOWTIMESTAMP[y,x] = local_restart.OLDSNOWTIMESTAMP
+        self.RES_NLAYERS[y,x] = local_restart.NLAYERS 
         self.RES_LAYER_HEIGHT[y,x,:] = local_restart.LAYER_HEIGHT 
         self.RES_LAYER_RHO[y,x,:] = local_restart.LAYER_RHO
         self.RES_LAYER_T[y,x,:] = local_restart.LAYER_T
         self.RES_LAYER_LWC[y,x,:] = local_restart.LAYER_LWC
-        self.RES_LAYER_IF[y,x,:] = local_restart.LAYER_IF
-
     
     #==============================================================================
     # This function adds the global numpy arrays to the RESULT dataset which will
@@ -681,14 +706,10 @@ class IOClass:
     #==============================================================================
     def write_restart_to_file(self):
         self.add_variable_along_latlon(self.RESTART, self.RES_NLAYERS, 'NLAYERS', '-', 'Number of layers')
-        self.add_variable_along_latlon(self.RESTART, self.RES_NEWSNOWHEIGHT, 'new_snow_height', 'm .w.e', 'New snow height')
-        self.add_variable_along_latlon(self.RESTART, self.RES_NEWSNOWTIMESTAMP, 'new_snow_timestamp', 's', 'New snow timestamp')
-        self.add_variable_along_latlon(self.RESTART, self.RES_OLDSNOWTIMESTAMP, 'old_snow_timestamp', 's', 'Old snow timestamp')
         self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Height of each layer')
         self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_RHO, 'LAYER_RHO', 'kg m^-3', 'Layer density')
         self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_T, 'LAYER_T', 'K', 'Layer temperature')
         self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_LWC, 'LAYER_LWC', '-', 'Layer liquid water content')
-        self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_IF, 'LAYER_IF', '-', 'Layer ice fraction')
 
 
     # TODO: Make it Pythonian - Finish the getter/setter functions
@@ -698,6 +719,12 @@ class IOClass:
     @property
     def SNOWFALL(self):
         return self.__SNOWFALL
+#    @property
+#    def ARTIFICIAL_SNOW(self):
+#        return self.__ARTIFICIAL_SNOW
+#    @property
+#    def WET_BULB_TEMPERATUR(self):
+#        return self.__WET_BULB_TEMPERATUR
     @property
     def LWin(self):
         return self.__LWin
@@ -724,6 +751,12 @@ class IOClass:
     @RAIN.setter
     def RAIN(self, x):
         self.__RAIN = x
+ #   @ARTIFICIAL_SNOW.setter
+ #   def ARTIFICIAL_SNOW(self, x):
+ #       self.__ARTIFICIAL_SNOW = x
+ #   @WET_BULB_TEMPERATUR.setter
+ #   def WET_BULB_TEMPERATUR(self, x):
+ #       self.__WET_BULB_TEMPERATUR = x
     @SNOWFALL.setter
     def SNOWFALL(self, x):
         self.__SNOWFALL = x

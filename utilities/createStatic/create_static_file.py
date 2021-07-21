@@ -14,20 +14,22 @@ tile = True
 aggregate = True
 
 ### input digital elevation model (DEM)
-dem_path_tif = static_folder + 'DEM/n30_e090_3arc_v2.tif'
+dem_path_tif = static_folder + 'DEM/morteratsch_dhm25_WGS84.tif'
 ### input shape of glacier or study area, e.g. from the Randolph glacier inventory
-shape_path = static_folder + 'Shapefiles/Zhadang_RGI6.shp'
+shape_path = static_folder + 'Shapefiles/Morteratsch_final.shp'
+shape_path_artificial_snow = static_folder + 'Shapefiles/Artificial_Snow.shp'
 ### path were the static.nc file is saved
-output_path = static_folder + 'Zhadang_static.nc'
+output_path = static_folder + 'mort_static_100m_artificial_snow.nc'
 
 ### to shrink the DEM use the following lat/lon corners
-longitude_upper_left = '90.62'
-latitude_upper_left = '30.48'
-longitude_lower_right = '90.66'
-latitude_lower_right = '30.46'
+longitude_upper_left = '9.88'
+latitude_upper_left = '46.44'
+longitude_lower_right = '10.01'
+latitude_lower_right = '46.33'
 
 ### to aggregate the DEM to a coarser spatial resolution
-aggregate_degree = '0.003'
+#aggregate_degree = '0.003'
+aggregate_degree = '0.0009259259259'
 
 ### intermediate files, will be removed afterwards
 dem_path_tif_temp = static_folder + 'DEM_temp.tif'
@@ -35,6 +37,7 @@ dem_path_tif_temp2 = static_folder + 'DEM_temp2.tif'
 dem_path = static_folder + 'dem.nc'
 aspect_path = static_folder + 'aspect.nc'
 mask_path = static_folder + 'mask.nc'
+mask_path_artificial_snow = static_folder + 'mask_artificial_snow.nc'
 slope_path = static_folder + 'slope.nc'
 
 ### If you do not want to shrink the DEM, comment out the following to three lines
@@ -60,9 +63,13 @@ aspect = np.flipud(rd.TerrainAttribute(rd.LoadGDAL(dem_path_tif), attrib = 'aspe
 ### calculate mask as NetCDF with DEM and shapefile
 os.system('gdalwarp -of NETCDF  --config GDALWARP_IGNORE_BAD_CUTLINE YES -cutline ' + shape_path + ' ' + dem_path_tif  + ' ' + mask_path)
 
+### calculate mask artificial snow as NetCDF with DEM and shapefile
+os.system('gdalwarp -of NETCDF  --config GDALWARP_IGNORE_BAD_CUTLINE YES -cutline ' + shape_path_artificial_snow + ' ' + dem_path_tif  + ' ' + mask_path_artificial_snow)
+
 ### open intermediate netcdf files
 dem = xr.open_dataset(dem_path)
 mask = xr.open_dataset(mask_path)
+mask_artificial_snow = xr.open_dataset(mask_path_artificial_snow)
 slope = xr.open_dataset(slope_path)
 
 ### set NaNs in mask to -9999 and elevation within the shape to 1
@@ -70,6 +77,15 @@ mask=mask.Band1.values
 mask[np.isnan(mask)]=-9999
 mask[mask>0]=1
 print(mask)
+
+mask_artificial_snow = mask_artificial_snow.Band1.values
+mask_artificial_snow[np.isnan(mask_artificial_snow)]=-9999
+mask_artificial_snow[mask_artificial_snow>0]=1
+print(mask_artificial_snow)
+
+# test if all grid points from artificial snow are located within the glacier area.
+if(1 in mask_artificial_snow[np.where(np.equal(mask, mask_artificial_snow) == False)]):
+        print('\n Warning: Not all grid points of artificial snow are within the glacier geometry! \n')
 
 ## create output dataset
 ds = xr.Dataset()
@@ -95,8 +111,9 @@ insert_var(ds, dem.Band1.values,'HGT','meters','meter above sea level')
 insert_var(ds, aspect,'ASPECT','degrees','Aspect of slope')
 insert_var(ds, slope.Band1.values,'SLOPE','degrees','Terrain slope')
 insert_var(ds, mask,'MASK','boolean','Glacier mask')
+insert_var(ds, mask_artificial_snow,'MASK_ARTIFICIAL_SNOW','boolean','Artificial Snow on glacier mask')
 
-os.system('rm '+ dem_path + ' ' + mask_path + ' ' + slope_path + ' ' + dem_path_tif_temp + ' '+ dem_path_tif_temp2)
+os.system('rm '+ dem_path + ' ' + mask_path + ' ' + slope_path + ' ' + dem_path_tif_temp + ' '+ dem_path_tif_temp2 + ' ' + mask_path_artificial_snow)
 
 ### save combined static file, delete intermediate files and print number of glacier grid points
 def check_for_nan(ds,var=None):
@@ -114,5 +131,5 @@ def check_for_nan(ds,var=None):
 check_for_nan(ds)
 ds.to_netcdf(output_path)
 print("Study area consists of ", np.nansum(mask[mask==1]), " glacier points")
+print("Area with artificial snow consists of ", np.nansum(mask_artificial_snow[mask_artificial_snow==1]), "glacier points")
 print("Done")
-

@@ -1,4 +1,3 @@
-from config import WRF_X_CSPY
 """
     Declaration of constants
     Do not modify unless you are absolutely sure what you are doing.
@@ -9,20 +8,34 @@ dt = 3600                                       # Time step in the input files [
 max_layers = 200                                # Max. number of layers, just for the restart file
 z = 2.0                                         # Measurement height [m]
 
+' ARTIFICIAL SNOW '
+add_artificial_snow = True                      # adds artificial snow within the area which is defined in the static file (shapefile)
+artificial_snow_method = 'linear'		# possibilities: 'constant', 'linear'; constant: adds a constant snow production to each grid point one condition for wet bulb temperature and wind speed;
+						# linear: two conditions for 0% and 100% of snow in between linear function; for each condition (wet_bulb_temperature and wind_speed) exists a separate linear function
+						# factor_artificial_snow = factor_wet_bulb_temperature * factor_wind_speed; for further information look at cosipy/modules/artificialSnow.py
+wet_bulb_temperature_artificial_snow=0.0        # at this and lower temperatures artificial snow will be produced (°C)
+wind_speed_artificial_snow=0.0			# at this and higher wind speeds artificial snow will be produced (m/s)
+wet_bulb_temperature_artificial_snow_0_perc=0.5	# only for linear model: at this and higher temperatures 0% of artificial snow be produced
+wet_bulb_temperature_artificial_snow_100_perc=-1.5      # only for linear model: at this and lower temperatures 100 % of artificial snow will be produced
+wind_speed_artificial_snow_0_perc=0.5		# only for linear model: at this and lower windspeeds 0% of  artificial snow be produced
+wind_speed_artificial_snow_100_perc=1.5		# only for linear model: at this and higher windspeeds 100% of  artificial snow be produced
+factor_wet_bulb_temperature_linear = -0.5 * WET_BULB_TEMPERATURE + 0.25 	# factor to determine wet_bulb_temperature between 0 - 100%, using a linear_function
+factor_wind_speed_linear = 1 * U2 - 0.5         # factor to determine windspeed between 0 - 100%, using a linear_function
+mass_artificial_snow = 0.0                      # mass of artificial snow which is added per m^2 per time step (don't change time steps) (kg/(m^2*time step))
+use_density_artificial_snow = True		# use the here defined density for artificial snow, otherwise it will use the density of fresh snow calculated in COSIPY
+density_artificial_snow = 0.0 			# density of artificial snow (kg/m^3)
+available_water = True				# use a maximale volume of water, which can be used for the production of artificial snow
+available_water_volume = 0.0			# avaiblable water for the whole modelling periode (here one year) (m³)
+size_gridpoint = 100.0 * 68.96			# it only needs to be defined if available_water_volume is also specified, (m²). Please note, that size of the grid cells is normally not square
+
 ' PARAMETERIZATIONS '
 stability_correction = 'Ri'                     # possibilities: 'Ri','MO'
 albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98'
-densification_method = 'Boone'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
+densification_method = 'Boone'                  # possibilities: 'Boone','Vionnet','empirical','constant'
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
 roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
-thermal_conductivity_method = 'bulk'		    # possibilities: 'bulk', 'empirical'
-sfc_temperature_method = 'SLSQP'                # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Newton' (Secant, fastest)'
-
-# WRF_X_CSPY: for efficiency and consistency
-if WRF_X_CSPY:
-    stability_correction = 'MO'
-    sfc_temperature_method = 'Newton'
+thermal_conductivity_method = 'bulk'		# possitilities: 'bulk', 'empirical'
 
 
 ' INITIAL CONDITIONS '
@@ -31,22 +44,21 @@ initial_snow_layer_heights = 0.10               # Initial thickness of snow laye
 initial_glacier_height = 40.0                   # Initial glacier height without snowlayers
 initial_glacier_layer_heights = 0.5             # Initial thickness of glacier ice layers
 
-initial_top_density_snowpack = 300.0            # Top density for initial snowpack
-initial_bottom_density_snowpack = 600.0         # Bottom density for initial snowpack
+initial_top_density_snowpack_constant = 300.    # Top density for initial snowpack
+initial_bottom_density_snowpack_constant = 600. # Bottom density for initial snowpack
 
+temperature_top_constant = 271.16               # Upper boundary condition for initial temperature profile (K)
 temperature_bottom = 270.16                     # Lower boundary condition for initial temperature profile (K)
 const_init_temp = 0.1                           # constant for init temperature profile used in exponential function (exponential decay)
 
-zlt1 = 0.06					                    # First depth for temperature interpolation which is used for calculation of ground heat flux
-zlt2 = 0.1					                    # Second depth for temperature interpolation which is used for calculation of ground heat flux
 
 ' MODEL CONSTANTS '
 center_snow_transfer_function = 1.0             # center (50/50) when total precipitation is transferred to snow and rain
 spread_snow_transfer_function = 1               # 1: +-2.5
 mult_factor_RRR = 1.0                           # multiplication factor for RRR
 
+minimum_snow_to_reset_albedo = 0.01             # minimum snowfall to reset hours since last snowfall! Default was 0.005
 minimum_snow_layer_height = 0.001               # minimum layer height
-minimum_snowfall = 0.001                        # minimum snowfall per time step in m which is added as new snow
 
 
 ' REMESHING OPTIONS'
@@ -60,17 +72,13 @@ temperature_threshold_merging = 0.01            # If mering is true threshold fo
 
 
 ' PHYSICAL CONSTANTS '
-constant_density = 300.                         # constant density of freshly fallen snow [kg m-3], if densification_method is set to 'constant'
+constant_density = 300.                         # constant density of freshly fallen snow [kg m-3], if densification_method is set to 'constant' (default COSIPY 300)
 
-albedo_fresh_snow = 0.85                        # albedo of fresh snow [-] (Moelg et al. 2012, TC)
-albedo_firn = 0.55                              # albedo of firn [-] (Moelg et al. 2012, TC)
+albedo_fresh_snow = 0.80                        # albedo of fresh snow [-] (Moelg et al. 2012, TC)
+albedo_firn = 0.50                              # albedo of firn [-] (Moelg et al. 2012, TC)
 albedo_ice = 0.3                                # albedo of ice [-] (Moelg et al. 2012, TC)
-albedo_mod_snow_aging = 22                      # effect of ageing on snow albedo [days] (Oerlemans and Knap 1998, J. Glaciol.)
-albedo_mod_snow_depth = 3                       # effect of snow depth on albedo [cm] (Oerlemans and Knap 1998, J. Glaciol.)
-
-### For tropical glaciers or High Mountain Asia summer-accumulation glaciers (low latitude), the Moelg et al. 2012, TC should be tested for a possible better albedo fit 
-#albedo_mod_snow_aging = 6                      # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
-#albedo_mod_snow_depth = 8                      # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
+albedo_mod_snow_aging = 21.0                    # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
+albedo_mod_snow_depth = 3.0                     # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
 
 roughness_fresh_snow = 0.24                     # surface roughness length for fresh snow [mm] (Moelg et al. 2012, TC)
 roughness_ice = 1.7                             # surface roughness length for ice [mm] (Moelg et al. 2012, TC)
@@ -78,6 +86,7 @@ roughness_firn = 4.0                            # surface roughness length for a
 aging_factor_roughness = 0.0026                 # effect of ageing on roughness lenght (hours) 60 days from 0.24 to 4.0 => 0.0026
 
 snow_ice_threshold = 900.0                      # pore close of density [kg m^(-3)]
+snow_firn_threshold = 555.0                     #
 
 lat_heat_melting = 3.34e5                       # latent heat for melting [J kg-1]
 lat_heat_vaporize = 2.5e6                       # latent heat for vaporization [J kg-1]
