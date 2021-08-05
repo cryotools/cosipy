@@ -461,7 +461,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     # Run radiation module 
     #-----------------------------------
     if radiationModule == 'Wohlfahrt2016':
-        print('Run the Radiation Module old')
+        print('Run the Radiation Module Wohlfahrt2016')
 
         # Change aspect to south==0, east==negative, west==positive
         aspect = ds['ASPECT'].values - 180.0
@@ -479,7 +479,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
                             G_interp[t, i, j] = sw[t]
 
     elif radiationModule == 'Moelg2009':
-        print('Run the Radiation Module new')
+        print('Run the Radiation Module Moelg2009')
 
         # Calculate solar Parameters
         solPars, timeCorr = solpars(stationLat)
