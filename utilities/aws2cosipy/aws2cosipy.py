@@ -8,16 +8,19 @@ import sys
 import xarray as xr
 import pandas as pd
 import numpy as np
+import netCDF4 as nc
 import time
 import dateutil
 from itertools import product
+import metpy.calc
+from metpy.units import units
 
 #np.warnings.filterwarnings('ignore')
 
 sys.path.append('../../')
 
 from utilities.aws2cosipy.aws2cosipyConfig import *
-from cosipy.modules.radCor import correctRadiation
+from cosipy.modules.radCor import *
 
 import argparse
 
@@ -256,7 +259,8 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
 
         Latest update: 
         Tobias Sauter 07.07.2019
-	    Anselm 01.07.2020
+	Anselm 01.07.2020
+	Franziska Temme 03.08.2021
 	"""
 
     print('-------------------------------------------')
@@ -440,15 +444,13 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
         if(N_var in df):
             N_interp[t,:,:] = N[t]
 
-    # Change aspect to south==0, east==negative, west==positive
-    aspect = ds['ASPECT'].values - 180.0
-    ds['ASPECT'] = (('lat','lon'),aspect)
 
     print(('Number of glacier cells: %i') % (np.count_nonzero(~np.isnan(ds['MASK'].values))))
     print(('Number of glacier cells: %i') % (np.nansum(ds['MASK'].values)))
 
     # Auxiliary variables
     mask = ds.MASK.values
+    hgt = ds.HGT.values
     slope = ds.SLOPE.values
     aspect = ds.ASPECT.values
     lats = ds.lat.values
@@ -458,21 +460,88 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     #-----------------------------------
     # Run radiation module 
     #-----------------------------------
-    if radiationModule:
-        print('Run the radiation module')
-    else:
-        print('No radiation module used')
+    if radiationModule == 'Wohlfahrt2016':
+        print('Run the Radiation Module Wohlfahrt2016')
 
-    for t in range(len(dso.time)):
-        doy = df.index[t].dayofyear
-        hour = df.index[t].hour
-        for i in range(len(ds.lat)):
-            for j in range(len(ds.lon)):
-                if (mask[i, j] == 1):
-                    if radiationModule:
-                        G_interp[t,i,j] = np.maximum(0.0, correctRadiation(lats[i],lons[j], timezone_lon, doy, hour, slope[i,j], aspect[i,j], sw[t], zeni_thld))
-                    else:
-                        G_interp[t,i,j] = sw[t]
+        # Change aspect to south==0, east==negative, west==positive
+        aspect = ds['ASPECT'].values - 180.0
+        ds['ASPECT'] = (('lat', 'lon'), aspect)
+
+        for t in range(len(dso.time)):
+            doy = df.index[t].dayofyear
+            hour = df.index[t].hour
+            for i in range(len(ds.lat)):
+                for j in range(len(ds.lon)):
+                    if (mask[i, j] == 1):
+                        if radiationModule == 'old':
+                            G_interp[t, i, j] = np.maximum(0.0, correctRadiation(lats[i], lons[j], timezone_lon, doy, hour, slope[i, j], aspect[i, j], sw[t], zeni_thld))
+                        else:
+                            G_interp[t, i, j] = sw[t]
+
+    elif radiationModule == 'Moelg2009':
+        print('Run the Radiation Module Moelg2009')
+
+        # Calculate solar Parameters
+        solPars, timeCorr = solpars(stationLat)
+
+        if LUT == True:
+            print('Read in look-up-tables')
+            ds_LUT = xr.open_dataset('../../data/static/LUT_Rad.nc')
+            shad1yr = ds_LUT.SHADING.values
+            svf = ds_LUT.SVF.values
+
+        else:
+            print('Build look-up-tables')
+
+            # Sky view factor
+            svf = LUTsvf(np.flipud(hgt), np.flipud(mask), np.flipud(slope), np.flipud(aspect), lats[::-1], lons)
+            print('Look-up-table sky view factor done')
+
+            # Topographic shading
+            shad1yr = LUTshad(solPars, timeCorr, stationLat, np.flipud(hgt), np.flipud(mask), lats[::-1], lons, dtstep, tcart)
+            print('Look-up-table topographic shading done')
+
+            # Save look-up tables
+            Nt = int(366 * (3600 / dtstep) * 24)  # number of time steps
+            Ny = len(lats)  # number of latitudes
+            Nx = len(lons)  # number of longitudes
+
+            f = nc.Dataset('../../data/static/LUT_Rad.nc', 'w')
+            f.createDimension('time', Nt)
+            f.createDimension('lat', Ny)
+            f.createDimension('lon', Nx)
+
+            LATS = f.createVariable('lat', 'f4', ('lat',))
+            LATS.units = 'degree'
+            LONS = f.createVariable('lon', 'f4', ('lon',))
+            LONS.units = 'degree'
+
+            LATS[:] = lats
+            LONS[:] = lons
+
+            shad = f.createVariable('SHADING', float, ('time', 'lat', 'lon'))
+            shad.long_name = 'Topographic shading'
+            shad[:] = shad1yr
+
+            SVF = f.createVariable('SVF', float, ('lat', 'lon'))
+            SVF.long_name = 'sky view factor'
+            SVF[:] = svf
+
+            f.close()
+
+        # In both cases, run the radiation model
+        for t in range(len(dso.time)):
+            doy = df.index[t].dayofyear
+            hour = df.index[t].hour
+            G_interp[t, :, :] = calcRad(solPars, timeCorr, doy, hour, stationLat, T_interp[t, ::-1, :], P_interp[t, ::-1, :], RH_interp[t, ::-1, :], N_interp[t, ::-1, :], np.flipud(hgt), np.flipud(mask), np.flipud(slope), np.flipud(aspect), shad1yr, svf, dtstep, tcart)
+
+        # Change aspect to south == 0, east == negative, west == positive
+        aspect2 = ds['ASPECT'].values - 180.0
+        ds['ASPECT'] = (('lat', 'lon'), aspect2)
+
+    elif radiationModule == 'none':
+        print('No radiation module used')
+        G_interp[t, :, :] = sw[t]
 
     #-----------------------------------
     # Check bounds for relative humidity 
