@@ -108,7 +108,7 @@ def radCor2D(doy, zeni, azi, angslo, azislo, Rm, zeni_thld):
      American Society of Agronomy Inc.; Crop Science Society of America Inc.; Soil
      Science Society of America Inc., Madison, Wisconsin, USA, pp. 533560.
     
-    last edit: 03.08.2021, Anselm
+    last edit: 24.03.2018, Georg
     
     the following inputs are scalars
     doy .... day of year

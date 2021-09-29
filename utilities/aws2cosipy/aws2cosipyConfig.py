@@ -50,13 +50,13 @@ WRF = False
 #------------------------
 # Radiation module 
 #------------------------
-radiationModule = 'Moelg2009' # 'Moelg2009', 'Wohlfahrt2016', 'none'
+radiationModule = 'Wohlfahrt2016' # 'Moelg2009', 'Wohlfahrt2016', 'none'
 LUT = False                   # If there is already a Look-up-table for topographic shading and sky-view-factor built for this area, set to True
 
 dtstep = 3600*3               # time step (s)
 stationLat = -54.4            # Latitude of station
 tcart = 26                    # Station time correction in hour angle units (1 is 4 min)
-timezone_lon = -71.0          # Longitude of station
+timezone_lon = 90.0	      # Longitude of station
 
 # Zenit threshold (>threshold == zenit): maximum potential solar zenith angle during the whole year, specific for each location
 zeni_thld = 85.0              # If you do not know the exact value for your location, set value to 89.0

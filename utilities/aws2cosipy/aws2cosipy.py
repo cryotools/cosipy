@@ -259,8 +259,8 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
 
         Latest update: 
         Tobias Sauter 07.07.2019
-	    Anselm 01.07.2020
-	    Franziska Temme 03.08.2021
+	Anselm 01.07.2020
+	Franziska Temme 03.08.2021
 	"""
 
     print('-------------------------------------------')
