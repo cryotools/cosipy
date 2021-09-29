@@ -2,7 +2,7 @@ numpy
 pandas
 numba
 scipy
-xarray
+xarray<=0.18.2
 distributed<=2.5.2
 dask_jobqueue
 netcdf4
