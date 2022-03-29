@@ -8,26 +8,33 @@
 #------------------------
 
 # Pressure
-PRES_var = 'PRES'
+# PRES_var = 'PRES'
+PRES_var = 'press'
 
 # Temperature
-T2_var = 'T2'
-in_K = True
+# T2_var = 'T2'
+T2_var = 'temp'
+in_K = False
 
 # Relative humidity
-RH2_var = 'RH2'
+# RH2_var = 'RH2'
+RH2_var = 'RH'
 
 # Incoming shortwave radiation
-G_var = 'G'
+# G_var = 'G'
+G_var = 'SW_global'
 
 # Precipitation
-RRR_var = 'RRR'
+# RRR_var = 'RRR'
+RRR_var = 'ppt'
 
 # Wind velocity
-U2_var = 'U2'
+# U2_var = 'U2'
+U2_var = 'wind'
 
 # Incoming longwave radiation
-LWin_var = 'LWinCor_Avg'
+# LWin_var = 'LWinCor_Avg'
+LWin_var = 'LW_in'
 
 # Snowfall
 SNOWFALL_var = 'SNOWFALL'
@@ -59,21 +66,26 @@ tcart = 26                    # Station time correction in hour angle units (1 i
 timezone_lon = 90.0	      # Longitude of station
 
 # Zenit threshold (>threshold == zenit): maximum potential solar zenith angle during the whole year, specific for each location
-zeni_thld = 85.0              # If you do not know the exact value for your location, set value to 89.0
+zeni_thld = 89.0              # If you do not know the exact value for your location, set value to 89.0
 
 #------------------------
 # Point model 
 #------------------------
-point_model = False
-plon = 90.64
-plat = 30.47
-hgt = 5665.0
+point_model = True
+plon = 8.29
+plat = 46.66
+hgt = 1047.6
+# plon = -54.4
+# plat = 90.0
+# hgt = 5665.0
 
 #------------------------
 # Interpolation arguments 
 #------------------------
-stationName = 'Zhadang'
-stationAlt = 5665.0
+stationName = 'guttannen21'
+stationAlt = 1047.6
+# stationName = 'Zhadang'
+# stationAlt = 5665.0
 
 lapse_T         = -0.006    # Temp K per  m
 lapse_RH        =  0.000    # RH % per  m (0 to 1)

@@ -17,8 +17,6 @@ from metpy.units import units
 
 #np.warnings.filterwarnings('ignore')
 
-# dirname = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-# sys.path.append(dirname)
 sys.path.append('../../')
 
 from utilities.aws2cosipy.aws2cosipyConfig import *
@@ -688,11 +686,15 @@ def compute_scale_and_offset(min, max, n):
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='Create 2D input file from csv file.')
-    parser.add_argument('-c', '-csv_file', dest='csv_file', help='Csv file(see readme for file convention)')
-    parser.add_argument('-o', '-cosipy_file', dest='cosipy_file', help='Name of the resulting COSIPY file')
+    parser.add_argument('-c', '-csv_file', dest='csv_file', help='Csv file(see readme for file convention)',
+                        default='../../data/input/guttannen21/aws.csv')
+    parser.add_argument('-o', '-cosipy_file', dest='cosipy_file', help='Name of the resulting COSIPY file'
+                        ,default='../../data/input/guttannen21/aws.nc')
     parser.add_argument('-s', '-static_file', dest='static_file', help='Static file containing DEM, Slope etc.')
-    parser.add_argument('-b', '-start_date', dest='start_date', help='Start date')
-    parser.add_argument('-e', '-end_date', dest='end_date', help='End date')
+    parser.add_argument('-b', '-start_date', dest='start_date', help='Start date'
+                        ,default='20201122')
+    parser.add_argument('-e', '-end_date', dest='end_date', help='End date'
+                        ,default='20210510')
     parser.add_argument('-xl', '-xl', dest='xl', type=float, const=None, help='left longitude value of the subset')
     parser.add_argument('-xr', '-xr', dest='xr', type=float, const=None, help='right longitude value of the subset')
     parser.add_argument('-yl', '-yl', dest='yl', type=float, const=None, help='lower latitude value of the subset')

@@ -7,8 +7,12 @@
 # SIMULATION PERIOD 
 #-----------------------------------
 # Zhadang
-time_start = '2009-01-01T06:00'
-time_end   = '2009-01-10T00:00'
+# time_start = '2009-01-01T06:00'
+# time_end   = '2009-01-10T00:00'
+
+# guttannen21
+time_start = '2020-11-22T15:00'
+time_end   = '2021-05-10T01:00'
 
 # Hintereisferner
 #time_start = '2018-09-17T08:00'
@@ -23,8 +27,10 @@ time_end_str=(time_end[0:10]).replace('-','')
 data_path = './data/'
 
 # Zhadang example
-input_netcdf= 'Zhadang/Zhadang_ERA5_2009.nc'
-output_netcdf = 'Zhadang_ERA5_'+time_start_str+'-'+time_end_str+'.nc'
+# input_netcdf= 'Zhadang/Zhadang_ERA5_2009.nc'
+input_netcdf= 'guttannen21/aws.nc'
+# output_netcdf = 'Zhadang_ERA5_'+time_start_str+'-'+time_end_str+'.nc'
+output_netcdf = 'guttannen_'+time_start_str+'-'+time_end_str+'.nc'
 
 # Hintereisferner example
 #input_netcdf = 'HEF/HEF_input.nc'
