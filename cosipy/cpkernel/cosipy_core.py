@@ -4,7 +4,7 @@ import pandas as pd
 from constants import mult_factor_RRR, densification_method, ice_density, water_density, \
                       minimum_snowfall, zero_temperature, lat_heat_sublimation, \
                       lat_heat_melting, lat_heat_vaporize, center_snow_transfer_function, \
-                      spread_snow_transfer_function, constant_density
+                      spread_snow_transfer_function, constant_density, albedo_firn
 from config import force_use_TP, force_use_N, stake_evaluation, full_field, WRF_X_CSPY 
 
 from cosipy.modules.albedo import updateAlbedo
@@ -232,7 +232,11 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate albedo and roughness length changes if first layer is snow
         #--------------------------------------------
-        alpha = updateAlbedo(GRID)
+        if (DISCHARGE is not None) and (DISF > 0.0):
+            # TODO Firn albedo?
+            alpha = albedo_firn
+        else:
+            alpha = updateAlbedo(GRID)
 
         #--------------------------------------------
         # Update roughness length

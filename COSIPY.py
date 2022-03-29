@@ -313,7 +313,7 @@ def start_logging():
             config = yaml.load(f.read(),Loader=yaml.SafeLoader)
         logging.config.dictConfig(config)
     else:
-       logging.basicConfig(level=logging.INFO)
+       logging.basicConfig(level=logging.WARNING)
 
     logger = logging.getLogger(__name__)
     logger.info('COSIPY simulation started')    
