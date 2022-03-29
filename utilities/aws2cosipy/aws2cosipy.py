@@ -17,6 +17,8 @@ from metpy.units import units
 
 #np.warnings.filterwarnings('ignore')
 
+# dirname = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+# sys.path.append(dirname)
 sys.path.append('../../')
 
 from utilities.aws2cosipy.aws2cosipyConfig import *
