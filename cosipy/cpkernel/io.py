@@ -344,6 +344,8 @@ class IOClass:
 
         if ('RAIN' in self.atm):
             self.RAIN = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('DISF' in self.atm):
+            self.DISF = np.full((self.time,self.ny,self.nx), np.nan)
         if ('SNOWFALL' in self.atm):
             self.SNOWFALL = np.full((self.time,self.ny,self.nx), np.nan)
         if ('LWin' in self.atm):
@@ -358,6 +360,8 @@ class IOClass:
             self.B = np.full((self.time,self.ny,self.nx), np.nan)
         if ('QRR' in self.atm):
             self.QRR = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('QFR' in self.atm):
+            self.QFR = np.full((self.time,self.ny,self.nx), np.nan)
         if ('MB' in self.internal):
             self.MB = np.full((self.time,self.ny,self.nx), np.nan)
         if ('surfMB' in self.internal):
@@ -422,7 +426,7 @@ class IOClass:
     # This function assigns the local results from the workers to the global
     # numpy arrays. The y and x values are the lat/lon indices.
     #==============================================================================
-    def copy_local_to_global(self,y,x,local_RAIN,local_SNOWFALL,local_LWin,local_LWout,local_H,local_LE,local_B,local_QRR,
+    def copy_local_to_global(self,y,x,local_RAIN,local_DISF,local_SNOWFALL,local_LWin,local_LWout,local_H,local_LE,local_B,local_QRR,local_QFR,
                              local_MB, local_surfMB,local_Q,local_SNOWHEIGHT,local_TOTALHEIGHT,local_TS,local_ALBEDO, \
                              local_LAYERS,local_ME,local_intMB,local_EVAPORATION,local_SUBLIMATION,local_CONDENSATION, \
                              local_DEPOSITION,local_REFREEZE,local_subM,local_Z0,local_surfM,local_MOL,local_LAYER_HEIGHT, \
@@ -431,6 +435,8 @@ class IOClass:
 
         if ('RAIN' in self.atm):
             self.RAIN[:,y,x] = local_RAIN
+        if ('DISF' in self.atm):
+            self.DISF[:,y,x] = local_DISF
         if ('SNOWFALL' in self.atm):
             self.SNOWFALL[:,y,x] = local_SNOWFALL
         if ('LWin' in self.atm):
@@ -445,6 +451,8 @@ class IOClass:
             self.B[:,y,x] = local_B
         if ('QRR' in self.atm):
             self.QRR[:,y,x] = local_QRR
+        if ('QFR' in self.atm):
+            self.QFR[:,y,x] = local_QFR
         if ('surfMB' in self.internal):
             self.surfMB[:,y,x] = local_surfMB
         if ('MB' in self.internal):
@@ -512,6 +520,8 @@ class IOClass:
     def write_results_to_file(self):
         if ('RAIN' in self.atm):
             self.add_variable_along_latlontime(self.RESULT, self.RAIN, 'RAIN', 'mm', 'Liquid precipitation') 
+        if ('DISF' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.DISF, 'DISF', 'm', 'Liquid precipitation') 
         if ('SNOWFALL' in self.atm):
             self.add_variable_along_latlontime(self.RESULT, self.SNOWFALL, 'SNOWFALL', 'm w.e.', 'Snowfall') 
         if ('LWin' in self.atm):
@@ -526,6 +536,8 @@ class IOClass:
             self.add_variable_along_latlontime(self.RESULT, self.B, 'B', 'W m\u207b\xb2', 'Ground heat flux')
         if ('QRR' in self.atm):
             self.add_variable_along_latlontime(self.RESULT, self.QRR, 'QRR', 'W m\u207b\xb2', 'Rain heat flux')
+        if ('QFR' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.QFR, 'QFR', 'W m\u207b\xb2', 'Rain heat flux')
         if ('surfMB' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.surfMB, 'surfMB', 'm w.e.', 'Surface mass balance') 
         if ('MB' in self.internal):
@@ -696,6 +708,9 @@ class IOClass:
     def RAIN(self):
         return self.__RAIN
     @property
+    def DISF(self):
+        return self.__DISF
+    @property
     def SNOWFALL(self):
         return self.__SNOWFALL
     @property
@@ -717,6 +732,9 @@ class IOClass:
     def QRR(self):
         return self.__QRR
     @property
+    def QFR(self):
+        return self.__QFR
+    @property
     def MB(self):
         return self.__MB
     
@@ -724,6 +742,9 @@ class IOClass:
     @RAIN.setter
     def RAIN(self, x):
         self.__RAIN = x
+    @DISF.setter
+    def DISF(self, x):
+        self.__DISF = x
     @SNOWFALL.setter
     def SNOWFALL(self, x):
         self.__SNOWFALL = x
@@ -745,6 +766,9 @@ class IOClass:
     @QRR.setter
     def QRR(self, x):
         self.__QRR = x
+    @QFR.setter
+    def QFR(self, x):
+        self.__QFR = x
     @MB.setter
     def MB(self, x):
         self.__MB = x

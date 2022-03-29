@@ -65,10 +65,11 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
         else:
             return np.nansum(a, **kwargs)
 
-    col_list = [T2_var,RH2_var,U2_var,G_var,RRR_var,PRES_var,LWin_var,N_var,SNOWFALL_var]
+    col_list = [T2_var,RH2_var,U2_var,G_var,RRR_var,PRES_var,LWin_var,N_var,SNOWFALL_var,DISCHARGE_var]
     df = df[col_list]
     
-    df = df.resample('1H').agg({T2_var:np.mean, RH2_var:np.mean, U2_var:np.mean, G_var:np.mean, PRES_var:np.mean, RRR_var:nansumwrapper, LWin_var:np.mean, N_var:np.mean, SNOWFALL_var:nansumwrapper})
+    df = df.resample('1H').agg({T2_var:np.mean, RH2_var:np.mean, U2_var:np.mean, G_var:np.mean,
+                                   PRES_var:np.mean, RRR_var:nansumwrapper,DISCHARGE_var:nansumwrapper, LWin_var:np.mean, N_var:np.mean, SNOWFALL_var:nansumwrapper})
     df = df.dropna(axis=1,how='all')
     print(df.head())
 
@@ -124,6 +125,9 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     if (RRR_var in df):
         df[RRR_var] = df[RRR_var].apply(pd.to_numeric, errors='coerce')
 
+    if (DISCHARGE_var in df):
+        df[DISCHARGE_var] = df[DISCHARGE_var].apply(pd.to_numeric, errors='coerce')
+
     if (PRES_var not in df):
         df[PRES_var] = 660.00
 
@@ -165,6 +169,9 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
 
     if (RRR_var in df):
         RRR = np.maximum(df[RRR_var].values + (hgt - stationAlt) * lapse_RRR, 0)                 # Precipitation
+
+    if (DISCHARGE_var in df):
+        DISCHARGE = df[DISCHARGE_var].values                                                                        # Incoming shortwave radiation
 
     if(SNOWFALL_var in df):
         SNOWFALL = np.maximum(df[SNOWFALL_var].values + (hgt-stationAlt) * lapse_SNOWFALL, 0)   # SNOWFALL
@@ -211,7 +218,10 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     
     if (RRR_var in df):
         add_variable_along_timelatlon_point(ds, RRR, 'RRR', 'mm', 'Total precipitation (liquid+solid)')
-    
+
+    if (DISCHARGE_var in df):
+        add_variable_along_timelatlon_point(ds, DISCHARGE, 'DISCHARGE', 'm', 'Discharge rate')
+
     if(SNOWFALL_var in df):
         add_variable_along_timelatlon_point(ds, SNOWFALL, 'SNOWFALL', 'm', 'Snowfall')
 
@@ -357,6 +367,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
 
     if (RRR_var in df):
         df[RRR_var] = df[RRR_var].apply(pd.to_numeric, errors='coerce')
+
 
     if (LWin_var not in df and N_var not in df):
         print("ERROR no longwave incoming or cloud cover data")
@@ -564,6 +575,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     
     if (RRR_var in df):
         add_variable_along_timelatlon(dso, RRR_interp, 'RRR', 'mm', 'Total precipitation (liquid+solid)')
+
     
     if(SNOWFALL_var in df):
         add_variable_along_timelatlon(dso, SNOWFALL_interp, 'SNOWFALL', 'm', 'Snowfall')
@@ -687,9 +699,9 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='Create 2D input file from csv file.')
     parser.add_argument('-c', '-csv_file', dest='csv_file', help='Csv file(see readme for file convention)',
-                        default='../../data/input/guttannen21/aws.csv')
+                        default='../../data/input/guttannen21/input.csv')
     parser.add_argument('-o', '-cosipy_file', dest='cosipy_file', help='Name of the resulting COSIPY file'
-                        ,default='../../data/input/guttannen21/aws.nc')
+                        ,default='../../data/input/guttannen21/input.nc')
     parser.add_argument('-s', '-static_file', dest='static_file', help='Static file containing DEM, Slope etc.')
     parser.add_argument('-b', '-start_date', dest='start_date', help='Start date'
                         ,default='20201122')

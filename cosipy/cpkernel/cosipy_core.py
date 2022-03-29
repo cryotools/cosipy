@@ -43,7 +43,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     """
     
     # Replace values from constants.py if coupled
-    from constants import max_layers, dt, z	#WTF python!
+    from constants import max_layers, dt, z, radf	#WTF python!
     if WRF_X_CSPY:
         dt = int(DATA.DT.values)
         max_layers = int(DATA.max_layers.values)
@@ -53,6 +53,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     nt = len(DATA.time.values)         #accessing DATA is expensive 		
     _RRR = np.full(nt, np.nan)
     _RAIN = np.full(nt, np.nan)
+    _DISF = np.full(nt, np.nan)
     _SNOWFALL = np.full(nt, np.nan)
     _LWin = np.full(nt, np.nan)
     _LWout = np.full(nt, np.nan)
@@ -60,6 +61,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     _LE = np.full(nt, np.nan)
     _B = np.full(nt, np.nan)
     _QRR = np.full(nt, np.nan)
+    _QFR = np.full(nt, np.nan)
     _MB = np.full(nt, np.nan)
     _surfMB = np.full(nt, np.nan)
     _MB = np.full(nt, np.nan)
@@ -134,6 +136,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         SNOWF = None
         RRR = DATA.RRR.values * mult_factor_RRR
 
+    if ('DISCHARGE' in DATA):
+        DISCHARGE = DATA.DISCHARGE.values
+
     # Use RRR rather than snowfall?
     if force_use_TP:
         SNOWF = None
@@ -196,6 +201,11 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) - center_snow_transfer_function) * spread_snow_transfer_function) + 1.0))
             RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000.0
 
+        # Derive Icestupa fountain discharge rates [m w.e.]
+        # TODO include water density
+        if (DISCHARGE is not None):
+            DISF = DISCHARGE[t]*dt/(60*1000*np.pi*radf**2)
+
         # if snowfall is smaller than the threshold
         if SNOWFALL<minimum_snowfall:
             SNOWFALL = 0.0
@@ -248,13 +258,15 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         if LWin is not None:
             # Find new surface temperature (LW is used from the input file)
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
-                ground_heat_flux, rain_heat_flux, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
-                = update_surface_temperature(GRID, dt, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, U2[t], RAIN, SLOPE, LWin=LWin[t])
+                ground_heat_flux, rain_heat_flux, fountain_heat_flux, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
+                = update_surface_temperature(GRID, dt, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, U2[t],
+                                             RAIN, DISF, SLOPE, LWin=LWin[t])
         else:
             # Find new surface temperature (LW is parametrized using cloud fraction)
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
-                ground_heat_flux, rain_heat_flux, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
-                = update_surface_temperature(GRID, dt, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, U2[t], RAIN, SLOPE, N=N[t])
+                ground_heat_flux, rain_heat_flux, fountain_heat_flux,rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
+                = update_surface_temperature(GRID, dt, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, U2[t],
+                                             RAIN, DISF, SLOPE, N=N[t])
 
         #--------------------------------------------
         # Surface mass fluxes [m w.e.q.]
@@ -275,7 +287,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Melt energy in [W m^-2 or J s^-1 m^-2]
         melt_energy = max(0, sw_radiation_net + lw_radiation_in + lw_radiation_out + ground_heat_flux + rain_heat_flux +
-                          sensible_heat_flux + latent_heat_flux)
+                          fountain_heat_flux + sensible_heat_flux + latent_heat_flux)
 
         # Convert melt energy to m w.e.q.
         melt = melt_energy * dt / (1000 * lat_heat_melting)
@@ -286,7 +298,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Percolation
         #--------------------------------------------
-        Q  = percolation(GRID, melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
+        Q  = percolation(GRID, melt + condensation + RAIN/1000.0 + DISF + lwc_from_melted_layers, dt)
 
         #--------------------------------------------
         # Refreezing
@@ -324,6 +336,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         
         # Save results
         _RAIN[t] = RAIN
+        _DISF[t] = DISF
         _SNOWFALL[t] = SNOWFALL * (density_fresh_snow/ice_density)
         _LWin[t] = lw_radiation_in
         _LWout[t] = lw_radiation_out
@@ -331,6 +344,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         _LE[t] = latent_heat_flux
         _B[t] = ground_heat_flux
         _QRR[t] = rain_heat_flux
+        _QFR[t] = fountain_heat_flux
         _MB[t] = mass_balance
         _surfMB[t] = surface_mass_balance
         _Q[t] = Q
@@ -395,7 +409,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         RESTART.LAYER_LWC[0:GRID.get_number_layers()] = GRID.get_liquid_water_content()
         RESTART.LAYER_IF[0:GRID.get_number_layers()] = GRID.get_ice_fraction()
 
-    return (indY,indX,RESTART,_RAIN,_SNOWFALL,_LWin,_LWout,_H,_LE,_B, _QRR, \
+    return (indY,indX,RESTART,_RAIN,_DISF,_SNOWFALL,_LWin,_LWout,_H,_LE,_B, _QRR,_QFR, \
             _MB,_surfMB,_Q,_SNOWHEIGHT,_TOTALHEIGHT,_TS,_ALBEDO,_NLAYERS, \
             _ME,_intMB,_EVAPORATION,_SUBLIMATION,_CONDENSATION,_DEPOSITION,_REFREEZE, \
             _subM,_Z0,_surfM, _MOL, \

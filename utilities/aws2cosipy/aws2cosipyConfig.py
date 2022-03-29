@@ -42,6 +42,9 @@ SNOWFALL_var = 'SNOWFALL'
 # Cloud cover fraction
 N_var = 'N'
 
+# Fountain discharge
+DISCHARGE_var = 'Discharge'
+
 #------------------------
 # Aggregation to hourly data
 #------------------------

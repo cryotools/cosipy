@@ -28,9 +28,9 @@ data_path = './data/'
 
 # Zhadang example
 # input_netcdf= 'Zhadang/Zhadang_ERA5_2009.nc'
-input_netcdf= 'guttannen21/aws.nc'
+input_netcdf= 'guttannen21/input.nc'
 # output_netcdf = 'Zhadang_ERA5_'+time_start_str+'-'+time_end_str+'.nc'
-output_netcdf = 'guttannen_'+time_start_str+'-'+time_end_str+'.nc'
+output_netcdf = 'guttannen21.nc'
 
 # Hintereisferner example
 #input_netcdf = 'HEF/HEF_input.nc'
@@ -80,7 +80,7 @@ local_port = 8786                                           # port for local clu
 #-----------------------------------
 # WRITE FULL FIELDS 
 #-----------------------------------    
-full_field = False                                          # write full fields (2D data) to file
+full_field = True                                           # write full fields (2D data) to file
 if WRF_X_CSPY:
     full_field = True
     

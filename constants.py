@@ -9,6 +9,9 @@ dt = 3600                                       # Time step in the input files [
 max_layers = 200                                # Max. number of layers, just for the restart file
 z = 2.0                                         # Measurement height [m]
 
+' FOUNTAIN INFORMATION ' 
+radf = 6.9                                       # Spray radius [m]
+
 ' PARAMETERIZATIONS '
 stability_correction = 'Ri'                     # possibilities: 'Ri','MO'
 albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98'
@@ -26,10 +29,14 @@ if WRF_X_CSPY:
 
 
 ' INITIAL CONDITIONS '
-initial_snowheight_constant = 0.2               # Initial snowheight
-initial_snow_layer_heights = 0.10               # Initial thickness of snow layers
-initial_glacier_height = 40.0                   # Initial glacier height without snowlayers
-initial_glacier_layer_heights = 0.5             # Initial thickness of glacier ice layers
+# initial_snowheight_constant = 0.2               # Initial snowheight
+# initial_snow_layer_heights = 0.10               # Initial thickness of snow layers
+# initial_glacier_height = 40.0                   # Initial glacier height without snowlayers
+# initial_glacier_layer_heights = 0.5             # Initial thickness of glacier ice layers
+initial_snowheight_constant = 0               # Initial snowheight
+initial_snow_layer_heights = 0                # Initial thickness of snow layers
+initial_glacier_height = 0.3                  # Initial glacier height without snowlayers
+initial_glacier_layer_heights = 0.05             # Initial thickness of glacier ice layers
 
 initial_top_density_snowpack = 300.0            # Top density for initial snowpack
 initial_bottom_density_snowpack = 600.0         # Bottom density for initial snowpack
@@ -50,13 +57,13 @@ minimum_snowfall = 0.001                        # minimum snowfall per time step
 
 
 ' REMESHING OPTIONS'
-remesh_method = 'log_profile'                   # Remeshing (log_profile or adaptive_profile)
+remesh_method = 'adaptive_profile'                   # Remeshing (log_profile or adaptive_profile)
 first_layer_height = 0.01                       # The first layer will always have the defined height (m)
 layer_stretching = 1.20                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
 
 merge_max = 1                                   # How many mergings are allowed per time step
 density_threshold_merging = 5                   # If merging is true threshold for layer densities difference two layer try: 5-10 (kg m^-3)
-temperature_threshold_merging = 0.01            # If mering is true threshold for layer temperatures to merge  try: 0.05-0.1 (K)
+temperature_threshold_merging = 0.05            # If mering is true threshold for layer temperatures to merge  try: 0.05-0.1 (K)
 
 
 ' PHYSICAL CONSTANTS '
