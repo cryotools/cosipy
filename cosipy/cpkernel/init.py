@@ -59,12 +59,16 @@ def init_snowpack(DATA):
         layer_T = np.array([temperature_top-dT*initial_glacier_layer_heights*i for i in range(1,nlayers+1)])
         layer_liquid_water = np.zeros(nlayers)
 	
+    # Initialize AIR cone
+    r_cone = radf
+    h_cone = initial_glacier_height + initial_snowheight
+
     # Initialize grid, the grid class contains all relevant grid information
     GRID = Grid(np.array(layer_heights, dtype=np.float64), np.array(layer_densities, dtype=np.float64), 
                 np.array(layer_T, dtype=np.float64), np.array(layer_liquid_water, dtype=np.float64),
                 None, None, None, None)
     
-    return GRID
+    return GRID, r_cone, h_cone
 
 
 

@@ -1,7 +1,7 @@
 import numpy as np
 from constants import sfc_temperature_method, saturation_water_vapour_method, zero_temperature, \
                       lat_heat_sublimation, lat_heat_vaporize, stability_correction, spec_heat_air, \
-                      spec_heat_water, water_density, surface_emission_coeff, sigma, zlt1, zlt2
+                      spec_heat_water, water_density, surface_emission_coeff, sigma, zlt1, zlt2, Tf, make_icestupa
 from scipy.optimize import minimize, newton
 from numba import njit
 from types import SimpleNamespace
@@ -82,7 +82,7 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DIS
  
     (Li, Lo, H, L, B, Qrr, Qfr, rho, Lv, MOL, Cs_t, Cs_q, q0, q2) = eb_fluxes(GRID, res.x, dt, 
                                                              z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, 
-                                                             B_Ts, LWin, N,)
+                                                             B_Ts,  LWin, N)
      
     # Consistency check
     if (float(res.x)>zero_temperature) or (float(res.x)<lower_bnd_ts):
@@ -293,8 +293,15 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, B_Ts, LWin
     # Rain heat flux
     QRR = water_density * spec_heat_water * (RAIN/1000/dt) * (T2 - T0)
 
-    # Fountain heat flux
-    QFR = water_density * spec_heat_water * (DISF/dt) * (T2 - T0)
+    if make_icestupa:
+        # Fountain heat flux
+        QFR = water_density * spec_heat_water * (DISF/dt) * (Tf - T0)
+        H = H * 1.5
+        LE = LE * 1.5
+
+        # TODO include s_cone
+        # H = H * (1+0.5*s_cone)
+        # LE = LE * (1+0.5*s_cone)
 
     # Return surface fluxes
     # Numba: No implementation of function Function(<class 'float'>) found for signature: >>> float(array(float64, 1d, C))

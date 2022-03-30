@@ -12,7 +12,7 @@ def solarFParallel(lat, lon, timezone_lon, day, hour):
         lat             ::  latitude (decimal degree)
         lon             ::  longitude (decimal degree)
         timezone_lon    ::  longitude of standard meridian (decimal degree)
-        doy             ::  day of the year (1-366)
+        day             ::  day of the year (1-366)
         hour            ::  hour of the day (decimal, e.g. 12:30 = 12.5
         
     Outputs:

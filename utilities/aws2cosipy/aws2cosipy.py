@@ -19,6 +19,7 @@ from metpy.units import units
 
 sys.path.append('../../')
 
+from constants import make_icestupa
 from utilities.aws2cosipy.aws2cosipyConfig import *
 from cosipy.modules.radCor import *
 
@@ -71,13 +72,28 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     df = df.resample('1H').agg({T2_var:np.mean, RH2_var:np.mean, U2_var:np.mean, G_var:np.mean,
                                    PRES_var:np.mean, RRR_var:nansumwrapper,DISCHARGE_var:nansumwrapper, LWin_var:np.mean, N_var:np.mean, SNOWFALL_var:nansumwrapper})
     df = df.dropna(axis=1,how='all')
-    print(df.head())
 
     #-----------------------------------
     # Select time slice
     #-----------------------------------
     if ((start_date != None) & (end_date !=None)): 
         df = df.loc[start_date:end_date]
+
+    #-----------------------------------
+    # Run radiation module to find diffuse fraction and solar angle 
+    #-----------------------------------
+    if make_icestupa: 
+        print('Run the Radiation Module to find diffuse fraction and solar angle')
+
+        for t in range(len(df.index)):
+            doy = df.index[t].dayofyear
+            hour = df.index[t].hour
+            # TODO generalise
+            Rg = df.SW_global[df.index[t]]
+            df.loc[df.index[t], 'beta'], df.loc[df.index[t], 'zeni'], _ = solarFParallel(plat, plon, timezone_lon, doy, hour)
+            df.loc[df.index[t], 'Fdif'] = Fdif_Neustift(doy, df.loc[df.index[t],'zeni'], Rg)
+
+    print(df.head())
 
     #-----------------------------------
     # Load static data
@@ -121,12 +137,11 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     df[U2_var] = df[U2_var].apply(pd.to_numeric, errors='coerce')
     df[G_var] = df[G_var].apply(pd.to_numeric, errors='coerce')
     df[PRES_var] = df[PRES_var].apply(pd.to_numeric, errors='coerce')
+    if make_icestupa:
+        df[DISCHARGE_var] = df[DISCHARGE_var].apply(pd.to_numeric, errors='coerce')
     
     if (RRR_var in df):
         df[RRR_var] = df[RRR_var].apply(pd.to_numeric, errors='coerce')
-
-    if (DISCHARGE_var in df):
-        df[DISCHARGE_var] = df[DISCHARGE_var].apply(pd.to_numeric, errors='coerce')
 
     if (PRES_var not in df):
         df[PRES_var] = 660.00
@@ -166,12 +181,13 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     SLP = df[PRES_var].values / np.power((1 - (0.0065 * stationAlt) / (288.15)), 5.255)
     PRES = SLP * np.power((1 - (0.0065 * hgt)/(288.15)), 5.22)                                  # Pressure
 
+    if make_icestupa :
+        DISCHARGE = df[DISCHARGE_var].values                                                                        # Incoming shortwave radiation
+        BETA = df['beta'].values                                                                        # Incoming shortwave radiation
+        FDIF = df['Fdif'].values                                                                        # Incoming shortwave radiation
 
     if (RRR_var in df):
         RRR = np.maximum(df[RRR_var].values + (hgt - stationAlt) * lapse_RRR, 0)                 # Precipitation
-
-    if (DISCHARGE_var in df):
-        DISCHARGE = df[DISCHARGE_var].values                                                                        # Incoming shortwave radiation
 
     if(SNOWFALL_var in df):
         SNOWFALL = np.maximum(df[SNOWFALL_var].values + (hgt-stationAlt) * lapse_SNOWFALL, 0)   # SNOWFALL
@@ -216,11 +232,13 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     add_variable_along_timelatlon_point(ds, G, 'G', 'W m\u207b\xb2', 'Incoming shortwave radiation')
     add_variable_along_timelatlon_point(ds, PRES, 'PRES', 'hPa', 'Atmospheric Pressure')
     
+    if make_icestupa :
+        add_variable_along_timelatlon_point(ds, DISCHARGE, 'DISCHARGE', 'm', 'Discharge rate')
+        add_variable_along_timelatlon_point(ds, BETA, 'BETA', 'radians', 'Solar elevation angle')
+        add_variable_along_timelatlon_point(ds, FDIF, 'FDIF', 'degrees', 'Diffuse fraction')
+
     if (RRR_var in df):
         add_variable_along_timelatlon_point(ds, RRR, 'RRR', 'mm', 'Total precipitation (liquid+solid)')
-
-    if (DISCHARGE_var in df):
-        add_variable_along_timelatlon_point(ds, DISCHARGE, 'DISCHARGE', 'm', 'Discharge rate')
 
     if(SNOWFALL_var in df):
         add_variable_along_timelatlon_point(ds, SNOWFALL, 'SNOWFALL', 'm', 'Snowfall')
@@ -230,6 +248,7 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
 
     if(N_var in df):
         add_variable_along_timelatlon_point(ds, N, 'N', '%', 'Cloud cover fraction')
+
 
     #-----------------------------------
     # Write file to disc 

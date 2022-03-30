@@ -266,13 +266,13 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
         for future in as_completed(futures):
 
                 # Get the results from the workers
-                indY,indX,local_restart,RAIN,DISF,SNOWFALL,LWin,LWout,H,LE,B,QRR,QFR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,NLAYERS, \
-                                ME,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL, \
+                indY,indX,local_restart,RAIN,DISF,SNOWFALL,LWin,LWout,H,LE,B,QRR,QFR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,SWNET,NLAYERS, \
+                                ME,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL,CONERAD,CONEHEIGHT,CONESLOPE,CONEAREA,CONEVOL, \
                                 LAYER_HEIGHT,LAYER_RHO,LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_ICE_FRACTION, \
                                 LAYER_IRREDUCIBLE_WATER,LAYER_REFREEZE,stake_names,stat,df_eval = future.result()
                
-                IO.copy_local_to_global(indY,indX,RAIN,DISF,SNOWFALL,LWin,LWout,H,LE,B,QRR,QFR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,NLAYERS, \
-                                ME,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL,LAYER_HEIGHT,LAYER_RHO, \
+                IO.copy_local_to_global(indY,indX,RAIN,DISF,SNOWFALL,LWin,LWout,H,LE,B,QRR,QFR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,SWNET,NLAYERS, \
+                                ME,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL,CONERAD,CONEHEIGHT,CONESLOPE,CONEAREA,CONEVOL,LAYER_HEIGHT,LAYER_RHO, \
                                 LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_ICE_FRACTION,LAYER_IRREDUCIBLE_WATER,LAYER_REFREEZE)
 
                 IO.copy_local_restart_to_global(indY,indX,local_restart)
@@ -316,8 +316,7 @@ def start_logging():
        logging.basicConfig(level=logging.WARNING)
 
     logger = logging.getLogger(__name__)
-    logger.info('COSIPY simulation started')    
-
+    logger.info('COSIPY simulation started')
 
 def transform_coordinates(coords):
     """ Transform coordinates from geodetic to cartesian
@@ -358,8 +357,6 @@ def compute_scale_and_offset(min, max, n):
 def close_everything(scheduler):
     yield scheduler.retire_workers(workers=scheduler.workers, close_workers=True)
     yield scheduler.close()
-
-
 
 ''' MODEL EXECUTION '''
 if __name__ == "__main__":

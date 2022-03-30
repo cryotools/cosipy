@@ -9,9 +9,6 @@ dt = 3600                                       # Time step in the input files [
 max_layers = 200                                # Max. number of layers, just for the restart file
 z = 2.0                                         # Measurement height [m]
 
-' FOUNTAIN INFORMATION ' 
-radf = 6.9                                       # Spray radius [m]
-
 ' PARAMETERIZATIONS '
 stability_correction = 'Ri'                     # possibilities: 'Ri','MO'
 albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98'
@@ -41,7 +38,8 @@ initial_glacier_layer_heights = 0.01             # Initial thickness of glacier 
 initial_top_density_snowpack = 300.0            # Top density for initial snowpack
 initial_bottom_density_snowpack = 600.0         # Bottom density for initial snowpack
 
-temperature_bottom = 270.16                     # Lower boundary condition for initial temperature profile (K)
+# temperature_bottom = 270.16                   # Lower boundary condition for initial temperature profile (K)
+temperature_bottom = 273.16                     # Lower boundary condition for initial temperature profile (K)
 const_init_temp = 0.1                           # constant for init temperature profile used in exponential function (exponential decay)
 
 zlt1 = 0.06					                    # First depth for temperature interpolation which is used for calculation of ground heat flux
@@ -84,7 +82,8 @@ roughness_ice = 1.7                             # surface roughness length for i
 roughness_firn = 4.0                            # surface roughness length for aged snow [mm] (Moelg et al. 2012, TC)
 aging_factor_roughness = 0.0026                 # effect of ageing on roughness lenght (hours) 60 days from 0.24 to 4.0 => 0.0026
 
-snow_ice_threshold = 900.0                      # pore close of density [kg m^(-3)]
+snow_ice_threshold = 700.0                      # pore close of density [kg m^(-3)]
+# snow_ice_threshold = 950.0                      # pore close of density [kg m^(-3)]
 
 lat_heat_melting = 3.34e5                       # latent heat for melting [J kg-1]
 lat_heat_vaporize = 2.5e6                       # latent heat for vaporization [J kg-1]
@@ -105,3 +104,12 @@ air_density = 1.1                               # density of air [kg m^(-3)]
 sigma = 5.67e-8                                 # Stefan-Bolzmann constant [W m-2 K-4]
 zero_temperature = 273.16                       # Melting temperature [K]
 surface_emission_coeff = 0.99                   # surface emission coefficient [-]
+
+#-----------------------------------
+# AIR Parameters
+#-----------------------------------
+make_icestupa = True
+
+' FOUNTAIN INFORMATION ' 
+radf = 6.9                                       # Spray radius [m]
+Tf = 1.5 + 273.15                                # Water temperature [C]

@@ -13,6 +13,7 @@
 # guttannen21
 time_start = '2020-11-22T15:00'
 time_end   = '2021-05-10T01:00'
+# time_end   = '2021-03-01T00:00'
 
 # Hintereisferner
 #time_start = '2018-09-17T08:00'

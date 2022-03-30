@@ -302,6 +302,7 @@ class IOClass:
         self.RESULT.attrs['Surface_emission_coeff'] = surface_emission_coeff
 
         # Variables given by the input dataset
+        # TODO add fountain vars here
         self.add_variable_along_latlon(self.RESULT, self.DATA.HGT, 'HGT', 'm', 'Elevation')
         self.add_variable_along_latlon(self.RESULT, self.DATA.MASK, 'MASK', 'boolean', 'Glacier mask')
         if ('SLOPE' in self.DATA):
@@ -313,6 +314,8 @@ class IOClass:
         self.add_variable_along_latlontime(self.RESULT, self.DATA.U2, 'U2', 'm s\u207b\xb9', 'Wind velocity at 2 m')
         self.add_variable_along_latlontime(self.RESULT, self.DATA.PRES, 'PRES', 'hPa', 'Atmospheric pressure')
         self.add_variable_along_latlontime(self.RESULT, self.DATA.G, 'G', 'W m\u207b\xb2', 'Incoming shortwave radiation')
+        if make_icestupa:
+            self.add_variable_along_latlontime(self.RESULT, self.DATA.FDIF, 'FDIF', '-', 'Diffuse fraction')
         
         if ('RRR' in self.DATA):
             self.add_variable_along_latlontime(self.RESULT, self.DATA.RRR, 'RRR', 'mm','Total precipiation')
@@ -376,6 +379,8 @@ class IOClass:
             self.TS = np.full((self.time,self.ny,self.nx), np.nan)
         if ('ALBEDO' in self.atm):
             self.ALBEDO = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('SWNET' in self.atm):
+            self.SWNET = np.full((self.time,self.ny,self.nx), np.nan)
         if ('LAYERS' in self.internal):
             self.LAYERS = np.full((self.time,self.ny,self.nx), np.nan)
         if ('ME' in self.internal):
@@ -400,6 +405,14 @@ class IOClass:
             self.surfM = np.full((self.time,self.ny,self.nx), np.nan)
         if ('MOL' in self.internal):
             self.MOL = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('CONERAD' in self.internal):
+            self.CONERAD = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('CONEHEIGHT' in self.internal):
+            self.CONEHEIGHT = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('CONEAREA' in self.internal):
+            self.CONEAREA = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('CONEVOL' in self.internal):
+            self.CONEVOL = np.full((self.time,self.ny,self.nx), np.nan)
 
         if full_field:
             if ('HEIGHT' in self.full):
@@ -427,9 +440,11 @@ class IOClass:
     # numpy arrays. The y and x values are the lat/lon indices.
     #==============================================================================
     def copy_local_to_global(self,y,x,local_RAIN,local_DISF,local_SNOWFALL,local_LWin,local_LWout,local_H,local_LE,local_B,local_QRR,local_QFR,
-                             local_MB, local_surfMB,local_Q,local_SNOWHEIGHT,local_TOTALHEIGHT,local_TS,local_ALBEDO, \
+                             local_MB,
+                             local_surfMB,local_Q,local_SNOWHEIGHT,local_TOTALHEIGHT,local_TS,local_ALBEDO,local_SWNET,\
                              local_LAYERS,local_ME,local_intMB,local_EVAPORATION,local_SUBLIMATION,local_CONDENSATION, \
-                             local_DEPOSITION,local_REFREEZE,local_subM,local_Z0,local_surfM,local_MOL,local_LAYER_HEIGHT, \
+                             local_DEPOSITION,local_REFREEZE,local_subM,local_Z0,local_surfM,local_MOL,local_CONERAD, \
+                             local_CONEHEIGHT,local_CONESLOPE,local_CONEAREA, local_CONEVOL, local_LAYER_HEIGHT, \
 			     local_LAYER_RHO,local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY, \
 			     local_LAYER_ICE_FRACTION,local_LAYER_IRREDUCIBLE_WATER,local_LAYER_REFREEZE):
 
@@ -467,6 +482,8 @@ class IOClass:
             self.TS[:,y,x] = local_TS 
         if ('ALBEDO' in self.atm):
             self.ALBEDO[:,y,x] = local_ALBEDO 
+        if ('SWNET' in self.atm):
+            self.SWNET[:,y,x] = local_SWNET
         if ('LAYERS' in self.internal):
             self.LAYERS[:,y,x] = local_LAYERS 
         if ('ME' in self.internal):
@@ -491,6 +508,16 @@ class IOClass:
             self.surfM[:,y,x] = local_surfM 
         if ('MOL' in self.internal):
             self.MOL[:,y,x] = local_MOL 
+        if ('CONERAD' in self.internal):
+            self.CONERAD[:,y,x] = local_CONERAD
+        if ('CONEHEIGHT' in self.internal):
+            self.CONEHEIGHT[:,y,x] = local_CONEHEIGHT
+        if ('CONESLOPE' in self.internal):
+            self.CONESLOPE[:,y,x] = local_CONESLOPE
+        if ('CONEAREA' in self.internal):
+            self.CONEAREA[:,y,x] = local_CONEAREA
+        if ('CONEVOL' in self.internal):
+            self.CONEVOL[:,y,x] = local_CONEVOL
 
         if full_field:
             if ('HEIGHT' in self.full):
@@ -537,7 +564,7 @@ class IOClass:
         if ('QRR' in self.atm):
             self.add_variable_along_latlontime(self.RESULT, self.QRR, 'QRR', 'W m\u207b\xb2', 'Rain heat flux')
         if ('QFR' in self.atm):
-            self.add_variable_along_latlontime(self.RESULT, self.QFR, 'QFR', 'W m\u207b\xb2', 'Rain heat flux')
+            self.add_variable_along_latlontime(self.RESULT, self.QFR, 'QFR', 'W m\u207b\xb2', 'Fountain heat flux')
         if ('surfMB' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.surfMB, 'surfMB', 'm w.e.', 'Surface mass balance') 
         if ('MB' in self.internal):
@@ -552,6 +579,8 @@ class IOClass:
             self.add_variable_along_latlontime(self.RESULT, self.TS, 'TS', 'K', 'Surface temperature') 
         if ('ALBEDO' in self.atm):
             self.add_variable_along_latlontime(self.RESULT, self.ALBEDO, 'ALBEDO', '-', 'Albedo') 
+        if ('SWNET' in self.atm):
+            self.add_variable_along_latlontime(self.RESULT, self.SWNET, 'SWNET', 'W m\u207b\xb2', 'Net Shortwave radiation') 
         if ('LAYERS' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.LAYERS, 'LAYERS', '-', 'Number of layers') 
         if ('ME' in self.internal):
@@ -576,6 +605,14 @@ class IOClass:
             self.add_variable_along_latlontime(self.RESULT, self.surfM, 'surfM', 'm w.e.', 'Surface melt') 
         if ('MOL' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.MOL, 'MOL', '', 'Monin Obukhov length') 
+        if ('CONERAD' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.CONERAD, 'CONERAD', 'm', 'AIR Radius') 
+        if ('CONEHEIGHT' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.CONEHEIGHT, 'CONEHEIGHT', 'm', 'AIR Height') 
+        if ('CONEAREA' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.CONEAREA, 'CONEAREA', 'm', 'AIR Area') 
+        if ('CONEVOL' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.CONEVOL, 'CONEVOL', 'm', 'AIR Volume') 
 	            
         if full_field:
             if ('HEIGHT' in self.full):
