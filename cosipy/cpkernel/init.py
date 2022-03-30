@@ -16,7 +16,10 @@ def init_snowpack(DATA):
             initial_snowheight = 0.0
     else: 
         initial_snowheight = initial_snowheight_constant
-    temperature_top = np.minimum(DATA.T2.values[0], 273.16)
+    if make_icestupa:
+        temperature_top = 273.16
+    else:
+        temperature_top = np.minimum(DATA.T2.values[0], 273.16)
 	
     #--------------------------------------
     # Do the vertical interpolation

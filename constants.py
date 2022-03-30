@@ -10,7 +10,7 @@ max_layers = 200                                # Max. number of layers, just fo
 z = 2.0                                         # Measurement height [m]
 
 ' PARAMETERIZATIONS '
-stability_correction = 'Ri'                     # possibilities: 'Ri','MO'
+stability_correction = 'MO'                     # possibilities: 'Ri','MO'
 albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98'
 densification_method = 'Boone'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
@@ -61,7 +61,7 @@ layer_stretching = 1.20                         # Stretching factor used by the 
 
 merge_max = 1                                   # How many mergings are allowed per time step
 density_threshold_merging = 5                   # If merging is true threshold for layer densities difference two layer try: 5-10 (kg m^-3)
-temperature_threshold_merging = 0.05            # If mering is true threshold for layer temperatures to merge  try: 0.05-0.1 (K)
+temperature_threshold_merging = 0.01            # If mering is true threshold for layer temperatures to merge  try: 0.05-0.1 (K)
 
 
 ' PHYSICAL CONSTANTS '
@@ -70,7 +70,8 @@ constant_density = 300.                         # constant density of freshly fa
 albedo_fresh_snow = 0.85                        # albedo of fresh snow [-] (Moelg et al. 2012, TC)
 albedo_firn = 0.55                              # albedo of firn [-] (Moelg et al. 2012, TC)
 albedo_ice = 0.3                                # albedo of ice [-] (Moelg et al. 2012, TC)
-albedo_mod_snow_aging = 22                      # effect of ageing on snow albedo [days] (Oerlemans and Knap 1998, J. Glaciol.)
+# albedo_mod_snow_aging = 22                      # effect of ageing on snow albedo [days] (Oerlemans and Knap 1998, J. Glaciol.)
+albedo_mod_snow_aging = 16                      # effect of ageing on snow albedo [days] (Oerlemans and Knap 1998, J. Glaciol.)
 albedo_mod_snow_depth = 3                       # effect of snow depth on albedo [cm] (Oerlemans and Knap 1998, J. Glaciol.)
 
 ### For tropical glaciers or High Mountain Asia summer-accumulation glaciers (low latitude), the Moelg et al. 2012, TC should be tested for a possible better albedo fit 
@@ -82,7 +83,7 @@ roughness_ice = 1.7                             # surface roughness length for i
 roughness_firn = 4.0                            # surface roughness length for aged snow [mm] (Moelg et al. 2012, TC)
 aging_factor_roughness = 0.0026                 # effect of ageing on roughness lenght (hours) 60 days from 0.24 to 4.0 => 0.0026
 
-snow_ice_threshold = 700.0                      # pore close of density [kg m^(-3)]
+snow_ice_threshold = 900.0                      # pore close of density [kg m^(-3)]
 # snow_ice_threshold = 950.0                      # pore close of density [kg m^(-3)]
 
 lat_heat_melting = 3.34e5                       # latent heat for melting [J kg-1]
@@ -103,7 +104,8 @@ air_density = 1.1                               # density of air [kg m^(-3)]
 
 sigma = 5.67e-8                                 # Stefan-Bolzmann constant [W m-2 K-4]
 zero_temperature = 273.16                       # Melting temperature [K]
-surface_emission_coeff = 0.99                   # surface emission coefficient [-]
+# surface_emission_coeff = 0.99                   # surface emission coefficient [-]
+surface_emission_coeff = 0.97                   # surface emission coefficient [-]
 
 #-----------------------------------
 # AIR Parameters
@@ -113,3 +115,6 @@ make_icestupa = True
 ' FOUNTAIN INFORMATION ' 
 radf = 6.9                                       # Spray radius [m]
 Tf = 1.5 + 273.15                                # Water temperature [C]
+
+van_karman = 0.4
+air_pressure_sea_level=1013

@@ -1,7 +1,7 @@
 import numpy as np
 from constants import sfc_temperature_method, saturation_water_vapour_method, zero_temperature, \
                       lat_heat_sublimation, lat_heat_vaporize, stability_correction, spec_heat_air, \
-                      spec_heat_water, water_density, surface_emission_coeff, sigma, zlt1, zlt2, Tf, make_icestupa
+                      spec_heat_water, water_density, surface_emission_coeff, sigma, zlt1, zlt2, Tf, make_icestupa, van_karman, air_pressure_sea_level
 from scipy.optimize import minimize, newton
 from numba import njit
 from types import SimpleNamespace
@@ -251,6 +251,33 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, B_Ts, LWin
             # Store last heat flux in H0
             H0 = H
   
+    # Bulk method
+    elif stability_correction == 'Icestupa':
+        H = (
+            spec_heat_air
+            * rho
+            * p
+            / air_pressure_sea_level
+            * np.power(van_karman, 2)
+            * u2
+            * (T2 - T0)
+            / ((np.log(2/ z0t)) ** 2) # 2m AWS height
+            * 1.5
+            # * (1 + 0.5 * self.df.loc[i, "s_cone"])
+        )
+
+        LE = (
+            0.623
+            * lat_heat_sublimation
+            * rho
+            / air_pressure_sea_level
+            * np.power(van_karman, 2)
+            * u2
+            * (Ew - Ew0)
+            / ((np.log(2 / z0q)) ** 2)
+            * 1.5
+            # * (1 + 0.5 * self.df.loc[i, "s_cone"])
+            )
     # Richardson-Number stability correction
     elif stability_correction == 'Ri':
         # Bulk transfer coefficient 
