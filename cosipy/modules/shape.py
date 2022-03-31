@@ -1,10 +1,10 @@
 import numpy as np
-from constants import radf, water_density
+from constants import radf, water_density, ice_density
 from scipy.optimize import minimize, newton
 from numba import njit
 from types import SimpleNamespace
 
-def update_cone(GRID, MB, r_cone, h_cone, s_cone, A_cone, V_cone):
+def update_cone(GRID, surfMB, r_cone, h_cone, s_cone, A_cone, V_cone):
     """ This methods updates the area of the artificial ice reservoir
 
     Given:
@@ -26,10 +26,11 @@ def update_cone(GRID, MB, r_cone, h_cone, s_cone, A_cone, V_cone):
         V_cone  ::  New Volume [m3]
     """
 
-    V_cone += A_cone * MB
+    V_cone += A_cone * surfMB
+    # V_cone += A_cone * surfMB * water_density/GRID.get_node_density(0)
 
     # print("Radius %.1f, Height %.01f, Volume %0.01f" %(r_cone, h_cone, V_cone))
-    if (MB > 0) & (r_cone >= radf):  # Maintain constant r_cone
+    if (surfMB > 0) & (r_cone >= radf):  # Maintain constant r_cone
         s_cone = h_cone / r_cone
         h_cone = (3 * V_cone / (np.pi * r_cone ** 2))
     else:                               # Maintain constant slope

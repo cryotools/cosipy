@@ -61,7 +61,7 @@ layer_stretching = 1.20                         # Stretching factor used by the 
 
 merge_max = 1                                   # How many mergings are allowed per time step
 density_threshold_merging = 5                   # If merging is true threshold for layer densities difference two layer try: 5-10 (kg m^-3)
-temperature_threshold_merging = 0.01            # If mering is true threshold for layer temperatures to merge  try: 0.05-0.1 (K)
+temperature_threshold_merging = 0.05            # If mering is true threshold for layer temperatures to merge  try: 0.05-0.1 (K)
 
 
 ' PHYSICAL CONSTANTS '

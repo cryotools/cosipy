@@ -73,6 +73,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     _ALBEDO = np.full(nt, np.nan)
     _SWNET = np.full(nt, np.nan)
     _ME = np.full(nt, np.nan)
+    _FE = np.full(nt, np.nan)
     _intMB = np.full(nt, np.nan)
     _EVAPORATION = np.full(nt, np.nan)
     _SUBLIMATION = np.full(nt, np.nan)
@@ -216,8 +217,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Derive Icestupa fountain discharge rates [m w.e.]
         # TODO include water density
         if make_icestupa :
-            DISF = DISCHARGE[t]*dt/(60*1000*np.pi * radf**2)
+            DISF = DISCHARGE[t]*dt/(60*1000 * np.pi * radf**2)
             SNOWFALL *=np.pi * r_cone**2/A_cone
+            RAIN *=np.pi * r_cone**2/A_cone
 
         # if snowfall is smaller than the threshold
         if SNOWFALL<minimum_snowfall:
@@ -315,17 +317,43 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Convert melt energy to m w.e.q.
         melt = melt_energy * dt / (1000 * lat_heat_melting)
 
+        if make_icestupa and DISF > 0 :
+            freeze_energy = -min(0, sw_radiation_net + lw_radiation_in + lw_radiation_out + ground_heat_flux + rain_heat_flux +
+                              fountain_heat_flux + sensible_heat_flux + latent_heat_flux)
+            freeze = freeze_energy * dt / (1000 * lat_heat_melting)
+
+            # Limited discharge
+            if freeze > DISF :
+                print("WARNING, Discharge limits freezing")
+                freeze = DISF
+            if freeze > minimum_snowfall:
+                GRID.add_fresh_snow(freeze, ice_density, zero_temperature, 0.0)
+            else:
+                print("WARNING, freezing too low")
+                # freeze = 0
+        else:
+            freeze = 0
+            freeze_energy = 0
+
         # Remove melt [m w.e.q.]
         lwc_from_melted_layers = GRID.remove_melt_weq(melt - sublimation - deposition)
 
         #--------------------------------------------
         # Percolation
         #--------------------------------------------
-        Q  = percolation(GRID, melt + condensation + RAIN/1000.0 + DISF + lwc_from_melted_layers, dt)
+        if make_icestupa:
+            Q  = percolation(GRID, melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
+            # Q = melt + DISF-freeze + condensation + RAIN/1000.0 + lwc_from_melted_layers
+        else:
+            # Q  = melt + condensation + RAIN/1000.0 + lwc_from_melted_layers
+            Q  = percolation(GRID, melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
 
         #--------------------------------------------
         # Refreezing
         #--------------------------------------------
+        # if make_icestupa:
+        #     water_refreezed = 0
+        # else:
         water_refreezed = refreezing(GRID)
 
         #--------------------------------------------
@@ -336,20 +364,22 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate new density to densification
         #--------------------------------------------
+        # TODO examine slope var
         densification(GRID, SLOPE, dt)
-
 
         #--------------------------------------------
         # Calculate mass balance
         #--------------------------------------------
-        surface_mass_balance = SNOWFALL * (density_fresh_snow / ice_density) - melt + sublimation + deposition + evaporation
+        if make_icestupa:
+            surface_mass_balance = freeze + SNOWFALL * (density_fresh_snow / ice_density) - melt + sublimation + deposition + evaporation
+        else:
+            surface_mass_balance = SNOWFALL * (density_fresh_snow / ice_density) - melt + sublimation + deposition + evaporation
         internal_mass_balance = water_refreezed - subsurface_melt
         mass_balance = surface_mass_balance + internal_mass_balance
 
         internal_mass_balance2 = melt-Q  + subsurface_melt
         mass_balance_check = surface_mass_balance + internal_mass_balance2
 
-        # TODO Reduce snowfall distribution due to area effect
         # TODO make similar drone evaluation
         # Cumulative mass balance for stake evaluation 
         MB_cum = MB_cum + mass_balance
@@ -363,8 +393,10 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate AIR cone charecteristics
         #--------------------------------------------
-        r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, mass_balance, r_cone, h_cone, s_cone,
+        r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, surface_mass_balance, r_cone, h_cone, s_cone,
                                                              A_cone, V_cone)
+
+        # TODO implement this
         mu_cone = 1+s_cone/2
         
         # Save results
@@ -388,6 +420,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         _SWNET[t] = SWnet
         _NLAYERS[t] = GRID.get_number_layers()
         _ME[t] = melt_energy
+        _FE[t] = freeze_energy
         _intMB[t] = internal_mass_balance
         _EVAPORATION[t] = evaporation
         _SUBLIMATION[t] = sublimation
@@ -450,7 +483,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
 
     return (indY,indX,RESTART,_RAIN,_DISF,_SNOWFALL,_LWin,_LWout,_H,_LE,_B, _QRR,_QFR, \
             _MB,_surfMB,_Q,_SNOWHEIGHT,_TOTALHEIGHT,_TS,_ALBEDO, _SWNET, _NLAYERS, \
-            _ME,_intMB,_EVAPORATION,_SUBLIMATION,_CONDENSATION,_DEPOSITION,_REFREEZE, \
+            _ME,_FE,_intMB,_EVAPORATION,_SUBLIMATION,_CONDENSATION,_DEPOSITION,_REFREEZE, \
             _subM,_Z0,_surfM, _MOL, _CONERAD, _CONEHEIGHT, _CONESLOPE, _CONEAREA, _CONEVOL, \
             _LAYER_HEIGHT,_LAYER_RHO,_LAYER_T,_LAYER_LWC,_LAYER_CC,_LAYER_POROSITY,_LAYER_ICE_FRACTION, \
             _LAYER_IRREDUCIBLE_WATER,_LAYER_REFREEZE,stake_names,_stat,_df)
