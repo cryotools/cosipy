@@ -261,7 +261,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Surface Energy Balance
         #--------------------------------------------
-        # TODO update solar rad
         # Calculate net shortwave radiation
 
         if make_icestupa :
@@ -324,13 +323,13 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
 
             # Limited discharge
             if freeze > DISF :
-                print("WARNING, Discharge limits freezing")
+                # print("WARNING, Discharge limits freezing")
                 freeze = DISF
             if freeze > minimum_snowfall:
-                GRID.add_fresh_snow(freeze, ice_density, zero_temperature, 0.0)
+                GRID.add_fountain_ice(freeze, ice_density, zero_temperature, 0.0)
             else:
-                print("WARNING, freezing too low")
-                # freeze = 0
+                # print("WARNING, freezing too low")
+                freeze = 0
         else:
             freeze = 0
             freeze_energy = 0
@@ -342,7 +341,8 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Percolation
         #--------------------------------------------
         if make_icestupa:
-            Q  = percolation(GRID, melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
+            Q  = percolation(GRID, freeze + melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
+            # Q += melt
             # Q = melt + DISF-freeze + condensation + RAIN/1000.0 + lwc_from_melted_layers
         else:
             # Q  = melt + condensation + RAIN/1000.0 + lwc_from_melted_layers

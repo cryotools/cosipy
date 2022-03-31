@@ -26,8 +26,12 @@ def update_cone(GRID, surfMB, r_cone, h_cone, s_cone, A_cone, V_cone):
         V_cone  ::  New Volume [m3]
     """
 
-    V_cone += A_cone * surfMB
-    # V_cone += A_cone * surfMB * water_density/GRID.get_node_density(0)
+    # V_cone += A_cone * surfMB
+    # V_cone += A_cone * surfMB * ice_density/GRID.get_node_density(0)
+    # V_cone += surfMB * np.pi * r_cone**2 * ice_density/GRID.get_node_density(0)
+    V_cone += surfMB * A_cone * ice_density/GRID.get_node_density(0)
+    # print(np.mean(GRID.get_density()))
+
 
     # print("Radius %.1f, Height %.01f, Volume %0.01f" %(r_cone, h_cone, V_cone))
     if (surfMB > 0) & (r_cone >= radf):  # Maintain constant r_cone

@@ -521,8 +521,6 @@ class Grid:
 
             #self.check('Merge snow with glacier function')
 
-
-
     def remove_melt_weq(self, melt, idx=0):
         """ Removes mass from a layer.
         
