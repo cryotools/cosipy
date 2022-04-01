@@ -552,7 +552,7 @@ class IOClass:
         if ('RAIN' in self.atm):
             self.add_variable_along_latlontime(self.RESULT, self.RAIN, 'RAIN', 'mm', 'Liquid precipitation') 
         if ('DISF' in self.atm):
-            self.add_variable_along_latlontime(self.RESULT, self.DISF, 'DISF', 'm', 'Liquid precipitation') 
+            self.add_variable_along_latlontime(self.RESULT, self.DISF, 'DISF', 'm w.e.', 'Fountain discharge') 
         if ('SNOWFALL' in self.atm):
             self.add_variable_along_latlontime(self.RESULT, self.SNOWFALL, 'SNOWFALL', 'm w.e.', 'Snowfall') 
         if ('LWin' in self.atm):
@@ -588,9 +588,9 @@ class IOClass:
         if ('LAYERS' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.LAYERS, 'LAYERS', '-', 'Number of layers') 
         if ('ME' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.ME, 'ME', 'W m\u207b\xb2', 'Available melt energy') 
+            self.add_variable_along_latlontime(self.RESULT, self.ME, 'ME', 'W m\u207b\xb2', 'Melt energy') 
         if ('FE' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.FE, 'FE', 'W m\u207b\xb2', 'Available melt energy') 
+            self.add_variable_along_latlontime(self.RESULT, self.FE, 'FE', 'W m\u207b\xb2', 'Freeze energy') 
         if ('intMB' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.intMB, 'intMB', 'm w.e.', 'Internal mass balance') 
         if ('EVAPORATION' in self.internal):

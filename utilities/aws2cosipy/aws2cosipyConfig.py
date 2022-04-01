@@ -34,7 +34,7 @@ U2_var = 'wind'
 
 # Incoming longwave radiation
 # LWin_var = 'LWinCor_Avg'
-LWin_var = 'LW_in_not_use'
+LWin_var = 'LW_in'
 
 # Snowfall
 SNOWFALL_var = 'SNOWFALL'

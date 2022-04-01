@@ -278,6 +278,8 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, B_Ts, LWin
             * 1.5
             # * (1 + 0.5 * self.df.loc[i, "s_cone"])
             )
+        Cs_t = 0
+        Cs_q = 0
     # Richardson-Number stability correction
     elif stability_correction == 'Ri':
         # Bulk transfer coefficient 
@@ -312,23 +314,25 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, B_Ts, LWin
     lam = GRID.get_node_thermal_conductivity(0) 
    
     # Ground heat flux
-    hminus = zlt1
-    hplus = zlt2 - zlt1
-    Tz1, Tz2 = B_Ts
-    B = lam * (hminus/(hplus+hminus)) * ((Tz2-Tz1)/hplus) + (hplus/(hplus+hminus)) * ((Tz1-T0)/hminus)
+    if make_icestupa:
+        B = 0
+    else:
+        hminus = zlt1
+        hplus = zlt2 - zlt1
+        Tz1, Tz2 = B_Ts
+        B = lam * (hminus/(hplus+hminus)) * ((Tz2-Tz1)/hplus) + (hplus/(hplus+hminus)) * ((Tz1-T0)/hminus)
+
+    # Fountain heat flux
+    if make_icestupa:
+        # if T2 < 0:
+        #     # Cold water droplets
+        #     Tf = 0.0
+
+        QFR = water_density * spec_heat_water * (DISF/dt) * (Tf - T0)
 
     # Rain heat flux
     QRR = water_density * spec_heat_water * (RAIN/1000/dt) * (T2 - T0)
 
-    if make_icestupa:
-        # Fountain heat flux
-        QFR = water_density * spec_heat_water * (DISF/dt) * (Tf - T0)
-        H = H * 1.5
-        LE = LE * 1.5
-
-        # TODO include s_cone
-        # H = H * (1+0.5*s_cone)
-        # LE = LE * (1+0.5*s_cone)
 
     # Return surface fluxes
     # Numba: No implementation of function Function(<class 'float'>) found for signature: >>> float(array(float64, 1d, C))

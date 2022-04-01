@@ -4,7 +4,7 @@ import pandas as pd
 from constants import mult_factor_RRR, densification_method, ice_density, water_density, \
                       minimum_snowfall, zero_temperature, lat_heat_sublimation, \
                       lat_heat_melting, lat_heat_vaporize, center_snow_transfer_function, \
-                      spread_snow_transfer_function, constant_density, albedo_ice, make_icestupa
+                      spread_snow_transfer_function, constant_density, albedo_ice, make_icestupa, roughness_ice
 from config import force_use_TP, force_use_N, stake_evaluation, full_field, WRF_X_CSPY 
 
 from cosipy.modules.albedo import updateAlbedo
@@ -108,7 +108,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     if GRID_RESTART is None:
         GRID, r_cone, h_cone = init_snowpack(DATA)
         s_cone = h_cone/r_cone
-        # s_cone = 0.5
         A_cone = np.pi * r_cone * np.sqrt(r_cone**2 + h_cone**2)
         V_cone = 1/3 * np.pi * r_cone **2 * h_cone
     else:
@@ -217,7 +216,8 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Derive Icestupa fountain discharge rates [m w.e.]
         # TODO include water density
         if make_icestupa :
-            DISF = DISCHARGE[t]*dt/(60*1000 * np.pi * radf**2)
+            # DISF = DISCHARGE[t]*dt/(60*1000 * np.pi * radf**2)
+            DISF = DISCHARGE[t]*dt/(60*1000 * np.pi * r_cone**2)
             SNOWFALL *=np.pi * r_cone**2/A_cone
             RAIN *=np.pi * r_cone**2/A_cone
 
@@ -256,7 +256,10 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Update roughness length
         #--------------------------------------------
-        z0 = updateRoughness(GRID)
+        if make_icestupa :
+            z0 = roughness_ice/1000
+        else:
+            z0 = updateRoughness(GRID)
 
         #--------------------------------------------
         # Surface Energy Balance
@@ -270,7 +273,10 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             SWnet = G[t] * (1 - alpha)
 
         # Penetrating SW radiation and subsurface melt
-        if SWnet > 0.0:
+        # if SWnet > 0.0 and make_icestupa :
+        #     subsurface_melt = 0.0
+        #     G_penetrating = 0.0
+        if SWnet > 0.0 :
             subsurface_melt, G_penetrating = penetrating_radiation(GRID, SWnet, dt)
         else:
             subsurface_melt = 0.0
@@ -291,6 +297,11 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
                 ground_heat_flux, rain_heat_flux, fountain_heat_flux, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
                 = update_surface_temperature(GRID, dt, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, U2[t],
                                              RAIN, DISF, SLOPE, N=N[t])
+
+        if make_icestupa :
+            mu_cone = 1+s_cone/2
+            sensible_heat_flux *= mu_cone
+            latent_heat_flux *= mu_cone
 
         #--------------------------------------------
         # Surface mass fluxes [m w.e.q.]
@@ -316,36 +327,36 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Convert melt energy to m w.e.q.
         melt = melt_energy * dt / (1000 * lat_heat_melting)
 
-        if make_icestupa and DISF > 0 :
+        # Remove melt [m w.e.q.]
+        lwc_from_melted_layers = GRID.remove_melt_weq(melt - sublimation - deposition)
+
+        if make_icestupa :
             freeze_energy = -min(0, sw_radiation_net + lw_radiation_in + lw_radiation_out + ground_heat_flux + rain_heat_flux +
                               fountain_heat_flux + sensible_heat_flux + latent_heat_flux)
+            freeze_energy += GRID.get_node_cold_content(0)/dt
+            # Set surface temperature
+            GRID.set_node_temperature(0, zero_temperature)
+
             freeze = freeze_energy * dt / (1000 * lat_heat_melting)
 
             # Limited discharge
             if freeze > DISF :
                 # print("WARNING, Discharge limits freezing")
                 freeze = DISF
-            if freeze > minimum_snowfall:
-                GRID.add_fountain_ice(freeze, ice_density, zero_temperature, 0.0)
-            else:
+
+            Q  = percolation(GRID, DISF-freeze + melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
+
+            if freeze < minimum_snowfall:
                 # print("WARNING, freezing too low")
                 freeze = 0
-        else:
-            freeze = 0
-            freeze_energy = 0
+                freeze_energy = 0
+            else:
+                GRID.add_fountain_ice(freeze, ice_density, zero_temperature, 0.0)
 
-        # Remove melt [m w.e.q.]
-        lwc_from_melted_layers = GRID.remove_melt_weq(melt - sublimation - deposition)
-
-        #--------------------------------------------
-        # Percolation
-        #--------------------------------------------
-        if make_icestupa:
-            Q  = percolation(GRID, freeze + melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
-            # Q += melt
-            # Q = melt + DISF-freeze + condensation + RAIN/1000.0 + lwc_from_melted_layers
         else:
-            # Q  = melt + condensation + RAIN/1000.0 + lwc_from_melted_layers
+            #--------------------------------------------
+            # Percolation
+            #--------------------------------------------
             Q  = percolation(GRID, melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
 
         #--------------------------------------------
@@ -393,11 +404,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate AIR cone charecteristics
         #--------------------------------------------
-        r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, surface_mass_balance, r_cone, h_cone, s_cone,
+        r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, surface_mass_balance, SNOWFALL, r_cone, h_cone, s_cone,
                                                              A_cone, V_cone)
 
-        # TODO implement this
-        mu_cone = 1+s_cone/2
         
         # Save results
         _RAIN[t] = RAIN
