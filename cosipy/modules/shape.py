@@ -27,6 +27,9 @@ def update_cone(GRID, surfMB, snow, r_cone, h_cone, s_cone, A_cone, V_cone):
     """
 
     V_cone += (surfMB) * A_cone * ice_density/np.mean(GRID.get_density())
+    # if snow > 0:
+    #     V_cone += (surfMB) * A_cone * ice_density/constant_density
+    # else:
     # V_cone += (surfMB-snow*constant_density/ice_density) * A_cone * ice_density/np.mean(GRID.get_density())
     # V_cone += snow * A_cone
     # V_cone += surfMB * A_cone * ice_density/GRID.get_node_density(0)

@@ -1,4 +1,4 @@
-from config import WRF_X_CSPY
+from config import WRF_X_CSPY, icestupa_name
 """
     Declaration of constants
     Do not modify unless you are absolutely sure what you are doing.
@@ -6,7 +6,7 @@ from config import WRF_X_CSPY
 
 ' GENERAL INFORMATION ' 
 dt = 3600                                       # Time step in the input files [s]
-max_layers = 200                                # Max. number of layers, just for the restart file
+max_layers = 800                                # Max. number of layers, just for the restart file
 z = 2.0                                         # Measurement height [m]
 
 ' PARAMETERIZATIONS '
@@ -14,7 +14,7 @@ stability_correction = 'Ri'                     # possibilities: 'Ri','MO'
 albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98'
 densification_method = 'Boone'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
-# roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
+roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
 thermal_conductivity_method = 'bulk'		    # possibilities: 'bulk', 'empirical'
 sfc_temperature_method = 'SLSQP'                # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Newton' (Secant, fastest)'
@@ -30,10 +30,9 @@ if WRF_X_CSPY:
 # initial_snow_layer_heights = 0.10               # Initial thickness of snow layers
 # initial_glacier_height = 40.0                   # Initial glacier height without snowlayers
 # initial_glacier_layer_heights = 0.5             # Initial thickness of glacier ice layers
-initial_snowheight_constant = 0               # Initial snowheight
-initial_snow_layer_heights = 0                # Initial thickness of snow layers
-initial_glacier_height = 0.3                  # Initial glacier height without snowlayers
-initial_glacier_layer_heights = 0.01             # Initial thickness of glacier ice layers
+# initial_snowheight_constant = 0               # Initial snowheight
+# initial_snow_layer_heights = 0                # Initial thickness of snow layers
+# initial_glacier_layer_heights = 0.01             # Initial thickness of glacier ice layers
 
 initial_top_density_snowpack = 300.0            # Top density for initial snowpack
 initial_bottom_density_snowpack = 600.0         # Bottom density for initial snowpack
@@ -55,8 +54,8 @@ minimum_snowfall = 0.001                        # minimum snowfall per time step
 
 ' REMESHING OPTIONS'
 remesh_method = 'adaptive_profile'                   # Remeshing (log_profile or adaptive_profile)
-first_layer_height = 0.01                       # The first layer will always have the defined height (m)
-layer_stretching = 1.20                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
+# first_layer_height = 0.01                       # The first layer will always have the defined height (m)
+# layer_stretching = 1.20                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
 
 merge_max = 1                                   # How many mergings are allowed per time step
 # density_threshold_merging = 5                   # If merging is true threshold for layer densities difference two layer try: 5-10 (kg m^-3)
@@ -71,16 +70,16 @@ albedo_fresh_snow = 0.85                        # albedo of fresh snow [-] (Moel
 albedo_firn = 0.55                              # albedo of firn [-] (Moelg et al. 2012, TC)
 albedo_ice = 0.3                                # albedo of ice [-] (Moelg et al. 2012, TC)
 # albedo_mod_snow_aging = 22                      # effect of ageing on snow albedo [days] (Oerlemans and Knap 1998, J. Glaciol.)
-albedo_mod_snow_depth = 3                       # effect of snow depth on albedo [cm] (Oerlemans and Knap 1998, J. Glaciol.)
+# albedo_mod_snow_depth = 3                       # effect of snow depth on albedo [cm] (Oerlemans and Knap 1998, J. Glaciol.)
 
 ### For tropical glaciers or High Mountain Asia summer-accumulation glaciers (low latitude), the Moelg et al. 2012, TC should be tested for a possible better albedo fit 
-#albedo_mod_snow_aging = 6                      # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
-#albedo_mod_snow_depth = 8                      # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
+albedo_mod_snow_aging = 6                      # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
+albedo_mod_snow_depth = 8                      # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
 
 roughness_fresh_snow = 0.24                     # surface roughness length for fresh snow [mm] (Moelg et al. 2012, TC)
 # roughness_ice = 1.7                             # surface roughness length for ice [mm] (Moelg et al. 2012, TC)
 roughness_firn = 4.0                            # surface roughness length for aged snow [mm] (Moelg et al. 2012, TC)
-aging_factor_roughness = 0.0026                 # effect of ageing on roughness lenght (hours) 60 days from 0.24 to 4.0 => 0.0026
+# aging_factor_roughness = 0.0026                 # effect of ageing on roughness lenght (hours) 60 days from 0.24 to 4.0 => 0.0026
 
 snow_ice_threshold = 900.0                      # pore close of density [kg m^(-3)]
 
@@ -111,21 +110,43 @@ make_icestupa = True
 surface_emission_coeff = 0.97                   # surface emission coefficient [-]
 # minimum_snowfall = 0.0005                        # minimum snowfall per time step in m which is added as new snow
 # minimum_snow_layer_height = 0.0005              # minimum layer height
-albedo_mod_snow_aging = 16                      # effect of ageing on snow albedo [days] (Oerlemans and Knap 1998, J. Glaciol.)
+# albedo_mod_snow_aging = 16                      # effect of ageing on snow albedo [days] (Oerlemans and Knap 1998, J. Glaciol.)
 temperature_bottom = 273.16                     # Lower boundary condition for initial temperature profile (K)
-first_layer_height = 0.05                       # The first layer will always have the defined height (m)
-density_threshold_merging = 50                   # If merging is true threshold for layer densities difference two layer try: 5-10 (kg m^-3)
-temperature_threshold_merging = 0.50            # If mering is true threshold for layer temperatures to merge  try: 0.05-0.1 (K)
-
-' FOUNTAIN INFORMATION ' 
-radf = 6.9                                       # Spray radius [m]
-Tf = 1.5 + 273.15                                # Water temperature [C]
+density_threshold_merging = 10                   # If merging is true threshold for layer densities difference two layer try: 5-10 (kg m^-3)
+temperature_threshold_merging = 0.1            # If mering is true threshold for layer temperatures to merge  try: 0.05-0.1 (K)
 van_karman = 0.4
 air_pressure_sea_level=1013
 # stability_correction = 'Icestupa'                # possibilities: 'Ri','MO'
-roughness_method = 'constant'                    # possibilities: 'Moelg12'
+# roughness_method = 'constant'                    # possibilities: 'Moelg12'
 roughness_ice = 3.0                             # surface roughness length for ice [mm] (Moelg et al. 2012, TC)
 # densification_method = 'constant'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
 # sfc_temperature_method = 'Newton'                # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Newton' (Secant, fastest)'
+first_layer_height = 0.05                       # The first layer will always have the defined height (m)
+initial_glacier_layer_heights = 0.05             # Initial thickness of glacier ice layers
+layer_stretching = 1.10                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
 zlt1 = 0					                    # First depth for temperature interpolation which is used for calculation of ground heat flux
 zlt2 = 0					                    # Second depth for temperature interpolation which is used for calculation of ground heat flux
+initial_snow_layer_heights = 0.01                # Initial thickness of snow layers
+aging_factor_roughness = 6*0.0026                 # effect of ageing on roughness lenght (hours) 60 days from 0.24 to 4.0 => 0.0026
+
+"""Site Initialisation"""
+if icestupa_name == 'guttannen22_scheduled':
+    initial_snowheight_constant = 0.435              # Initial snowheight
+    initial_glacier_height = 0.01                  # Initial glacier height without snowlayers
+    radf = 4.845                                       # Spray radius [m]
+    Tf = 0 + 273.16                                # Water temperature [C]
+if icestupa_name == 'guttannen22_unscheduled':
+    initial_snowheight_constant = 0.435              # Initial snowheight
+    initial_glacier_height = 0.01                  # Initial glacier height without snowlayers
+    radf = 3.873                                       # Spray radius [m]
+    Tf = 0 + 273.16                                # Water temperature [C]
+if icestupa_name == 'guttannen21':
+    initial_snowheight_constant = 0              # Initial snowheight
+    initial_glacier_height = 0.3                  # Initial glacier height without snowlayers
+    radf = 6.913                                       # Spray radius [m]
+    Tf = 1.5 + 273.16                                # Water temperature [C]
+if icestupa_name == 'gangles21':
+    initial_snowheight_constant = 0              # Initial snowheight
+    initial_glacier_height = 1.0                  # Initial glacier height without snowlayers
+    radf = 10.22                                       # Spray radius [m]
+    Tf = 0 + 273.16                                # Water temperature [C]

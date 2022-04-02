@@ -20,6 +20,7 @@ from metpy.units import units
 sys.path.append('../../')
 
 from constants import make_icestupa
+from config import time_start, time_end, icestupa_name
 from utilities.aws2cosipy.aws2cosipyConfig import *
 from cosipy.modules.radCor import *
 
@@ -222,6 +223,9 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     #-----------------------------------
     # Add variables to file 
     #-----------------------------------
+    # add_variable_along_point(ds, name, 'NAME', '-', 'Location')
+    add_variable_along_point(ds, radf, 'RADF', 'm', 'Spray Radius')
+
     add_variable_along_point(ds, hgt, 'HGT', 'm', 'Elevation')
     add_variable_along_point(ds, aspect, 'ASPECT', 'degrees', 'Aspect of slope')
     add_variable_along_point(ds, slope, 'SLOPE', 'degrees', 'Terrain slope')
@@ -713,26 +717,53 @@ def compute_scale_and_offset(min, max, n):
     add_offset = min + 2 ** (n - 1) * scale_factor
     return (scale_factor, add_offset)
 
+def combine_icestupa_inputs():
+
+    files = []
+    for icestupa_name in ['guttannen21', 'gangles21', 'guttannen22_unscheduled', 'guttannen22_scheduled']:
+        csv_file = '../../data/input/'+ icestupa_name +'/input.csv'
+        cosipy_file = '../../data/input/'+ icestupa_name +'/input.nc'
+        files.append(cosipy_file)
+
+        if icestupa_name in ['guttannen22_scheduled', 'guttannen22_unscheduled']:
+            start_date = '2021-12-03T12:00'
+            end_date   = '2022-03-03T00:00'
+
+        if icestupa_name == 'guttannen21':
+            start_date = '2020-11-22T15:00'
+            end_date   = '2021-05-10T01:00'
+
+        if icestupa_name == 'gangles21':
+            start_date = '2021-01-18'
+            end_date   = '2021-06-20'
+
+        static_file=None
+        create_1D_input(csv_file, cosipy_file, static_file, start_date, end_date) 
 
 if __name__ == "__main__":
-    
-    parser = argparse.ArgumentParser(description='Create 2D input file from csv file.')
-    parser.add_argument('-c', '-csv_file', dest='csv_file', help='Csv file(see readme for file convention)',
-                        default='../../data/input/guttannen21/input.csv')
-    parser.add_argument('-o', '-cosipy_file', dest='cosipy_file', help='Name of the resulting COSIPY file'
-                        ,default='../../data/input/guttannen21/input.nc')
-    parser.add_argument('-s', '-static_file', dest='static_file', help='Static file containing DEM, Slope etc.')
-    parser.add_argument('-b', '-start_date', dest='start_date', help='Start date'
-                        ,default='20201122')
-    parser.add_argument('-e', '-end_date', dest='end_date', help='End date'
-                        ,default='20210510')
-    parser.add_argument('-xl', '-xl', dest='xl', type=float, const=None, help='left longitude value of the subset')
-    parser.add_argument('-xr', '-xr', dest='xr', type=float, const=None, help='right longitude value of the subset')
-    parser.add_argument('-yl', '-yl', dest='yl', type=float, const=None, help='lower latitude value of the subset')
-    parser.add_argument('-yu', '-yu', dest='yu', type=float, const=None, help='upper latitude value of the subset')
 
-    args = parser.parse_args()
-    if point_model:
-        create_1D_input(args.csv_file, args.cosipy_file, args.static_file, args.start_date, args.end_date) 
+    if make_icestupa:
+        combine_icestupa_inputs()
     else:
-        create_2D_input(args.csv_file, args.cosipy_file, args.static_file, args.start_date, args.end_date, args.xl, args.xr, args.yl, args.yu) 
+        parser = argparse.ArgumentParser(description='Create 2D input file from csv file.')
+        parser.add_argument('-c', '-csv_file', dest='csv_file', help='Csv file(see readme for file convention)',
+                            default='../../data/input/'+ icestupa_name +'/input.csv')
+        parser.add_argument('-o', '-cosipy_file', dest='cosipy_file', help='Name of the resulting COSIPY file'
+                            ,default='../../data/input/' + icestupa_name + '/input.nc')
+        parser.add_argument('-s', '-static_file', dest='static_file', help='Static file containing DEM, Slope etc.')
+        parser.add_argument('-b', '-start_date', dest='start_date', help='Start date'
+                            ,default=time_start)
+                            # ,default='20210118')
+        parser.add_argument('-e', '-end_date', dest='end_date', help='End date'
+                            ,default=time_end)
+                            # ,default='20210410')
+        parser.add_argument('-xl', '-xl', dest='xl', type=float, const=None, help='left longitude value of the subset')
+        parser.add_argument('-xr', '-xr', dest='xr', type=float, const=None, help='right longitude value of the subset')
+        parser.add_argument('-yl', '-yl', dest='yl', type=float, const=None, help='lower latitude value of the subset')
+        parser.add_argument('-yu', '-yu', dest='yu', type=float, const=None, help='upper latitude value of the subset')
+
+        args = parser.parse_args()
+        if point_model:
+            create_1D_input(args.csv_file, args.cosipy_file, args.static_file, args.start_date, args.end_date) 
+        else:
+            create_2D_input(args.csv_file, args.cosipy_file, args.static_file, args.start_date, args.end_date, args.xl, args.xr, args.yl, args.yu) 

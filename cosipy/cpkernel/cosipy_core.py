@@ -44,7 +44,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     """
     
     # Replace values from constants.py if coupled
-    from constants import max_layers, dt, z, radf	#WTF python!
+    from constants import max_layers, dt, z	 #WTF python!
     if WRF_X_CSPY:
         dt = int(DATA.DT.values)
         max_layers = int(DATA.max_layers.values)
@@ -209,17 +209,21 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         elif (SNOWF is not None):
             SNOWFALL = SNOWF[t]
         else:
-            # Else convert total precipitation [mm] to snowheight [m]; liquid/solid fraction
-            SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) - center_snow_transfer_function) * spread_snow_transfer_function) + 1.0))
-            RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000.0
+            if make_icestupa : 
+                SNOWFALL = (RRR[t]/1000)*(ice_density/density_fresh_snow)
+                RAIN = 0
+            else:
+                # Else convert total precipitation [mm] to snowheight [m]; liquid/solid fraction
+                SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) - center_snow_transfer_function) * spread_snow_transfer_function) + 1.0))
+                RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000.0
 
         # Derive Icestupa fountain discharge rates [m w.e.]
         # TODO include water density
         if make_icestupa :
             # DISF = DISCHARGE[t]*dt/(60*1000 * np.pi * radf**2)
             DISF = DISCHARGE[t]*dt/(60*1000 * np.pi * r_cone**2)
-            SNOWFALL *=np.pi * r_cone**2/A_cone
-            RAIN *=np.pi * r_cone**2/A_cone
+            # SNOWFALL *=np.pi * r_cone**2/A_cone
+            # RAIN *=np.pi * r_cone**2/A_cone
 
         # if snowfall is smaller than the threshold
         if SNOWFALL<minimum_snowfall:
@@ -247,7 +251,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate albedo and roughness length changes if first layer is snow
         #--------------------------------------------
-        if (DISCHARGE is not None) and (DISF > 0.0):
+        if (DISF > 0.0):
             # TODO Firn albedo?
             alpha = albedo_ice
         else:
@@ -256,10 +260,10 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Update roughness length
         #--------------------------------------------
-        if make_icestupa :
-            z0 = roughness_ice/1000
-        else:
-            z0 = updateRoughness(GRID)
+        # if make_icestupa :
+        #     z0 = roughness_ice/1000
+        # else:
+        z0 = updateRoughness(GRID)
 
         #--------------------------------------------
         # Surface Energy Balance
@@ -340,9 +344,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             freeze = freeze_energy * dt / (1000 * lat_heat_melting)
 
             # Limited discharge
-            if freeze > DISF :
+            if freeze > DISF + RAIN/1000 :
                 # print("WARNING, Discharge limits freezing")
-                freeze = DISF
+                freeze = DISF + RAIN/1000
 
             Q  = percolation(GRID, DISF-freeze + melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
 

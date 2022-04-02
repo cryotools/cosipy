@@ -328,7 +328,7 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, B_Ts, LWin
         #     # Cold water droplets
         #     Tf = 0.0
 
-        QFR = water_density * spec_heat_water * (DISF/dt) * (Tf - T0)
+        QFR = water_density * spec_heat_water * (DISF/dt) * (Tf - zero_temperature)
 
     # Rain heat flux
     QRR = water_density * spec_heat_water * (RAIN/1000/dt) * (T2 - T0)

@@ -10,10 +10,23 @@
 # time_start = '2009-01-01T06:00'
 # time_end   = '2009-01-10T00:00'
 
-# guttannen21
-time_start = '2020-11-22T15:00'
-time_end   = '2021-05-10T01:00'
-# time_end   = '2021-03-01T00:00'
+# icestupa_name = 'guttannen22_scheduled'
+icestupa_name = 'guttannen21'
+# icestupa_name = 'gangles21'
+
+if icestupa_name in ['guttannen22_scheduled', 'guttannen22_unscheduled']:
+    time_start = '2021-12-03T12:00'
+    time_end   = '2022-03-03T00:00'
+
+if icestupa_name == 'guttannen21':
+    time_start = '2020-11-22T15:00'
+    time_end   = '2021-05-10T01:00'
+    # time_end   = '2021-03-10T01:00'
+
+if icestupa_name == 'gangles21':
+    time_start = '2021-01-18'
+    time_end   = '2021-06-20'
+    # time_end   = '2021-04-10'
 
 # Hintereisferner
 #time_start = '2018-09-17T08:00'
@@ -22,16 +35,16 @@ time_end   = '2021-05-10T01:00'
 #-----------------------------------
 # FILENAMES AND PATHS 
 #-----------------------------------
-time_start_str=(time_start[0:10]).replace('-','')
-time_end_str=(time_end[0:10]).replace('-','')
+# time_start_str=(time_start[0:10]).replace('-','')
+# time_end_str=(time_end[0:10]).replace('-','')
 
 data_path = './data/'
 
 # Zhadang example
 # input_netcdf= 'Zhadang/Zhadang_ERA5_2009.nc'
-input_netcdf= 'guttannen21/input.nc'
 # output_netcdf = 'Zhadang_ERA5_'+time_start_str+'-'+time_end_str+'.nc'
-output_netcdf = 'guttannen21.nc'
+input_netcdf= icestupa_name + '/input.nc'
+output_netcdf = icestupa_name + '.nc'
 
 # Hintereisferner example
 #input_netcdf = 'HEF/HEF_input.nc'
