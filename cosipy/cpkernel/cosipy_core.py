@@ -4,7 +4,8 @@ import pandas as pd
 from constants import mult_factor_RRR, densification_method, ice_density, water_density, \
                       minimum_snowfall, zero_temperature, lat_heat_sublimation, \
                       lat_heat_melting, lat_heat_vaporize, center_snow_transfer_function, \
-                      spread_snow_transfer_function, constant_density, albedo_ice, make_icestupa, roughness_ice
+                      spread_snow_transfer_function, constant_density, albedo_ice, make_icestupa, \
+                        roughness_ice, wet_snow_density
 from config import force_use_TP, force_use_N, stake_evaluation, full_field, WRF_X_CSPY 
 
 from cosipy.modules.albedo import updateAlbedo
@@ -111,7 +112,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         s_cone = h_cone/r_cone
         A_cone = np.pi * r_cone * np.sqrt(r_cone**2 + h_cone**2)
         V_cone = 1/3 * np.pi * r_cone **2 * h_cone
-        h_old = GRID.get_total_height()
+        # h_snow = GRID.get_total_snowheight()
+        # h_ice = GRID.get_total_height() - h_snow
+        # V_cone = 1/3 * np.pi * r_cone**2 * (h_ice + h_snow)
     else:
         GRID = load_snowpack(GRID_RESTART)
 
@@ -210,7 +213,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000.0
         elif (SNOWF is not None):
             SNOWFALL = SNOWF[t]
-        elif make_icestupa : 
+        elif make_icestupa :
             SNOWFALL = (RRR[t]/1000)*(ice_density/density_fresh_snow)
             RAIN = 0
         else:
@@ -223,6 +226,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         if make_icestupa :
             # DISF = DISCHARGE[t]*dt/(60*1000 * np.pi * radf**2)
             DISF = DISCHARGE[t]*dt/(60*1000 * np.pi * r_cone**2)
+            # SNOWFALL *= density_fresh_snow/wet_snow_density 
             # SNOWFALL *=np.pi * r_cone**2/A_cone
             # RAIN *=np.pi * r_cone**2/A_cone
 
@@ -235,8 +239,8 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             RAIN = 0.0
 
         if SNOWFALL > 0.0:
-            # Add a new snow node on top
            GRID.add_fresh_snow(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0)
+            # GRID.add_fresh_snow(SNOWFALL, wet_snow_density, zero_temperature, 0.0)
         else:
            GRID.set_fresh_snow_props_update_time(dt)
 
@@ -411,8 +415,8 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate AIR cone charecteristics
         #--------------------------------------------
-        r_cone, h_cone, s_cone, h_old, A_cone, V_cone = update_cone(GRID, surface_mass_balance, r_cone, h_cone, s_cone,
-                                                             h_old, A_cone, V_cone)
+        r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, mass_balance, SNOWFALL, density_fresh_snow, r_cone, h_cone, s_cone,
+                                                                            A_cone, V_cone)
 
         
         # Save results
@@ -450,7 +454,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         _MOL[t] = MOL
         _CONERAD[t] = r_cone
         _CONEHEIGHT[t] = h_cone
-        _CONESLOPE[t] = s_cone
+        _CONESLOPE[t] = SLOPE
         _CONEAREA[t] = A_cone
         _CONEVOL[t] = V_cone
 

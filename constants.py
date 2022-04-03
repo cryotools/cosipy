@@ -64,7 +64,6 @@ merge_max = 1                                   # How many mergings are allowed 
 
 ' PHYSICAL CONSTANTS '
 constant_density = 300.                         # constant density of freshly fallen snow [kg m-3], if densification_method is set to 'constant'
-# constant_density = 700.                         # constant density of freshly fallen snow [kg m-3], if densification_method is set to 'constant'
 
 albedo_fresh_snow = 0.85                        # albedo of fresh snow [-] (Moelg et al. 2012, TC)
 albedo_firn = 0.55                              # albedo of firn [-] (Moelg et al. 2012, TC)
@@ -108,9 +107,6 @@ zero_temperature = 273.16                       # Melting temperature [K]
 #-----------------------------------
 make_icestupa = True
 surface_emission_coeff = 0.97                   # surface emission coefficient [-]
-# minimum_snowfall = 0.0005                        # minimum snowfall per time step in m which is added as new snow
-# minimum_snow_layer_height = 0.0005              # minimum layer height
-# albedo_mod_snow_aging = 16                      # effect of ageing on snow albedo [days] (Oerlemans and Knap 1998, J. Glaciol.)
 temperature_bottom = 273.16                     # Lower boundary condition for initial temperature profile (K)
 density_threshold_merging = 10                   # If merging is true threshold for layer densities difference two layer try: 5-10 (kg m^-3)
 temperature_threshold_merging = 0.1            # If mering is true threshold for layer temperatures to merge  try: 0.05-0.1 (K)
@@ -129,12 +125,15 @@ zlt1 = 0					                    # First depth for temperature interpolation whi
 zlt2 = 0					                    # Second depth for temperature interpolation which is used for calculation of ground heat flux
 initial_snow_layer_heights = 0.01                # Initial thickness of snow layers
 aging_factor_roughness = 6*0.0026                 # effect of ageing on roughness lenght (hours) 60 days from 0.24 to 4.0 => 0.0026
+wet_snow_density = 600
+# densification_method = 'constant'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
 
 """Site Initialisation"""
 if icestupa_name == 'guttannen22_scheduled':
     initial_snowheight_constant = 0.435              # Initial snowheight
     initial_glacier_height = 0.01                  # Initial glacier height without snowlayers
     radf = 4.845                                       # Spray radius [m]
+    # radf = 3.0                                       # Spray radius [m]
     Tf = 0 + 273.16                                # Water temperature [C]
 if icestupa_name == 'guttannen22_unscheduled':
     initial_snowheight_constant = 0.435              # Initial snowheight
@@ -142,10 +141,10 @@ if icestupa_name == 'guttannen22_unscheduled':
     radf = 3.873                                       # Spray radius [m]
     Tf = 0 + 273.16                                # Water temperature [C]
 if icestupa_name == 'guttannen21':
-    initial_snowheight_constant = 0              # Initial snowheight
-    initial_glacier_height = 0.3                  # Initial glacier height without snowlayers
+    initial_snowheight_constant = 0.3              # Initial snowheight
+    initial_glacier_height = 0.01                 # Initial glacier height without snowlayers
     radf = 6.913                                       # Spray radius [m]
-    Tf = 0 + 273.16                                # Water temperature [C]
+    Tf = 1.5 + 273.16                                # Water temperature [C]
 if icestupa_name == 'gangles21':
     initial_snowheight_constant = 0              # Initial snowheight
     initial_glacier_height = 1.0                  # Initial glacier height without snowlayers

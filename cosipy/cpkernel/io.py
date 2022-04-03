@@ -237,6 +237,7 @@ class IOClass:
         self.RESULT.attrs['Force_use_TP'] = str(force_use_TP)
         self.RESULT.attrs['Force_use_N'] = str(force_use_N)
         self.RESULT.attrs['Tile_of_glacier_of_interest'] = str(tile)
+        self.RESULT.attrs['Name'] = icestupa_name
 
         # Global attributes from constants.py
         self.RESULT.attrs['Time_step_input_file_seconds'] = dt
@@ -303,7 +304,6 @@ class IOClass:
 
         # Variables given by the input dataset
         # TODO add fountain vars here
-        # self.add_variable_along_latlon(self.RESULT, self.DATA.NAME, 'NAME', '-', 'Location')
         self.add_variable_along_latlon(self.RESULT, self.DATA.RADF, 'RADF', 'm', 'Spray Radius')
 
         self.add_variable_along_latlon(self.RESULT, self.DATA.HGT, 'HGT', 'm', 'Elevation')
@@ -416,6 +416,8 @@ class IOClass:
             self.CONERAD = np.full((self.time,self.ny,self.nx), np.nan)
         if ('CONEHEIGHT' in self.internal):
             self.CONEHEIGHT = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('CONESLOPE' in self.internal):
+            self.CONESLOPE = np.full((self.time,self.ny,self.nx), np.nan)
         if ('CONEAREA' in self.internal):
             self.CONEAREA = np.full((self.time,self.ny,self.nx), np.nan)
         if ('CONEVOL' in self.internal):
@@ -622,10 +624,12 @@ class IOClass:
             self.add_variable_along_latlontime(self.RESULT, self.CONERAD, 'CONERAD', 'm', 'AIR Radius') 
         if ('CONEHEIGHT' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.CONEHEIGHT, 'CONEHEIGHT', 'm', 'AIR Height') 
+        if ('CONESLOPE' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.CONESLOPE, 'CONESLOPE', 'degrees', 'AIR Slope') 
         if ('CONEAREA' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.CONEAREA, 'CONEAREA', 'm', 'AIR Area') 
         if ('CONEVOL' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.CONEVOL, 'CONEVOL', 'm', 'AIR Volume') 
+            self.add_variable_along_latlontime(self.RESULT, self.CONEVOL, 'CONEVOL', 'm3', 'AIR Volume') 
 	            
         if full_field:
             if ('HEIGHT' in self.full):
