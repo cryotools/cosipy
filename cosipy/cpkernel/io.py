@@ -390,6 +390,8 @@ class IOClass:
             self.ME = np.full((self.time,self.ny,self.nx), np.nan)
         if ('FE' in self.internal):
             self.FE = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('ICE' in self.internal):
+            self.ICE = np.full((self.time,self.ny,self.nx), np.nan)
         if ('intMB' in self.internal):
             self.intMB = np.full((self.time,self.ny,self.nx), np.nan)
         if ('EVAPORATION' in self.internal):
@@ -447,7 +449,7 @@ class IOClass:
     def copy_local_to_global(self,y,x,local_RAIN,local_DISF,local_SNOWFALL,local_LWin,local_LWout,local_H,local_LE,local_B,local_QRR,local_QFR,
                              local_MB,
                              local_surfMB,local_Q,local_SNOWHEIGHT,local_TOTALHEIGHT,local_TS,local_ALBEDO,local_SWNET,\
-                             local_LAYERS,local_ME,local_FE,local_intMB,local_EVAPORATION,local_SUBLIMATION,local_CONDENSATION, \
+                             local_LAYERS,local_ME,local_FE,local_ICE,local_intMB,local_EVAPORATION,local_SUBLIMATION,local_CONDENSATION, \
                              local_DEPOSITION,local_REFREEZE,local_subM,local_Z0,local_surfM,local_MOL,local_CONERAD, \
                              local_CONEHEIGHT,local_CONESLOPE,local_CONEAREA, local_CONEVOL, local_LAYER_HEIGHT, \
 			     local_LAYER_RHO,local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY, \
@@ -495,6 +497,8 @@ class IOClass:
             self.ME[:,y,x] = local_ME 
         if ('FE' in self.internal):
             self.FE[:,y,x] = local_FE 
+        if ('ICE' in self.internal):
+            self.ICE[:,y,x] = local_ICE
         if ('intMB' in self.internal):
             self.intMB[:,y,x] = local_intMB 
         if ('EVAPORATION' in self.internal):

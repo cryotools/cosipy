@@ -68,7 +68,7 @@ constant_density = 300.                         # constant density of freshly fa
 
 albedo_fresh_snow = 0.85                        # albedo of fresh snow [-] (Moelg et al. 2012, TC)
 albedo_firn = 0.55                              # albedo of firn [-] (Moelg et al. 2012, TC)
-albedo_ice = 0.3                                # albedo of ice [-] (Moelg et al. 2012, TC)
+# albedo_ice = 0.3                                # albedo of ice [-] (Moelg et al. 2012, TC)
 # albedo_mod_snow_aging = 22                      # effect of ageing on snow albedo [days] (Oerlemans and Knap 1998, J. Glaciol.)
 # albedo_mod_snow_depth = 3                       # effect of snow depth on albedo [cm] (Oerlemans and Knap 1998, J. Glaciol.)
 
@@ -119,6 +119,7 @@ air_pressure_sea_level=1013
 # stability_correction = 'Icestupa'                # possibilities: 'Ri','MO'
 # roughness_method = 'constant'                    # possibilities: 'Moelg12'
 roughness_ice = 3.0                             # surface roughness length for ice [mm] (Moelg et al. 2012, TC)
+albedo_ice = 0.25                               # albedo of ice [-] (Moelg et al. 2012, TC)
 # densification_method = 'constant'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
 # sfc_temperature_method = 'Newton'                # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Newton' (Secant, fastest)'
 first_layer_height = 0.05                       # The first layer will always have the defined height (m)
@@ -144,7 +145,7 @@ if icestupa_name == 'guttannen21':
     initial_snowheight_constant = 0              # Initial snowheight
     initial_glacier_height = 0.3                  # Initial glacier height without snowlayers
     radf = 6.913                                       # Spray radius [m]
-    Tf = 1.5 + 273.16                                # Water temperature [C]
+    Tf = 0 + 273.16                                # Water temperature [C]
 if icestupa_name == 'gangles21':
     initial_snowheight_constant = 0              # Initial snowheight
     initial_glacier_height = 1.0                  # Initial glacier height without snowlayers

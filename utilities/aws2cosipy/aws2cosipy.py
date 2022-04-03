@@ -720,9 +720,11 @@ def compute_scale_and_offset(min, max, n):
 def combine_icestupa_inputs():
 
     files = []
-    for icestupa_name in ['guttannen21', 'gangles21', 'guttannen22_unscheduled', 'guttannen22_scheduled']:
-        csv_file = '../../data/input/'+ icestupa_name +'/input.csv'
-        cosipy_file = '../../data/input/'+ icestupa_name +'/input.nc'
+    icestupa_names = ['guttannen21', 'gangles21']
+    # icestupa_names = ['guttannen21', 'gangles21', 'guttannen22_unscheduled', 'guttannen22_scheduled']
+    for name in icestupa_names:
+        csv_file = '../../data/input/'+ name +'/input.csv'
+        cosipy_file = '../../data/input/'+ name +'/input.nc'
         files.append(cosipy_file)
 
         if icestupa_name in ['guttannen22_scheduled', 'guttannen22_unscheduled']:
@@ -739,6 +741,12 @@ def combine_icestupa_inputs():
 
         static_file=None
         create_1D_input(csv_file, cosipy_file, static_file, start_date, end_date) 
+
+    da_concat = xr.concat([xr.open_dataset(files[0]), xr.open_dataset(files[1])], pd.Index(icestupa_names, name='name'))
+    da_concat.to_netcdf('../../data/input/icestupas.nc')
+    print(f'Input file with {len(icestupa_names)} icestupas created \n')
+    print('-------------------------------------------')
+
 
 if __name__ == "__main__":
 

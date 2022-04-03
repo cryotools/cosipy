@@ -10,8 +10,8 @@
 # time_start = '2009-01-01T06:00'
 # time_end   = '2009-01-10T00:00'
 
-# icestupa_name = 'guttannen22_scheduled'
-icestupa_name = 'guttannen21'
+icestupa_name = 'guttannen22_scheduled'
+# icestupa_name = 'guttannen21'
 # icestupa_name = 'gangles21'
 
 if icestupa_name in ['guttannen22_scheduled', 'guttannen22_unscheduled']:
@@ -43,6 +43,7 @@ data_path = './data/'
 # Zhadang example
 # input_netcdf= 'Zhadang/Zhadang_ERA5_2009.nc'
 # output_netcdf = 'Zhadang_ERA5_'+time_start_str+'-'+time_end_str+'.nc'
+
 input_netcdf= icestupa_name + '/input.nc'
 output_netcdf = icestupa_name + '.nc'
 
@@ -94,7 +95,7 @@ local_port = 8786                                           # port for local clu
 #-----------------------------------
 # WRITE FULL FIELDS 
 #-----------------------------------    
-full_field = True                                           # write full fields (2D data) to file
+full_field = False                                         # write full fields (2D data) to file
 if WRF_X_CSPY:
     full_field = True
     

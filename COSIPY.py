@@ -217,7 +217,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 
             if WRF is True:
                 mask = DATA.MASK.sel(south_north=y, west_east=x)
-	        # Provide restart grid if necessary
+            # Provide restart grid if necessary
                 if ((mask==1) & (restart==False)):
                     if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
                         print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
@@ -232,7 +232,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                                              stake_names=stake_names, stake_data=df_stakes_data))
             else:
                 mask = DATA.MASK.isel(lat=y, lon=x)
-	        # Provide restart grid if necessary
+            # Provide restart grid if necessary
                 if ((mask==1) & (restart==False)):
                     if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
                         print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
@@ -267,12 +267,12 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
 
                 # Get the results from the workers
                 indY,indX,local_restart,RAIN,DISF,SNOWFALL,LWin,LWout,H,LE,B,QRR,QFR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,SWNET,NLAYERS, \
-                                ME,FE,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL,CONERAD,CONEHEIGHT,CONESLOPE,CONEAREA,CONEVOL, \
+                                ME,FE,ICE,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL,CONERAD,CONEHEIGHT,CONESLOPE,CONEAREA,CONEVOL, \
                                 LAYER_HEIGHT,LAYER_RHO,LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_ICE_FRACTION, \
                                 LAYER_IRREDUCIBLE_WATER,LAYER_REFREEZE,stake_names,stat,df_eval = future.result()
                
                 IO.copy_local_to_global(indY,indX,RAIN,DISF,SNOWFALL,LWin,LWout,H,LE,B,QRR,QFR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,SWNET,NLAYERS, \
-                                ME,FE,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL,CONERAD,CONEHEIGHT,CONESLOPE,CONEAREA,CONEVOL,LAYER_HEIGHT,LAYER_RHO, \
+                                ME,FE,ICE,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL,CONERAD,CONEHEIGHT,CONESLOPE,CONEAREA,CONEVOL,LAYER_HEIGHT,LAYER_RHO, \
                                 LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_ICE_FRACTION,LAYER_IRREDUCIBLE_WATER,LAYER_REFREEZE)
 
                 IO.copy_local_restart_to_global(indY,indX,local_restart)
