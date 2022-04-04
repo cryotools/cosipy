@@ -200,7 +200,7 @@ class IOClass:
             print('Snowfall data (SNOWFALL) ... ok ')
             check(self.DATA.SNOWFALL, 0.1, 0.0)
 
-        print('\n Glacier gridpoints: %s \n\n' %(np.nansum(self.DATA.MASK>=1)))
+        print('\n Glacier gridpoints: %s \n' %(np.nansum(self.DATA.MASK>=1)))
 
  
     #==============================================================================
@@ -337,7 +337,6 @@ class IOClass:
         if ('LWin' in self.DATA):
             self.add_variable_along_latlontime(self.RESULT, self.DATA.LWin, 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation')
         
-        print('\n') 
         print('Output dataset ... ok')
         return self.RESULT
   
@@ -669,7 +668,7 @@ class IOClass:
         self.RESTART.coords['lon'] = self.DATA.coords['lon']
         self.RESTART.coords['layer'] = np.arange(max_layers)
     
-        print('Restart ddataset ... ok \n')
+        print('Restart dataset ... ok \n')
         print('--------------------------------------------------------------\n')
         
         return self.RESTART

@@ -26,6 +26,12 @@ def update_cone(GRID, MB, r_cone, h_cone, s_cone, A_cone, V_cone):
         V_cone  ::  New Volume [m3]
     """
 
+    # if (MB > 0): 
+    #     V_cone += snow * ice_density/constant_density * np.pi * r_cone ** 2
+    #     V_cone += (MB-snow) * ice_density/np.mean(GRID.get_density()) * A_cone
+    # else:
+    #     V_cone += MB * ice_density/np.mean(GRID.get_density()) * A_cone
+
     V_cone += MB * ice_density/np.mean(GRID.get_density()) * A_cone
 
     if (MB > 0) & (r_cone >= radf):  # Maintain constant r_cone

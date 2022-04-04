@@ -324,10 +324,10 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, B_Ts, LWin
 
     # Fountain heat flux
     if make_icestupa:
-        # if T2 < 0:
+        # if T2 < zero_temperature:
         #     # Cold water droplets
-        #     Tf = 0.0
-
+        #     Tf = zero_temperature
+        # else:
         QFR = water_density * spec_heat_water * (DISF/dt) * (Tf - T0)
 
     # Rain heat flux

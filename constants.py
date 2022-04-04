@@ -12,7 +12,7 @@ z = 2.0                                         # Measurement height [m]
 ' PARAMETERIZATIONS '
 stability_correction = 'Ri'                     # possibilities: 'Ri','MO'
 albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98'
-densification_method = 'Boone'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
+# densification_method = 'Boone'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
 roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
@@ -122,11 +122,11 @@ zlt1 = 0					                    # First depth for temperature interpolation whi
 zlt2 = 0					                    # Second depth for temperature interpolation which is used for calculation of ground heat flux
 initial_snow_layer_heights = 0.01                # Initial thickness of snow layers
 aging_factor_roughness = 6*0.0026                 # effect of ageing on roughness lenght (hours) 60 days from 0.24 to 4.0 => 0.0026
-# wet_snow_density = 600
+density_wet_snow = 450
 # sfc_temperature_method = 'Newton'                # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Newton' (Secant, fastest)'
 # roughness_method = 'constant'                    # possibilities: 'Moelg12'
 # stability_correction = 'Icestupa'                # possibilities: 'Ri','MO'
-# densification_method = 'constant'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
+densification_method = 'constant'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
 
 """Site Initialisation"""
 if icestupa_name == 'guttannen22_scheduled':
@@ -142,7 +142,7 @@ if icestupa_name == 'guttannen22_unscheduled':
     Tf = 0 + 273.16                                # Water temperature [C]
 if icestupa_name == 'guttannen21':
     initial_snowheight_constant = 0.3              # Initial snowheight
-    initial_glacier_height = 0.01                 # Initial glacier height without snowlayers
+    initial_glacier_height = 0                 # Initial glacier height without snowlayers
     radf = 6.913                                       # Spray radius [m]
     Tf = 1.5 + 273.16                                # Water temperature [C]
 if icestupa_name == 'gangles21':

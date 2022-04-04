@@ -5,7 +5,7 @@ from constants import mult_factor_RRR, densification_method, ice_density, water_
                       minimum_snowfall, zero_temperature, lat_heat_sublimation, \
                       lat_heat_melting, lat_heat_vaporize, center_snow_transfer_function, \
                       spread_snow_transfer_function, constant_density, albedo_ice, make_icestupa, \
-                        roughness_ice
+                        roughness_ice, density_wet_snow
 from config import force_use_TP, force_use_N, stake_evaluation, drone_evaluation, full_field, WRF_X_CSPY 
 
 from cosipy.modules.albedo import updateAlbedo
@@ -205,6 +205,8 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Calc fresh snow density
         if (densification_method!='constant'):
             density_fresh_snow = np.maximum(109.0+6.0*(T2[t]-273.16)+26.0*np.sqrt(U2[t]), 50.0)
+        # elif DISCHARGE[t] > 0 :
+        #     density_fresh_snow = density_wet_snow 
         else:
             density_fresh_snow = constant_density 
 
@@ -216,6 +218,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             SNOWFALL = SNOWF[t]
         elif make_icestupa : # Ignore rain
             SNOWFALL = (RRR[t]/1000)*(ice_density/density_fresh_snow)
+            SNOWFALL *= np.pi * r_cone**2/A_cone
             RAIN = 0
         else:
             # Else convert total precipitation [mm] to snowheight [m]; liquid/solid fraction
@@ -252,11 +255,17 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate albedo and roughness length changes if first layer is snow
         #--------------------------------------------
+        # if DISF > 0:
+        #     alpha = albedo_ice
+        # else:
         alpha = updateAlbedo(GRID)
 
         #--------------------------------------------
         # Update roughness length
         #--------------------------------------------
+        # if DISF > 0:
+        #     z0 = roughness_ice/1000
+        # else:
         z0 = updateRoughness(GRID)
 
         #--------------------------------------------
@@ -269,10 +278,10 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         else:
             SWnet = G[t] * (1 - alpha)
 
-        if make_icestupa :
-            SLOPE = np.degrees(np.arctan(s_cone))
-        else:
-            SLOPE = 0
+        # if make_icestupa :
+        #     SLOPE = np.degrees(np.arctan(s_cone))
+        # else:
+        #     SLOPE = 0
 
         # Penetrating SW radiation and subsurface melt
         if SWnet > 0.0 :
@@ -408,8 +417,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate AIR cone charecteristics
         #--------------------------------------------
-        r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, mass_balance, r_cone, h_cone, s_cone,
-                                                                            A_cone, V_cone)
+        r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, mass_balance, r_cone, h_cone, s_cone, A_cone, V_cone)
 
         
         # Save results

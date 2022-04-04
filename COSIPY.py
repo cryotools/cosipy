@@ -85,7 +85,7 @@ def main():
             run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures)
 
     else:
-        with LocalCluster(scheduler_port=local_port, n_workers=workers, local_dir='logs/dask-worker-space', threads_per_worker=1, silence_logs=True) as cluster:
+        with LocalCluster(scheduler_port=local_port, n_workers=workers, local_dir='logs/dask-worker-space', threads_per_worker=1, silence_logs=logging.ERROR) as cluster:
             print(cluster)
             run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures)
 
@@ -302,7 +302,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                     print('--------------------------------------------------------------')
                     print('Volume validation....')
                     print('-------------------------------------------------------------- \n')
-                    print(f"\t RMSE of {icestupa_name} is {stat.values} m3 \n")
+                    print(f"\t RMSE of {icestupa_name} is {stat.values[0]} m3 \n")
 
                     df_stat = pd.concat([df_stat, stat])
 
