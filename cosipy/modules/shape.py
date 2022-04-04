@@ -4,13 +4,13 @@ from scipy.optimize import minimize, newton
 from numba import njit
 from types import SimpleNamespace
 
-def update_cone(GRID, MB, snow_height, snow_density, r_cone, h_cone, s_cone, A_cone, V_cone):
+def update_cone(GRID, MB, r_cone, h_cone, s_cone, A_cone, V_cone):
     """ This methods updates the area of the artificial ice reservoir
 
     Given:
 
         GRID    ::  Grid structure
-        surfMB  ::  Surface mass balance
+        MB      ::  Mass balance
         r_cone  ::  Old Cone radius  [m]
         h_cone  ::  Old Cone height  [m]
         s_cone  ::  Old Cone slope  [-]
@@ -26,8 +26,6 @@ def update_cone(GRID, MB, snow_height, snow_density, r_cone, h_cone, s_cone, A_c
         V_cone  ::  New Volume [m3]
     """
 
-    # V_cone += (MB-snow_height * snow_density/ice_density) * ice_density/np.mean(GRID.get_density()) * A_cone
-    # V_cone += snow_height * np.pi * r_cone**2
     V_cone += MB * ice_density/np.mean(GRID.get_density()) * A_cone
 
     if (MB > 0) & (r_cone >= radf):  # Maintain constant r_cone

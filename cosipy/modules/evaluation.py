@@ -19,8 +19,8 @@ def rmse(stake_names, stake_data, df_):
         rmse = ((stake_data[stake_names].subtract(df_['mb'],axis=0))**2).mean()**.5
     if (obs_type=='snowheight'):
         rmse = ((stake_data[stake_names].subtract(df_['snowheight'],axis=0))**2).mean()**.5
-    if (obs_type=='icestupa_vol'):
-        rmse = ((stake_data[stake_names].subtract(df_['icestupa_vol'],axis=0))**2).mean()**.5
-    if (obs_type=='icestupa_temp'):
+    if (obs_type=='volume'):
+        rmse = ((stake_data[stake_names].subtract(df_['volume'],axis=0))**2).mean()**.5
+    if (obs_type=='temp'):
         rmse = ((stake_data[stake_names].subtract(df_['icestupa_temp'],axis=0))**2).mean()**.5
     return rmse

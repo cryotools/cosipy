@@ -727,15 +727,15 @@ def combine_icestupa_inputs():
         cosipy_file = '../../data/input/'+ name +'/input.nc'
         files.append(cosipy_file)
 
-        if icestupa_name in ['guttannen22_scheduled', 'guttannen22_unscheduled']:
+        if name in ['guttannen22_scheduled', 'guttannen22_unscheduled']:
             start_date = '2021-12-03T12:00'
             end_date   = '2022-03-03T00:00'
 
-        if icestupa_name == 'guttannen21':
+        if name == 'guttannen21':
             start_date = '2020-11-22T15:00'
             end_date   = '2021-05-10T01:00'
 
-        if icestupa_name == 'gangles21':
+        if name == 'gangles21':
             start_date = '2021-01-18'
             end_date   = '2021-06-20'
 

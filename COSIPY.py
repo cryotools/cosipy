@@ -164,6 +164,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             print(total_grid_points, total_cores, points_per_core)
 
         # Check if evaluation is selected:
+
         if stake_evaluation is True:
             # Read stake data (data must be given as cumulative changes)
             df_stakes_loc = pd.read_csv(stakes_loc_file, delimiter='\t', na_values='-9999')
@@ -198,6 +199,14 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                     index = np.unravel_index(index[1], lats.shape)
                 stakes_list.append((index[0][0], index[1][0], row['id']))
 
+        elif drone_evaluation is True:
+            df_stakes_data = pd.read_csv(stakes_data_file, delimiter=',', index_col='TIMESTAMP', na_values='-9999')
+            df_stakes_data.index = pd.to_datetime(df_stakes_data.index)
+            # Init dataframes to store evaluation statistics
+            df_stat = pd.DataFrame()
+            df_val = df_stakes_data.copy()
+            stake_names = icestupa_name
+
         else:
             stakes_loc = None
             df_stakes_data = None
@@ -212,6 +221,8 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 for idx, (stake_loc_y, stake_loc_x, stake_name) in enumerate(stakes_list):
                     if ((y == stake_loc_y) & (x == stake_loc_x)):
                         stake_names.append(stake_name)
+            elif drone_evaluation is True:
+                stake_names = [stake_names]
             else:
                 stake_names = None
                 
@@ -283,6 +294,22 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 # Write restart data to file
                 IO.write_restart_to_file()
 
+                if drone_evaluation is True:
+                    # Store evaluation of stake measurements to dataframe
+                    stat = stat.rename('rmse')
+
+                    print('\n')
+                    print('--------------------------------------------------------------')
+                    print('Volume validation....')
+                    print('-------------------------------------------------------------- \n')
+                    print(f"\t RMSE of {icestupa_name} is {stat.values} m3 \n")
+
+                    df_stat = pd.concat([df_stat, stat])
+
+                    for i in stake_names:
+                        if (obs_type == 'volume'):
+                            df_val[i] = df_eval.volume
+
                 if stake_evaluation is True:
                     # Store evaluation of stake measurements to dataframe
                     stat = stat.rename('rmse')
@@ -302,6 +329,11 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             # Save the statistics and the mass balance simulations at the stakes to files
             df_stat.to_csv(os.path.join(data_path,'output','stake_statistics.csv'),sep='\t', float_format='%.2f')
             df_val.to_csv(os.path.join(data_path,'output','stake_simulations.csv'),sep='\t', float_format='%.2f')
+
+        if drone_evaluation is True:
+            # Save the statistics and the mass balance simulations at the stakes to files
+            df_stat.to_csv(os.path.join(data_path,'output','drone_statistics.csv'),sep='\t', float_format='%.2f')
+            df_val.to_csv(os.path.join(data_path,'output','drone_simulations.csv'),sep='\t', float_format='%.2f')
 
 
 

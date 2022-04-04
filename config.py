@@ -59,11 +59,16 @@ restart = False                                             # set to true if you
 #-----------------------------------
 # STAKE DATA 
 #-----------------------------------
-stake_evaluation = False 
-stakes_loc_file = './data/input/HEF/loc_stakes.csv'         # path to stake location file
-stakes_data_file = './data/input/HEF/data_stakes_hef.csv'   # path to stake data file
+stake_evaluation = False
+# stakes_loc_file = './data/input/HEF/loc_stakes.csv'         # path to stake location file
+# stakes_data_file = './data/input/HEF/data_stakes_hef.csv'   # path to stake data file
+# eval_method = 'rmse'                                        # how to evaluate the simulations ('rmse')
+# obs_type = 'snowheight'                                     # What kind of stake data is used 'mb' or 'snowheight'
+
+drone_evaluation = True 
+stakes_data_file = './data/input/' + icestupa_name + '/drone.csv'   # path to stake data file
 eval_method = 'rmse'                                        # how to evaluate the simulations ('rmse')
-obs_type = 'snowheight'                                     # What kind of stake data is used 'mb' or 'snowheight'
+obs_type = 'volume'                                          # What kind of stake data is used 'mb' or 'snowheight'
 
 #-----------------------------------
 # STANDARD LAT/LON or WRF INPUT 

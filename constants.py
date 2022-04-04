@@ -53,7 +53,7 @@ minimum_snowfall = 0.001                        # minimum snowfall per time step
 
 
 ' REMESHING OPTIONS'
-remesh_method = 'adaptive_profile'                   # Remeshing (log_profile or adaptive_profile)
+# remesh_method = 'log_profile'                   # Remeshing (log_profile or adaptive_profile)
 # first_layer_height = 0.01                       # The first layer will always have the defined height (m)
 # layer_stretching = 1.20                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
 
@@ -106,18 +106,15 @@ zero_temperature = 273.16                       # Melting temperature [K]
 # AIR Parameters
 #-----------------------------------
 make_icestupa = True
+remesh_method = 'adaptive_profile'                   # Remeshing (log_profile or adaptive_profile)
 surface_emission_coeff = 0.97                   # surface emission coefficient [-]
 temperature_bottom = 273.16                     # Lower boundary condition for initial temperature profile (K)
 density_threshold_merging = 10                   # If merging is true threshold for layer densities difference two layer try: 5-10 (kg m^-3)
 temperature_threshold_merging = 0.1            # If mering is true threshold for layer temperatures to merge  try: 0.05-0.1 (K)
 van_karman = 0.4
 air_pressure_sea_level=1013
-# stability_correction = 'Icestupa'                # possibilities: 'Ri','MO'
-# roughness_method = 'constant'                    # possibilities: 'Moelg12'
 roughness_ice = 3.0                             # surface roughness length for ice [mm] (Moelg et al. 2012, TC)
 albedo_ice = 0.25                               # albedo of ice [-] (Moelg et al. 2012, TC)
-# densification_method = 'constant'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
-# sfc_temperature_method = 'Newton'                # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Newton' (Secant, fastest)'
 first_layer_height = 0.05                       # The first layer will always have the defined height (m)
 initial_glacier_layer_heights = 0.05             # Initial thickness of glacier ice layers
 layer_stretching = 1.10                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
@@ -125,7 +122,10 @@ zlt1 = 0					                    # First depth for temperature interpolation whi
 zlt2 = 0					                    # Second depth for temperature interpolation which is used for calculation of ground heat flux
 initial_snow_layer_heights = 0.01                # Initial thickness of snow layers
 aging_factor_roughness = 6*0.0026                 # effect of ageing on roughness lenght (hours) 60 days from 0.24 to 4.0 => 0.0026
-wet_snow_density = 600
+# wet_snow_density = 600
+# sfc_temperature_method = 'Newton'                # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Newton' (Secant, fastest)'
+# roughness_method = 'constant'                    # possibilities: 'Moelg12'
+# stability_correction = 'Icestupa'                # possibilities: 'Ri','MO'
 # densification_method = 'constant'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
 
 """Site Initialisation"""

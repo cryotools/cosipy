@@ -5,8 +5,8 @@ from constants import mult_factor_RRR, densification_method, ice_density, water_
                       minimum_snowfall, zero_temperature, lat_heat_sublimation, \
                       lat_heat_melting, lat_heat_vaporize, center_snow_transfer_function, \
                       spread_snow_transfer_function, constant_density, albedo_ice, make_icestupa, \
-                        roughness_ice, wet_snow_density
-from config import force_use_TP, force_use_N, stake_evaluation, full_field, WRF_X_CSPY 
+                        roughness_ice
+from config import force_use_TP, force_use_N, stake_evaluation, drone_evaluation, full_field, WRF_X_CSPY 
 
 from cosipy.modules.albedo import updateAlbedo
 from cosipy.modules.heatEquation import solveHeatEquation
@@ -112,9 +112,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         s_cone = h_cone/r_cone
         A_cone = np.pi * r_cone * np.sqrt(r_cone**2 + h_cone**2)
         V_cone = 1/3 * np.pi * r_cone **2 * h_cone
-        # h_snow = GRID.get_total_snowheight()
-        # h_ice = GRID.get_total_height() - h_snow
-        # V_cone = 1/3 * np.pi * r_cone**2 * (h_ice + h_snow)
     else:
         GRID = load_snowpack(GRID_RESTART)
 
@@ -188,6 +185,10 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Create pandas dataframe for stake evaluation
         _df = pd.DataFrame(index=stake_data.index, columns=['mb','snowheight'], dtype='float')
 
+    if drone_evaluation:
+        # Create pandas dataframe for stake evaluation
+        _df = pd.DataFrame(index=stake_data.index, columns=['volume'], dtype='float')
+
     #--------------------------------------------
     # TIME LOOP
     #--------------------------------------------    
@@ -213,7 +214,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000.0
         elif (SNOWF is not None):
             SNOWFALL = SNOWF[t]
-        elif make_icestupa :
+        elif make_icestupa : # Ignore rain
             SNOWFALL = (RRR[t]/1000)*(ice_density/density_fresh_snow)
             RAIN = 0
         else:
@@ -224,11 +225,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Derive Icestupa fountain discharge rates [m w.e.]
         # TODO include water density
         if make_icestupa :
-            # DISF = DISCHARGE[t]*dt/(60*1000 * np.pi * radf**2)
             DISF = DISCHARGE[t]*dt/(60*1000 * np.pi * r_cone**2)
-            # SNOWFALL *= density_fresh_snow/wet_snow_density 
-            # SNOWFALL *=np.pi * r_cone**2/A_cone
-            # RAIN *=np.pi * r_cone**2/A_cone
 
         # if snowfall is smaller than the threshold
         if SNOWFALL<minimum_snowfall:
@@ -240,7 +237,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
 
         if SNOWFALL > 0.0:
            GRID.add_fresh_snow(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0)
-            # GRID.add_fresh_snow(SNOWFALL, wet_snow_density, zero_temperature, 0.0)
         else:
            GRID.set_fresh_snow_props_update_time(dt)
 
@@ -256,25 +252,17 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate albedo and roughness length changes if first layer is snow
         #--------------------------------------------
-        # if (DISF > 0.0):
-        #     # TODO Firn albedo?
-        #     alpha = albedo_ice
-        # else:
         alpha = updateAlbedo(GRID)
 
         #--------------------------------------------
         # Update roughness length
         #--------------------------------------------
-        # if make_icestupa :
-        #     z0 = roughness_ice/1000
-        # else:
         z0 = updateRoughness(GRID)
 
         #--------------------------------------------
         # Surface Energy Balance
         #--------------------------------------------
         # Calculate net shortwave radiation
-
         if make_icestupa :
             f_cone = (0.5* h_cone* r_cone* np.cos(BETA[t])+ np.pi* np.power(r_cone, 2)* 0.5* np.sin(BETA[t])) / A_cone
             SWnet = (1 - alpha) * (FDIF[t] * G[t] + (1-FDIF[t]) * G[t] * f_cone)
@@ -287,9 +275,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             SLOPE = 0
 
         # Penetrating SW radiation and subsurface melt
-        # if SWnet > 0.0 and make_icestupa :
-        #     subsurface_melt = 0.0
-        #     G_penetrating = 0.0
         if SWnet > 0.0 :
             subsurface_melt, G_penetrating = penetrating_radiation(GRID, SWnet, dt)
         else:
@@ -347,25 +332,28 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         if make_icestupa :
             freeze_energy = -min(0, sw_radiation_net + lw_radiation_in + lw_radiation_out + ground_heat_flux + rain_heat_flux +
                               fountain_heat_flux + sensible_heat_flux + latent_heat_flux)
+
+            # Fountain droplets use cold content of surface layer
             freeze_energy += GRID.get_node_cold_content(0)/dt
+
             # Set surface temperature
             GRID.set_node_temperature(0, zero_temperature)
 
             freeze = freeze_energy * dt / (1000 * lat_heat_melting)
 
-            # Limited discharge
+            # Discharge limits new ice layer thickness
             if freeze > DISF + RAIN/1000 :
-                # print("WARNING, Discharge limits freezing")
                 freeze = DISF + RAIN/1000
 
-            Q  = percolation(GRID, DISF-freeze + melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
-
+            # New ice layer too small
             if freeze < minimum_snowfall:
-                # print("WARNING, freezing too low")
                 freeze = 0
                 freeze_energy = 0
             else:
+                # Fountain spray forms ice layer
                 GRID.add_fountain_ice(freeze, ice_density, zero_temperature, 0.0)
+
+            Q  = percolation(GRID, DISF-freeze + melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
 
         else:
             #--------------------------------------------
@@ -409,13 +397,18 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Store cumulative MB in pandas frame for validation
         if stake_names:
             if (DATA.isel(time=t).time.values in stake_data.index):
-                _df['mb'].loc[DATA.isel(time=t).time.values] = MB_cum 
-                _df['snowheight'].loc[DATA.isel(time=t).time.values] = GRID.get_total_snowheight() 
+
+                if make_icestupa:
+                    _df['volume'].loc[DATA.isel(time=t).time.values] = V_cone
+                else:
+                    _df['mb'].loc[DATA.isel(time=t).time.values] = MB_cum 
+                    _df['snowheight'].loc[DATA.isel(time=t).time.values] = GRID.get_total_snowheight() 
+
 
         #--------------------------------------------
         # Calculate AIR cone charecteristics
         #--------------------------------------------
-        r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, mass_balance, SNOWFALL, density_fresh_snow, r_cone, h_cone, s_cone,
+        r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, mass_balance, r_cone, h_cone, s_cone,
                                                                             A_cone, V_cone)
 
         
@@ -483,6 +476,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             _LAYER_REFREEZE = None
 
     if stake_evaluation:
+        # Evaluate stakes
+        _stat = evaluate(stake_names, stake_data, _df)
+    elif drone_evaluation:
         # Evaluate stakes
         _stat = evaluate(stake_names, stake_data, _df)
     else:

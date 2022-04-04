@@ -230,6 +230,7 @@ class IOClass:
         # Global attributes from config.py
         self.RESULT.attrs['Start_from_restart_file'] = str(restart)
         self.RESULT.attrs['Stake_evaluation'] = str(stake_evaluation)
+        self.RESULT.attrs['Drone_evaluation'] = str(drone_evaluation)
         self.RESULT.attrs['WRF_simulation'] = str(WRF)
         self.RESULT.attrs['Compression_level'] = compression_level
         self.RESULT.attrs['Slurm_use'] = str(slurm_use)
