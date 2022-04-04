@@ -50,7 +50,10 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DIS
     """
     
     #Interpolate subsurface temperatures to selected subsurface depths for GHF computation
-    B_Ts = interp_subT(GRID)
+    if make_icestupa:
+        B_Ts = None
+    else:
+        B_Ts = interp_subT(GRID)
     
     #Update surface temperature
     lower_bnd_ts = 220.
@@ -91,6 +94,31 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DIS
     # Return fluxes
     return res.fun, res.x, Li, Lo, H, L, B, Qrr, Qfr, rho, Lv, MOL, Cs_t, Cs_q, q0, q2
 
+
+@njit
+def get_subT(GRID, zlt):
+    ''' Get subsurface temperature to given depths used for temperature validation'''
+    
+    if GRID.get_total_height() <= zlt + 0.001:
+        Tz = np.nan
+    else:
+        # Cumulative layer depths
+        layer_heights_cum = np.cumsum(np.array(GRID.get_height()))
+
+        # Find indexes of two depths for temperature interpolation
+        idx1_depth = np.abs(layer_heights_cum - zlt).argmin()
+        depth = layer_heights_cum.flat[np.abs(layer_heights_cum - zlt).argmin()]
+
+        if depth > zlt:
+            idx2_depth = idx1_depth - 1
+        else:
+            idx2_depth = idx1_depth + 1
+        Tz = GRID.get_node_temperature(idx1_depth) + \
+            ((GRID.get_node_temperature(idx1_depth) - GRID.get_node_temperature(idx2_depth)) / \
+                    (layer_heights_cum[idx1_depth] - layer_heights_cum[idx2_depth])) * \
+            (zlt - layer_heights_cum[idx1_depth])
+
+    return (Tz-zero_temperature)
 
 @njit
 def interp_subT(GRID):

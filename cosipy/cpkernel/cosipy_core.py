@@ -5,8 +5,8 @@ from constants import mult_factor_RRR, densification_method, ice_density, water_
                       minimum_snowfall, zero_temperature, lat_heat_sublimation, \
                       lat_heat_melting, lat_heat_vaporize, center_snow_transfer_function, \
                       spread_snow_transfer_function, constant_density, albedo_ice, make_icestupa, \
-                        roughness_ice, density_wet_snow
-from config import force_use_TP, force_use_N, stake_evaluation, drone_evaluation, full_field, WRF_X_CSPY 
+                        roughness_ice, z
+from config import force_use_TP, force_use_N, stake_evaluation, drone_evaluation,thermistor_evaluation, full_field, WRF_X_CSPY 
 
 from cosipy.modules.albedo import updateAlbedo
 from cosipy.modules.heatEquation import solveHeatEquation
@@ -16,7 +16,7 @@ from cosipy.modules.refreezing import refreezing
 from cosipy.modules.roughness import updateRoughness
 from cosipy.modules.densification import densification
 from cosipy.modules.evaluation import evaluate
-from cosipy.modules.surfaceTemperature import update_surface_temperature
+from cosipy.modules.surfaceTemperature import update_surface_temperature, get_subT
 from cosipy.modules.shape import update_cone
 
 from cosipy.cpkernel.init import init_snowpack, load_snowpack
@@ -189,6 +189,10 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Create pandas dataframe for stake evaluation
         _df = pd.DataFrame(index=stake_data.index, columns=['volume'], dtype='float')
 
+    if thermistor_evaluation:
+        # Create pandas dataframe for stake evaluation
+        _df = pd.DataFrame(index=stake_data.index, columns=['temp'], dtype='float')
+
     #--------------------------------------------
     # TIME LOOP
     #--------------------------------------------    
@@ -205,8 +209,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Calc fresh snow density
         if (densification_method!='constant'):
             density_fresh_snow = np.maximum(109.0+6.0*(T2[t]-273.16)+26.0*np.sqrt(U2[t]), 50.0)
-        # elif DISCHARGE[t] > 0 :
-        #     density_fresh_snow = density_wet_snow 
         else:
             density_fresh_snow = constant_density 
 
@@ -407,8 +409,13 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         if stake_names:
             if (DATA.isel(time=t).time.values in stake_data.index):
 
-                if make_icestupa:
+                if drone_evaluation:
                     _df['volume'].loc[DATA.isel(time=t).time.values] = V_cone
+                elif thermistor_evaluation:
+                    # Tz = get_subT(GRID, z)
+                    # Tz = np.mean(GRID.get_temperature()) - zero_temperature
+                    Tz = surface_temperature - zero_temperature
+                    _df['temp'].loc[DATA.isel(time=t).time.values] = Tz
                 else:
                     _df['mb'].loc[DATA.isel(time=t).time.values] = MB_cum 
                     _df['snowheight'].loc[DATA.isel(time=t).time.values] = GRID.get_total_snowheight() 
@@ -487,6 +494,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Evaluate stakes
         _stat = evaluate(stake_names, stake_data, _df)
     elif drone_evaluation:
+        # Evaluate stakes
+        _stat = evaluate(stake_names, stake_data, _df)
+    elif thermistor_evaluation:
         # Evaluate stakes
         _stat = evaluate(stake_names, stake_data, _df)
     else:

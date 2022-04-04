@@ -22,5 +22,5 @@ def rmse(stake_names, stake_data, df_):
     if (obs_type=='volume'):
         rmse = ((stake_data[stake_names].subtract(df_['volume'],axis=0))**2).mean()**.5
     if (obs_type=='temp'):
-        rmse = ((stake_data[stake_names].subtract(df_['icestupa_temp'],axis=0))**2).mean()**.5
+        rmse = ((stake_data[stake_names].subtract(df_['temp'],axis=0))**2).mean()**.5
     return rmse

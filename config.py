@@ -10,8 +10,8 @@
 # time_start = '2009-01-01T06:00'
 # time_end   = '2009-01-10T00:00'
 
-# icestupa_name = 'guttannen22_scheduled'
-icestupa_name = 'guttannen21'
+icestupa_name = 'guttannen22_scheduled'
+# icestupa_name = 'guttannen21'
 # icestupa_name = 'gangles21'
 
 if icestupa_name in ['guttannen22_scheduled', 'guttannen22_unscheduled']:
@@ -65,10 +65,15 @@ stake_evaluation = False
 # eval_method = 'rmse'                                        # how to evaluate the simulations ('rmse')
 # obs_type = 'snowheight'                                     # What kind of stake data is used 'mb' or 'snowheight'
 
-drone_evaluation = True 
-stakes_data_file = './data/input/' + icestupa_name + '/drone.csv'   # path to stake data file
+drone_evaluation = False
+drone_data_file = './data/input/' + icestupa_name + '/drone.csv'   # path to stake data file
 eval_method = 'rmse'                                        # how to evaluate the simulations ('rmse')
 obs_type = 'volume'                                          # What kind of stake data is used 'mb' or 'snowheight'
+
+thermistor_evaluation = True 
+thermistor_data_file = './data/input/' + icestupa_name + '/thermistor.csv'   # path to stake data file
+eval_method = 'rmse'                                        # how to evaluate the simulations ('rmse')
+obs_type = 'temp'                                          # What kind of stake data is used 'mb' or 'snowheight'
 
 #-----------------------------------
 # STANDARD LAT/LON or WRF INPUT 
