@@ -10,8 +10,8 @@
 # time_start = '2009-01-01T06:00'
 # time_end   = '2009-01-10T00:00'
 
-# icestupa_name = 'guttannen22_scheduled'
-icestupa_name = 'guttannen21'
+icestupa_name = 'guttannen22_scheduled'
+# icestupa_name = 'guttannen21'
 # icestupa_name = 'gangles21'
 
 if icestupa_name in ['guttannen22_scheduled']:

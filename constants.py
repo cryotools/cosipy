@@ -63,7 +63,7 @@ merge_max = 1                                   # How many mergings are allowed 
 
 
 ' PHYSICAL CONSTANTS '
-# constant_density = 300.                         # constant density of freshly fallen snow [kg m-3], if densification_method is set to 'constant'
+constant_density = 300.                         # constant density of freshly fallen snow [kg m-3], if densification_method is set to 'constant'
 
 albedo_fresh_snow = 0.85                        # albedo of fresh snow [-] (Moelg et al. 2012, TC)
 albedo_firn = 0.55                              # albedo of firn [-] (Moelg et al. 2012, TC)
@@ -72,7 +72,7 @@ albedo_firn = 0.55                              # albedo of firn [-] (Moelg et a
 # albedo_mod_snow_depth = 3                       # effect of snow depth on albedo [cm] (Oerlemans and Knap 1998, J. Glaciol.)
 
 ### For tropical glaciers or High Mountain Asia summer-accumulation glaciers (low latitude), the Moelg et al. 2012, TC should be tested for a possible better albedo fit 
-# albedo_mod_snow_aging = 6                      # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
+albedo_mod_snow_aging = 6                      # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
 albedo_mod_snow_depth = 8                      # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
 
 roughness_fresh_snow = 0.24                     # surface roughness length for fresh snow [mm] (Moelg et al. 2012, TC)
@@ -130,17 +130,17 @@ roughness_ice = 3.0                             # surface roughness length for i
 
 albedo_method = 'Balasubramanian22'                   # possibilities: 'Oerlemans98'
 albedo_ice = 0.25                               # albedo of ice from AIR pub.
-albedo_mod_snow_aging = 16                      # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
-constant_density = 450.                         # constant density of freshly fallen snow [kg m-3], if densification_method is set to 'constant'
+# albedo_mod_snow_aging = 16                      # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
+# constant_density = 300.                         # constant density of freshly fallen snow [kg m-3], if densification_method is set to 'constant'
+
+surface_emission_coeff = 0.99                   # surface emission coefficient [-]
 # stability_correction = 'Icestupa'                # possibilities: 'Ri','MO'
 
 """Site Initialisation"""
 if icestupa_name == 'guttannen22_scheduled':
-    surface_emission_coeff = 0.99                   # surface emission coefficient [-]
     initial_snowheight_constant = 0.435              # Initial snowheight
     initial_glacier_height = 0.00                  # Initial glacier height without snowlayers
     radf = 4.845                                       # Spray radius [m]
-    # radf = 3.0                                       # Spray radius [m]
     Tf = 0 + 273.16                                # Water temperature [C]
     z2 = 0.00					                    # Thermistor depth 
     z3 = 0.50					                    # Thermistor depth 
@@ -158,7 +158,6 @@ if icestupa_name == 'guttannen22_unscheduled':
 
 if icestupa_name == 'guttannen21':
     surface_emission_coeff = 0.97                   # surface emission coefficient [-]
-    densification_method = 'constant'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
     initial_snowheight_constant = 0.3              # Initial snowheight
     initial_glacier_height = 0                 # Initial glacier height without snowlayers
     radf = 6.913                                       # Spray radius [m]
