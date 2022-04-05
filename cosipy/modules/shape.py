@@ -4,13 +4,13 @@ from scipy.optimize import minimize, newton
 from numba import njit
 from types import SimpleNamespace
 
-def update_cone(GRID, MB, r_cone, h_cone, s_cone, A_cone, V_cone):
+def update_cone(GRID, surfMB, r_cone, h_cone, s_cone, A_cone, V_cone):
     """ This methods updates the area of the artificial ice reservoir
 
     Given:
 
         GRID    ::  Grid structure
-        MB      ::  Mass balance
+        surfMB  ::  Surface mass balance
         r_cone  ::  Old Cone radius  [m]
         h_cone  ::  Old Cone height  [m]
         s_cone  ::  Old Cone slope  [-]
@@ -26,15 +26,15 @@ def update_cone(GRID, MB, r_cone, h_cone, s_cone, A_cone, V_cone):
         V_cone  ::  New Volume [m3]
     """
 
-    # if (MB > 0): 
+    # if (surfMB > 0): 
     #     V_cone += snow * ice_density/constant_density * np.pi * r_cone ** 2
-    #     V_cone += (MB-snow) * ice_density/np.mean(GRID.get_density()) * A_cone
+    #     V_cone += (surfMB-snow) * ice_density/np.mean(GRID.get_density()) * A_cone
     # else:
-    #     V_cone += MB * ice_density/np.mean(GRID.get_density()) * A_cone
+    #     V_cone += surfMB * ice_density/np.mean(GRID.get_density()) * A_cone
 
-    V_cone += MB * ice_density/np.mean(GRID.get_density()) * A_cone
+    V_cone += surfMB * ice_density/np.mean(GRID.get_density()) * A_cone
 
-    if (MB > 0) & (r_cone >= radf):  # Maintain constant r_cone
+    if (surfMB > 0) & (r_cone >= radf):  # Maintain constant r_cone
         s_cone = h_cone / r_cone
         h_cone = (3 * V_cone/ (np.pi * r_cone ** 2))
     else:                               # Maintain constant slope

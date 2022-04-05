@@ -5,7 +5,7 @@ from constants import mult_factor_RRR, densification_method, ice_density, water_
                       minimum_snowfall, zero_temperature, lat_heat_sublimation, \
                       lat_heat_melting, lat_heat_vaporize, center_snow_transfer_function, \
                       spread_snow_transfer_function, constant_density, albedo_ice, make_icestupa, \
-                        roughness_ice, z
+                        roughness_ice, z, temperature_threshold_precipitation
 from config import force_use_TP, force_use_N, stake_evaluation, drone_evaluation,thermistor_evaluation, full_field, WRF_X_CSPY 
 
 from cosipy.modules.albedo import updateAlbedo
@@ -219,9 +219,17 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         elif (SNOWF is not None):
             SNOWFALL = SNOWF[t]
         elif make_icestupa : # Ignore rain
-            SNOWFALL = (RRR[t]/1000)*(ice_density/density_fresh_snow)
-            SNOWFALL *= np.pi * r_cone**2/A_cone
-            RAIN = 0
+            # SNOWFALL = (RRR[t]/1000)*(ice_density/density_fresh_snow)
+            # SNOWFALL *= np.pi * r_cone**2/A_cone
+            # RAIN=0
+            if T2[t] < temperature_threshold_precipitation :
+                SNOWFALL = (RRR[t]/1000)*(ice_density/density_fresh_snow)
+                SNOWFALL *= np.pi * r_cone**2/A_cone
+                RAIN=0
+            else:
+                RAIN = RRR[t]
+                RAIN *= np.pi * r_cone**2/A_cone
+                SNOWFALL=0
         else:
             # Else convert total precipitation [mm] to snowheight [m]; liquid/solid fraction
             SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) - center_snow_transfer_function) * spread_snow_transfer_function) + 1.0))
@@ -233,7 +241,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             DISF = DISCHARGE[t]*dt/(60*1000 * np.pi * r_cone**2)
 
         # if snowfall is smaller than the threshold
-        if SNOWFALL<minimum_snowfall:
+        if SNOWFALL<minimum_snowfall :
             SNOWFALL = 0.0
 
         # if rainfall is smaller than the threshold
@@ -286,7 +294,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #     SLOPE = 0
 
         # Penetrating SW radiation and subsurface melt
-        if SWnet > 0.0 :
+        if SWnet > 0.0 and make_icestupa == False:
             subsurface_melt, G_penetrating = penetrating_radiation(GRID, SWnet, dt)
         else:
             subsurface_melt = 0.0
@@ -300,18 +308,13 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
                 ground_heat_flux, rain_heat_flux, fountain_heat_flux, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
                 = update_surface_temperature(GRID, dt, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, U2[t],
-                                             RAIN, DISF, SLOPE, LWin=LWin[t])
+                                             RAIN, DISF, SLOPE, s_cone, LWin=LWin[t])
         else:
             # Find new surface temperature (LW is parametrized using cloud fraction)
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
                 ground_heat_flux, rain_heat_flux, fountain_heat_flux, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
                 = update_surface_temperature(GRID, dt, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, U2[t],
-                                             RAIN, DISF, SLOPE, N=N[t])
-
-        # if make_icestupa :
-        #     mu_cone = 1+s_cone/2
-        #     sensible_heat_flux *= mu_cone
-        #     latent_heat_flux *= mu_cone
+                                             RAIN, DISF, SLOPE, s_cone, N=N[t])
 
         #--------------------------------------------
         # Surface mass fluxes [m w.e.q.]
@@ -340,7 +343,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Remove melt [m w.e.q.]
         lwc_from_melted_layers = GRID.remove_melt_weq(melt - sublimation - deposition)
 
-        if make_icestupa :
+        if DISF + RAIN/1000 > 0:
             freeze_energy = -min(0, sw_radiation_net + lw_radiation_in + lw_radiation_out + ground_heat_flux + rain_heat_flux +
                               fountain_heat_flux + sensible_heat_flux + latent_heat_flux)
 
@@ -365,17 +368,20 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
                 GRID.add_fountain_ice(freeze, ice_density, zero_temperature, 0.0)
 
             Q  = percolation(GRID, DISF-freeze + melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
+            # Q  = DISF-freeze + melt + condensation + RAIN/1000.0 + lwc_from_melted_layers
 
         else:
-            #--------------------------------------------
-            # Percolation
-            #--------------------------------------------
+            freeze = 0
+            freeze_energy = 0
             Q  = percolation(GRID, melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
 
         #--------------------------------------------
         # Refreezing
         #--------------------------------------------
-        water_refreezed = refreezing(GRID)
+        if make_icestupa :
+            water_refreezed = 0
+        else:
+            water_refreezed = refreezing(GRID)
 
         #--------------------------------------------
         # Solve the heat equation
@@ -424,7 +430,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate AIR cone charecteristics
         #--------------------------------------------
-        r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, mass_balance, r_cone, h_cone, s_cone, A_cone, V_cone)
+        r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, surface_mass_balance, r_cone, h_cone, s_cone, A_cone, V_cone)
 
         
         # Save results
@@ -462,7 +468,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         _MOL[t] = MOL
         _CONERAD[t] = r_cone
         _CONEHEIGHT[t] = h_cone
-        _CONESLOPE[t] = SLOPE
+        _CONESLOPE[t] = np.degrees(np.arctan(s_cone))
         _CONEAREA[t] = A_cone
         _CONEVOL[t] = V_cone
 

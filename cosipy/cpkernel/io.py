@@ -602,6 +602,8 @@ class IOClass:
             self.add_variable_along_latlontime(self.RESULT, self.FE, 'FE', 'W m\u207b\xb2', 'Freeze energy') 
         if ('intMB' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.intMB, 'intMB', 'm w.e.', 'Internal mass balance') 
+        if ('ICE' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.ICE, 'ICE', 'm w.e.', 'New ice layer height') 
         if ('EVAPORATION' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.EVAPORATION, 'EVAPORATION', 'm w.e.', 'Evaporation') 
         if ('SUBLIMATION' in self.internal):

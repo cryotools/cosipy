@@ -7,7 +7,7 @@ from numba import njit
 from types import SimpleNamespace
 
 
-def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, LWin=None, N=None):
+def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, s_cone, LWin=None, N=None):
     """ This methods updates the surface temperature and returns the surface fluxes
 
     Given:
@@ -26,6 +26,7 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DIS
         RAIN    ::  RAIN (mm)
         DISF    ::  DISF (m)
         SLOPE   ::  Slope of the surface [degree]
+        s_cone  ::  Slope of the icestupa [-]
         LWin    ::  Incoming longwave radiation [W m^-2]
         N       ::  Fractional cloud cover [-]
 
@@ -62,12 +63,12 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DIS
         # Get surface temperature by minimizing the energy balance function (SWnet+Li+Lo+H+L=0)
         res = minimize(eb_optim, GRID.get_node_temperature(0), method=sfc_temperature_method,
                        bounds=((lower_bnd_ts, zero_temperature),),tol=1e-2,
-                       args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, B_Ts, LWin, N))
+                       args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, s_cone, B_Ts, LWin, N))
 		       
     elif sfc_temperature_method == 'Newton':
         try:
             res = newton(eb_optim, np.array([GRID.get_node_temperature(0)]), tol=1e-2, maxiter=50,
-                        args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, B_Ts, LWin, N))
+                        args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, s_cone, B_Ts, LWin, N))
             if res < lower_bnd_ts:
                 raise ValueError("TS Solution is out of bounds")
             res = SimpleNamespace(**{'x':min(np.array([zero_temperature]),res),'fun':None})
@@ -76,7 +77,7 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DIS
              #Workaround for non-convergence and unboundedness
              res = minimize(eb_optim, GRID.get_node_temperature(0), method='SLSQP',
                        bounds=((lower_bnd_ts, zero_temperature),),tol=1e-2,
-                       args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, B_Ts, LWin, N))
+                       args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, s_cone, B_Ts, LWin, N))
     else:
         print('Invalid method for minimizing the residual')
 
@@ -84,7 +85,7 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DIS
     GRID.set_node_temperature(0, float(res.x))
  
     (Li, Lo, H, L, B, Qrr, Qfr, rho, Lv, MOL, Cs_t, Cs_q, q0, q2) = eb_fluxes(GRID, res.x, dt, 
-                                                             z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, 
+                                                             z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, s_cone, 
                                                              B_Ts,  LWin, N)
      
     # Consistency check
@@ -156,7 +157,7 @@ def interp_subT(GRID):
     
 
 @njit
-def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, B_Ts, LWin=None, N=None):
+def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, s_cone, B_Ts, LWin=None, N=None):
     ''' This functions returns the surface fluxes with Monin-Obukhov stability correction.
 
     Given:
@@ -175,6 +176,7 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, B_Ts, LWin
         RAIN    ::  RAIN (mm)
         DISF    ::  DISF (m)
         SLOPE   ::  Slope of the surface [degree]
+        s_cone  ::  Slope of the icestupa [-]
         LWin    ::  Incoming longwave radiation [W m^-2]
         N       ::  Fractional cloud cover [-]
 
@@ -190,7 +192,7 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, B_Ts, LWin
         SWnet   ::  Shortwave radiation budget [W m^-2]
         rho     ::  Air density [kg m^-3]
         Lv      ::  Latent heat of vaporization [J kg^-1]
-	MOL     ::  Monin Obhukov length
+        MOL     ::  Monin Obhukov length
         Cs_t    ::  Stanton number [-]
         Cs_q    ::  Dalton number [-]
         q0      ::  Mixing ratio at the surface [kg kg^-1]
@@ -290,8 +292,6 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, B_Ts, LWin
             * u2
             * (T2 - T0)
             / ((np.log(2/ z0t)) ** 2) # 2m AWS height
-            * 1.5
-            # * (1 + 0.5 * self.df.loc[i, "s_cone"])
         )
 
         LE = (
@@ -303,8 +303,6 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, B_Ts, LWin
             * u2
             * (Ew - Ew0)
             / ((np.log(2 / z0q)) ** 2)
-            * 1.5
-            # * (1 + 0.5 * self.df.loc[i, "s_cone"])
             )
         Cs_t = 0
         Cs_q = 0
@@ -331,10 +329,17 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, B_Ts, LWin
         
         # Latent heat flux
         LE = rho * Lv * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
-
     else:
         raise ValueError("Stability correction",stability_correction,"is not supported")	#numba refuses to print str(list)
+
+    if make_icestupa :
+        mu_cone = 1 + s_cone/2
+        H *= mu_cone
+        LE *= mu_cone
     
+    # if make_icestupa :
+    #     surface_emission_coeff = ice_emission_coeff
+
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(T0, 4.0)
 
@@ -351,12 +356,7 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, B_Ts, LWin
         B = lam * (hminus/(hplus+hminus)) * ((Tz2-Tz1)/hplus) + (hplus/(hplus+hminus)) * ((Tz1-T0)/hminus)
 
     # Fountain heat flux
-    if make_icestupa:
-        # if T2 < zero_temperature:
-        #     # Cold water droplets
-        #     Tf = zero_temperature
-        # else:
-        QFR = water_density * spec_heat_water * (DISF/dt) * (Tf - T0)
+    QFR = water_density * spec_heat_water * (DISF/dt) * (Tf - T0)
 
     # Rain heat flux
     QRR = water_density * spec_heat_water * (RAIN/1000/dt) * (T2 - T0)
@@ -417,11 +417,12 @@ def MO(rho, ust, T2, H):
         return 0.0
 
 @njit
-def eb_optim(T0, GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, B_Ts, LWin=None, N=None):
+def eb_optim(T0, GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, s_cone, B_Ts, LWin=None, N=None):
     ''' Optimization function to solve for surface temperature T0 '''
 
     # Get surface fluxes for surface temperature T0
-    (Li,Lo,H,L,B,Qrr,Qfr,rho,Lv,MOL,Cs_t,Cs_q,q0,q2) = eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN,DISF, SLOPE, B_Ts, LWin, N)
+    (Li,Lo,H,L,B,Qrr,Qfr,rho,Lv,MOL,Cs_t,Cs_q,q0,q2) = eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN,DISF,
+                                                                 SLOPE, s_cone, B_Ts, LWin, N)
 
     # Return the residual (is minimized by the optimization function)
     if sfc_temperature_method == 'Newton':

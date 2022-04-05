@@ -330,7 +330,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                     print('--------------------------------------------------------------')
                     print('Temperature validation....')
                     print('-------------------------------------------------------------- \n')
-                    print(f"\t RMSE of {icestupa_name} is {stat.values[0]} C \n")
+                    print(f"\t RMSE of {icestupa_name} is {stat.values[0]} m3 \n")
 
                     df_stat = pd.concat([df_stat, stat])
 
