@@ -422,6 +422,10 @@ class IOClass:
             self.CONEAREA = np.full((self.time,self.ny,self.nx), np.nan)
         if ('CONEVOL' in self.internal):
             self.CONEVOL = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('RHO' in self.internal):
+            self.RHO = np.full((self.time,self.ny,self.nx), np.nan)
+        if ('TBULK' in self.internal):
+            self.TBULK = np.full((self.time,self.ny,self.nx), np.nan)
 
         if full_field:
             if ('HEIGHT' in self.full):
@@ -453,7 +457,7 @@ class IOClass:
                              local_surfMB,local_Q,local_SNOWHEIGHT,local_TOTALHEIGHT,local_TS,local_ALBEDO,local_SWNET,\
                              local_LAYERS,local_ME,local_FE,local_ICE,local_intMB,local_EVAPORATION,local_SUBLIMATION,local_CONDENSATION, \
                              local_DEPOSITION,local_REFREEZE,local_subM,local_Z0,local_surfM,local_MOL,local_CONERAD, \
-                             local_CONEHEIGHT,local_CONESLOPE,local_CONEAREA, local_CONEVOL, local_LAYER_HEIGHT, \
+                             local_CONEHEIGHT,local_CONESLOPE,local_CONEAREA, local_CONEVOL, local_RHO,local_TBULK, local_LAYER_HEIGHT, \
 			     local_LAYER_RHO,local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY, \
 			     local_LAYER_ICE_FRACTION,local_LAYER_IRREDUCIBLE_WATER,local_LAYER_REFREEZE):
 
@@ -531,6 +535,10 @@ class IOClass:
             self.CONEAREA[:,y,x] = local_CONEAREA
         if ('CONEVOL' in self.internal):
             self.CONEVOL[:,y,x] = local_CONEVOL
+        if ('RHO' in self.internal):
+            self.RHO[:,y,x] = local_RHO
+        if ('TBULK' in self.internal):
+            self.TBULK[:,y,x] = local_TBULK
 
         if full_field:
             if ('HEIGHT' in self.full):

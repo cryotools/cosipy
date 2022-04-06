@@ -5,9 +5,9 @@ from constants import albedo_method, albedo_fresh_snow, albedo_firn, albedo_ice,
 def updateAlbedo(GRID):
     """ This methods updates the albedo """
     albedo_allowed = ['Oerlemans98', 'Balasubramanian22']
-    if albedo_method in albedo_allowed :
+    if albedo_method == 'Oerlemans98':
         alphaMod = method_Oerlemans(GRID)
-    elif albedo_method in albedo_allowed :
+    elif albedo_method == 'Balasubramanian22':
         alphaMod = method_Balasubramanian(GRID)
     else:
         raise ValueError("Albedo method = \"{:s}\" is not allowed, must be one of {:s}".format(albedo_method, ", ".join(albedo_allowed)))
@@ -38,7 +38,7 @@ def method_Balasubramanian(GRID):
         h = GRID.get_total_snowheight() 
 
         # Surface albedo according to Oerlemans & Knap 1998, JGR)
-        alphaSnow = albedo_ice + (albedo_fresh_snow - albedo_ice) *  np.exp((-hours_since_snowfall) / (albedo_mod_snow_aging * 24.0))
+        alphaMod = albedo_ice + (albedo_fresh_snow - albedo_ice) *  np.exp((-hours_since_snowfall) / (albedo_mod_snow_aging * 24.0))
         # alphaMod = alphaSnow + (albedo_ice - alphaSnow) *  np.exp((-1.0*h) / (albedo_mod_snow_depth / 100.0))
 
     else:

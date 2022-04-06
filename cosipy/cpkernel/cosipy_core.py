@@ -18,6 +18,7 @@ from cosipy.modules.densification import densification
 from cosipy.modules.evaluation import evaluate
 from cosipy.modules.surfaceTemperature import update_surface_temperature, get_subT
 from cosipy.modules.shape import update_cone
+from cosipy.modules.emissivity import updateEmissionCoeff
 
 from cosipy.cpkernel.init import init_snowpack, load_snowpack
 from cosipy.cpkernel.io import IOClass
@@ -92,6 +93,8 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     _CONESLOPE = np.full(nt, np.nan)
     _CONEAREA = np.full(nt, np.nan)
     _CONEVOL = np.full(nt, np.nan)
+    _RHO = np.full(nt, np.nan)
+    _TBULK = np.full(nt, np.nan)
 
     _LAYER_HEIGHT = np.full((nt,max_layers), np.nan)
     _LAYER_RHO = np.full((nt,max_layers), np.nan)
@@ -273,10 +276,12 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Update roughness length
         #--------------------------------------------
-        # if DISF > 0:
-        #     z0 = roughness_ice/1000
-        # else:
         z0 = updateRoughness(GRID)
+
+        #--------------------------------------------
+        # Update surface emissivity coeff
+        #--------------------------------------------
+        emission_coeff = updateEmissionCoeff(GRID)
 
         #--------------------------------------------
         # Surface Energy Balance
@@ -288,11 +293,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         else:
             SWnet = G[t] * (1 - alpha)
 
-        # if make_icestupa :
-        #     SLOPE = np.degrees(np.arctan(s_cone))
-        # else:
-        #     SLOPE = 0
-
         # Penetrating SW radiation and subsurface melt
         if SWnet > 0.0 and make_icestupa == False:
             subsurface_melt, G_penetrating = penetrating_radiation(GRID, SWnet, dt)
@@ -303,17 +303,18 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Calculate residual net shortwave radiation (penetrating part removed)
         sw_radiation_net = SWnet - G_penetrating
 
+
         if LWin is not None:
             # Find new surface temperature (LW is used from the input file)
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
                 ground_heat_flux, rain_heat_flux, fountain_heat_flux, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
-                = update_surface_temperature(GRID, dt, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, U2[t],
+                = update_surface_temperature(GRID, dt, z, z0, emission_coeff, T2[t], RH2[t], PRES[t], sw_radiation_net, U2[t],
                                              RAIN, DISF, SLOPE, s_cone, LWin=LWin[t])
         else:
             # Find new surface temperature (LW is parametrized using cloud fraction)
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
                 ground_heat_flux, rain_heat_flux, fountain_heat_flux, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
-                = update_surface_temperature(GRID, dt, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, U2[t],
+                = update_surface_temperature(GRID, dt, z, z0, emission_coeff, T2[t], RH2[t], PRES[t], sw_radiation_net, U2[t],
                                              RAIN, DISF, SLOPE, s_cone, N=N[t])
 
         #--------------------------------------------
@@ -343,6 +344,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Remove melt [m w.e.q.]
         lwc_from_melted_layers = GRID.remove_melt_weq(melt - sublimation - deposition)
 
+        #--------------------------------------------
+        # Freeze process of Icestupa
+        #--------------------------------------------
         if DISF + RAIN/1000 > 0:
             freeze_energy = -min(0, sw_radiation_net + lw_radiation_in + lw_radiation_out + ground_heat_flux + rain_heat_flux +
                               fountain_heat_flux + sensible_heat_flux + latent_heat_flux)
@@ -368,7 +372,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
                 GRID.add_fountain_ice(freeze, ice_density, zero_temperature, 0.0)
 
             Q  = percolation(GRID, DISF-freeze + melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
-            # Q  = DISF-freeze + melt + condensation + RAIN/1000.0 + lwc_from_melted_layers
 
         else:
             freeze = 0
@@ -391,7 +394,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate new density to densification
         #--------------------------------------------
-        # TODO examine slope var
         densification(GRID, SLOPE, dt)
 
         #--------------------------------------------
@@ -430,7 +432,12 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate AIR cone charecteristics
         #--------------------------------------------
-        r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, surface_mass_balance, r_cone, h_cone, s_cone, A_cone, V_cone)
+        layer_heights = GRID.get_height()
+        # rho = np.average(GRID.get_density(), weights=layer_heights)
+        rho = np.average(GRID.get_density())
+        bulk_temperature = np.average(GRID.get_temperature(), weights=layer_heights)
+        r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, surface_mass_balance, r_cone, h_cone,s_cone,
+                                                             rho, A_cone, V_cone)
 
         
         # Save results
@@ -471,6 +478,8 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         _CONESLOPE[t] = np.degrees(np.arctan(s_cone))
         _CONEAREA[t] = A_cone
         _CONEVOL[t] = V_cone
+        _RHO[t] = rho
+        _TBULK[t] = bulk_temperature
 
         if full_field:
             if GRID.get_number_layers()>max_layers:
@@ -525,6 +534,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     return (indY,indX,RESTART,_RAIN,_DISF,_SNOWFALL,_LWin,_LWout,_H,_LE,_B, _QRR,_QFR, \
             _MB,_surfMB,_Q,_SNOWHEIGHT,_TOTALHEIGHT,_TS,_ALBEDO, _SWNET, _NLAYERS, \
             _ME,_FE,_ICE,_intMB,_EVAPORATION,_SUBLIMATION,_CONDENSATION,_DEPOSITION,_REFREEZE, \
-            _subM,_Z0,_surfM, _MOL, _CONERAD, _CONEHEIGHT, _CONESLOPE, _CONEAREA, _CONEVOL, \
+            _subM,_Z0,_surfM, _MOL, _CONERAD, _CONEHEIGHT, _CONESLOPE, _CONEAREA, _CONEVOL, _RHO, _TBULK, \
             _LAYER_HEIGHT,_LAYER_RHO,_LAYER_T,_LAYER_LWC,_LAYER_CC,_LAYER_POROSITY,_LAYER_ICE_FRACTION, \
             _LAYER_IRREDUCIBLE_WATER,_LAYER_REFREEZE,stake_names,_stat,_df)

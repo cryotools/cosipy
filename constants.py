@@ -11,11 +11,11 @@ z = 2.0                                         # Measurement height [m]
 
 ' PARAMETERIZATIONS '
 stability_correction = 'Ri'                     # possibilities: 'Ri','MO'
-albedo_method = 'Balasubramanian22'             # possibilities: 'Oerlemans98', 'Balasubramanian22'
+albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98', 'Balasubramanian22'
 densification_method = 'Boone'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
 roughness_method = 'constant'                   # possibilities: 'Moelg12', 'constant'
-surface_emissivity_method = 'constant'          # possibilities: 'Balasubramanian22', 'constant'
+emissivity_method = 'Balasubramanian22'         # possibilities: 'Balasubramanian22', 'constant'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
 thermal_conductivity_method = 'bulk'		    # possibilities: 'bulk', 'empirical'
 sfc_temperature_method = 'SLSQP'                # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Newton' (Secant, fastest)'
@@ -82,6 +82,7 @@ air_density = 1.1                               # density of air [kg m^(-3)]
 
 sigma = 5.67e-8                                 # Stefan-Bolzmann constant [W m-2 K-4]
 zero_temperature = 273.16                       # Melting temperature [K]
+surface_emission_coeff = 0.99                   # surface emission coefficient [-]
 
 
 ' INITIAL CONDITIONS '
@@ -120,6 +121,7 @@ if icestupa_name == 'guttannen22_unscheduled':
     Tf = 0 + 273.16                                # Water temperature [C]
 
 if icestupa_name == 'guttannen21':
+    emissivity_method = 'constant'                 # possibilities: 'Balasubramanian22', 'constant'
     surface_emission_coeff = 0.97                   # surface emission coefficient [-]
     initial_snowheight_constant = 0.3              # Initial snowheight
     initial_glacier_height = 0                 # Initial glacier height without snowlayers
@@ -140,4 +142,6 @@ make_icestupa = True
 temperature_threshold_precipitation = 5 + 273.16   # Snowfall below this threshold
 roughness_ice = 3.0                             # surface roughness length for ice [mm] (Moelg et al. 2012, TC)
 albedo_ice = 0.25                                 # albedo of ice from Balasubramanian22
+ice_emission_coeff = 0.97                   # surface emission coefficient [-]
+snow_emission_coeff = 0.99                   # surface emission coefficient [-]
 

@@ -10,7 +10,7 @@
 # time_start = '2009-01-01T06:00'
 # time_end   = '2009-01-10T00:00'
 
-# icestupa_name = 'guttannen22_unscheduled'
+# icestupa_name = 'guttannen22_scheduled'
 icestupa_name = 'guttannen21'
 # icestupa_name = 'gangles21'
 
@@ -34,8 +34,8 @@ if icestupa_name == 'guttannen21':
     thermistor_evaluation = False
     obs_type = 'volume'                                          # What kind of stake data is used 'mb' or 'snowheight'
     time_start = '2020-11-22T15:00'
-    time_end   = '2021-05-10T01:00'
-    # time_end   = '2021-03-10T01:00'
+    # time_end   = '2021-05-10T01:00'
+    time_end   = '2021-03-10T01:00'
 
 if icestupa_name == 'gangles21':
     drone_evaluation = True
@@ -118,7 +118,7 @@ local_port = 8786                                           # port for local clu
 #-----------------------------------
 # WRITE FULL FIELDS 
 #-----------------------------------    
-full_field = True                                           # write full fields (2D data) to file
+full_field = False                                          # write full fields (2D data) to file
 if WRF_X_CSPY:
     full_field = True
     

@@ -7,7 +7,7 @@ from numba import njit
 from types import SimpleNamespace
 
 
-def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, s_cone, LWin=None, N=None):
+def update_surface_temperature(GRID, dt, z, z0, emission_coeff, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, s_cone, LWin=None, N=None):
     """ This methods updates the surface temperature and returns the surface fluxes
 
     Given:
@@ -63,12 +63,12 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DIS
         # Get surface temperature by minimizing the energy balance function (SWnet+Li+Lo+H+L=0)
         res = minimize(eb_optim, GRID.get_node_temperature(0), method=sfc_temperature_method,
                        bounds=((lower_bnd_ts, zero_temperature),),tol=1e-2,
-                       args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, s_cone, B_Ts, LWin, N))
+                       args=(GRID, dt, z, z0, emission_coeff, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, s_cone, B_Ts, LWin, N))
 		       
     elif sfc_temperature_method == 'Newton':
         try:
             res = newton(eb_optim, np.array([GRID.get_node_temperature(0)]), tol=1e-2, maxiter=50,
-                        args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, s_cone, B_Ts, LWin, N))
+                        args=(GRID, dt, z, z0, emission_coeff, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, s_cone, B_Ts, LWin, N))
             if res < lower_bnd_ts:
                 raise ValueError("TS Solution is out of bounds")
             res = SimpleNamespace(**{'x':min(np.array([zero_temperature]),res),'fun':None})
@@ -77,7 +77,7 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DIS
              #Workaround for non-convergence and unboundedness
              res = minimize(eb_optim, GRID.get_node_temperature(0), method='SLSQP',
                        bounds=((lower_bnd_ts, zero_temperature),),tol=1e-2,
-                       args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, s_cone, B_Ts, LWin, N))
+                       args=(GRID, dt, z, z0, emission_coeff, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, s_cone, B_Ts, LWin, N))
     else:
         print('Invalid method for minimizing the residual')
 
@@ -85,7 +85,7 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DIS
     GRID.set_node_temperature(0, float(res.x))
  
     (Li, Lo, H, L, B, Qrr, Qfr, rho, Lv, MOL, Cs_t, Cs_q, q0, q2) = eb_fluxes(GRID, res.x, dt, 
-                                                             z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, s_cone, 
+                                                             z, z0, emission_coeff, T2, rH2, p, u2, RAIN, DISF, SLOPE, s_cone, 
                                                              B_Ts,  LWin, N)
      
     # Consistency check
@@ -157,7 +157,7 @@ def interp_subT(GRID):
     
 
 @njit
-def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, s_cone, B_Ts, LWin=None, N=None):
+def eb_fluxes(GRID, T0, dt, z, z0, emission_coeff, T2, rH2, p, u2, RAIN, DISF, SLOPE, s_cone, B_Ts, LWin=None, N=None):
     ''' This functions returns the surface fluxes with Monin-Obukhov stability correction.
 
     Given:
@@ -341,7 +341,7 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, DISF, SLOPE, s_cone, B_
     #     surface_emission_coeff = ice_emission_coeff
 
     # Outgoing longwave radiation
-    Lo = -surface_emission_coeff * sigma * np.power(T0, 4.0)
+    Lo = -emission_coeff* sigma * np.power(T0, 4.0)
 
     # Get thermal conductivity
     lam = GRID.get_node_thermal_conductivity(0) 
@@ -417,11 +417,11 @@ def MO(rho, ust, T2, H):
         return 0.0
 
 @njit
-def eb_optim(T0, GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, s_cone, B_Ts, LWin=None, N=None):
+def eb_optim(T0, GRID, dt, z, z0, emission_coeff, T2, rH2, p, SWnet, u2, RAIN, DISF, SLOPE, s_cone, B_Ts, LWin=None, N=None):
     ''' Optimization function to solve for surface temperature T0 '''
 
     # Get surface fluxes for surface temperature T0
-    (Li,Lo,H,L,B,Qrr,Qfr,rho,Lv,MOL,Cs_t,Cs_q,q0,q2) = eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN,DISF,
+    (Li,Lo,H,L,B,Qrr,Qfr,rho,Lv,MOL,Cs_t,Cs_q,q0,q2) = eb_fluxes(GRID, T0, dt, z, z0, emission_coeff, T2, rH2, p, u2, RAIN,DISF,
                                                                  SLOPE, s_cone, B_Ts, LWin, N)
 
     # Return the residual (is minimized by the optimization function)

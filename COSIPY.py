@@ -48,6 +48,8 @@ import scipy
 
 import cProfile
 
+np.warnings.filterwarnings('ignore')
+
 def main():
 
     start_logging()
@@ -291,12 +293,12 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 # Get the results from the workers
                 indY,indX,local_restart,RAIN,DISF,SNOWFALL,LWin,LWout,H,LE,B,QRR,QFR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,SWNET,NLAYERS, \
                                 ME,FE,ICE,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL,CONERAD,CONEHEIGHT,CONESLOPE,CONEAREA,CONEVOL, \
-                                LAYER_HEIGHT,LAYER_RHO,LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_ICE_FRACTION, \
+                                RHO, TBULK, LAYER_HEIGHT,LAYER_RHO,LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_ICE_FRACTION, \
                                 LAYER_IRREDUCIBLE_WATER,LAYER_REFREEZE,stake_names,stat,df_eval = future.result()
                
                 IO.copy_local_to_global(indY,indX,RAIN,DISF,SNOWFALL,LWin,LWout,H,LE,B,QRR,QFR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,SWNET,NLAYERS, \
-                                ME,FE,ICE,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL,CONERAD,CONEHEIGHT,CONESLOPE,CONEAREA,CONEVOL,LAYER_HEIGHT,LAYER_RHO, \
-                                LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_ICE_FRACTION,LAYER_IRREDUCIBLE_WATER,LAYER_REFREEZE)
+                                ME,FE,ICE,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL,CONERAD,CONEHEIGHT,CONESLOPE,CONEAREA,CONEVOL,RHO, TBULK,\
+                                LAYER_HEIGHT,LAYER_RHO,LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_ICE_FRACTION,LAYER_IRREDUCIBLE_WATER,LAYER_REFREEZE)
 
                 IO.copy_local_restart_to_global(indY,indX,local_restart)
 
