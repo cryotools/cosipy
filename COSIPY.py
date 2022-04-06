@@ -201,6 +201,14 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                     index = np.unravel_index(index[1], lats.shape)
                 stakes_list.append((index[0][0], index[1][0], row['id']))
 
+        elif all_evaluation is True:
+            df_stakes_data = pd.read_csv(observations_data_file, delimiter=',', index_col='TIMESTAMP', na_values='-9999')
+            df_stakes_data = df_stakes_data[obs_type]
+            df_stakes_data.index = pd.to_datetime(df_stakes_data.index)
+            # Init dataframes to store evaluation statistics
+            df_stat = pd.DataFrame()
+            df_val = df_stakes_data.copy()
+
         elif drone_evaluation is True:
             stake_names = icestupa_name
             df_stakes_data = pd.read_csv(drone_data_file, delimiter=',', index_col='TIMESTAMP', na_values='-9999')
@@ -218,7 +226,6 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             # Init dataframes to store evaluation statistics
             df_stat = pd.DataFrame()
             df_val = df_stakes_data.copy()
-
         else:
             stakes_loc = None
             df_stakes_data = None
@@ -307,6 +314,27 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 
                 # Write restart data to file
                 IO.write_restart_to_file()
+
+                if all_evaluation is True:
+                    # Store evaluation of stake measurements to dataframe
+                    print(obs_type, stat)
+                    # stat = stat.rename('rmse')
+
+                    print('\n')
+                    print('--------------------------------------------------------------')
+                    print('Validation....')
+                    print('-------------------------------------------------------------- \n')
+                    print(f"\t RMSE of {icestupa_name} is {stat.values[0]} m3 \n")
+
+                    df_stat = pd.concat([df_stat, stat])
+
+                    for i in stake_names:
+                        if ('volume' in obs_type):
+                            df_val[i] = df_eval.volume
+                        if ('area' in obs_type):
+                            df_val[i] = df_eval.area
+                        if ('bulktemp' in obs_type):
+                            df_val[i] = df_eval.bulktemp
 
                 if drone_evaluation is True:
                     # Store evaluation of stake measurements to dataframe

@@ -639,7 +639,11 @@ class IOClass:
         if ('CONEAREA' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.CONEAREA, 'CONEAREA', 'm', 'AIR Area') 
         if ('CONEVOL' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.CONEVOL, 'CONEVOL', 'm3', 'AIR Volume') 
+            self.add_variable_along_latlontime(self.RESULT, self.CONEVOL, 'CONEVOL', 'm^3', 'AIR Volume') 
+        if ('RHO' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.RHO, 'RHO', 'kg m^-3', 'AIR Volume') 
+        if ('TBULK' in self.internal):
+            self.add_variable_along_latlontime(self.RESULT, self.TBULK, 'TBULK', 'K', 'AIR Volume') 
 	            
         if full_field:
             if ('HEIGHT' in self.full):

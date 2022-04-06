@@ -10,16 +10,20 @@
 # time_start = '2009-01-01T06:00'
 # time_end   = '2009-01-10T00:00'
 
-# icestupa_name = 'guttannen22_scheduled'
-icestupa_name = 'guttannen21'
+icestupa_name = 'guttannen22_scheduled'
+# icestupa_name = 'guttannen21'
 # icestupa_name = 'gangles21'
 
 if icestupa_name in ['guttannen22_scheduled']:
+    all_evaluation = True
     thermistor_evaluation = False
-    drone_evaluation = True
-    obs_type = 'volume'                                          # What kind of stake data is used 'mb' or 'snowheight'
+    drone_evaluation = False
+    # obs_type = ['volume', 'area', 'bulkTemp']                                          # What kind of stake data is used 'mb' or 'snowheight'
+    obs_type = ['volume']                                          # What kind of stake data is used 'mb' or 'snowheight'
     time_start = '2021-12-03T12:00'
     time_end   = '2022-03-03T00:00'
+    observations_data_file = './data/input/' + icestupa_name + '/observations.csv'   # path to stake data file
+    eval_method = 'rmse'                                        # how to evaluate the simulations ('rmse')
 
 if icestupa_name in ['guttannen22_unscheduled']:
     drone_evaluation = True
@@ -32,10 +36,11 @@ if icestupa_name in ['guttannen22_unscheduled']:
 if icestupa_name == 'guttannen21':
     drone_evaluation = True
     thermistor_evaluation = False
-    obs_type = 'volume'                                          # What kind of stake data is used 'mb' or 'snowheight'
+    camtemp_evaluation = True
+    obs_type = ['volume', 'camtemp']                                          # What kind of stake data is used 'mb' or 'snowheight'
     time_start = '2020-11-22T15:00'
-    # time_end   = '2021-05-10T01:00'
-    time_end   = '2021-03-10T01:00'
+    time_end   = '2021-05-10T01:00'
+    # time_end   = '2021-03-10T01:00'
 
 if icestupa_name == 'gangles21':
     drone_evaluation = True

@@ -6,7 +6,8 @@ from constants import mult_factor_RRR, densification_method, ice_density, water_
                       lat_heat_melting, lat_heat_vaporize, center_snow_transfer_function, \
                       spread_snow_transfer_function, constant_density, albedo_ice, make_icestupa, \
                         roughness_ice, z, temperature_threshold_precipitation
-from config import force_use_TP, force_use_N, stake_evaluation, drone_evaluation,thermistor_evaluation, full_field, WRF_X_CSPY 
+from config import force_use_TP, force_use_N, all_evaluation, stake_evaluation, \
+drone_evaluation,thermistor_evaluation, full_field, WRF_X_CSPY, obs_type
 
 from cosipy.modules.albedo import updateAlbedo
 from cosipy.modules.heatEquation import solveHeatEquation
@@ -184,6 +185,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     # Initial cumulative mass balance variable
     MB_cum = 0
 
+    if all_evaluation:
+        # Create pandas dataframe for stake evaluation
+        _df = pd.DataFrame(index=stake_data.index, columns=obs_type, dtype='float')
     if stake_evaluation:
         # Create pandas dataframe for stake evaluation
         _df = pd.DataFrame(index=stake_data.index, columns=['mb','snowheight'], dtype='float')
@@ -241,7 +245,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Derive Icestupa fountain discharge rates [m w.e.]
         # TODO include water density
         if make_icestupa :
-            DISF = DISCHARGE[t]*dt/(60*1000 * np.pi * r_cone**2)
+            DISF = DISCHARGE[t]*dt/(60* water_density * np.pi * r_cone**2)
 
         # if snowfall is smaller than the threshold
         if SNOWFALL<minimum_snowfall :
@@ -409,16 +413,36 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         internal_mass_balance2 = melt-Q  + subsurface_melt
         mass_balance_check = surface_mass_balance + internal_mass_balance2
 
-        # TODO make similar drone evaluation
+        #--------------------------------------------
+        # Calculate AIR cone charecteristics
+        #--------------------------------------------
+        r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, surface_mass_balance, r_cone, h_cone,s_cone,
+                                                             rho, A_cone, V_cone)
+
         # Cumulative mass balance for stake evaluation 
         MB_cum = MB_cum + mass_balance
+
+        layer_heights = GRID.get_height()
+        rho = np.average(GRID.get_density())
+        bulk_temperature = np.average(GRID.get_temperature(), weights=layer_heights)
         
         # Store cumulative MB in pandas frame for validation
-        if stake_names:
+        if obs_type:
             if (DATA.isel(time=t).time.values in stake_data.index):
 
                 if drone_evaluation:
                     _df['volume'].loc[DATA.isel(time=t).time.values] = V_cone
+                elif all_evaluation:
+                    if 'volume' in obs_type:
+                        _df['volume'].loc[DATA.isel(time=t).time.values] = V_cone
+                    if 'area' in obs_type:
+                        _df['area'].loc[DATA.isel(time=t).time.values] = A_cone
+                    if 'bulkTemp' in obs_type:
+                        Tz = bulk_temperature - zero_temperature
+                        _df['bulktemp'].loc[DATA.isel(time=t).time.values] = Tz
+                    if 'surfTemp' in obs_type:
+                        Tz = surface_temperature - zero_temperature
+                        _df['surfTemp'].loc[DATA.isel(time=t).time.values] = Tz
                 elif thermistor_evaluation:
                     # Tz = get_subT(GRID, z)
                     # Tz = np.mean(GRID.get_temperature()) - zero_temperature
@@ -427,17 +451,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
                 else:
                     _df['mb'].loc[DATA.isel(time=t).time.values] = MB_cum 
                     _df['snowheight'].loc[DATA.isel(time=t).time.values] = GRID.get_total_snowheight() 
-
-
-        #--------------------------------------------
-        # Calculate AIR cone charecteristics
-        #--------------------------------------------
-        layer_heights = GRID.get_height()
-        # rho = np.average(GRID.get_density(), weights=layer_heights)
-        rho = np.average(GRID.get_density())
-        bulk_temperature = np.average(GRID.get_temperature(), weights=layer_heights)
-        r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, surface_mass_balance, r_cone, h_cone,s_cone,
-                                                             rho, A_cone, V_cone)
 
         
         # Save results
@@ -506,6 +519,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             _LAYER_REFREEZE = None
 
     if stake_evaluation:
+        # Evaluate stakes
+        _stat = evaluate(stake_names, stake_data, _df)
+    if all_evaluation:
         # Evaluate stakes
         _stat = evaluate(stake_names, stake_data, _df)
     elif drone_evaluation:
