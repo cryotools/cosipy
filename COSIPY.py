@@ -88,7 +88,7 @@ def main():
 
     else:
         with LocalCluster(scheduler_port=local_port, n_workers=workers, local_dir='logs/dask-worker-space', threads_per_worker=1, silence_logs=logging.ERROR) as cluster:
-            print(cluster)
+            # print(cluster)
             run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures)
 
     print('\n')
@@ -240,6 +240,8 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 for idx, (stake_loc_y, stake_loc_x, stake_name) in enumerate(stakes_list):
                     if ((y == stake_loc_y) & (x == stake_loc_x)):
                         stake_names.append(stake_name)
+            elif all_evaluation is True:
+                stake_names = obs_type
             elif drone_evaluation is True:
                 stake_names = [stake_names]
             elif thermistor_evaluation is True:

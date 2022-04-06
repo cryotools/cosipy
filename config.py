@@ -15,7 +15,7 @@ icestupa_name = 'guttannen22_scheduled'
 # icestupa_name = 'gangles21'
 
 if icestupa_name in ['guttannen22_scheduled']:
-    all_evaluation = True
+    all_evaluation = False
     thermistor_evaluation = False
     drone_evaluation = False
     # obs_type = ['volume', 'area', 'bulkTemp']                                          # What kind of stake data is used 'mb' or 'snowheight'
@@ -26,15 +26,16 @@ if icestupa_name in ['guttannen22_scheduled']:
     eval_method = 'rmse'                                        # how to evaluate the simulations ('rmse')
 
 if icestupa_name in ['guttannen22_unscheduled']:
-    drone_evaluation = True
+    all_evaluation = False
+    drone_evaluation = False
     thermistor_evaluation = False
     obs_type = 'volume'                                          # What kind of stake data is used 'mb' or 'snowheight'
     time_start = '2021-12-03T12:00'
     time_end   = '2022-03-03T00:00'
 
-
 if icestupa_name == 'guttannen21':
-    drone_evaluation = True
+    all_evaluation = False
+    drone_evaluation = False
     thermistor_evaluation = False
     camtemp_evaluation = True
     obs_type = ['volume', 'camtemp']                                          # What kind of stake data is used 'mb' or 'snowheight'
@@ -43,6 +44,7 @@ if icestupa_name == 'guttannen21':
     # time_end   = '2021-03-10T01:00'
 
 if icestupa_name == 'gangles21':
+    all_evaluation = False
     drone_evaluation = True
     thermistor_evaluation = False
     obs_type = 'volume'                                          # What kind of stake data is used 'mb' or 'snowheight'

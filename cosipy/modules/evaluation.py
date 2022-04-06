@@ -2,24 +2,22 @@ import numpy as np
 from config import eval_method, obs_type
 
 
-def evaluate(stake_data, df_):
+def evaluate(stake_names, stake_data, df_):
     """ This methods evaluates the simulation with the stake measurements
         stake_name  ::  """
 
     if eval_method == 'rmse':
-        stat = rmse(stake_data, df_)
+        stat = rmse(stake_names, stake_data, df_)
     else:
         stat = None
        
     return stat
 
 
-def rmse(stake_data, df_):
+def rmse(stake_names, stake_data, df_):
     # types = ['mb', 'snowheight', 'volume', 'surfTemp', 'bulkTemp']
     # rmse = []
-    # print(stake_data.head())
-    # print(df_.head())
-    for type in obs_type:
+    for type in stake_names:
         # rmse.append(((stake_data[stake_data[type].notnull()].subtract(df_[type],axis=0))**2).mean()**.5)
         rmse = ((stake_data[type].subtract(df_[type],axis=0))**2).mean()**.5
     print("RMSE", rmse)

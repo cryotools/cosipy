@@ -186,8 +186,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     MB_cum = 0
 
     if all_evaluation:
+        print("Evaluations", stake_names)
         # Create pandas dataframe for stake evaluation
-        _df = pd.DataFrame(index=stake_data.index, columns=obs_type, dtype='float')
+        _df = pd.DataFrame(index=stake_data.index, columns=stake_names, dtype='float')
     if stake_evaluation:
         # Create pandas dataframe for stake evaluation
         _df = pd.DataFrame(index=stake_data.index, columns=['mb','snowheight'], dtype='float')
@@ -416,20 +417,19 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate AIR cone charecteristics
         #--------------------------------------------
+        layer_heights = GRID.get_height()
+        rho = np.average(GRID.get_density())
+        bulk_temperature = np.average(GRID.get_temperature(), weights=layer_heights)
+
         r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, surface_mass_balance, r_cone, h_cone,s_cone,
                                                              rho, A_cone, V_cone)
 
         # Cumulative mass balance for stake evaluation 
         MB_cum = MB_cum + mass_balance
-
-        layer_heights = GRID.get_height()
-        rho = np.average(GRID.get_density())
-        bulk_temperature = np.average(GRID.get_temperature(), weights=layer_heights)
         
         # Store cumulative MB in pandas frame for validation
-        if obs_type:
+        if stake_names:
             if (DATA.isel(time=t).time.values in stake_data.index):
-
                 if drone_evaluation:
                     _df['volume'].loc[DATA.isel(time=t).time.values] = V_cone
                 elif all_evaluation:
