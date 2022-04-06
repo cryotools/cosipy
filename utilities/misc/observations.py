@@ -34,5 +34,5 @@ if __name__ == "__main__":
 
     df = pd.merge(dfd, dft, on ='TIMESTAMP', how ="outer")
     df = df.sort_index()
-    print(df)
+    print(dfd)
     # df.to_csv("../../data/input/" + icestupa_name + "/observations.csv")

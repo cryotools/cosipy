@@ -201,35 +201,18 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                     index = np.unravel_index(index[1], lats.shape)
                 stakes_list.append((index[0][0], index[1][0], row['id']))
 
-        elif all_evaluation is True:
+        elif make_icestupa is True:
+            stake_names = obs_type
             df_stakes_data = pd.read_csv(observations_data_file, delimiter=',', index_col='TIMESTAMP', na_values='-9999')
-            df_stakes_data = df_stakes_data[obs_type]
-            df_stakes_data.index = pd.to_datetime(df_stakes_data.index)
-            # Init dataframes to store evaluation statistics
-            df_stat = pd.DataFrame()
-            df_val = df_stakes_data.copy()
-
-        elif drone_evaluation is True:
-            stake_names = icestupa_name
-            df_stakes_data = pd.read_csv(drone_data_file, delimiter=',', index_col='TIMESTAMP', na_values='-9999')
             df_stakes_data = df_stakes_data[[stake_names]]
             df_stakes_data.index = pd.to_datetime(df_stakes_data.index)
             # Init dataframes to store evaluation statistics
             df_stat = pd.DataFrame()
             df_val = df_stakes_data.copy()
 
-        elif thermistor_evaluation is True:
-            stake_names = icestupa_name
-            df_stakes_data = pd.read_csv(thermistor_data_file, delimiter=',', index_col='TIMESTAMP', na_values='-9999')
-            df_stakes_data = df_stakes_data[[stake_names]]
-            df_stakes_data.index = pd.to_datetime(df_stakes_data.index)
-            # Init dataframes to store evaluation statistics
-            df_stat = pd.DataFrame()
-            df_val = df_stakes_data.copy()
         else:
             stakes_loc = None
             df_stakes_data = None
-
 
         # Distribute data and model to workers
         start_res = datetime.now()
@@ -240,12 +223,9 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 for idx, (stake_loc_y, stake_loc_x, stake_name) in enumerate(stakes_list):
                     if ((y == stake_loc_y) & (x == stake_loc_x)):
                         stake_names.append(stake_name)
-            elif all_evaluation is True:
-                stake_names = obs_type
-            elif drone_evaluation is True:
-                stake_names = [stake_names]
-            elif thermistor_evaluation is True:
-                stake_names = [stake_names]
+            elif make_icestupa is True:
+                pass
+                # stake_names = [stake_names]
             else:
                 stake_names = None
                 
@@ -317,58 +297,27 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 # Write restart data to file
                 IO.write_restart_to_file()
 
-                if all_evaluation is True:
+                print('\n')
+                print('--------------------------------------------------------------')
+                print('Validation metrics....')
+                print('-------------------------------------------------------------- \n')
+
+                if make_icestupa is True:
                     # Store evaluation of stake measurements to dataframe
-                    print(obs_type, stat)
-                    # stat = stat.rename('rmse')
+                    stat = round(stat,2)
+                    print(f"\t RMSE of {stake_names} for {icestupa_name} is {stat} \n")
 
-                    print('\n')
-                    print('--------------------------------------------------------------')
-                    print('Validation....')
-                    print('-------------------------------------------------------------- \n')
-                    print(f"\t RMSE of {icestupa_name} is {stat.values[0]} m3 \n")
+                    out_filename = os.path.join(data_path,'output',stake_names +'_validation_metrics.csv')
+                    if os.path.exists(out_filename):
+                        df_stat = pd.read_csv(out_filename, sep='\t', index_col='icestupa')
+                    else:
+                        df_stat = pd.DataFrame(columns=['rmse'], index=all_icestupas)
+                        df_stat.index.name='icestupa'
 
-                    df_stat = pd.concat([df_stat, stat])
+                    df_stat.loc[icestupa_name] =  stat
 
-                    for i in stake_names:
-                        if ('volume' in obs_type):
-                            df_val[i] = df_eval.volume
-                        if ('area' in obs_type):
-                            df_val[i] = df_eval.area
-                        if ('bulktemp' in obs_type):
-                            df_val[i] = df_eval.bulktemp
+                    df_val[stake_names] = df_eval[stake_names]
 
-                if drone_evaluation is True:
-                    # Store evaluation of stake measurements to dataframe
-                    stat = stat.rename('rmse')
-
-                    print('\n')
-                    print('--------------------------------------------------------------')
-                    print('Volume validation....')
-                    print('-------------------------------------------------------------- \n')
-                    print(f"\t RMSE of {icestupa_name} is {stat.values[0]} m3 \n")
-
-                    df_stat = pd.concat([df_stat, stat])
-
-                    for i in stake_names:
-                        if (obs_type == 'volume'):
-                            df_val[i] = df_eval.volume
-
-                if thermistor_evaluation is True:
-                    # Store evaluation of stake measurements to dataframe
-                    stat = stat.rename('rmse')
-
-                    print('\n')
-                    print('--------------------------------------------------------------')
-                    print('Temperature validation....')
-                    print('-------------------------------------------------------------- \n')
-                    print(f"\t RMSE of {icestupa_name} is {stat.values[0]} m3 \n")
-
-                    df_stat = pd.concat([df_stat, stat])
-
-                    for i in stake_names:
-                        if (obs_type == 'temp'):
-                            df_val[i] = df_eval.temp
 
                 if stake_evaluation is True:
                     # Store evaluation of stake measurements to dataframe
@@ -390,17 +339,10 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             df_stat.to_csv(os.path.join(data_path,'output','stake_statistics.csv'),sep='\t', float_format='%.2f')
             df_val.to_csv(os.path.join(data_path,'output','stake_simulations.csv'),sep='\t', float_format='%.2f')
 
-        if drone_evaluation is True:
+        if make_icestupa is True:
             # Save the statistics and the mass balance simulations at the stakes to files
-            df_stat.to_csv(os.path.join(data_path,'output','drone_statistics.csv'),sep='\t', float_format='%.2f')
-            df_val.to_csv(os.path.join(data_path,'output','drone_simulations.csv'),sep='\t', float_format='%.2f')
-
-        if thermistor_evaluation is True:
-            # Save the statistics and the mass balance simulations at the stakes to files
-            df_stat.to_csv(os.path.join(data_path,'output','temp_statistics.csv'),sep='\t', float_format='%.2f')
-            df_val.to_csv(os.path.join(data_path,'output','temp_simulations.csv'),sep='\t', float_format='%.2f')
-
-
+            df_val.to_csv(os.path.join(data_path,'output',stake_names + '_simulations.csv'),sep='\t', float_format='%.2f')
+            df_stat.to_csv(os.path.join(data_path,'output',stake_names +'_validation_metrics.csv'),sep='\t', float_format='%.2f')
 
 def start_logging():
     ''' Start the python logging'''

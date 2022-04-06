@@ -6,8 +6,8 @@ from constants import mult_factor_RRR, densification_method, ice_density, water_
                       lat_heat_melting, lat_heat_vaporize, center_snow_transfer_function, \
                       spread_snow_transfer_function, constant_density, albedo_ice, make_icestupa, \
                         roughness_ice, z, temperature_threshold_precipitation
-from config import force_use_TP, force_use_N, all_evaluation, stake_evaluation, \
-drone_evaluation,thermistor_evaluation, full_field, WRF_X_CSPY, obs_type
+from config import force_use_TP, force_use_N, stake_evaluation, \
+drone_evaluation,thermistor_evaluation, thermalcam_evaluation, full_field, WRF_X_CSPY, obs_type
 
 from cosipy.modules.albedo import updateAlbedo
 from cosipy.modules.heatEquation import solveHeatEquation
@@ -185,21 +185,13 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     # Initial cumulative mass balance variable
     MB_cum = 0
 
-    if all_evaluation:
-        print("Evaluations", stake_names)
-        # Create pandas dataframe for stake evaluation
-        _df = pd.DataFrame(index=stake_data.index, columns=stake_names, dtype='float')
     if stake_evaluation:
         # Create pandas dataframe for stake evaluation
         _df = pd.DataFrame(index=stake_data.index, columns=['mb','snowheight'], dtype='float')
 
-    if drone_evaluation:
+    if make_icestupa:
         # Create pandas dataframe for stake evaluation
-        _df = pd.DataFrame(index=stake_data.index, columns=['volume'], dtype='float')
-
-    if thermistor_evaluation:
-        # Create pandas dataframe for stake evaluation
-        _df = pd.DataFrame(index=stake_data.index, columns=['temp'], dtype='float')
+        _df = pd.DataFrame(index=stake_data.index, columns=[stake_names], dtype='float')
 
     #--------------------------------------------
     # TIME LOOP
@@ -428,29 +420,22 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         MB_cum = MB_cum + mass_balance
         
         # Store cumulative MB in pandas frame for validation
-        if stake_names:
-            if (DATA.isel(time=t).time.values in stake_data.index):
-                if drone_evaluation:
-                    _df['volume'].loc[DATA.isel(time=t).time.values] = V_cone
-                elif all_evaluation:
-                    if 'volume' in obs_type:
-                        _df['volume'].loc[DATA.isel(time=t).time.values] = V_cone
-                    if 'area' in obs_type:
-                        _df['area'].loc[DATA.isel(time=t).time.values] = A_cone
-                    if 'bulkTemp' in obs_type:
-                        Tz = bulk_temperature - zero_temperature
-                        _df['bulktemp'].loc[DATA.isel(time=t).time.values] = Tz
-                    if 'surfTemp' in obs_type:
-                        Tz = surface_temperature - zero_temperature
-                        _df['surfTemp'].loc[DATA.isel(time=t).time.values] = Tz
-                elif thermistor_evaluation:
-                    # Tz = get_subT(GRID, z)
-                    # Tz = np.mean(GRID.get_temperature()) - zero_temperature
-                    Tz = surface_temperature - zero_temperature
-                    _df['temp'].loc[DATA.isel(time=t).time.values] = Tz
-                else:
-                    _df['mb'].loc[DATA.isel(time=t).time.values] = MB_cum 
-                    _df['snowheight'].loc[DATA.isel(time=t).time.values] = GRID.get_total_snowheight() 
+        if (DATA.isel(time=t).time.values in stake_data.index):
+            if stake_names == 'volume':
+                _df[stake_names].loc[DATA.isel(time=t).time.values] = V_cone
+            elif stake_names == 'area':
+                _df[stake_names].loc[DATA.isel(time=t).time.values] = A_cone
+                # if drone_evaluation:
+                #     # _df['area'].loc[DATA.isel(time=t).time.values] = A_cone
+                # elif thermalcam_evaluation:
+                #     Tz = bulk_temperature - zero_temperature
+                #     _df['bulktemp'].loc[DATA.isel(time=t).time.values] = Tz
+                # elif thermistor_evaluation:
+                #     Tz = surface_temperature - zero_temperature
+                #     _df['temp'].loc[DATA.isel(time=t).time.values] = Tz
+                # else:
+                #     _df['mb'].loc[DATA.isel(time=t).time.values] = MB_cum 
+                #     _df['snowheight'].loc[DATA.isel(time=t).time.values] = GRID.get_total_snowheight() 
 
         
         # Save results
@@ -521,13 +506,13 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     if stake_evaluation:
         # Evaluate stakes
         _stat = evaluate(stake_names, stake_data, _df)
-    if all_evaluation:
-        # Evaluate stakes
-        _stat = evaluate(stake_names, stake_data, _df)
     elif drone_evaluation:
         # Evaluate stakes
         _stat = evaluate(stake_names, stake_data, _df)
     elif thermistor_evaluation:
+        # Evaluate stakes
+        _stat = evaluate(stake_names, stake_data, _df)
+    elif thermalcam_evaluation:
         # Evaluate stakes
         _stat = evaluate(stake_names, stake_data, _df)
     else:
