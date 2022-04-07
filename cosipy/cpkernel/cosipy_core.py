@@ -218,10 +218,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000.0
         elif (SNOWF is not None):
             SNOWFALL = SNOWF[t]
-        elif make_icestupa : # Ignore rain
-            # SNOWFALL = (RRR[t]/1000)*(ice_density/density_fresh_snow)
-            # SNOWFALL *= np.pi * r_cone**2/A_cone
-            # RAIN=0
+        elif make_icestupa : 
             if T2[t] < temperature_threshold_precipitation :
                 SNOWFALL = (RRR[t]/1000)*(ice_density/density_fresh_snow)
                 SNOWFALL *= np.pi * r_cone**2/A_cone
@@ -236,7 +233,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000.0
 
         # Derive Icestupa fountain discharge rates [m w.e.]
-        # TODO include water density
         if make_icestupa :
             DISF = DISCHARGE[t]*dt/(60* water_density * np.pi * r_cone**2)
 
@@ -291,7 +287,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             SWnet = G[t] * (1 - alpha)
 
         # Penetrating SW radiation and subsurface melt
-        if SWnet > 0.0 and penetrating_method != None :
+        if SWnet > 0.0 and penetrating_method != 'None' :
             subsurface_melt, G_penetrating = penetrating_radiation(GRID, SWnet, dt)
         else:
             subsurface_melt = 0.0

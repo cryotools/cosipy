@@ -11,8 +11,8 @@
 # time_end   = '2009-01-10T00:00'
 
 # all_icestupas = ['guttannen22_scheduled', 'guttannen22_unscheduled', 'guttannen21', 'gangles21']
-# icestupa_name = 'guttannen22_scheduled'
-icestupa_name = 'guttannen21'
+icestupa_name = 'guttannen22_scheduled'
+# icestupa_name = 'guttannen21'
 # icestupa_name = 'gangles21'
 
 if icestupa_name in ['guttannen22_scheduled']:
