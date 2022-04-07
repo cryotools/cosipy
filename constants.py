@@ -13,7 +13,7 @@ z = 2.0                                         # Measurement height [m]
 stability_correction = 'Ri'                     # possibilities: 'Ri','MO'
 albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98', 'Balasubramanian22'
 densification_method = 'Boone'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
-penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
+penetrating_method = None                       # possibilities: 'Bintanja95', None
 roughness_method = 'constant'                   # possibilities: 'Moelg12', 'constant'
 emissivity_method = 'Balasubramanian22'         # possibilities: 'Balasubramanian22', 'constant'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
@@ -87,7 +87,7 @@ surface_emission_coeff = 0.99                   # surface emission coefficient [
 
 ' INITIAL CONDITIONS '
 first_layer_height = 0.05                       # The first layer will always have the defined height (m)
-initial_glacier_layer_heights = 0.05             # Initial thickness of glacier ice layers
+initial_glacier_layer_heights = 0.01             # Initial thickness of glacier ice layers
 layer_stretching = 1.10                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
 initial_snow_layer_heights = 0.01                # Initial thickness of snow layers
 

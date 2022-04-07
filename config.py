@@ -10,10 +10,10 @@
 # time_start = '2009-01-01T06:00'
 # time_end   = '2009-01-10T00:00'
 
-all_icestupas = ['guttannen22_scheduled', 'guttannen22_unscheduled', 'guttannen21', 'gangles21']
+# all_icestupas = ['guttannen22_scheduled', 'guttannen22_unscheduled', 'guttannen21', 'gangles21']
 # icestupa_name = 'guttannen22_scheduled'
-# icestupa_name = 'guttannen21'
-icestupa_name = 'gangles21'
+icestupa_name = 'guttannen21'
+# icestupa_name = 'gangles21'
 
 if icestupa_name in ['guttannen22_scheduled']:
     thermistor_evaluation = False
@@ -28,9 +28,9 @@ if icestupa_name in ['guttannen22_unscheduled']:
     time_end   = '2022-03-03T00:00'
 
 if icestupa_name == 'guttannen21':
-    drone_evaluation = False
+    drone_evaluation = True
     thermistor_evaluation = False
-    thermalcam_evaluation = True
+    thermalcam_evaluation = False
     time_start = '2020-11-22T15:00'
     time_end   = '2021-05-10T01:00'
     # time_end   = '2021-03-10T01:00'

@@ -5,7 +5,7 @@ from constants import mult_factor_RRR, densification_method, ice_density, water_
                       minimum_snowfall, zero_temperature, lat_heat_sublimation, \
                       lat_heat_melting, lat_heat_vaporize, center_snow_transfer_function, \
                       spread_snow_transfer_function, constant_density, albedo_ice, make_icestupa, \
-                        roughness_ice, z, temperature_threshold_precipitation
+                        roughness_ice, z, temperature_threshold_precipitation, penetrating_method
 from config import force_use_TP, force_use_N, stake_evaluation, \
 drone_evaluation,thermistor_evaluation, thermalcam_evaluation, full_field, WRF_X_CSPY, obs_type
 
@@ -291,7 +291,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             SWnet = G[t] * (1 - alpha)
 
         # Penetrating SW radiation and subsurface melt
-        if SWnet > 0.0 and make_icestupa == False:
+        if SWnet > 0.0 and penetrating_method != None :
             subsurface_melt, G_penetrating = penetrating_radiation(GRID, SWnet, dt)
         else:
             subsurface_melt = 0.0

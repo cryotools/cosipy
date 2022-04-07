@@ -337,9 +337,6 @@ def eb_fluxes(GRID, T0, dt, z, z0, emission_coeff, T2, rH2, p, u2, RAIN, DISF, S
         H *= mu_cone
         LE *= mu_cone
     
-    # if make_icestupa :
-    #     surface_emission_coeff = ice_emission_coeff
-
     # Outgoing longwave radiation
     Lo = -emission_coeff* sigma * np.power(T0, 4.0)
 
