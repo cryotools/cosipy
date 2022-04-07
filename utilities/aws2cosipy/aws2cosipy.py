@@ -20,7 +20,7 @@ from metpy.units import units
 sys.path.append('../../')
 
 from constants import make_icestupa
-from config import time_start, time_end, icestupa_name
+from config import time_start, time_end, icestupa_name, plat, plon, hgt, stationAlt, radf
 from utilities.aws2cosipy.aws2cosipyConfig import *
 from cosipy.modules.radCor import *
 
@@ -717,41 +717,22 @@ def compute_scale_and_offset(min, max, n):
     add_offset = min + 2 ** (n - 1) * scale_factor
     return (scale_factor, add_offset)
 
-def combine_icestupa_inputs():
+def icestupa_inputs(name):
 
-    files = []
-    icestupa_names = ['guttannen21', 'gangles21']
-    # icestupa_names = ['guttannen21', 'gangles21', 'guttannen22_unscheduled', 'guttannen22_scheduled']
-    for name in icestupa_names:
-        csv_file = '../../data/input/'+ name +'/input.csv'
-        cosipy_file = '../../data/input/'+ name +'/input.nc'
-        files.append(cosipy_file)
+    csv_file = '../../data/input/'+ name +'/input.csv'
+    cosipy_file = '../../data/input/'+ name +'/input.nc'
 
-        if name in ['guttannen22_scheduled', 'guttannen22_unscheduled']:
-            start_date = '2021-12-03T12:00'
-            end_date   = '2022-03-03T00:00'
+    static_file=None
+    create_1D_input(csv_file, cosipy_file, static_file, start_date=time_start, end_date=time_end) 
 
-        if name == 'guttannen21':
-            start_date = '2020-11-22T15:00'
-            end_date   = '2021-05-10T01:00'
-
-        if name == 'gangles21':
-            start_date = '2021-01-18'
-            end_date   = '2021-06-20'
-
-        static_file=None
-        create_1D_input(csv_file, cosipy_file, static_file, start_date, end_date) 
-
-    da_concat = xr.concat([xr.open_dataset(files[0]), xr.open_dataset(files[1])], pd.Index(icestupa_names, name='name'))
-    da_concat.to_netcdf('../../data/input/icestupas.nc')
-    print(f'Input file with {len(icestupa_names)} icestupas created \n')
+    print(f'Input file of {name} icestupa created \n')
     print('-------------------------------------------')
 
 
 if __name__ == "__main__":
 
     if make_icestupa:
-        combine_icestupa_inputs()
+        icestupa_inputs(icestupa_name)
     else:
         parser = argparse.ArgumentParser(description='Create 2D input file from csv file.')
         parser.add_argument('-c', '-csv_file', dest='csv_file', help='Csv file(see readme for file convention)',

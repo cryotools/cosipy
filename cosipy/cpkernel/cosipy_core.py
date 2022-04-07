@@ -7,7 +7,7 @@ from constants import mult_factor_RRR, densification_method, ice_density, water_
                       spread_snow_transfer_function, constant_density, albedo_ice, make_icestupa, \
                         roughness_ice, z, temperature_threshold_precipitation, penetrating_method
 from config import force_use_TP, force_use_N, stake_evaluation, \
-drone_evaluation,thermistor_evaluation, thermalcam_evaluation, full_field, WRF_X_CSPY, obs_type
+drone_evaluation,thermistor_evaluation, thermalcam_evaluation, full_field, WRF_X_CSPY
 
 from cosipy.modules.albedo import updateAlbedo
 from cosipy.modules.heatEquation import solveHeatEquation

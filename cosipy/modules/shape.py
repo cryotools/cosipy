@@ -1,5 +1,6 @@
 import numpy as np
-from constants import radf, water_density, ice_density, constant_density
+from constants import ice_density
+from config import radf
 from scipy.optimize import minimize, newton
 from numba import njit
 from types import SimpleNamespace

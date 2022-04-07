@@ -6,14 +6,14 @@ from config import WRF_X_CSPY, icestupa_name
 
 ' GENERAL INFORMATION ' 
 dt = 3600                                       # Time step in the input files [s]
-max_layers = 100                                # Max. number of layers, just for the restart file
+max_layers = 200                                # Max. number of layers, just for the restart file
 z = 2.0                                         # Measurement height [m]
 
 ' PARAMETERIZATIONS '
 stability_correction = 'Ri'                     # possibilities: 'Ri','MO'
 albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98', 'Balasubramanian22'
 densification_method = 'Boone'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
-penetrating_method = 'None'                       # possibilities: 'Bintanja95', 'None'
+penetrating_method = 'None'                     # possibilities: 'Bintanja95', 'None'
 roughness_method = 'constant'                   # possibilities: 'Moelg12', 'constant'
 emissivity_method = 'Balasubramanian22'         # possibilities: 'Balasubramanian22', 'constant'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
@@ -35,7 +35,7 @@ minimum_snowfall = 0.001                        # minimum snowfall per time step
 
 
 ' REMESHING OPTIONS'
-remesh_method = 'adaptive_profile'                   # Remeshing (log_profile or adaptive_profile)
+remesh_method = 'adaptive_profile'              # Remeshing (log_profile or adaptive_profile)
 first_layer_height = 0.01                       # The first layer will always have the defined height (m)
 layer_stretching = 1.20                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
 
@@ -87,9 +87,9 @@ surface_emission_coeff = 0.99                   # surface emission coefficient [
 
 ' INITIAL CONDITIONS '
 first_layer_height = 0.05                       # The first layer will always have the defined height (m)
-initial_glacier_layer_heights = 0.01             # Initial thickness of glacier ice layers
-layer_stretching = 1.10                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
+initial_glacier_layer_heights = 0.05             # Initial thickness of glacier ice layers
 initial_snow_layer_heights = 0.01                # Initial thickness of snow layers
+layer_stretching = 1.10                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
 
 temperature_bottom = 273.16                     # Lower boundary condition for initial temperature profile (K)
 const_init_temp = 0.1                           # constant for init temperature profile used in exponential function (exponential decay)
@@ -104,7 +104,6 @@ initial_bottom_density_snowpack = 600.0         # Bottom density for initial sno
 if icestupa_name == 'guttannen22_scheduled':
     initial_snowheight_constant = 0.435              # Initial snowheight
     initial_glacier_height = 0.00                  # Initial glacier height without snowlayers
-    radf = 4.845                                       # Spray radius [m]
     Tf = 0 + 273.16                                # Water temperature [C]
     z2 = 0.00					                    # Thermistor depth 
     z3 = 0.50					                    # Thermistor depth 
@@ -117,23 +116,29 @@ if icestupa_name == 'guttannen22_scheduled':
 if icestupa_name == 'guttannen22_unscheduled':
     initial_snowheight_constant = 0.435              # Initial snowheight
     initial_glacier_height = 0.00                  # Initial glacier height without snowlayers
-    radf = 3.873                                       # Spray radius [m]
     Tf = 0 + 273.16                                # Water temperature [C]
 
 if icestupa_name == 'guttannen21':
     emissivity_method = 'constant'                 # possibilities: 'Balasubramanian22', 'constant'
     surface_emission_coeff = 0.97                   # surface emission coefficient [-]
-    initial_snowheight_constant = 0.3              # Initial snowheight
-    initial_glacier_height = 0                 # Initial glacier height without snowlayers
-    radf = 6.913                                       # Spray radius [m]
-    Tf = 1.5 + 273.16                                # Water temperature [C]
+    initial_snowheight_constant = 0                 # Initial snowheight
+    initial_glacier_height = 0.3                    # Initial glacier height without snowlayers
+    Tf = 1.5 + 273.16                               # Water temperature [C]
 
 if icestupa_name == 'gangles21':
     remesh_method = 'log_profile'                   # Remeshing (log_profile or adaptive_profile)
+    emissivity_method = 'constant'                 # possibilities: 'Balasubramanian22', 'constant'
+    surface_emission_coeff = 0.97                   # surface emission coefficient [-]
     initial_snowheight_constant = 0              # Initial snowheight
     initial_glacier_height = 1.0                  # Initial glacier height without snowlayers
-    radf = 10.22                                       # Spray radius [m]
     Tf = 0 + 273.16                                # Water temperature [C]
+
+if icestupa_name == 'guttannen20':
+    # emissivity_method = 'constant'                 # possibilities: 'Balasubramanian22', 'constant'
+    # surface_emission_coeff = 0.97                   # surface emission coefficient [-]
+    initial_snowheight_constant = 0.433            # Initial snowheight
+    initial_glacier_height = 0                 # Initial glacier height without snowlayers
+    Tf = 1.5 + 273.16                                # Water temperature [C]
 
 #-----------------------------------
 # AIR parameters and modifications

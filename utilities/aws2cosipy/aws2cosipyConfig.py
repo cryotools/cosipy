@@ -75,19 +75,7 @@ zeni_thld = 89.0              # If you do not know the exact value for your loca
 # Point model 
 #------------------------
 point_model = True
-#guttannen21
-plon = 8.29
-plat = 46.66
-hgt = 1047.6
-radf = 6.9
-name = 'guttannen21'
 
-#gangles21
-plon = 77.606949
-plat = 34.216638
-hgt = 4009
-radf = 10.2
-name = 'gangles21'
 
 # plon = -54.4
 # plat = 90.0
@@ -96,10 +84,6 @@ name = 'gangles21'
 #------------------------
 # Interpolation arguments 
 #------------------------
-# stationName = 'guttannen21'
-# stationAlt = 1047.6
-stationName = 'gangles21'
-stationAlt = 4009
 # stationName = 'Zhadang'
 # stationAlt = 5665.0
 

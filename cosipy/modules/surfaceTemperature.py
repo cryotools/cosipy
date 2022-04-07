@@ -354,6 +354,8 @@ def eb_fluxes(GRID, T0, dt, z, z0, emission_coeff, T2, rH2, p, u2, RAIN, DISF, S
 
     # Fountain heat flux
     QFR = water_density * spec_heat_water * (DISF/dt) * (Tf - T0)
+    # if T2 < zero_temperature :   # This code produces error, why?
+    #     QFR = 0
 
     # Rain heat flux
     QRR = water_density * spec_heat_water * (RAIN/1000/dt) * (T2 - T0)
