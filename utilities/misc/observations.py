@@ -1,10 +1,3 @@
- 
-"""
- This file reads the input data (model forcing) and write the output to netcdf file.  There is the create_1D_input
- (point model) and create_2D_input (distirbuted simulations) function. In case of the 1D input, the function works
- without a static file, in that file the static variables are created. For both cases, lapse rates can be determined
- in the aws2cosipyConfig.py file.
-"""
 import sys
 import xarray as xr
 import pandas as pd
