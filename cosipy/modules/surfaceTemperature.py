@@ -8,7 +8,7 @@ from types import SimpleNamespace
 from cosipy.utils.options import read_opt
 
 
-def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None,
+def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, LWin=None,
                                N=None, opt_dict=None):
     """ This methods updates the surface temperature and returns the surface fluxes
 
