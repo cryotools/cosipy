@@ -113,6 +113,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     #--------------------------------------------
     if GRID_RESTART is None:
         GRID, r_cone, h_cone = init_snowpack(DATA)
+        radf = r_cone
         s_cone = h_cone/r_cone
         A_cone = np.pi * r_cone * np.sqrt(r_cone**2 + h_cone**2)
         V_cone = 1/3 * np.pi * r_cone **2 * h_cone
@@ -410,7 +411,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         bulk_temperature = np.average(GRID.get_temperature(), weights=layer_heights)
 
         r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, surface_mass_balance, r_cone, h_cone,s_cone,
-                                                             rho, A_cone, V_cone)
+                                                             rho, A_cone, V_cone, radf)
 
         # Cumulative mass balance for stake evaluation 
         MB_cum = MB_cum + mass_balance

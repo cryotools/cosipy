@@ -1,11 +1,10 @@
 import numpy as np
 from constants import ice_density
-from config import radf
 from scipy.optimize import minimize, newton
 from numba import njit
 from types import SimpleNamespace
 
-def update_cone(GRID, surfMB, r_cone, h_cone, s_cone, rho, A_cone, V_cone):
+def update_cone(GRID, surfMB, r_cone, h_cone, s_cone, rho, A_cone, V_cone, radf):
     """ This methods updates the area of the artificial ice reservoir
 
     Given:

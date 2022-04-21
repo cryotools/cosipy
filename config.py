@@ -11,10 +11,10 @@
 # time_end   = '2009-01-10T00:00'
 
 all_icestupas = ['guttannen22_scheduled', 'guttannen22_unscheduled', 'guttannen21', 'gangles21']
-icestupa_name = 'guttannen22_unscheduled'
+# icestupa_name = 'guttannen22_unscheduled'
 # icestupa_name = 'guttannen21'
 # icestupa_name = 'guttannen20'
-# icestupa_name = 'gangles21'
+icestupa_name = 'gangles21'
 
 if icestupa_name in ['guttannen20', 'guttannen21', 'guttannen22_scheduled', 'guttannen22_unscheduled']:
     plon = 8.29
@@ -42,21 +42,21 @@ if icestupa_name == 'guttannen20':
     thermalcam_evaluation = False
     time_start = '2020-01-03T16:00'
     time_end   = '2020-04-06T12:00'
-    radf = 7.67                                       # Spray radius [m]
+    # radf = 7.67                                       # Spray radius [m]
 
 if icestupa_name in ['guttannen22_scheduled']:
     thermistor_evaluation = False
     drone_evaluation = True
     time_start = '2021-12-03T12:00'
     time_end   = '2022-04-12T00:00'
-    radf = 4.845                                       # Spray radius [m]
+    # radf = 4.845                                       # Spray radius [m]
 
 if icestupa_name in ['guttannen22_unscheduled']:
     drone_evaluation = True
     thermistor_evaluation = False
     time_start = '2021-12-03T12:00'
     time_end   = '2022-04-12T00:00'
-    radf = 4.072                                       # Spray radius [m]
+    # radf = 4.072                                       # Spray radius [m]
 
 if icestupa_name == 'guttannen21':
     drone_evaluation = True
@@ -66,7 +66,7 @@ if icestupa_name == 'guttannen21':
     time_end   = '2021-05-10T01:00'
     # time_end   = '2021-03-10T01:00'
 
-    radf = 6.913                                       # Spray radius [m]
+    # radf = 6.913                                       # Spray radius [m]
 
 if icestupa_name == 'gangles21':
     drone_evaluation = True
@@ -75,7 +75,7 @@ if icestupa_name == 'gangles21':
     time_end   = '2021-06-20'
     # time_end   = '2021-04-10'
 
-    radf = 10.22                                       # Spray radius [m]
+    # radf = 10.22                                       # Spray radius [m]
 
 
 # Hintereisferner
