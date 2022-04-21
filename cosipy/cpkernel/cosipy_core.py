@@ -219,7 +219,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000.0
         elif (SNOWF is not None):
             SNOWFALL = SNOWF[t]
-        elif make_icestupa : 
+        elif make_icestupa :
             if T2[t] < temperature_threshold_precipitation :
                 SNOWFALL = (RRR[t]/1000)*(ice_density/density_fresh_snow)
                 RAIN=0
@@ -363,7 +363,8 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
                 freeze_energy = 0
             else:
                 # Fountain spray forms ice layer
-                GRID.add_fountain_ice(freeze, ice_density, zero_temperature, 0.0)
+                # GRID.add_fountain_ice(freeze, ice_density, zero_temperature, 0.0)
+                GRID.add_fountain_ice(freeze, ice_density-50, zero_temperature, 0.0)  # TODO ice_density too high
 
             Q  = percolation(GRID, DISF-freeze + melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
 

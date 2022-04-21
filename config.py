@@ -63,7 +63,8 @@ if icestupa_name == 'guttannen21':
     thermistor_evaluation = False
     thermalcam_evaluation = False
     time_start = '2020-11-22T15:00'
-    time_end   = '2021-05-10T01:00'
+    # time_end   = '2021-05-10T01:00'
+    time_end   = '2021-04-30T00:00'
     # time_end   = '2021-03-10T01:00'
 
     # radf = 6.913                                       # Spray radius [m]
