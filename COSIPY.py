@@ -314,7 +314,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                         df_stat = pd.DataFrame(columns=['rmse'], index=all_icestupas)
                         df_stat.index.name='icestupa'
 
-                    df_stat.loc[icestupa_name] =  stat
+                    df_stat.loc[icestupa_name] =  round(stat,2)
 
                     df_val[stake_names] = df_eval[stake_names]
 

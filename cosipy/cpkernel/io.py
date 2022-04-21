@@ -286,6 +286,7 @@ class IOClass:
         self.RESULT.attrs['Roughness_firn'] = roughness_firn
         self.RESULT.attrs['Aging_factor_roughness'] = aging_factor_roughness
         self.RESULT.attrs['Snow_ice_threshold'] = snow_ice_threshold
+        self.RESULT.attrs['Cloudiness'] = cld
 
         self.RESULT.attrs['lat_heat_melting'] = lat_heat_melting
         self.RESULT.attrs['lat_heat_vaporize'] = lat_heat_vaporize
@@ -318,8 +319,8 @@ class IOClass:
         self.add_variable_along_latlontime(self.RESULT, self.DATA.U2, 'U2', 'm s\u207b\xb9', 'Wind velocity at 2 m')
         self.add_variable_along_latlontime(self.RESULT, self.DATA.PRES, 'PRES', 'hPa', 'Atmospheric pressure')
         self.add_variable_along_latlontime(self.RESULT, self.DATA.G, 'G', 'W m\u207b\xb2', 'Incoming shortwave radiation')
-        if make_icestupa:
-            self.add_variable_along_latlontime(self.RESULT, self.DATA.FDIF, 'FDIF', '-', 'Diffuse fraction')
+        # if make_icestupa:
+        #     self.add_variable_along_latlontime(self.RESULT, self.DATA.FDIF, 'FDIF', '-', 'Diffuse fraction')
         
         if ('RRR' in self.DATA):
             self.add_variable_along_latlontime(self.RESULT, self.DATA.RRR, 'RRR', 'mm','Total precipiation')

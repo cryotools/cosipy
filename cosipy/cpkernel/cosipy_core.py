@@ -6,7 +6,7 @@ from constants import mult_factor_RRR, densification_method, ice_density, water_
                       lat_heat_melting, lat_heat_vaporize, center_snow_transfer_function, \
                       spread_snow_transfer_function, constant_density, albedo_ice, make_icestupa, \
                         roughness_ice, z, temperature_threshold_precipitation, penetrating_method
-from config import force_use_TP, force_use_N, stake_evaluation, \
+from config import force_use_TP, force_use_N, stake_evaluation, cld, \
 drone_evaluation,thermistor_evaluation, thermalcam_evaluation, full_field, WRF_X_CSPY
 
 from cosipy.modules.albedo import updateAlbedo
@@ -156,7 +156,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     if make_icestupa :
         DISCHARGE = DATA.DISCHARGE.values
         BETA = DATA.BETA.values
-        FDIF = DATA.FDIF.values
+        # FDIF = DATA.FDIF.values
 
     # Use RRR rather than snowfall?
     if force_use_TP:
@@ -221,11 +221,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         elif make_icestupa : 
             if T2[t] < temperature_threshold_precipitation :
                 SNOWFALL = (RRR[t]/1000)*(ice_density/density_fresh_snow)
-                SNOWFALL *= np.pi * r_cone**2/A_cone
                 RAIN=0
             else:
                 RAIN = RRR[t]
-                RAIN *= np.pi * r_cone**2/A_cone
                 SNOWFALL=0
         else:
             # Else convert total precipitation [mm] to snowheight [m]; liquid/solid fraction
@@ -235,6 +233,8 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Derive Icestupa fountain discharge rates [m w.e.]
         if make_icestupa :
             DISF = DISCHARGE[t]*dt/(60* water_density * np.pi * r_cone**2)
+            SNOWFALL *= np.pi * r_cone**2/A_cone
+            RAIN *= np.pi * r_cone**2/A_cone
 
         # if snowfall is smaller than the threshold
         if SNOWFALL<minimum_snowfall :
@@ -282,7 +282,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Calculate net shortwave radiation
         if make_icestupa :
             f_cone = (0.5* h_cone* r_cone* np.cos(BETA[t])+ np.pi* np.power(r_cone, 2)* 0.5* np.sin(BETA[t])) / A_cone
-            SWnet = (1 - alpha) * (FDIF[t] * G[t] + (1-FDIF[t]) * G[t] * f_cone)
+            SWnet = (1 - alpha) * (cld * G[t] + (1-cld) * G[t] * f_cone)
         else:
             SWnet = G[t] * (1 - alpha)
 

@@ -20,7 +20,7 @@ from metpy.units import units
 sys.path.append('../../')
 
 from constants import make_icestupa
-from config import time_start, time_end, icestupa_name, plat, plon, hgt, stationAlt, radf
+from config import time_start, time_end, icestupa_name, plat, plon, hgt, stationAlt, radf, timezone_lon, cld
 from utilities.aws2cosipy.aws2cosipyConfig import *
 from cosipy.modules.radCor import *
 
@@ -84,15 +84,13 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     # Run radiation module to find diffuse fraction and solar angle 
     #-----------------------------------
     if make_icestupa: 
-        print('Run the Radiation Module to find diffuse fraction and solar angle')
+        print('\n Run the Radiation Module to find solar angle\n')
 
         for t in range(len(df.index)):
             doy = df.index[t].dayofyear
             hour = df.index[t].hour
-            # TODO generalise
             Rg = df.SW_global[df.index[t]]
-            df.loc[df.index[t], 'beta'], df.loc[df.index[t], 'zeni'], _ = solarFParallel(plat, plon, timezone_lon, doy, hour)
-            df.loc[df.index[t], 'Fdif'] = Fdif_Neustift(doy, df.loc[df.index[t],'zeni'], Rg)
+            df.loc[df.index[t], 'beta'], _, _ = solarFParallel(plat, plon, timezone_lon, doy, hour)
 
     print(df.head())
 
@@ -185,7 +183,7 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     if make_icestupa :
         DISCHARGE = df[DISCHARGE_var].values                                                                        # Incoming shortwave radiation
         BETA = df['beta'].values                                                                        # Incoming shortwave radiation
-        FDIF = df['Fdif'].values                                                                        # Incoming shortwave radiation
+        # FDIF = df['Fdif'].values                                                                        # Incoming shortwave radiation
 
     if (RRR_var in df):
         RRR = np.maximum(df[RRR_var].values + (hgt - stationAlt) * lapse_RRR, 0)                 # Precipitation
@@ -239,7 +237,7 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     if make_icestupa :
         add_variable_along_timelatlon_point(ds, DISCHARGE, 'DISCHARGE', 'm', 'Discharge rate')
         add_variable_along_timelatlon_point(ds, BETA, 'BETA', 'radians', 'Solar elevation angle')
-        add_variable_along_timelatlon_point(ds, FDIF, 'FDIF', 'degrees', 'Diffuse fraction')
+        # add_variable_along_timelatlon_point(ds, FDIF, 'FDIF', 'degrees', 'Diffuse fraction')
 
     if (RRR_var in df):
         add_variable_along_timelatlon_point(ds, RRR, 'RRR', 'mm', 'Total precipitation (liquid+solid)')
@@ -718,7 +716,6 @@ def compute_scale_and_offset(min, max, n):
     return (scale_factor, add_offset)
 
 def icestupa_inputs(name):
-
     csv_file = '../../data/input/'+ name +'/input.csv'
     cosipy_file = '../../data/input/'+ name +'/input.nc'
 

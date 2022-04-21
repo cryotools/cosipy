@@ -10,9 +10,9 @@
 # time_start = '2009-01-01T06:00'
 # time_end   = '2009-01-10T00:00'
 
-# all_icestupas = ['guttannen22_scheduled', 'guttannen22_unscheduled', 'guttannen21', 'gangles21']
-# icestupa_name = 'guttannen22_scheduled'
-icestupa_name = 'guttannen21'
+all_icestupas = ['guttannen22_scheduled', 'guttannen22_unscheduled', 'guttannen21', 'gangles21']
+icestupa_name = 'guttannen22_unscheduled'
+# icestupa_name = 'guttannen21'
 # icestupa_name = 'guttannen20'
 # icestupa_name = 'gangles21'
 
@@ -20,15 +20,21 @@ if icestupa_name in ['guttannen20', 'guttannen21', 'guttannen22_scheduled', 'gut
     plon = 8.29
     plat = 46.66
     hgt = 1047.6
+    cld = 0.5  # Cloudiness factor
     stationName = icestupa_name
     stationAlt = hgt
+    stationLat = plat
+    timezone_lon = plon
 
 if icestupa_name in ['gangles21']:
     plon = 77.606949
     plat = 34.216638
     hgt = 4009
+    cld = 0.1  # Cloudiness factor
     stationName = icestupa_name
     stationAlt = hgt
+    stationLat = plat
+    timezone_lon = plon
 
 if icestupa_name == 'guttannen20':
     drone_evaluation = True
@@ -36,24 +42,21 @@ if icestupa_name == 'guttannen20':
     thermalcam_evaluation = False
     time_start = '2020-01-03T16:00'
     time_end   = '2020-04-06T12:00'
-
     radf = 7.67                                       # Spray radius [m]
 
 if icestupa_name in ['guttannen22_scheduled']:
     thermistor_evaluation = False
     drone_evaluation = True
     time_start = '2021-12-03T12:00'
-    time_end   = '2022-03-03T00:00'
-
+    time_end   = '2022-04-12T00:00'
     radf = 4.845                                       # Spray radius [m]
 
 if icestupa_name in ['guttannen22_unscheduled']:
     drone_evaluation = True
     thermistor_evaluation = False
     time_start = '2021-12-03T12:00'
-    time_end   = '2022-03-03T00:00'
-
-    radf = 3.873                                       # Spray radius [m]
+    time_end   = '2022-04-12T00:00'
+    radf = 4.072                                       # Spray radius [m]
 
 if icestupa_name == 'guttannen21':
     drone_evaluation = True

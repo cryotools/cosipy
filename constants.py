@@ -114,7 +114,7 @@ if icestupa_name == 'guttannen22_scheduled':
     z8 = 1.70					                    # Thermistor depth 
 
 if icestupa_name == 'guttannen22_unscheduled':
-    initial_snowheight_constant = 0.435              # Initial snowheight
+    initial_snowheight_constant = 0.666              # Initial snowheight
     initial_glacier_height = 0.00                  # Initial glacier height without snowlayers
     Tf = 0 + 273.16                                # Water temperature [C]
 
