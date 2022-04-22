@@ -19,6 +19,8 @@ from metpy.units import units
 
 sys.path.append('../../')
 
+from constants import make_icestupa
+from config import time_start, time_end, icestupa_name, plat, plon, hgt, stationAlt, radf, timezone_lon, cld
 from utilities.aws2cosipy.aws2cosipyConfig import *
 from cosipy.modules.radCor import *
 
@@ -65,18 +67,32 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
         else:
             return np.nansum(a, **kwargs)
 
-    col_list = [T2_var,RH2_var,U2_var,G_var,RRR_var,PRES_var,LWin_var,N_var,SNOWFALL_var]
+    col_list = [T2_var,RH2_var,U2_var,G_var,RRR_var,PRES_var,LWin_var,N_var,SNOWFALL_var,DISCHARGE_var]
     df = df[col_list]
     
-    df = df.resample('1H').agg({T2_var:np.mean, RH2_var:np.mean, U2_var:np.mean, G_var:np.mean, PRES_var:np.mean, RRR_var:nansumwrapper, LWin_var:np.mean, N_var:np.mean, SNOWFALL_var:nansumwrapper})
+    df = df.resample('1H').agg({T2_var:np.mean, RH2_var:np.mean, U2_var:np.mean, G_var:np.mean,
+                                   PRES_var:np.mean, RRR_var:nansumwrapper,DISCHARGE_var:nansumwrapper, LWin_var:np.mean, N_var:np.mean, SNOWFALL_var:nansumwrapper})
     df = df.dropna(axis=1,how='all')
-    print(df.head())
 
     #-----------------------------------
     # Select time slice
     #-----------------------------------
     if ((start_date != None) & (end_date !=None)): 
         df = df.loc[start_date:end_date]
+
+    #-----------------------------------
+    # Run radiation module to find diffuse fraction and solar angle 
+    #-----------------------------------
+    if make_icestupa: 
+        print('\n Run the Radiation Module to find solar angle\n')
+
+        for t in range(len(df.index)):
+            doy = df.index[t].dayofyear
+            hour = df.index[t].hour
+            Rg = df.SW_global[df.index[t]]
+            df.loc[df.index[t], 'beta'], _, _ = solarFParallel(plat, plon, timezone_lon, doy, hour)
+
+    print(df.head())
 
     #-----------------------------------
     # Load static data
@@ -120,6 +136,8 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     df[U2_var] = df[U2_var].apply(pd.to_numeric, errors='coerce')
     df[G_var] = df[G_var].apply(pd.to_numeric, errors='coerce')
     df[PRES_var] = df[PRES_var].apply(pd.to_numeric, errors='coerce')
+    if make_icestupa:
+        df[DISCHARGE_var] = df[DISCHARGE_var].apply(pd.to_numeric, errors='coerce')
     
     if (RRR_var in df):
         df[RRR_var] = df[RRR_var].apply(pd.to_numeric, errors='coerce')
@@ -162,6 +180,10 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     SLP = df[PRES_var].values / np.power((1 - (0.0065 * stationAlt) / (288.15)), 5.255)
     PRES = SLP * np.power((1 - (0.0065 * hgt)/(288.15)), 5.22)                                  # Pressure
 
+    if make_icestupa :
+        DISCHARGE = df[DISCHARGE_var].values                                                                        # Incoming shortwave radiation
+        BETA = df['beta'].values                                                                        # Incoming shortwave radiation
+        # FDIF = df['Fdif'].values                                                                        # Incoming shortwave radiation
 
     if (RRR_var in df):
         RRR = np.maximum(df[RRR_var].values + (hgt - stationAlt) * lapse_RRR, 0)                 # Precipitation
@@ -199,6 +221,9 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     #-----------------------------------
     # Add variables to file 
     #-----------------------------------
+    # add_variable_along_point(ds, name, 'NAME', '-', 'Location')
+    add_variable_along_point(ds, radf, 'RADF', 'm', 'Spray Radius')
+
     add_variable_along_point(ds, hgt, 'HGT', 'm', 'Elevation')
     add_variable_along_point(ds, aspect, 'ASPECT', 'degrees', 'Aspect of slope')
     add_variable_along_point(ds, slope, 'SLOPE', 'degrees', 'Terrain slope')
@@ -209,9 +234,14 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     add_variable_along_timelatlon_point(ds, G, 'G', 'W m\u207b\xb2', 'Incoming shortwave radiation')
     add_variable_along_timelatlon_point(ds, PRES, 'PRES', 'hPa', 'Atmospheric Pressure')
     
+    if make_icestupa :
+        add_variable_along_timelatlon_point(ds, DISCHARGE, 'DISCHARGE', 'm', 'Discharge rate')
+        add_variable_along_timelatlon_point(ds, BETA, 'BETA', 'radians', 'Solar elevation angle')
+        # add_variable_along_timelatlon_point(ds, FDIF, 'FDIF', 'degrees', 'Diffuse fraction')
+
     if (RRR_var in df):
         add_variable_along_timelatlon_point(ds, RRR, 'RRR', 'mm', 'Total precipitation (liquid+solid)')
-    
+
     if(SNOWFALL_var in df):
         add_variable_along_timelatlon_point(ds, SNOWFALL, 'SNOWFALL', 'm', 'Snowfall')
 
@@ -220,6 +250,7 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
 
     if(N_var in df):
         add_variable_along_timelatlon_point(ds, N, 'N', '%', 'Cloud cover fraction')
+
 
     #-----------------------------------
     # Write file to disc 
@@ -357,6 +388,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
 
     if (RRR_var in df):
         df[RRR_var] = df[RRR_var].apply(pd.to_numeric, errors='coerce')
+
 
     if (LWin_var not in df and N_var not in df):
         print("ERROR no longwave incoming or cloud cover data")
@@ -564,6 +596,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     
     if (RRR_var in df):
         add_variable_along_timelatlon(dso, RRR_interp, 'RRR', 'mm', 'Total precipitation (liquid+solid)')
+
     
     if(SNOWFALL_var in df):
         add_variable_along_timelatlon(dso, SNOWFALL_interp, 'SNOWFALL', 'm', 'Snowfall')
@@ -682,22 +715,41 @@ def compute_scale_and_offset(min, max, n):
     add_offset = min + 2 ** (n - 1) * scale_factor
     return (scale_factor, add_offset)
 
+def icestupa_inputs(name):
+    csv_file = '../../data/input/'+ name +'/input.csv'
+    cosipy_file = '../../data/input/'+ name +'/input.nc'
+
+    static_file=None
+    create_1D_input(csv_file, cosipy_file, static_file, start_date=time_start, end_date=time_end) 
+
+    print(f'Input file of {name} icestupa created \n')
+    print('-------------------------------------------')
+
 
 if __name__ == "__main__":
-    
-    parser = argparse.ArgumentParser(description='Create 2D input file from csv file.')
-    parser.add_argument('-c', '-csv_file', dest='csv_file', help='Csv file(see readme for file convention)')
-    parser.add_argument('-o', '-cosipy_file', dest='cosipy_file', help='Name of the resulting COSIPY file')
-    parser.add_argument('-s', '-static_file', dest='static_file', help='Static file containing DEM, Slope etc.')
-    parser.add_argument('-b', '-start_date', dest='start_date', help='Start date')
-    parser.add_argument('-e', '-end_date', dest='end_date', help='End date')
-    parser.add_argument('-xl', '-xl', dest='xl', type=float, const=None, help='left longitude value of the subset')
-    parser.add_argument('-xr', '-xr', dest='xr', type=float, const=None, help='right longitude value of the subset')
-    parser.add_argument('-yl', '-yl', dest='yl', type=float, const=None, help='lower latitude value of the subset')
-    parser.add_argument('-yu', '-yu', dest='yu', type=float, const=None, help='upper latitude value of the subset')
 
-    args = parser.parse_args()
-    if point_model:
-        create_1D_input(args.csv_file, args.cosipy_file, args.static_file, args.start_date, args.end_date) 
+    if make_icestupa:
+        icestupa_inputs(icestupa_name)
     else:
-        create_2D_input(args.csv_file, args.cosipy_file, args.static_file, args.start_date, args.end_date, args.xl, args.xr, args.yl, args.yu) 
+        parser = argparse.ArgumentParser(description='Create 2D input file from csv file.')
+        parser.add_argument('-c', '-csv_file', dest='csv_file', help='Csv file(see readme for file convention)',
+                            default='../../data/input/'+ icestupa_name +'/input.csv')
+        parser.add_argument('-o', '-cosipy_file', dest='cosipy_file', help='Name of the resulting COSIPY file'
+                            ,default='../../data/input/' + icestupa_name + '/input.nc')
+        parser.add_argument('-s', '-static_file', dest='static_file', help='Static file containing DEM, Slope etc.')
+        parser.add_argument('-b', '-start_date', dest='start_date', help='Start date'
+                            ,default=time_start)
+                            # ,default='20210118')
+        parser.add_argument('-e', '-end_date', dest='end_date', help='End date'
+                            ,default=time_end)
+                            # ,default='20210410')
+        parser.add_argument('-xl', '-xl', dest='xl', type=float, const=None, help='left longitude value of the subset')
+        parser.add_argument('-xr', '-xr', dest='xr', type=float, const=None, help='right longitude value of the subset')
+        parser.add_argument('-yl', '-yl', dest='yl', type=float, const=None, help='lower latitude value of the subset')
+        parser.add_argument('-yu', '-yu', dest='yu', type=float, const=None, help='upper latitude value of the subset')
+
+        args = parser.parse_args()
+        if point_model:
+            create_1D_input(args.csv_file, args.cosipy_file, args.static_file, args.start_date, args.end_date) 
+        else:
+            create_2D_input(args.csv_file, args.cosipy_file, args.static_file, args.start_date, args.end_date, args.xl, args.xr, args.yl, args.yu) 

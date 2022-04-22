@@ -1,6 +1,6 @@
 import numpy as np
 from constants import zero_temperature, spec_heat_ice, ice_density, \
-                      water_density, lat_heat_melting
+                      water_density, lat_heat_melting, make_icestupa
 from numba import njit
 
 @njit
@@ -19,7 +19,8 @@ def refreezing(GRID):
     # Loop over all internal grid points for percolation
     for idxNode in range(0, GRID.number_nodes-1, 1):
 
-        if ((GRID.get_node_temperature(idxNode)-zero_temperature<1e-3) & (GRID.get_node_liquid_water_content(idxNode)>theta_r)):
+        if ((GRID.get_node_temperature(idxNode)-zero_temperature<1e-3) &
+                (GRID.get_node_liquid_water_content(idxNode)>theta_r)):
 
             # Temperature difference between layer and freezing temperature, cold content in temperature
             dT = GRID.get_node_temperature(idxNode) - zero_temperature
@@ -30,7 +31,7 @@ def refreezing(GRID):
             # Changes in volumetric contents, maximum amount of water that can refreeze from cold content
             dtheta_w = A * dT * GRID.get_node_ice_fraction(idxNode)
 
-            # Check if enough water water to refreeze, if less water than potential energy from cold content, only available water is refreezed
+            # Check if enough water to refreeze, if less water than potential energy from cold content, only available water is refreezed
             if ((GRID.get_node_liquid_water_content(idxNode)+dtheta_w) < theta_r):
                 dtheta_w = theta_r - GRID.get_node_liquid_water_content(idxNode)
 

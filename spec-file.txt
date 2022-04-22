@@ -1,0 +1,154 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: linux-64
+@EXPLICIT
+https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/ca-certificates-2021.10.8-ha878542_0.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/ncurses-5.9-10.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/libgomp-11.2.0-h1d223b6_14.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/readline-7.0-0.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-1_gnu.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/sqlite-3.20.1-2.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/libgcc-ng-11.2.0-h1d223b6_14.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/libzlib-1.2.11-h166bdaf_1014.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/openssl-1.0.2u-h516909a_0.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/xz-5.2.5-h516909a_1.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.12-h27826a3_0.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/zlib-1.2.11-h166bdaf_1014.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/python-3.6.3-4.tar.bz2
+# no URL for: appdirs-1.4.4.dist-info
+# no URL for: async_generator-1.10.dist-info
+# no URL for: asynctest-0.13.0.dist-info
+# no URL for: attrs-21.4.0.dist-info
+# no URL for: backcall-0.2.0.dist-info
+# no URL for: certifi-2021.10.8.dist-info
+# no URL for: charset_normalizer-2.0.12.dist-info
+# no URL for: cloudpickle-2.0.0.dist-info
+# no URL for: coverage-6.2.dist-info
+# no URL for: cycler-0.11.0.dist-info
+# no URL for: Cython-0.29.28.dist-info
+# no URL for: dataclasses-0.8.dist-info
+# no URL for: decorator-5.1.1.dist-info
+# no URL for: defusedxml-0.7.1.dist-info
+# no URL for: docopt-0.6.2.dist-info
+# no URL for: entrypoints-0.4.dist-info
+# no URL for: frozenlist-1.2.0.dist-info
+# no URL for: HeapDict-1.0.1.dist-info
+# no URL for: idna-3.3.dist-info
+# no URL for: importlib_resources-5.4.0.dist-info
+# no URL for: ipython_genutils-0.2.0.dist-info
+# no URL for: json5-0.9.6.dist-info
+# no URL for: jupyterlab_widgets-1.1.0.dist-info
+# no URL for: kiwisolver-1.3.1.dist-info
+# no URL for: llvmlite-0.36.0.dist-info
+# no URL for: Markdown-3.3.6.dist-info
+# no URL for: MarkupSafe-2.0.1.dist-info
+# no URL for: mistune-0.8.4.dist-info
+# no URL for: msgpack-1.0.3.dist-info
+# no URL for: multidict-5.2.0.dist-info
+# no URL for: nest_asyncio-1.5.4.dist-info
+# no URL for: numpy-1.19.5.dist-info
+# no URL for: pandocfilters-1.5.0.dist-info
+# no URL for: param-1.12.1.dist-info
+# no URL for: parso-0.7.1.dist-info
+# no URL for: pickleshare-0.7.5.dist-info
+# no URL for: Pillow-8.4.0.dist-info
+# no URL for: prometheus_client-0.13.1.dist-info
+# no URL for: psutil-5.9.0.dist-info
+# no URL for: ptyprocess-0.7.0.dist-info
+# no URL for: pycparser-2.21.dist-info
+# no URL for: Pygments-2.11.2.dist-info
+# no URL for: pyparsing-3.0.7.dist-info
+# no URL for: pyrsistent-0.18.0.dist-info
+https://conda.anaconda.org/conda-forge/linux-64/python_abi-3.6-2_cp36m.tar.bz2
+# no URL for: pytz-2022.1.dist-info
+# no URL for: PyYAML-6.0.dist-info
+# no URL for: pyzmq-22.3.0.dist-info
+# no URL for: Send2Trash-1.8.0.dist-info
+# no URL for: simpervisor-0.4.dist-info
+# no URL for: six-1.16.0.dist-info
+# no URL for: sortedcontainers-2.4.0.dist-info
+# no URL for: tblib-1.7.0.dist-info
+# no URL for: testpath-0.6.0.dist-info
+# no URL for: toolz-0.11.2.dist-info
+# no URL for: tornado-6.1.dist-info
+# no URL for: typing_extensions-4.1.1.dist-info
+# no URL for: urllib3-1.26.9.dist-info
+# no URL for: wcwidth-0.2.5.dist-info
+# no URL for: webencodings-0.5.1.dist-info
+# no URL for: websocket_client-1.3.1.dist-info
+https://conda.anaconda.org/conda-forge/noarch/wheel-0.37.1-pyhd8ed1ab_0.tar.bz2
+# no URL for: zipp-3.6.0.dist-info
+# no URL for: aiosignal-1.2.0.dist-info
+# no URL for: async_timeout-4.0.2.dist-info
+# no URL for: Babel-2.9.1.dist-info
+# no URL for: cffi-1.15.0.dist-info
+# no URL for: cftime-1.6.0.dist-info
+# no URL for: dask-2021.3.0.dist-info
+# no URL for: idna_ssl-1.1.0.dist-info
+# no URL for: immutables-0.17.dist-info
+# no URL for: importlib_metadata-4.8.3.dist-info
+# no URL for: jedi-0.17.2.dist-info
+# no URL for: Jinja2-3.0.3.dist-info
+# no URL for: jupyterlab_pygments-0.1.2.dist-info
+# no URL for: packaging-21.3.dist-info
+# no URL for: pexpect-4.8.0.dist-info
+# no URL for: prompt_toolkit-3.0.28.dist-info
+# no URL for: pyct-0.4.8.dist-info
+# no URL for: pyproj-3.0.1.dist-info
+# no URL for: python_dateutil-2.8.2.dist-info
+# no URL for: pyviz_comms-2.2.0.dist-info
+# no URL for: requests-2.27.1.dist-info
+# no URL for: richdem-0.3.4.dist-info
+# no URL for: scipy-1.5.4.dist-info
+https://conda.anaconda.org/conda-forge/linux-64/setuptools-58.0.4-py36h5fab9bb_2.tar.bz2
+# no URL for: terminado-0.12.1.dist-info
+# no URL for: tqdm-4.63.1.dist-info
+# no URL for: traitlets-4.3.3.dist-info
+# no URL for: yarl-1.7.2.dist-info
+# no URL for: zict-2.1.0.dist-info
+# no URL for: aiohttp-3.8.1.dist-info
+# no URL for: argon2_cffi_bindings-21.2.0.dist-info
+# no URL for: bleach-4.1.0.dist-info
+# no URL for: bokeh-2.3.3.dist-info
+# no URL for: click-8.0.4.dist-info
+# no URL for: colorcet-3.0.0.dist-info
+# no URL for: contextvars-2.4.dist-info
+# no URL for: coveralls-3.3.1.dist-info
+# no URL for: ipython-7.16.3.dist-info
+# no URL for: jsonschema-3.2.0.dist-info
+# no URL for: jupyter_core-4.9.2.dist-info
+# no URL for: matplotlib-3.3.4.dist-info
+# no URL for: netCDF4-1.5.8.dist-info
+# no URL for: numba-0.53.1.dist-info
+# no URL for: pandas-1.1.5.dist-info
+# no URL for: Pint-0.17.dist-info
+https://conda.anaconda.org/conda-forge/noarch/pip-21.3.1-pyhd8ed1ab_0.tar.bz2
+# no URL for: pooch-1.6.0.dist-info
+# no URL for: QtPy-2.0.1.dist-info
+# no URL for: argon2_cffi-21.3.0.dist-info
+# no URL for: distributed-2021.3.0.dist-info
+# no URL for: jupyter_client-7.1.2.dist-info
+# no URL for: nbformat-5.1.3.dist-info
+# no URL for: panel-0.12.1.dist-info
+# no URL for: sniffio-1.2.0.dist-info
+# no URL for: xarray-0.16.2.dist-info
+# no URL for: anyio-3.5.0.dist-info
+# no URL for: dask_jobqueue-0.7.1.dist-info
+# no URL for: holoviews-1.14.8.dist-info
+# no URL for: ipykernel-5.5.6.dist-info
+# no URL for: MetPy-1.0.1.dist-info
+# no URL for: nbclient-0.5.9.dist-info
+# no URL for: hvplot-0.7.3.dist-info
+# no URL for: jupyter_console-6.4.3.dist-info
+# no URL for: nbconvert-6.0.7.dist-info
+# no URL for: qtconsole-5.2.2.dist-info
+# no URL for: jupyter_server-1.13.1.dist-info
+# no URL for: notebook-6.4.10.dist-info
+# no URL for: jupyter_server_proxy-3.2.1.dist-info
+# no URL for: jupyterlab_server-2.10.3.dist-info
+# no URL for: nbclassic-0.3.5.dist-info
+# no URL for: widgetsnbextension-3.6.0.dist-info
+# no URL for: ipywidgets-7.7.0.dist-info
+# no URL for: jupyterlab-3.2.9.dist-info
+# no URL for: jupyter-1.0.0.dist-info

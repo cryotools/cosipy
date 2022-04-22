@@ -4,9 +4,11 @@ from constants import roughness_method, roughness_fresh_snow, \
 
 def updateRoughness(GRID):
 
-    roughness_allowed = ['Moelg12']
+    roughness_allowed = ['Moelg12', 'constant']
     if roughness_method == 'Moelg12':
         sigma = method_Moelg(GRID)
+    elif roughness_method == 'constant':
+        sigma = roughness_ice/1000
     else:
         raise ValueError("Roghness method = \"{:s}\" is not allowed, must be one of {:s}".format(roughness_method,", ".join(roughness_allowed)))
 

@@ -48,6 +48,8 @@ import scipy
 
 import cProfile
 
+np.warnings.filterwarnings('ignore')
+
 def main():
 
     start_logging()
@@ -85,8 +87,8 @@ def main():
             run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures)
 
     else:
-        with LocalCluster(scheduler_port=local_port, n_workers=workers, local_dir='logs/dask-worker-space', threads_per_worker=1, silence_logs=True) as cluster:
-            print(cluster)
+        with LocalCluster(scheduler_port=local_port, n_workers=workers, local_dir='logs/dask-worker-space', threads_per_worker=1, silence_logs=logging.ERROR) as cluster:
+            # print(cluster)
             run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures)
 
     print('\n')
@@ -164,6 +166,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             print(total_grid_points, total_cores, points_per_core)
 
         # Check if evaluation is selected:
+
         if stake_evaluation is True:
             # Read stake data (data must be given as cumulative changes)
             df_stakes_loc = pd.read_csv(stakes_loc_file, delimiter='\t', na_values='-9999')
@@ -198,10 +201,18 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                     index = np.unravel_index(index[1], lats.shape)
                 stakes_list.append((index[0][0], index[1][0], row['id']))
 
+        elif make_icestupa is True:
+            stake_names = obs_type
+            df_stakes_data = pd.read_csv(observations_data_file, delimiter=',', index_col='TIMESTAMP', na_values='-9999')
+            df_stakes_data = df_stakes_data[[stake_names]]
+            df_stakes_data.index = pd.to_datetime(df_stakes_data.index)
+            # Init dataframes to store evaluation statistics
+            df_stat = pd.DataFrame()
+            df_val = df_stakes_data.copy()
+
         else:
             stakes_loc = None
             df_stakes_data = None
-
 
         # Distribute data and model to workers
         start_res = datetime.now()
@@ -212,12 +223,15 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 for idx, (stake_loc_y, stake_loc_x, stake_name) in enumerate(stakes_list):
                     if ((y == stake_loc_y) & (x == stake_loc_x)):
                         stake_names.append(stake_name)
+            elif make_icestupa is True:
+                pass
+                # stake_names = [stake_names]
             else:
                 stake_names = None
                 
             if WRF is True:
                 mask = DATA.MASK.sel(south_north=y, west_east=x)
-	        # Provide restart grid if necessary
+            # Provide restart grid if necessary
                 if ((mask==1) & (restart==False)):
                     if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
                         print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
@@ -232,7 +246,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                                              stake_names=stake_names, stake_data=df_stakes_data))
             else:
                 mask = DATA.MASK.isel(lat=y, lon=x)
-	        # Provide restart grid if necessary
+            # Provide restart grid if necessary
                 if ((mask==1) & (restart==False)):
                     if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
                         print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
@@ -266,14 +280,14 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
         for future in as_completed(futures):
 
                 # Get the results from the workers
-                indY,indX,local_restart,RAIN,SNOWFALL,LWin,LWout,H,LE,B,QRR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,NLAYERS, \
-                                ME,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL, \
-                                LAYER_HEIGHT,LAYER_RHO,LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_ICE_FRACTION, \
+                indY,indX,local_restart,RAIN,DISF,SNOWFALL,LWin,LWout,H,LE,B,QRR,QFR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,SWNET,NLAYERS, \
+                                ME,FE,ICE,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL,CONERAD,CONEHEIGHT,CONESLOPE,CONEAREA,CONEVOL, \
+                                RHO, TBULK, LAYER_HEIGHT,LAYER_RHO,LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_ICE_FRACTION, \
                                 LAYER_IRREDUCIBLE_WATER,LAYER_REFREEZE,stake_names,stat,df_eval = future.result()
                
-                IO.copy_local_to_global(indY,indX,RAIN,SNOWFALL,LWin,LWout,H,LE,B,QRR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,NLAYERS, \
-                                ME,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL,LAYER_HEIGHT,LAYER_RHO, \
-                                LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_ICE_FRACTION,LAYER_IRREDUCIBLE_WATER,LAYER_REFREEZE)
+                IO.copy_local_to_global(indY,indX,RAIN,DISF,SNOWFALL,LWin,LWout,H,LE,B,QRR,QFR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,SWNET,NLAYERS, \
+                                ME,FE,ICE,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL,CONERAD,CONEHEIGHT,CONESLOPE,CONEAREA,CONEVOL,RHO, TBULK,\
+                                LAYER_HEIGHT,LAYER_RHO,LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_ICE_FRACTION,LAYER_IRREDUCIBLE_WATER,LAYER_REFREEZE)
 
                 IO.copy_local_restart_to_global(indY,indX,local_restart)
 
@@ -282,6 +296,28 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 
                 # Write restart data to file
                 IO.write_restart_to_file()
+
+                print('\n')
+                print('--------------------------------------------------------------')
+                print('Validation metrics....')
+                print('-------------------------------------------------------------- \n')
+
+                if make_icestupa is True:
+                    # Store evaluation of stake measurements to dataframe
+                    stat = round(stat,2)
+                    print(f"\t RMSE of {stake_names} for {icestupa_name} is {stat} \n")
+
+                    out_filename = os.path.join(data_path,'output',stake_names +'_validation_metrics.csv')
+                    if os.path.exists(out_filename):
+                        df_stat = pd.read_csv(out_filename, sep='\t', index_col='icestupa')
+                    else:
+                        df_stat = pd.DataFrame(columns=['rmse'], index=all_icestupas)
+                        df_stat.index.name='icestupa'
+
+                    df_stat.loc[icestupa_name] =  round(stat,2)
+
+                    df_val[stake_names] = df_eval[stake_names]
+
 
                 if stake_evaluation is True:
                     # Store evaluation of stake measurements to dataframe
@@ -303,7 +339,10 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             df_stat.to_csv(os.path.join(data_path,'output','stake_statistics.csv'),sep='\t', float_format='%.2f')
             df_val.to_csv(os.path.join(data_path,'output','stake_simulations.csv'),sep='\t', float_format='%.2f')
 
-
+        if make_icestupa is True:
+            # Save the statistics and the mass balance simulations at the stakes to files
+            df_val.to_csv(os.path.join(data_path,'output',stake_names + '_simulations.csv'),sep='\t', float_format='%.2f')
+            df_stat.to_csv(os.path.join(data_path,'output',stake_names +'_validation_metrics.csv'),sep='\t', float_format='%.2f')
 
 def start_logging():
     ''' Start the python logging'''
@@ -313,11 +352,11 @@ def start_logging():
             config = yaml.load(f.read(),Loader=yaml.SafeLoader)
         logging.config.dictConfig(config)
     else:
-       logging.basicConfig(level=logging.INFO)
+        logging.basicConfig(level=logging.WARNING)
+        # logging.getLogger("distributed.worker").setLevel(logging.CRITICAL)
 
     logger = logging.getLogger(__name__)
-    logger.info('COSIPY simulation started')    
-
+    logger.info('COSIPY simulation started')
 
 def transform_coordinates(coords):
     """ Transform coordinates from geodetic to cartesian
@@ -358,8 +397,6 @@ def compute_scale_and_offset(min, max, n):
 def close_everything(scheduler):
     yield scheduler.retire_workers(workers=scheduler.workers, close_workers=True)
     yield scheduler.close()
-
-
 
 ''' MODEL EXECUTION '''
 if __name__ == "__main__":

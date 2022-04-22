@@ -18,6 +18,7 @@ spec['layer_liquid_water_content'] = float64[:]
 spec['layer_ice_fraction'] = optional(float64[:])
 spec['number_nodes'] = intp
 spec['new_snow_height'] = float64
+spec['new_ice_height'] = float64
 spec['new_snow_timestamp'] = float64
 spec['old_snow_timestamp'] = float64
 spec['grid'] = types.ListType(node_type)     
@@ -26,7 +27,7 @@ spec['grid'] = types.ListType(node_type)
 class Grid:
 
     def __init__(self, layer_heights, layer_densities, layer_temperatures, layer_liquid_water_content, layer_ice_fraction=None,
-        new_snow_height=None, new_snow_timestamp=None, old_snow_timestamp=None):
+        new_snow_height=None, new_ice_height=None, new_snow_timestamp=None, old_snow_timestamp=None):
         """ The Grid-class controls the numerical mesh. 
         
         The grid consists of a list of nodes (layers) that store the information 
@@ -72,6 +73,12 @@ class Grid:
             self.new_snow_timestamp = 0.0   
             self.old_snow_timestamp = 0.0
 
+        if (new_ice_height is not None):
+            self.new_ice_height = new_ice_height         # meter snow accumulation
+        else:
+	    #TO DO: pick better initialization values
+            self.new_ice_height = 0.0      
+
         # Do the grid initialization
         self.grid = typed.List.empty_list(node_type)
 
@@ -112,6 +119,30 @@ class Grid:
 
         # Set the fresh snow properties for albedo calculation (height and timestamp)
         self.set_fresh_snow_props(height)
+
+    def add_fountain_ice(self, height, density, temperature, liquid_water_content):
+        """ Adds a fountain ice layer (node) at the beginning of the node list (upper layer) 
+
+        Parameters
+        ----------
+            height : float
+                Height of the layer [:math:`m`]
+            density : float
+                Density of the layer [:math:`kg~m^{-3}`]
+            temperature : float
+                Temperature of the layer [:math:`K`]
+            liquid_water_content : float
+                Liquid water content of the layer [:math:`m~w.e.`]
+        """
+	
+        # Add new node
+        self.grid.insert(0, Node(height, density, temperature, liquid_water_content, None))
+
+        # Increase node counter
+        self.number_nodes += 1
+
+        # Set the fresh snow properties for albedo calculation (height and timestamp)
+        self.set_fountain_ice_props(height)
 
 
 
@@ -490,8 +521,6 @@ class Grid:
 
             #self.check('Merge snow with glacier function')
 
-
-
     def remove_melt_weq(self, melt, idx=0):
         """ Removes mass from a layer.
         
@@ -530,6 +559,20 @@ class Grid:
     #===============================================================================
     # Getter and setter functions
     #===============================================================================
+
+    def set_fountain_ice_props(self, height):
+        """ Keeps track of the new fountain ice.
+        
+        Parameters
+        ----------
+            height : float
+                Height of the fresh ice layer [:math:`m`].
+        """
+        self.new_ice_height = height
+        # # Keep track of the old snow age
+        # self.old_snow_timestamp = self.new_snow_timestamp
+        # # Set the timestamp to zero
+        # self.new_snow_timestamp = 0
 
     def set_fresh_snow_props(self, height):
         """ Keeps track of the new snowheight.
