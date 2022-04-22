@@ -350,27 +350,17 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
 
             freeze = freeze_energy * dt / (1000 * lat_heat_melting)
 
-            # Set surface temperature
-            GRID.set_node_temperature(0, zero_temperature)
-
-            # Discharge limits new ice layer thickness
-            if freeze > DISF + RAIN/1000 :
-                freeze = DISF + RAIN/1000
-                # print("Warning: Insufficient water for freezing")
-                # freeze_energy_remaining = freeze_energy - (DISF + RAIN/1000) * (1000 * lat_heat_melting)/dt
-                # new_temp = freeze_energy_remaining/freeze_energy * old_temp
-                # # Set surface temperature
-                # GRID.set_node_temperature(0, new_temp)
-            # else:
-            #     # Set surface temperature
-            #     GRID.set_node_temperature(0, zero_temperature)
-
-
             # New ice layer too small
             if freeze < minimum_snowfall:
                 freeze = 0
                 freeze_energy = 0
             else:
+                GRID.set_node_temperature(0, zero_temperature)
+
+                # Discharge limits new ice layer thickness
+                if freeze > DISF + RAIN/1000 :
+                    freeze = DISF + RAIN/1000
+
                 # Fountain spray forms ice layer
                 GRID.add_fountain_ice(freeze, ice_density, zero_temperature, 0.0)
 
