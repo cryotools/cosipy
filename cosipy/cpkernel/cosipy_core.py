@@ -341,21 +341,30 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Freeze process of Icestupa
         #--------------------------------------------
-        if DISF + RAIN/1000 > 0:
+        if DISF > 0:
             freeze_energy = -min(0, sw_radiation_net + lw_radiation_in + lw_radiation_out + ground_heat_flux + rain_heat_flux +
                               fountain_heat_flux + sensible_heat_flux + latent_heat_flux)
 
             # Fountain droplets use cold content of surface layer
             freeze_energy += GRID.get_node_cold_content(0)/dt
 
+            freeze = freeze_energy * dt / (1000 * lat_heat_melting)
+
             # Set surface temperature
             GRID.set_node_temperature(0, zero_temperature)
-
-            freeze = freeze_energy * dt / (1000 * lat_heat_melting)
 
             # Discharge limits new ice layer thickness
             if freeze > DISF + RAIN/1000 :
                 freeze = DISF + RAIN/1000
+                # print("Warning: Insufficient water for freezing")
+                # freeze_energy_remaining = freeze_energy - (DISF + RAIN/1000) * (1000 * lat_heat_melting)/dt
+                # new_temp = freeze_energy_remaining/freeze_energy * old_temp
+                # # Set surface temperature
+                # GRID.set_node_temperature(0, new_temp)
+            # else:
+            #     # Set surface temperature
+            #     GRID.set_node_temperature(0, zero_temperature)
+
 
             # New ice layer too small
             if freeze < minimum_snowfall:
@@ -363,8 +372,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
                 freeze_energy = 0
             else:
                 # Fountain spray forms ice layer
-                # GRID.add_fountain_ice(freeze, ice_density, zero_temperature, 0.0)
-                GRID.add_fountain_ice(freeze, ice_density-50, zero_temperature, 0.0)  # TODO ice_density too high
+                GRID.add_fountain_ice(freeze, ice_density, zero_temperature, 0.0)
 
             Q  = percolation(GRID, DISF-freeze + melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
 
@@ -398,6 +406,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             surface_mass_balance = freeze + SNOWFALL * (density_fresh_snow / ice_density) - melt + sublimation + deposition + evaporation
         else:
             surface_mass_balance = SNOWFALL * (density_fresh_snow / ice_density) - melt + sublimation + deposition + evaporation
+
         internal_mass_balance = water_refreezed - subsurface_melt
         mass_balance = surface_mass_balance + internal_mass_balance
 
@@ -408,9 +417,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Calculate AIR cone charecteristics
         #--------------------------------------------
         layer_heights = GRID.get_height()
-        rho = np.average(GRID.get_density())
         bulk_temperature = np.average(GRID.get_temperature(), weights=layer_heights)
 
+        rho = np.average(GRID.get_density())
         r_cone, h_cone, s_cone, A_cone, V_cone = update_cone(GRID, surface_mass_balance, r_cone, h_cone,s_cone,
                                                              rho, A_cone, V_cone, radf)
 

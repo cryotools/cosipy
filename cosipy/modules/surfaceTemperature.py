@@ -353,9 +353,9 @@ def eb_fluxes(GRID, T0, dt, z, z0, emission_coeff, T2, rH2, p, u2, RAIN, DISF, S
         B = lam * (hminus/(hplus+hminus)) * ((Tz2-Tz1)/hplus) + (hplus/(hplus+hminus)) * ((Tz1-T0)/hminus)
 
     # Fountain heat flux
+    # if (T2 < zero_temperature):  # TODO numba customize
+    #     Tf = zero_temperature
     QFR = water_density * spec_heat_water * (DISF/dt) * (Tf - T0)
-    # if T2 < zero_temperature :   # This code produces error, why?
-    #     QFR = 0
 
     # Rain heat flux
     QRR = water_density * spec_heat_water * (RAIN/1000/dt) * (T2 - T0)

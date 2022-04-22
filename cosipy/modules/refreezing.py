@@ -31,7 +31,7 @@ def refreezing(GRID):
             # Changes in volumetric contents, maximum amount of water that can refreeze from cold content
             dtheta_w = A * dT * GRID.get_node_ice_fraction(idxNode)
 
-            # Check if enough water water to refreeze, if less water than potential energy from cold content, only available water is refreezed
+            # Check if enough water to refreeze, if less water than potential energy from cold content, only available water is refreezed
             if ((GRID.get_node_liquid_water_content(idxNode)+dtheta_w) < theta_r):
                 dtheta_w = theta_r - GRID.get_node_liquid_water_content(idxNode)
 

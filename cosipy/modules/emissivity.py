@@ -10,7 +10,6 @@ def updateEmissionCoeff(GRID):
         sigma = method_Balasubramanian(GRID)
     else:
         raise ValueError("Emissivity method = \"{:s}\" is not allowed, must be one of {:s}".format(emissivity_method, ", ".join(emissivity_allowed)))
-
     return sigma
 
 def method_Balasubramanian(GRID):
