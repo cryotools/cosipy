@@ -11,8 +11,8 @@ z = 2.0                                         # Measurement height [m]
 
 ' PARAMETERIZATIONS '
 stability_correction = 'Ri'                     # possibilities: 'Ri','MO'
-albedo_method = 'Balasubramanian22'                   # possibilities: 'Oerlemans98', 'Balasubramanian22'
-densification_method = 'constant'               # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
+albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98', 'Balasubramanian22'
+densification_method = 'Boone'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
 penetrating_method = 'None'                     # possibilities: 'Bintanja95', 'None'
 roughness_method = 'constant'                   # possibilities: 'Moelg12', 'constant'
 emissivity_method = 'Balasubramanian22'         # possibilities: 'Balasubramanian22', 'constant'
@@ -54,7 +54,7 @@ albedo_firn = 0.55                              # albedo of firn [-] (Moelg et a
 # albedo_mod_snow_depth = 3                       # effect of snow depth on albedo [cm] (Oerlemans and Knap 1998, J. Glaciol.)
 
 ### For tropical glaciers or High Mountain Asia summer-accumulation glaciers (low latitude), the Moelg et al. 2012, TC should be tested for a possible better albedo fit 
-# albedo_mod_snow_aging = 6                      # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
+albedo_mod_snow_aging = 6                      # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
 albedo_mod_snow_depth = 8                      # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
 
 roughness_fresh_snow = 0.24                     # surface roughness length for fresh snow [mm] (Moelg et al. 2012, TC)
@@ -105,6 +105,13 @@ if icestupa_name == 'guttannen22_scheduled':
     initial_snowheight_constant = 0.435              # Initial snowheight
     initial_glacier_height = 0.00                  # Initial glacier height without snowlayers
     Tf = 0 + 273.16                                # Water temperature [C]
+    z2 = 0.00					                    # Thermistor depth 
+    z3 = 0.50					                    # Thermistor depth 
+    z = 0.75					                    # Thermistor depth 
+    z5 = 1.03					                    # Thermistor depth 
+    z6 = 1.25					                    # Thermistor depth 
+    z7 = 1.50					                    # Thermistor depth 
+    z8 = 1.70					                    # Thermistor depth 
 
 if icestupa_name == 'guttannen22_unscheduled':
     initial_snowheight_constant = 0.666              # Initial snowheight
@@ -137,10 +144,9 @@ if icestupa_name == 'guttannen20':
 # AIR parameters and modifications
 #-----------------------------------
 make_icestupa = True
-temperature_threshold_precipitation = 1 + 273.16   # Snowfall below this threshold
+temperature_threshold_precipitation = 5 + 273.16   # Snowfall below this threshold
 roughness_ice = 3.0                             # surface roughness length for ice [mm] (Moelg et al. 2012, TC)
 albedo_ice = 0.25                                 # albedo of ice from Balasubramanian22
 ice_emission_coeff = 0.97                   # surface emission coefficient [-]
 snow_emission_coeff = 0.99                   # surface emission coefficient [-]
-albedo_mod_snow_aging = 8                      # effect of ageing on snow albedo [days] (Oerlemans and Knap 1998, J. Glaciol.)
 

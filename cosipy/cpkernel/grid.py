@@ -862,7 +862,6 @@ class Grid:
         return np.sum(np.array(total))
 
 
-
     def get_number_snow_layers(self):
         """ Get the number of snow layers (density<snow_ice_threshold)"""
         nlayers = [1 for idx in range(self.number_nodes) if self.get_node_density(idx)<snow_ice_threshold]
