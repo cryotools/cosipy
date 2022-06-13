@@ -20,7 +20,7 @@ from metpy.units import units
 sys.path.append('../../')
 
 from constants import make_icestupa
-from config import time_start, time_end, icestupa_name, plat, plon, hgt, stationAlt, radf, timezone_lon, cld
+from config import time_start, time_end, icestupa_name, plat, plon, hgt, stationAlt, timezone_lon, cld
 from utilities.aws2cosipy.aws2cosipyConfig import *
 from cosipy.modules.radCor import *
 
@@ -81,7 +81,7 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
         df = df.loc[start_date:end_date]
 
     #-----------------------------------
-    # Run radiation module to find diffuse fraction and solar angle 
+    # Run radiation module to find solar angle 
     #-----------------------------------
     if make_icestupa: 
         print('\n Run the Radiation Module to find solar angle\n')
@@ -222,7 +222,7 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
     # Add variables to file 
     #-----------------------------------
     # add_variable_along_point(ds, name, 'NAME', '-', 'Location')
-    add_variable_along_point(ds, radf, 'RADF', 'm', 'Spray Radius')
+    # add_variable_along_point(ds, radf, 'RADF', 'm', 'Spray Radius')
 
     add_variable_along_point(ds, hgt, 'HGT', 'm', 'Elevation')
     add_variable_along_point(ds, aspect, 'ASPECT', 'degrees', 'Aspect of slope')
