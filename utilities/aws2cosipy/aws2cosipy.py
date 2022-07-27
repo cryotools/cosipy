@@ -460,8 +460,8 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
     #-----------------------------------
     # Run radiation module 
     #-----------------------------------
-    if radiationModule == 'Wohlfahrt2016':
-        print('Run the Radiation Module Wohlfahrt2016')
+    if radiationModule == 'Wohlfahrt2016' or radiationModule == 'none':
+        print('Run the Radiation Module Wohlfahrt2016 or no Radiation Module.')
 
         # Change aspect to south==0, east==negative, west==positive
         aspect = ds['ASPECT'].values - 180.0
@@ -473,7 +473,7 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
             for i in range(len(ds.lat)):
                 for j in range(len(ds.lon)):
                     if (mask[i, j] == 1):
-                        if radiationModule == 'old':
+                        if radiationModule == 'Wohlfahrt2016':
                             G_interp[t, i, j] = np.maximum(0.0, correctRadiation(lats[i], lons[j], timezone_lon, doy, hour, slope[i, j], aspect[i, j], sw[t], zeni_thld))
                         else:
                             G_interp[t, i, j] = sw[t]
@@ -539,9 +539,9 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
         aspect2 = ds['ASPECT'].values - 180.0
         ds['ASPECT'] = (('lat', 'lon'), aspect2)
 
-    elif radiationModule == 'none':
-        print('No radiation module used')
-        G_interp[t, :, :] = sw[t]
+    else:
+        print('Error! Radiation module not available.\nAvailable options are: Wohlfahrt2016, Moelg2009, none.')
+        sys.exit()
 
     #-----------------------------------
     # Check bounds for relative humidity 
