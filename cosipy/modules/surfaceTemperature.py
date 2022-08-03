@@ -284,7 +284,7 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
     hminus = zlt1
     hplus = zlt2 - zlt1
     Tz1, Tz2 = B_Ts
-    B = lam * (hminus/(hplus+hminus)) * ((Tz2-Tz1)/hplus) + (hplus/(hplus+hminus)) * ((Tz1-T0)/hminus)
+    B = lam * ((hminus/(hplus+hminus)) * ((Tz2-Tz1)/hplus) + (hplus/(hplus+hminus)) * ((Tz1-T0)/hminus))
 
     # Rain heat flux
     QRR = water_density * spec_heat_water * (RAIN/1000/dt) * (T2 - T0)
