@@ -1,11 +1,14 @@
 import numpy as np
 from config import eval_method, obs_type
+from cosipy.utils.options import read_opt
 
 
-def evaluate(stake_names, stake_data, df_):
+def evaluate(stake_names, stake_data, df_, opt_dict=None):
     """ This methods evaluates the simulation with the stake measurements
         stake_name  ::  """
-
+            
+    # Read and set options
+    read_opt(opt_dict, globals())
     if eval_method == 'rmse':
         stat = rmse(stake_names, stake_data, df_)
     else:

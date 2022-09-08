@@ -2,8 +2,13 @@ import numpy as np
 from constants import penetrating_method, snow_ice_threshold, spec_heat_ice, \
                       zero_temperature, ice_density, water_density, lat_heat_melting
 from numba import njit
+from cosipy.utils.options import read_opt
 
-def penetrating_radiation(GRID, SWnet, dt):
+def penetrating_radiation(GRID, SWnet, dt, opt_dict=None):
+
+    # Read and set options
+    read_opt(opt_dict, globals())
+
     penetrating_allowed = ['Bintanja95']
     if penetrating_method == 'Bintanja95':
         subsurface_melt, Si = method_Bintanja(GRID, SWnet, dt)

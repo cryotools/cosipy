@@ -3,9 +3,13 @@ import numpy as np
 from constants import *
 from config import *
 from cosipy.cpkernel.grid import *
+from cosipy.utils.options import read_opt
 
-def init_snowpack(DATA):
+def init_snowpack(DATA, opt_dict):
     ''' INITIALIZATION '''
+
+    # Read and set options
+    read_opt(opt_dict, globals())
 
     ##--------------------------------------
     ## Check for WRF data

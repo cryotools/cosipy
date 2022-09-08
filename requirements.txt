@@ -3,8 +3,9 @@ pandas
 numba
 scipy
 xarray<=0.18.2
-distributed<=2.5.2
+distributed
 dask_jobqueue
 netcdf4
 coveralls
 metpy
+matplotlib

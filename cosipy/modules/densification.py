@@ -2,13 +2,16 @@ import numpy as np
 from constants import densification_method, snow_ice_threshold, minimum_snow_layer_height, \
                       zero_temperature, ice_density
 from numba import njit
+from cosipy.utils.options import read_opt
 
-def densification(GRID,SLOPE,dt):
+def densification(GRID,SLOPE,dt, opt_dict=None):
     """ Densification of the snowpack
     Args:
         GRID    ::  GRID-Structure
 	dt      ::  integration time
     """
+    # Read and set options
+    read_opt(opt_dict, globals())
 
     densification_allowed = ['Boone', 'Vionnet', 'empirical', 'constant']
     if densification_method == 'Boone':
