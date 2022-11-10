@@ -306,7 +306,7 @@ class IOClass:
 
         # Variables given by the input dataset
         # TODO add fountain vars here
-        self.add_variable_along_latlon(self.RESULT, self.DATA.RADF, 'RADF', 'm', 'Spray Radius')
+        # self.add_variable_along_latlon(self.RESULT, self.DATA.RADF, 'RADF', 'm', 'Spray Radius')
 
         self.add_variable_along_latlon(self.RESULT, self.DATA.HGT, 'HGT', 'm', 'Elevation')
         self.add_variable_along_latlon(self.RESULT, self.DATA.MASK, 'MASK', 'boolean', 'Glacier mask')
