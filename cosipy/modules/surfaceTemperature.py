@@ -350,7 +350,7 @@ def eb_fluxes(GRID, T0, dt, z, z0, emission_coeff, T2, rH2, p, u2, RAIN, DISF, S
         hminus = zlt1
         hplus = zlt2 - zlt1
         Tz1, Tz2 = B_Ts
-        B = lam * (hminus/(hplus+hminus)) * ((Tz2-Tz1)/hplus) + (hplus/(hplus+hminus)) * ((Tz1-T0)/hminus)
+        B = lam * ((hminus/(hplus+hminus)) * ((Tz2-Tz1)/hplus) + (hplus/(hplus+hminus)) * ((Tz1-T0)/hminus))
 
     # Fountain heat flux
     # if (T2 < zero_temperature):  # TODO numba customize
