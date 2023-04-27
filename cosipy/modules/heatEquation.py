@@ -1,50 +1,48 @@
 import numpy as np
+from constants import basal_heat_flux
 from numba import njit
 
 @njit
 def solveHeatEquation(GRID, dt):
     """ Solves the heat equation on a non-uniform grid
 
-    dt  ::  integration time
-    
+    Constants:     
+                    dt    ::  Integration time in a model time-step (hour) [s]
+                    bhf   ::  Basal heat flux [W m-2]
+    Inputs:
+                    h(z)  ::  Layer height [m]
+                    K(z)  ::  Layer thermal diffusivity [m2 s-1]
+                    k(z)  ::  Layer thermal conductivity [W m-1 K-1]
+                    T(z)  ::  Layer temperature [K]    
+    Outputs:
+                    T(z)  ::  Layer temperature (updated) [K]       
     """
-    # number of layers
-    nl = GRID.get_number_layers()
-
-    # Define index arrays 
-    k   = np.arange(1,nl-1) # center points
-    kl  = np.arange(2,nl)   # lower points
-    ku  = np.arange(0,nl-2) # upper points
     
-    # Get thermal diffusivity [m2 s-1]
-    K = np.asarray(GRID.get_thermal_diffusivity()) 
-    
-    # Get snow layer heights    
-    hlayers = np.asarray(GRID.get_height())
-
-    # Get grid spacing
-    diff = ((hlayers[0:nl-1]/2.0)+(hlayers[1:nl]/2.0))
-    hk = diff[0:nl-2]  # between z-1 and z
-    hk1 = diff[1:nl-1] # between z and z+1
-    
-    # Get temperature array from grid|
-    T = np.array(GRID.get_temperature())
+    # Get sub-surface layer properties:
+    h = np.asarray(GRID.get_height())
+    K = np.asarray(GRID.get_thermal_diffusivity())
+    T = np.asarray(GRID.get_temperature())
+    k = np.asarray(GRID.get_thermal_conductivity())
     Tnew = T.copy()
     
-    Kl = (K[1:nl-1]+K[2:nl])/2.0
-    Ku = (K[0:nl-2]+K[1:nl-1])/2.0
-    
+    # Determine integration steps required in the solver to ensure numerical stability:
     stab_t = 0.0
     c_stab = 0.8
-    dt_stab  = c_stab * (min([min(diff[0:nl-2]**2/(2*Ku)),min(diff[1:nl-1]**2/(2*Kl))]))
+    dt_stab  = c_stab * min(((z[1:]+z[:-1])/2)**2/(K[1:]+K[:-1]))
     
+    # Numerically Solve the Fourier heat equation using a finite central difference scheme in matrix form:
     while stab_t < dt:
-
         dt_use = np.minimum(dt_stab, dt-stab_t)
         stab_t = stab_t + dt_use
 
-        # Update the temperatures
-        Tnew[k] += ((Kl*dt_use*(T[kl]-T[k])/(hk1)) - (Ku*dt_use*(T[k]-T[ku])/(hk))) / (0.5*(hk+hk1))
+        # Update the temperatures of the intermediate sub-surface nodes:
+        Tnew[1:-1] = T[1:-1] + dt_use * (((0.5 * (K[2:]  + K[1:-1]))  * (T[2:]   - T[1:-1]) / (0.5 * (z[2:]  + z[1:-1])) - \
+                                          (0.5 * (K[:-2] + K[1:-1]))  * (T[1:-1] - T[:-2])  / (0.5 * (z[:-2] + z[1:-1]))) / \
+                                          (0.25 * z[:-2]  + 0.5 * z[1:-1] + 0.25 * z[2:]))
+        # Update the temperature of the base sub-surface node:
+        Tnew[-1]   = T[-1]   + dt_use * (((basal_heat_flux * K[-1] / k[-1]) - \
+                                         ((0.5 * (K[-2] + K[-1])) * (T[-1] - T[-2])  / (0.5 * (z[-2] + z[-1])))) / \
+                                          (0.25 * z[-2] + 0.75 * z[-1]))
         T = Tnew.copy()
         
     # Write results to GRID
