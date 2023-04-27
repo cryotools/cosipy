@@ -30,7 +30,7 @@ def solveHeatEquation(GRID, dt):
     c_stab = 0.8
     dt_stab  = c_stab * min(((z[1:]+z[:-1])/2)**2/(K[1:]+K[:-1]))
     
-    # Numerically Solve the Fourier heat equation using a finite central difference scheme in matrix form:
+    # Numerically solve the Fourier heat equation using a finite central difference scheme in matrix form:
     while stab_t < dt:
         dt_use = np.minimum(dt_stab, dt-stab_t)
         stab_t = stab_t + dt_use
