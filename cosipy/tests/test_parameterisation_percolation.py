@@ -1,17 +1,30 @@
-from pytest import approx
-from cosipy.cpkernel.grid import *
-from cosipy.modules.percolation import percolation
+import numpy as np
+
+# import constants
 from COSIPY import start_logging
+from cosipy.modules.percolation import percolation
 
-layer_heights = [0.1, 0.2, 0.3, 0.5, 0.5]
-layer_densities = [250, 250, 250, 917, 917]
-layer_temperatures = [260, 270, 271, 271.5, 272]
-layer_liquid_water = [0.0, 0.0, 0.0, 0.0, 0.0]
 
-GRID = Grid(layer_heights, layer_densities, layer_temperatures, layer_liquid_water)
-melt_water = 1.0
-timestamp = 7200
+class TestParamPercolation:
+    """Tests percolation methods.
 
-def test_percolation_parameterisation():
-    q = percolation(GRID, melt_water, timestamp)
-    assert melt_water == np.nansum(GRID.get_liquid_water_content()) + q
+    Attributes:
+        melt_water (float): Melt water at surface.
+        timedelta (int): Integration time, dt [s].
+    """
+
+    melt_water = 1.0
+    timedelta = 7200
+
+    def test_percolation(self, conftest_mock_grid):
+        GRID = conftest_mock_grid
+
+        initial_water = self.melt_water + np.nansum(
+            GRID.get_liquid_water_content()
+        )
+        runoff = percolation(GRID, self.melt_water, self.timedelta)
+        total_water = runoff + np.nansum(GRID.get_liquid_water_content())
+
+        # Bug? Total water is greater than the initially available water
+        # assert np.isclose(self.melt_water, total_water)
+        assert np.isclose(initial_water, total_water)
