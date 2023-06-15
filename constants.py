@@ -72,6 +72,8 @@ albedo_mod_snow_depth = 3                       # effect of snow depth on albedo
 #albedo_mod_snow_aging = 6                      # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
 #albedo_mod_snow_depth = 8                      # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
 
+basal_heat_flux = 0.04                          # Basal/geothermal heat flux [Wm^-2]
+
 roughness_fresh_snow = 0.24                     # surface roughness length for fresh snow [mm] (Moelg et al. 2012, TC)
 roughness_ice = 1.7                             # surface roughness length for ice [mm] (Moelg et al. 2012, TC)
 roughness_firn = 4.0                            # surface roughness length for aged snow [mm] (Moelg et al. 2012, TC)
