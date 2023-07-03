@@ -342,7 +342,7 @@ def plotContour(
         timestamp=pdate,
         short_name=var,
         mean=mean,
-        plot_type="mesh",
+        plot_type="contour",
     )
     if save:
         save_image(figure=figure, timestamp=pdate, name=var, suffix="contour")

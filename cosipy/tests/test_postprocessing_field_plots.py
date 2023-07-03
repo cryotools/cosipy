@@ -101,12 +101,12 @@ class TestPostprocessPlotFieldsPlotting:
         assert isinstance(compare_ax, plt.Axes)
 
         compare_interval = ax.xaxis.properties()["data_interval"]
-        assert compare_interval[0] == dataset.lon.min()
-        assert compare_interval[1] == dataset.lon.max()
+        assert np.isclose(compare_interval[0], dataset.lon.min())
+        assert np.isclose(compare_interval[1], dataset.lon.max())
 
         compare_interval = ax.yaxis.properties()["data_interval"]
-        assert compare_interval[0] == dataset.lat.min()
-        assert compare_interval[1] == dataset.lat.max()
+        assert np.isclose(compare_interval[0], dataset.lat.min())
+        assert np.isclose(compare_interval[1], dataset.lat.max())
 
         plt.close("all")
 

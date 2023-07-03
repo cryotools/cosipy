@@ -54,6 +54,21 @@ def conftest_hide_plot():
     mock_exists.return_value = True
 
 
+@pytest.fixture(name="conftest_rng_seed", scope="function", autouse=False)
+def fixture_conftest_rng_seed() -> np.random.Generator:
+    """Sets seed for random number generator to 444.
+
+    Returns:
+        Random number generator with seed=444.
+    """
+
+    random_generator = np.random.default_rng(seed=444)
+    rng_state = random_generator.__getstate__()["state"]["state"]
+    assert rng_state == 201734421534842192264806664122757988751
+
+    yield random_generator
+
+
 # Mock GRID data
 @pytest.fixture(
     name="conftest_mock_grid_values", scope="function", autouse=False
@@ -154,7 +169,7 @@ def fixture_conftest_mock_xr_dataset_dims() -> dict:
     name="conftest_mock_xr_dataset", scope="function", autouse=False
 )
 def fixture_conftest_mock_xr_dataset(
-    conftest_mock_xr_dataset_dims: dict,
+    conftest_mock_xr_dataset_dims: dict, conftest_rng_seed: np.random.Generator
 ) -> xr.Dataset:
     """Constructs mock xarray Dataset of output .nc file.
 
@@ -163,7 +178,7 @@ def fixture_conftest_mock_xr_dataset(
         shape ()
     """
 
-    np.random.seed(444)
+    _ = conftest_rng_seed
     dims = conftest_mock_xr_dataset_dims.copy()
     lengths = [
         len(dims["time"]),
@@ -293,11 +308,68 @@ class TestBoilerplate:
             else:
                 assert compare_time == "2009-01-01T12:00:00"
 
+    def set_rng_seed(self, seed=444):
+        """Sets seed for random number generator to 444.
+
+        Returns:
+            Random number generator with seed=444.
+        """
+
+        random_generator = np.random.default_rng(seed=seed)
+
+        return random_generator
+
+    def test_set_rng_seed(self):
+        rng_none = self.set_rng_seed()
+        assert isinstance(rng_none, np.random.Generator)
+        rng_none_state = rng_none.__getstate__()["state"]["state"]
+        rng_123 = self.set_rng_seed(seed=123)
+        assert isinstance(rng_123, np.random.Generator)
+        rng_123_state = rng_123.__getstate__()["state"]["state"]
+        rng_444 = self.set_rng_seed(seed=444)
+        assert isinstance(rng_444, np.random.Generator)
+        rng_444_state = rng_444.__getstate__()["state"]["state"]
+
+        assert all(
+            isinstance(state, int)
+            for state in [rng_none_state, rng_123_state, rng_444_state]
+        )
+        assert rng_none_state == rng_444_state
+        assert not rng_444_state == rng_123_state
+
+    def regenerate_grid_values(
+        self, grid: Grid, key: str, distribution: str
+    ) -> Grid:
+        rng = self.set_rng_seed()
+        if distribution == "random":
+            for idx in range(0, grid.number_nodes - 1):
+                grid.set_node_liquid_water_content(
+                    idx, rng.uniform(low=0.01, high=0.05)
+                )
+        elif distribution == "static":
+            for idx in range(0, grid.number_nodes - 1):
+                grid.set_node_liquid_water_content(idx, 1.0)
+        elif distribution == "decreasing":
+            for idx in range(0, grid.number_nodes - 1):
+                grid.set_node_liquid_water_content(
+                    idx, 0.01 * grid.number_nodes
+                )
+        else:
+            for idx in range(0, grid.number_nodes - 1):
+                grid.set_node_liquid_water_content(idx, 0)
+
+        return grid
+
+    def test_generate_grid_values(self):
+        grid = self.regenerate_grid_values(distribution="static")
+        assert isinstance(grid, Grid)
+
     def test_boilerplate_integration(self):
         """Integration test for boilerplate methods."""
 
         self.test_check_plot()
         self.test_set_timestamp()
+        self.test_set_rng_seed()
 
 
 @pytest.fixture(name="conftest_boilerplate", scope="function", autouse=False)
