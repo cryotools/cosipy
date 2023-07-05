@@ -1,57 +1,151 @@
-from cosipy.cpkernel.node import *
+import numpy as np
+import pytest
 
-height = 0.1
-density = 200.
-temperature = 270
-lwc = 0.2
-ice_fraction = 0.4
+import constants
+from cosipy.cpkernel.node import Node
 
-test_node = Node(height, density, temperature, lwc)
-test_node.set_layer_ice_fraction(ice_fraction)
 
-def calculate_irreducible_water_content(current_ice_fraction):
-    if (current_ice_fraction <= 0.23):
-        theta_e = 0.0264 + 0.0099 * ((1 - current_ice_fraction) / current_ice_fraction)
-    elif (current_ice_fraction > 0.23) & (current_ice_fraction <= 0.812):
-        theta_e = 0.08 - 0.1023 * (current_ice_fraction - 0.03)
-    else:
-        theta_e = 0.0
-    return theta_e
+class TestNodeGetter:
+    """Tests get methods for Node objects.
 
-def test_node_getter_functions():
-    assert test_node.get_layer_height() == height
+    Attributes:
+        height (float): Layer height [:math:`m`]
+        density (float): Snow density [:math:`kg~m^{-3}`]
+        temperature (int): Layer temperature [:math:`K`]
+        lwc (float): Liquid water content [:math:`m~w.e.`]
+        ice_fraction (float): Volumetric ice fraction [-]
+    """
 
-    assert test_node.get_layer_temperature() == temperature
+    height = 0.1
+    density = 200.0
+    temperature = 270.0
+    lwc = 0.2
+    ice_fraction = 0.4
 
-    assert test_node.get_layer_ice_fraction() == ice_fraction
+    def create_node(
+        self,
+        height: float = height,
+        density: float = density,
+        temperature: float = temperature,
+        lwc: float = lwc,
+        ice_fraction: float = ice_fraction,
+    ) -> Node:
+        """Instantiate a Node."""
 
-    assert test_node.get_layer_refreeze() == 0.0
+        node = Node(
+            height=height,
+            snow_density=density,
+            temperature=temperature,
+            liquid_water_content=lwc,
+        )
+        assert isinstance(node, Node)
+        node.set_layer_ice_fraction(ice_fraction)
 
-    assert test_node.get_layer_density() == test_node.get_layer_ice_fraction()*ice_density + \
-           test_node.get_layer_liquid_water_content()*water_density + test_node.get_layer_air_porosity()*air_density
+        return node
 
-    assert test_node.get_layer_air_porosity() == 1 - lwc - ice_fraction
+    def test_create_node(self):
+        node = self.create_node()
+        assert isinstance(node, Node)
 
-    assert test_node.get_layer_specific_heat() == (1 - lwc - ice_fraction) * spec_heat_air + ice_fraction * spec_heat_ice \
-           + lwc * spec_heat_water
+    def calculate_irreducible_water_content(
+        self, current_ice_fraction: float
+    ) -> float:
+        """Calculate irreducible water content."""
+        if current_ice_fraction <= 0.23:
+            theta_e = 0.0264 + 0.0099 * (
+                (1 - current_ice_fraction) / current_ice_fraction
+            )
+        elif (current_ice_fraction > 0.23) & (current_ice_fraction <= 0.812):
+            theta_e = 0.08 - 0.1023 * (current_ice_fraction - 0.03)
+        else:
+            theta_e = 0.0
 
-    assert test_node.get_layer_liquid_water_content() == lwc
+        return theta_e
 
-    assert test_node.get_layer_irreducible_water_content() == calculate_irreducible_water_content(test_node.get_layer_ice_fraction())
+    @pytest.mark.parametrize("arg_ice_fraction", [0.2, 0.5, 0.9])
+    def test_calculate_irreducible_water_content(self, arg_ice_fraction):
+        theta_e = self.calculate_irreducible_water_content(arg_ice_fraction)
+        assert isinstance(theta_e, float)
 
-    assert test_node.get_layer_cold_content() == - test_node.get_layer_specific_heat() * test_node.get_layer_density() \
-           * height * (temperature - zero_temperature)
+    def test_node_getter_functions(self):
+        node = self.create_node()
+        assert np.isclose(node.get_layer_height(), self.height)
+        assert np.isclose(node.get_layer_temperature(), self.temperature)
+        assert np.isclose(node.get_layer_ice_fraction(), self.ice_fraction)
+        assert np.isclose(node.get_layer_refreeze(), 0.0)
 
-    assert test_node.get_layer_porosity() == 1 - test_node.get_layer_ice_fraction() - test_node.get_layer_liquid_water_content()
+        test_density = (
+            node.get_layer_ice_fraction() * constants.ice_density
+            + node.get_layer_liquid_water_content() * constants.water_density
+            + node.get_layer_air_porosity() * constants.air_density
+        )
+        assert np.isclose(node.get_layer_density(), test_density)
+        assert np.isclose(
+            node.get_layer_air_porosity(),
+            1 - self.lwc - self.ice_fraction,
+        )
 
-    assert test_node.get_layer_thermal_conductivity() == ice_fraction * k_i + test_node.get_layer_porosity() * k_a + lwc * k_w
+        test_specific_heat = (
+            (1 - self.lwc - self.ice_fraction) * constants.spec_heat_air
+            + self.ice_fraction * constants.spec_heat_ice
+            + self.lwc * constants.spec_heat_water
+        )
+        assert np.isclose(node.get_layer_specific_heat(), test_specific_heat)
+        assert node.get_layer_liquid_water_content() == self.lwc
 
-    assert test_node.get_layer_thermal_diffusivity() == test_node.get_layer_thermal_conductivity() \
-           / (test_node.get_layer_density() * test_node.get_layer_specific_heat())
+        test_irreducible_water_content = (
+            self.calculate_irreducible_water_content(
+                node.get_layer_ice_fraction()
+            )
+        )
+        assert np.isclose(
+            node.get_layer_irreducible_water_content(),
+            test_irreducible_water_content,
+        )
 
-def test_node_getter_functions_other_cases():
-    test_node.set_layer_ice_fraction(0.1)
-    assert test_node.get_layer_irreducible_water_content() == calculate_irreducible_water_content(test_node.get_layer_ice_fraction())
+        test_cold_content = (
+            -node.get_layer_specific_heat()
+            * node.get_layer_density()
+            * self.height
+            * (self.temperature - constants.zero_temperature)
+        )
+        assert np.isclose(node.get_layer_cold_content(), test_cold_content)
 
-    test_node.set_layer_ice_fraction(0.9)
-    assert test_node.get_layer_irreducible_water_content() == calculate_irreducible_water_content(test_node.get_layer_ice_fraction())
+        test_porosity = (
+            1
+            - node.get_layer_ice_fraction()
+            - node.get_layer_liquid_water_content()
+        )
+        assert np.isclose(node.get_layer_porosity(), test_porosity)
+
+        test_thermal_conductivity = (
+            self.ice_fraction * constants.k_i
+            + node.get_layer_porosity() * constants.k_a
+            + self.lwc * constants.k_w
+        )
+        assert np.isclose(
+            node.get_layer_thermal_conductivity(),
+            test_thermal_conductivity,
+        )
+
+        test_thermal_diffusivity = node.get_layer_thermal_conductivity() / (
+            node.get_layer_density() * node.get_layer_specific_heat()
+        )
+        assert np.isclose(
+            node.get_layer_thermal_diffusivity(), test_thermal_diffusivity
+        )
+
+    @pytest.mark.parametrize("arg_ice_fraction", [0.1, 0.9])
+    def test_node_getter_functions_other_cases(self, arg_ice_fraction):
+        node = self.create_node()
+        node.set_layer_ice_fraction(arg_ice_fraction)
+
+        test_irreducible_water_content = (
+            self.calculate_irreducible_water_content(
+                node.get_layer_ice_fraction()
+            )
+        )
+        assert np.isclose(
+            node.get_layer_irreducible_water_content(),
+            test_irreducible_water_content,
+        )

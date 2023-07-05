@@ -371,4 +371,3 @@ def method_EW_Sonntag(T):
         # over ice
         Ew = 6.112 * np.exp((22.46*(T-273.16)) / ((T-0.55)))
     return Ew
-
