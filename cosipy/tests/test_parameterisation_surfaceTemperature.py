@@ -18,7 +18,6 @@ class TestParamSurfaceTemperature:
             latent_heat_flux,
             ground_heat_flux,
             rain_heat_flux,
-            sw_radiation_net,
             rho,
             Lv,
             monin_obukhov_length,
@@ -30,13 +29,12 @@ class TestParamSurfaceTemperature:
             # Old args: GRID, 0.6, (0.24 / 1000), 275, 0.6, 789, 1000, 4.5, 0.0, 0.1
             GRID=GRID,
             dt=3600,
-            alpha=0.6,
             z=2,
             z0=(0.24 / 1000),
             T2=275,
             rH2=50,
             p=1000,
-            G=789,
+            SWnet=789,
             u2=3.5,
             RAIN=0.1,
             SLOPE=0.0,
@@ -53,4 +51,3 @@ class TestParamSurfaceTemperature:
         assert sensible_heat_flux <= 250 and sensible_heat_flux >= -250
         assert latent_heat_flux <= 200 and latent_heat_flux >= -200
         assert ground_heat_flux <= 100 and ground_heat_flux >= -100
-        assert sw_radiation_net <= 1000 and sw_radiation_net >= 0
