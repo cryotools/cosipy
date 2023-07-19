@@ -25,7 +25,9 @@ def method_Oerlemans(GRID):
 
     # If fresh snow disappears faster than the snow ageing scale then set the hours_since_snowfall
     # to the old values of the underlying snowpack
-    if (hours_since_snowfall<(albedo_mod_snow_aging*24)) & (fresh_snow_height<0.0):
+    if (hours_since_snowfall < (albedo_mod_snow_aging * 24)) & (
+        fresh_snow_height <= 0.0
+        ):
         GRID.set_fresh_snow_props_to_old_props()
         fresh_snow_height, fresh_snow_timestamp, _  = GRID.get_fresh_snow_props()
         
