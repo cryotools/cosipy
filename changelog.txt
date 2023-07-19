@@ -301,3 +301,20 @@ Refactors:
     - Subdivision/smoothing filters: these are not yet correctly
       implemented.
     - Linting, type hinting, docstrings.
+
+###
+feat(albedo): add snow-covered debris albedo from Lejeune et al., (2013)
+
+Fixes:
+    - Fresh snow properties would only revert to the underlying snowpack when
+      the snow height was negative.
+
+Adds:
+    - Snow-covered debris albedo (Lejeune et al., 2013).
+    - Constants for debris albedo, critical snowpack thickness, and albedo
+      weighting coefficient.
+    - Tests for albedo parametrisation.
+
+Refactors:
+    - Separated some functions to avoid duplicated code.
+    - Error handling to use fstrings.
