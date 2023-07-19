@@ -67,7 +67,6 @@ albedo_firn = 0.55                              # albedo of firn [-] (Moelg et a
 albedo_ice = 0.3                                # albedo of ice [-] (Moelg et al. 2012, TC)
 albedo_mod_snow_aging = 22                      # effect of ageing on snow albedo [days] (Oerlemans and Knap 1998, J. Glaciol.)
 albedo_mod_snow_depth = 3                       # effect of snow depth on albedo [cm] (Oerlemans and Knap 1998, J. Glaciol.)
-albedo_debris = 0.2                             # albedo of debris [-] (Nicholson & Benn, 2013). Reid et al. (2010) gives 0.13
 
 ### For tropical glaciers or High Mountain Asia summer-accumulation glaciers (low latitude), the Moelg et al. 2012, TC should be tested for a possible better albedo fit 
 #albedo_mod_snow_aging = 6                      # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
@@ -99,6 +98,3 @@ air_density = 1.1                               # density of air [kg m^(-3)]
 sigma = 5.67e-8                                 # Stefan-Bolzmann constant [W m-2 K-4]
 zero_temperature = 273.16                       # Melting temperature [K]
 surface_emission_coeff = 0.99                   # surface emission coefficient [-]
-
-critical_snowpack_thickness = 0.1               # critical snowpack thickness [m] (Lejeune et al., 2007)
-lejeune_weighting_coefficient = 0.33            # empirical weighting coefficient [-] (Lejeune et al., 2007)
