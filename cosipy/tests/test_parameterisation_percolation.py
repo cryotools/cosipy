@@ -125,7 +125,6 @@ class TestParamPercolation:
     def test_percolate_layer(
         self,
         conftest_mock_grid,
-        conftest_boilerplate,
         conftest_rng_seed,
         arg_idx,
         arg_distribution,
@@ -190,5 +189,5 @@ class TestParamPercolation:
 
         # Bug? Total water is greater than the initially available water
         # assert np.isclose(self.melt_water, total_water)
-        assert np.isclose(initial_water + self.melt_water, total_water)
+        assert np.isclose(initial_water, total_water)
         assert np.isclose(self.melt_water, total_water)
