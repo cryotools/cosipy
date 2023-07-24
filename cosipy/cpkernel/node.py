@@ -178,22 +178,25 @@ class Node:
                 Air porosity [-]
         """
         return 1-self.get_layer_ice_fraction()-self.get_layer_liquid_water_content()
-   
-    def get_layer_thermal_conductivity(self):
-        """ Returns the volumetric weighted thermal conductivity of the node.
+
+    def get_layer_thermal_conductivity(self) -> float:
+        """Returns the volumetric weighted thermal conductivity of the node.
 
         Returns
         -------
-            lambda : float
-                Thermal conductivity [:math:`W~m^{-1}~K^{-1}`]
+            lambda: Thermal conductivity [:math:`W~m^{-1}~K^{-1}`].
         """
         methods_allowed = ['bulk', 'empirical']
-        if thermal_conductivity_method == 'bulk':
-            lam = self.get_layer_ice_fraction()*k_i + self.get_layer_air_porosity()*k_a + self.get_layer_liquid_water_content()*k_w
-        elif thermal_conductivity_method == 'empirical':
+        if constants.thermal_conductivity_method == 'bulk':
+            lam = self.get_layer_ice_fraction()*constants.k_i + self.get_layer_air_porosity()*constants.k_a + self.get_layer_liquid_water_content()*constants.k_w
+        elif constants.thermal_conductivity_method == 'empirical':
             lam = 0.021 + 2.5 * np.power((self.get_layer_density()/1000),2)
         else:
-            raise ValueError("Thermal conductivity method = \"{:s}\" is not allowed, must be one of {:s}".format(thermal_conductivity_method, ", ".join(methods_allowed)))
+            message = ("Thermal conductivity method =",
+                       f"{constants.thermal_conductivity_method}",
+                       f"is not allowed, must be one of",
+                       f"{', '.join(methods_allowed)}")
+            raise ValueError(" ".join(message))
         return lam
 
     def get_layer_thermal_diffusivity(self):
