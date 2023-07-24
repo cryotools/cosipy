@@ -119,6 +119,7 @@ def fixture_conftest_mock_grid(conftest_mock_grid_values: dict) -> Grid:
         layer_liquid_water_content=data["layer_liquid_water_content"],
     )
     assert isinstance(grid_object, Grid)
+    assert grid_object.number_nodes == len(data["layer_heights"])
 
     yield grid_object
 
@@ -364,12 +365,28 @@ class TestBoilerplate:
         grid = self.regenerate_grid_values(distribution="static")
         assert isinstance(grid, Grid)
 
+    def check_output(self, value, target):
+        assert isinstance(value, type(value))
+        if isinstance(target, float):
+            assert np.isclose(value, target)
+        else:
+            assert value == target
+        return True
+
+    def test_check_output(self):
+        test_array = [0.0, 0.5, 0.6]
+        test_value = max(test_array)
+        assert test_value == 0.6
+        assert isinstance(test_value, float)
+        self.check_output(value=max(test_array), target=test_value)
+
     def test_boilerplate_integration(self):
         """Integration test for boilerplate methods."""
 
         self.test_check_plot()
         self.test_set_timestamp()
         self.test_set_rng_seed()
+        self.test_check_output()
 
 
 @pytest.fixture(name="conftest_boilerplate", scope="function", autouse=False)
