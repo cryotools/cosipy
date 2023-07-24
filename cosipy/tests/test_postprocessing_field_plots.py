@@ -331,8 +331,8 @@ class TestPostprocessPlotFieldsPlotting:
         assert isinstance(args, argparse.Namespace)
 
         # Required
-        assert args.file is "./path/file"
-        assert args.pdate is "'2009-01-01'"
+        assert args.file == "./path/file"
+        assert args.pdate == "'2009-01-01'"
         # Defaults
         assert args.variable is None
         assert isinstance(args.plot_type, int) and args.plot_type == 1
