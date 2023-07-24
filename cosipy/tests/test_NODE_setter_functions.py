@@ -1,5 +1,3 @@
-import numpy as np
-
 # import constants
 from cosipy.cpkernel.node import Node
 
@@ -19,7 +17,6 @@ class TestNodeSetter:
         new_temperature (int): New layer temperature [:math:`K`].
         new_lwc (float): New liquid water content [:math:`m~w.e.`].
         new_ice_fraction (float): New volumetric ice fraction [-].
-
     """
 
     height = 0.1
@@ -27,11 +24,11 @@ class TestNodeSetter:
     temperature = 270
     lwc = 0.3
     ice_fraction = 0.4
-    refreeze = 0.01
     new_height = 1.0
     new_temperature = 260.0
     new_lwc = 0.5
     new_ice_fraction = 0.9
+    new_refreeze = 0.01
 
     def create_node(
         self,
@@ -48,29 +45,51 @@ class TestNodeSetter:
             snow_density=density,
             temperature=temperature,
             liquid_water_content=lwc,
+            ice_fraction=ice_fraction,
         )
-        assert isinstance(node, Node)
-        node.set_layer_ice_fraction(ice_fraction)
-
         return node
 
-    def test_create_node(self):
+    def test_create_node(self, conftest_boilerplate):
         node = self.create_node()
         assert isinstance(node, Node)
+        conftest_boilerplate.check_output(node.height, self.height)
+        conftest_boilerplate.check_output(node.temperature, self.temperature)
+        conftest_boilerplate.check_output(node.liquid_water_content, self.lwc)
+        conftest_boilerplate.check_output(node.ice_fraction, self.ice_fraction)
+        conftest_boilerplate.check_output(node.refreeze, 0.0)
 
-    def test_node_setter_functions(self):
+    def test_node_set_layer_height(self, conftest_boilerplate):
         node = self.create_node()
         node.set_layer_height(self.new_height)
-        assert np.isclose(node.get_layer_height(), self.new_height)
+        conftest_boilerplate.check_output(
+            node.get_layer_height(), self.new_height
+        )
 
+    def test_node_set_layer_height(self, conftest_boilerplate):
+        node = self.create_node()
         node.set_layer_temperature(self.new_temperature)
-        assert np.isclose(node.get_layer_temperature(), self.new_temperature)
+        conftest_boilerplate.check_output(
+            node.get_layer_temperature(), self.new_temperature
+        )
 
+    def test_node_set_layer_liquid_water_content(self, conftest_boilerplate):
+        node = self.create_node()
         node.set_layer_liquid_water_content(self.new_lwc)
-        assert np.isclose(node.get_layer_liquid_water_content(), self.new_lwc)
+        conftest_boilerplate.check_output(
+            node.get_layer_liquid_water_content(), self.new_lwc
+        )
 
+    def test_node_set_layer_ice_fraction(self, conftest_boilerplate):
+        node = self.create_node()
         node.set_layer_ice_fraction(self.new_ice_fraction)
-        assert np.isclose(node.get_layer_ice_fraction(), self.new_ice_fraction)
-
-        node.set_layer_refreeze(self.refreeze)
-        assert np.isclose(node.get_layer_refreeze(), self.refreeze)
+        conftest_boilerplate.check_output(
+            node.get_layer_ice_fraction(), self.new_ice_fraction
+        )
+    
+    def test_node_set_layer_refreeze(self, conftest_boilerplate):
+        node = self.create_node()
+        node.set_layer_refreeze(self.new_refreeze)
+        conftest_boilerplate.check_output(
+            node.get_layer_refreeze(), self.new_refreeze
+        )
+    
