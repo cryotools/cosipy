@@ -342,31 +342,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
                 _LAYER_ICE_FRACTION = None
                 _LAYER_IRREDUCIBLE_WATER = None
                 _LAYER_REFREEZE = None
-		
-            if stake_evaluation:
-                # Evaluate stakes
-                _stat = evaluate(stake_names, stake_data, _df)
-            else:
-                _stat = None
-                _df = None
 
-            # Restart
-            RESTART.NLAYERS.values[:] = GRID.get_number_layers()
-            RESTART.NEWSNOWHEIGHT.values[:] = _new_snow_height[t]
-            RESTART.NEWSNOWTIMESTAMP.values[:] = _new_snow_timestamp[t]
-            RESTART.OLDSNOWTIMESTAMP.values[:] = _old_snow_timestamp[t]
-            RESTART.LAYER_HEIGHT[0:GRID.get_number_layers()] = GRID.get_height()
-            RESTART.LAYER_RHO[0:GRID.get_number_layers()] = GRID.get_density()
-            RESTART.LAYER_T[0:GRID.get_number_layers()] = GRID.get_temperature()
-            RESTART.LAYER_LWC[0:GRID.get_number_layers()] = GRID.get_liquid_water_content()
-            RESTART.LAYER_IF[0:GRID.get_number_layers()] = GRID.get_ice_fraction()
 
-            return (indY,indX,RESTART,_RAIN,_SNOWFALL,_LWin,_LWout,_H,_LE,_B,_QRR, \
-                _MB,_surfMB,_Q,_SNOWHEIGHT,_TOTALHEIGHT,_TS,_ALBEDO,_NLAYERS, \
-                _ME,_intMB,_EVAPORATION,_SUBLIMATION,_CONDENSATION,_DEPOSITION,_REFREEZE, \
-                _subM,_Z0,_surfM,_new_snow_height,_new_snow_timestamp,_old_snow_timestamp,_MOL, \
-                _LAYER_HEIGHT,_LAYER_RHO,_LAYER_T,_LAYER_LWC,_LAYER_CC,_LAYER_POROSITY,_LAYER_ICE_FRACTION, \
-                _LAYER_IRREDUCIBLE_WATER,_LAYER_REFREEZE,stake_names,_stat,_df)
+
 
         # Save results -- WRF_X_CSPY case              
         else:
@@ -394,6 +372,31 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
                     evaporation,sublimation,condensation,deposition,water_refreezed,subsurface_melt,z0, \
                     melt,_new_snow_height,_new_snow_timestamp,_old_snow_timestamp,MOL,_LAYER_HEIGHT, \
                     _LAYER_RHO,_LAYER_T,_LAYER_LWC,None,None,_LAYER_ICE_FRACTION,None,None,None,None,None)
-		 
-		
 
+    if not WRF_X_CSPY:			
+        if stake_evaluation:
+            # Evaluate stakes
+            _stat = evaluate(stake_names, stake_data, _df)
+
+
+        else:
+            _stat = None
+            _df = None
+
+        # Restart
+        RESTART.NLAYERS.values[:] = GRID.get_number_layers()
+        RESTART.NEWSNOWHEIGHT.values[:] = _new_snow_height[t]
+        RESTART.NEWSNOWTIMESTAMP.values[:] = _new_snow_timestamp[t]
+        RESTART.OLDSNOWTIMESTAMP.values[:] = _old_snow_timestamp[t]
+        RESTART.LAYER_HEIGHT[0:GRID.get_number_layers()] = GRID.get_height()
+        RESTART.LAYER_RHO[0:GRID.get_number_layers()] = GRID.get_density()
+        RESTART.LAYER_T[0:GRID.get_number_layers()] = GRID.get_temperature()
+        RESTART.LAYER_LWC[0:GRID.get_number_layers()] = GRID.get_liquid_water_content()
+        RESTART.LAYER_IF[0:GRID.get_number_layers()] = GRID.get_ice_fraction()
+
+        return (indY,indX,RESTART,_RAIN,_SNOWFALL,_LWin,_LWout,_H,_LE,_B,_QRR, \
+            _MB,_surfMB,_Q,_SNOWHEIGHT,_TOTALHEIGHT,_TS,_ALBEDO,_NLAYERS, \
+            _ME,_intMB,_EVAPORATION,_SUBLIMATION,_CONDENSATION,_DEPOSITION,_REFREEZE, \
+            _subM,_Z0,_surfM,_new_snow_height,_new_snow_timestamp,_old_snow_timestamp,_MOL, \
+            _LAYER_HEIGHT,_LAYER_RHO,_LAYER_T,_LAYER_LWC,_LAYER_CC,_LAYER_POROSITY,_LAYER_ICE_FRACTION, \
+            _LAYER_IRREDUCIBLE_WATER,_LAYER_REFREEZE,stake_names,_stat,_df)
