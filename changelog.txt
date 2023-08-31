@@ -301,3 +301,22 @@ Refactors:
     - Subdivision/smoothing filters: these are not yet correctly
       implemented.
     - Linting, type hinting, docstrings.
+
+###
+fix(tests): pytest missing an init file 
+
+Fixes pytest not working as standalone due to a missing init file.
+
+###
+feat(tests): check test output for expected value and type 
+
+Adds function `check_output(value, target)` to `conftest_boilerplate` which
+checks that the value and its type matches the target value and type.
+
+###
+refactor: harden .coveragerc logic and .gitignore
+
+Includes test definitions in coverage, so redundant test logic is easier to
+catch.
+
+Adds coverage support for pragma, defensive/abstract/non-runnable errors.
