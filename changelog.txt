@@ -320,3 +320,14 @@ Includes test definitions in coverage, so redundant test logic is easier to
 catch.
 
 Adds coverage support for pragma, defensive/abstract/non-runnable errors.
+
+###
+feat(tests): patch global variables during tests
+
+Adds ability to patch global variables when running tests, which avoids the
+need to hardcode or modify the variables directly. Call within a test function
+using:
+    
+    conftest_boilerplate.patch_variable(
+        monkeypatch, module="foo.bar", new_params={"var01": 1.0, "var02": 3.2}
+        )
