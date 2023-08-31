@@ -45,7 +45,7 @@ class TestNodeGetter:
             test_node.liquid_water_content, float, self.lwc
         )
         conftest_boilerplate.check_output(
-            test_node.refreeze, float, target=0.0
+            test_node.refreeze, float, 0.0
         )
         # conftest_boilerplate.check_output(
         #     test_node.snow_density, float, self.snow_density
