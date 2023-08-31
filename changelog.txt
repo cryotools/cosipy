@@ -342,3 +342,11 @@ phrasing.
 
 Fixes dangerous namespace pollution when using "from x import *", especially
 since most of the imported objects are unused.
+
+###
+feat: warn user when percolation bug occurs
+
+Adds a printed warning when percolation fails a sanity check, where the total
+water after percolating is greater than the initially available water.
+
+The warning includes the timestep when this occurs.

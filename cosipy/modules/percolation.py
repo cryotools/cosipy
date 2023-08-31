@@ -73,5 +73,16 @@ def percolation(GRID, water: float, dt: float) -> float:
 
     # for consistency check
     total_end = np.nansum(np.array(GRID.get_liquid_water_content()))
+    if not np.isclose(total_start, total_end):
+        if GRID.new_snow_timestamp == 0.0:  # can't index xarrays directly with njit
+            snow_time = GRID.old_snow_timestamp
+        else:
+            snow_time = GRID.new_snow_timestamp
+        timestep = snow_time / dt
+        warn_sanity = "\nWARNING: When percolating, the initial LWC is not equal to final LWC"
+        # numba doesn't support warnings, and we don't want to raise an error
+        print(f"{warn_sanity} at timestep {int(timestep)}.")
+        print(total_start)
+        print(total_end)
 
     return Q

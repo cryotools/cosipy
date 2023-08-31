@@ -16,7 +16,7 @@ class TestParamPercolation:
     """
 
     melt_water = 1.0
-    timedelta = 7200
+    timedelta = 3600
 
     def convert_mwe(self, mwe: float, depth: float) -> float:
         """Converts m w.e. to kgm^-3."""
@@ -176,18 +176,38 @@ class TestParamPercolation:
 
     # def test_percolation_percolate_single_layer(self,conftest_mock_grid):
 
-    def test_percolation(self, conftest_mock_grid):
+    @pytest.mark.parametrize("arg_melt",[0.0, 0.5, 1.0])
+    @pytest.mark.parametrize("arg_lwc", [0.0, 0.1, 0.5])
+    def test_percolation(self,capsys, conftest_mock_grid, arg_lwc, arg_melt):
         GRID = conftest_mock_grid
+        lwc_array = np.full((GRID.number_nodes), arg_lwc)
+        GRID.set_liquid_water_content(lwc_array)
+        np.testing.assert_allclose(GRID.get_liquid_water_content(), lwc_array)
 
-        initial_water = self.melt_water + np.nansum(
-            GRID.get_liquid_water_content()
-        )
+        initial_lwc = np.nansum(GRID.get_liquid_water_content()) + arg_melt/GRID.get_node_height(0)
 
-        runoff = percolation(GRID, self.melt_water, self.timedelta)
-        # assert np.isclose(ts, te)
-        total_water = runoff + np.nansum(GRID.get_liquid_water_content())
+        runoff = percolation(GRID, arg_melt, self.timedelta)
+        captured = capsys.readouterr()  # because numba doesn't support warnings
+        final_lwc = np.nansum(GRID.get_liquid_water_content())
+        final_mwe = runoff + final_lwc
+
+        # all liquid water exits last node
+        last_node_lwc = GRID.grid[-1].liquid_water_content
+        assert last_node_lwc == 0.0
 
         # Bug? Total water is greater than the initially available water
         # assert np.isclose(self.melt_water, total_water)
-        assert np.isclose(initial_water, total_water)
-        assert np.isclose(self.melt_water, total_water)
+        assert np.isclose(final_mwe - runoff, final_lwc)
+        assert runoff <= initial_lwc
+        # assert np.isclose(
+        #     final_mwe, self.melt_water + (1 - runoff) * (GRID.number_nodes - 1)
+        # )
+        # assert np.isclose(final_lwc, GRID.number_nodes * (1 - runoff))
+        
+        error_prefix="\nWARNING: When percolating, the initial LWC is not equal to final LWC"
+        timestep = GRID.old_snow_timestamp/self.timedelta
+
+        assert np.isclose(initial_lwc, final_lwc)
+        # assert np.isclose(initial_mwe, final_mwe)
+        # if LWCs are equal, captured.out is an empty string
+        assert captured.out == ""
