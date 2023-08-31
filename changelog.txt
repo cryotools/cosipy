@@ -331,3 +331,14 @@ using:
     conftest_boilerplate.patch_variable(
         monkeypatch, module="foo.bar", new_params={"var01": 1.0, "var02": 3.2}
         )
+
+###
+chore: standardised docstrings, fix namespace pollution
+
+Formats docstrings in `node.py` and `grid.py` to be more consistent.
+
+Fixes outdated parameters in docstrings, typos, missing type hints, and some
+phrasing.
+
+Fixes dangerous namespace pollution when using "from x import *", especially
+since most of the imported objects are unused.
