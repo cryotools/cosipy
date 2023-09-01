@@ -18,7 +18,8 @@ omit =
     utilities/hpc/*
 
 [html]
-directory = ./logs/coverage/  # avoid workspace clutter.
+# avoid workspace clutter
+directory = ./logs/coverage/
 
 [report]
 # Regexes for lines to exclude from consideration
