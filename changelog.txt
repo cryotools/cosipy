@@ -350,3 +350,12 @@ Adds a printed warning when percolation fails a sanity check, where the total
 water after percolating is greater than the initially available water.
 
 The warning includes the timestep when this occurs.
+
+###
+fix: error when numba compiles error message, namespace pollution
+
+Adds and refactors tests for albedo parametrisation.
+
+Fixes:
+    - numba throwing an Exception when raising a ValueError with a message.
+    - namespace pollution when importing from constants.
