@@ -1,7 +1,9 @@
 import numpy as np
+import pytest
 
 # import constants
 from COSIPY import start_logging
+from cosipy.cpkernel.grid import Grid
 
 
 class TestGridUpdate:
@@ -30,3 +32,28 @@ class TestGridUpdate:
 
         assert np.allclose(SWE_before_sum, SWE_after_sum, atol=1e-3)
         assert np.allclose(SWE_after_sum, SWE_after_adaptive_sum, atol=1e-3)
+
+    @pytest.mark.parametrize("arg_height", [0.05, 0.1, 0.5])
+    @pytest.mark.parametrize("arg_temperature", [273.16, 270.16, 280.0])
+    def test_add_fresh_snow(
+        self, conftest_mock_grid, arg_height, arg_temperature
+    ):
+        """Add fresh snow layer."""
+
+        grid = conftest_mock_grid
+        assert isinstance(grid, Grid)
+
+        snow = grid.get_fresh_snow_props()
+        assert isinstance(snow, tuple)
+        assert all(isinstance(parameter, float) for parameter in snow)
+        assert snow[0] == 0
+
+        # grid.add_fresh_snow(height=arg_height, density=250, temperature=270.15, liquid_water_content=0.0)
+        grid.add_fresh_snow(arg_height, 250.0, arg_temperature, 0.0)
+        assert isinstance(grid, Grid)
+
+        fresh_snow = grid.get_fresh_snow_props()
+        assert isinstance(fresh_snow, tuple)
+        assert all(isinstance(parameter, float) for parameter in fresh_snow)
+        assert np.isclose(fresh_snow[0], arg_height)
+        assert not np.isclose(fresh_snow[0], snow[0])
