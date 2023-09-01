@@ -71,7 +71,7 @@ class TestNodeSetter:
             node.get_layer_height(), float, self.new_height
         )
 
-    def test_node_set_layer_height(self, conftest_boilerplate):
+    def test_node_set_layer_temperature(self, conftest_boilerplate):
         node = self.create_node()
         node.set_layer_temperature(self.new_temperature)
         conftest_boilerplate.check_output(

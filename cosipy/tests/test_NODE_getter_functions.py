@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 
 import constants
@@ -44,9 +43,7 @@ class TestNodeGetter:
         conftest_boilerplate.check_output(
             test_node.liquid_water_content, float, self.lwc
         )
-        conftest_boilerplate.check_output(
-            test_node.refreeze, float, 0.0
-        )
+        conftest_boilerplate.check_output(test_node.refreeze, float, 0.0)
         # conftest_boilerplate.check_output(
         #     test_node.snow_density, float, self.snow_density
         # )
@@ -96,34 +93,28 @@ class TestNodeGetter:
         theta_e = self.calculate_irreducible_water_content(arg_ice_fraction)
         assert isinstance(theta_e, float)
 
-    def test_node_getter_functions(self):
-        node = self.create_node()
-        assert np.isclose(node.get_layer_height(), self.height)
-        assert np.isclose(node.get_layer_temperature(), self.temperature)
-        assert np.isclose(node.get_layer_ice_fraction(), self.ice_fraction)
-        assert np.isclose(node.get_layer_liquid_water_content(), self.lwc)
-        assert np.isclose(node.get_layer_refreeze(), 0.0)
+    @pytest.fixture(name="node", autouse=False, scope="function")
+    def fixture_node(self):
+        return self.create_node()
 
-    def test_node_get_layer_height(self, conftest_boilerplate):
-        node = self.create_node()
+    def test_node_get_layer_height(self, node, conftest_boilerplate):
         assert conftest_boilerplate.check_output(
             node.get_layer_height(), float, self.height
         )
 
-    def test_node_get_layer_temperature(self, conftest_boilerplate):
-        node = self.create_node()
+    def test_node_get_layer_temperature(self, node, conftest_boilerplate):
         assert conftest_boilerplate.check_output(
             node.get_layer_temperature(), float, self.temperature
         )
 
-    def test_node_get_layer_liquid_water_content(self, conftest_boilerplate):
-        node = self.create_node()
+    def test_node_get_layer_liquid_water_content(
+        self, node, conftest_boilerplate
+    ):
         assert conftest_boilerplate.check_output(
             node.get_layer_liquid_water_content(), float, self.lwc
         )
 
-    def test_node_get_layer_refreeze(self, conftest_boilerplate):
-        node = self.create_node()
+    def test_node_get_layer_refreeze(self, node, conftest_boilerplate):
         assert conftest_boilerplate.check_output(
             node.get_layer_refreeze(), float, 0.0
         )
@@ -145,17 +136,17 @@ class TestNodeGetter:
         conftest_boilerplate.check_output(
             compare_ice_fraction, float, test_ice_fraction
         )
-        assert np.isclose(compare_ice_fraction, node.ice_fraction)
+        conftest_boilerplate.check_output(
+            compare_ice_fraction, float, node.ice_fraction
+        )
 
-    def test_node_get_layer_air_porosity(self, conftest_boilerplate):
-        node = self.create_node()
+    def test_node_get_layer_air_porosity(self, node, conftest_boilerplate):
         test_porosity = 1 - self.lwc - self.ice_fraction
         conftest_boilerplate.check_output(
             node.get_layer_air_porosity(), float, test_porosity
         )
 
-    def test_node_get_layer_density(self, conftest_boilerplate):
-        node = self.create_node()
+    def test_node_get_layer_density(self, node, conftest_boilerplate):
         test_density = (
             self.ice_fraction * constants.ice_density
             + self.lwc * constants.water_density
@@ -165,15 +156,13 @@ class TestNodeGetter:
             node.get_layer_density(), float, test_density
         )
 
-    def test_node_get_layer_porosity(self, conftest_boilerplate):
-        node = self.create_node()
+    def test_node_get_layer_porosity(self, node, conftest_boilerplate):
         test_porosity = 1 - self.lwc - self.ice_fraction
         conftest_boilerplate.check_output(
             node.get_layer_porosity(), float, test_porosity
         )
 
-    def test_node_get_layer_specific_heat(self, conftest_boilerplate):
-        node = self.create_node()
+    def test_node_get_layer_specific_heat(self, node, conftest_boilerplate):
         test_specific_heat = (
             (1 - self.lwc - self.ice_fraction) * constants.spec_heat_air
             + self.ice_fraction * constants.spec_heat_ice
@@ -183,8 +172,7 @@ class TestNodeGetter:
             node.get_layer_specific_heat(), float, test_specific_heat
         )
 
-    def test_node_get_layer_cold_content(self, conftest_boilerplate):
-        node = self.create_node()
+    def test_node_get_layer_cold_content(self, node, conftest_boilerplate):
         test_cold_content = (
             -node.get_layer_specific_heat()
             * node.get_layer_density()
@@ -195,8 +183,9 @@ class TestNodeGetter:
             node.get_layer_cold_content(), float, test_cold_content
         )
 
-    def test_node_get_layer_thermal_conductivity(self, conftest_boilerplate):
-        node = self.create_node()
+    def test_node_get_layer_thermal_conductivity(
+        self, node, conftest_boilerplate
+    ):
         test_thermal_conductivity = (
             self.ice_fraction * constants.k_i
             + node.get_layer_porosity() * constants.k_a
@@ -208,8 +197,9 @@ class TestNodeGetter:
             test_thermal_conductivity,
         )
 
-    def test_node_get_layer_thermal_diffusivity(self, conftest_boilerplate):
-        node = self.create_node()
+    def test_node_get_layer_thermal_diffusivity(
+        self, node, conftest_boilerplate
+    ):
         test_thermal_diffusivity = node.get_layer_thermal_conductivity() / (
             node.get_layer_density() * node.get_layer_specific_heat()
         )

@@ -359,3 +359,10 @@ Adds and refactors tests for albedo parametrisation.
 Fixes:
     - numba throwing an Exception when raising a ValueError with a message.
     - namespace pollution when importing from constants.
+
+###
+refactor(tests): simplify tests for Node
+
+Fixes an incorrect test reference for ``set_layer_temperature``
+
+Refactors duplicate code for testing ``Node`` get/set methods as fixtures.
