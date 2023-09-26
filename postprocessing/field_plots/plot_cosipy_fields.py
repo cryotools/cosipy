@@ -4,7 +4,6 @@ Usage: ``src/plot_cosipy_fields.py [-h] [-f <nc_file>] [-d] [...] [-v]``
 
 import argparse
 import re
-import sys
 
 import cartopy.crs as ccrs
 import matplotlib
@@ -13,6 +12,18 @@ import numpy as np
 import xarray as xr
 
 matplotlib.use("TkAgg")
+
+
+def check_2d(array: xr.DataArray):
+    """Checks if an input array has 2D spatial coordinates.
+
+    Raises:
+        ValueError: Spatial coordinates are not 2D.
+    """
+
+    for coord in array.coords:
+        if coord not in ["time", "layer"] and len(array.coords[coord]) <= 1:
+            raise ValueError("Spatial coordinates are not 2D.")
 
 
 def get_selection(
@@ -285,9 +296,14 @@ def plotMesh(
             several variables is produced. Default None.
         mean: Plot daily mean instead of specific time. Default False.
         save: Save plot to disk. Default False.
+
+    Raises:
+        ValueError: Input data is not 2D.
     """
 
     data = xr.open_dataset(filename)
+    check_2d(data)
+
     print(data)
     variables = [  # structure of stamp plot
         ["H", "LE", "B"],
@@ -325,9 +341,14 @@ def plotContour(
             several variables is produced. Default None.
         mean: Plot daily mean instead of specific time. Default False.
         save: Save plot to disk. Default False.
+
+    Raises:
+        ValueError: Input data is not 2D.
     """
 
     data = xr.open_dataset(filename)
+    check_2d(data)
+
     print(data)
     variables = [  # structure of stamp plot
         ["H", "LE", "B"],

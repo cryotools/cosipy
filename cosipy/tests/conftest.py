@@ -215,7 +215,10 @@ def fixture_conftest_mock_xr_dataset(
             lon=(["lon"], dims["longitude"]),
             reference_time=dims["time"][0],
         ),
-        attrs=dict(description="Weather related data."),
+        attrs=dict(
+            description="Weather related data.",
+            Full_fiels="True",  # match typo in io.py
+        ),
     )
     assert isinstance(dataset, xr.Dataset)
 
@@ -229,6 +232,8 @@ def fixture_conftest_mock_xr_dataset(
         assert "time" in dataset[key].dims
         assert dataset[key].shape == (lengths[0], lengths[1], lengths[2])
         assert dataset[key][0].shape == (lengths[1], lengths[2])
+
+    assert dataset.Full_fiels
 
     yield dataset
 

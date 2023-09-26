@@ -12,6 +12,7 @@ import cartopy.crs as ccrs
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import pytest
 import xarray as xr
 
@@ -54,6 +55,33 @@ class TestPostprocessPlotFieldsHandling:
             pcf.get_selection(
                 array=dataset["TS"], timestamp=timestamp, mean=False
             )
+
+    def test_check_2d(self):
+        dims = {}
+        reference_time = pd.Timestamp("2009-01-01T12:00:00")
+        dims["name"] = ["time", "lat", "lon"]
+        dims["time"] = pd.date_range(reference_time, periods=4, freq="6H")
+        elevation = xr.Variable(
+            data=1000 + 10 * np.random.rand(2, 1),
+            dims=dims["name"][1:],
+            attrs={"long_name": "Elevation", "units": "m"},
+        )
+        dataset = xr.Dataset(
+            data_vars=dict(HGT=elevation),
+            coords=dict(
+                time=dims["time"],
+                lat=(["lat"], [30.460, 30.463]),
+                lon=(["lon"], [90.621]),
+                reference_time=dims["time"][0],
+            ),
+            attrs=dict(
+                description="Weather related data.",
+                Full_fiels="True",  # match typo in io.py
+            ),
+        )
+        error_message = "Spatial coordinates are not 2D."
+        with pytest.raises(ValueError, match=error_message):
+            pcf.check_2d(dataset)
 
 
 class TestPostprocessPlotFieldsPlotting:

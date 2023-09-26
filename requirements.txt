@@ -3,7 +3,7 @@ pandas>2.0
 scipy>=1.1.0
 xarray>=0.18.0
 netcdf4>=1.5.1.2
-distributed=2021.3
+distributed
 dask
 dask-jobqueue
 numba

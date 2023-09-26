@@ -17,6 +17,18 @@ def main():
     add_scalar(var=args.name, timestamp=args.timestamp, mean=args.mean)
 
 
+def check_2d(array: xr.DataArray):
+    """Checks if an input array has 2D spatial coordinates.
+
+    Raises:
+        ValueError: Spatial coordinates are not 2D.
+    """
+
+    for coord in array.coords:
+        if coord not in ["time", "layer"] and len(array.coords[coord]) <= 1:
+            raise ValueError("Spatial coordinates are not 2D.")
+
+
 def get_selection(
     array: xr.Dataset, timestamp: str, mean: bool = False
 ) -> xr.DataArray:
@@ -159,8 +171,9 @@ def createDEM_v1(
         through triangulating is not recovered.
     """
 
-    print("Creating DEM...\n")
     ds = xr.open_dataset(file_path)
+    check_2d(ds)
+    print("Creating DEM...\n")
 
     points = create_points(data=ds)
     polydata = vtk.vtkPolyData()
@@ -191,6 +204,7 @@ def createDEM_v2(
     """
 
     ds = xr.open_dataset(file_path)
+    check_2d(ds)
     print("Creating DEM...\n")
     points = create_points(data=ds)
 
