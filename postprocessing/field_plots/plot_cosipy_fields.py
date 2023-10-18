@@ -21,8 +21,8 @@ def check_2d(array: xr.DataArray):
         ValueError: Spatial coordinates are not 2D.
     """
 
-    for coord in array.coords:
-        if coord not in ["time", "layer"] and len(array.coords[coord]) <= 1:
+    for dimension in array.dims:
+        if dimension not in ["time", "layer"] and (array.dims[dimension]) <= 1:
             raise ValueError("Spatial coordinates are not 2D.")
 
 

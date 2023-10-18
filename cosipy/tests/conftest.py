@@ -185,8 +185,7 @@ def fixture_conftest_mock_xr_dataset(
     """Constructs mock xarray Dataset of output .nc file.
 
     Returns:
-        Dataset with data for elevation and surface data. The data is of
-        shape ()
+        Dataset with data for elevation and surface data.
     """
 
     _ = conftest_rng_seed
