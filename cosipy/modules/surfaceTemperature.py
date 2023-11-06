@@ -272,7 +272,8 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
         LE = rho * Lv * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
 
     else:
-        raise ValueError("Stability correction",stability_correction,"is not supported")	#numba refuses to print str(list)
+        msg = f"Stability correction {stability_correction} is not supported."
+        raise ValueError(msg)
     
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(T0, 4.0)
