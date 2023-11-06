@@ -217,13 +217,13 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 
             if WRF is True:
                 mask = DATA.MASK.sel(south_north=y, west_east=x)
-	        # Provide restart grid if necessary
-                if ((mask==1) & (restart==False)):
+                # Provide restart grid if necessary
+                if ((mask==1) & (not restart)):
                     if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
                         print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
                         sys.exit()
                     futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
-                elif ((mask==1) & (restart==True)):
+                elif ((mask==1) & (restart)):
                     if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
                         print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
                         sys.exit()
@@ -232,13 +232,13 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                                              stake_names=stake_names, stake_data=df_stakes_data))
             else:
                 mask = DATA.MASK.isel(lat=y, lon=x)
-	        # Provide restart grid if necessary
-                if ((mask==1) & (restart==False)):
+                # Provide restart grid if necessary
+                if ((mask==1) & (not restart)):
                     if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
                         print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
                         sys.exit()
                     futures.append(client.submit(cosipy_core, DATA.isel(lat=y, lon=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
-                elif ((mask==1) & (restart==True)):
+                elif ((mask==1) & (restart)):
                     if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
                         print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
                         sys.exit()
