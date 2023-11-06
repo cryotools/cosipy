@@ -92,7 +92,7 @@ def fixture_conftest_mock_grid_values() -> dict:
     """
 
     layer_values = {}
-    layer_values["layer_heights"] = numba.float64([0.1, 0.2, 0.3, 0.5, 0.5])
+    layer_values["layer_heights"] = numba.float64([0.05, 0.1, 0.3, 0.5, 0.5])
     layer_values["layer_densities"] = numba.float64([250, 250, 250, 917, 917])
     layer_values["layer_temperatures"] = numba.float64(
         [260, 270, 271, 271.5, 272]
@@ -245,7 +245,7 @@ class TestBoilerplate:
 
     ..code-block:: python
 
-        def test_foo(self, conftest_boilerplate)"
+        def test_foo(self, conftest_boilerplate):
 
             foobar = [...]
             conftest_boilerplate.bar(foobar)
@@ -414,6 +414,69 @@ class TestBoilerplate:
             variable=max(test_array), x_type=float, x_value=test_value
         )
 
+    def assert_grid_profiles_equal(self, grid_01: Grid, grid_02: Grid) -> bool:
+        """Assert two Grid instances have equal grid profiles.
+
+        Args:
+            grid_01: Reference grid instance.
+            grid_02: Comparison grid instance.
+
+        Returns:
+            True when all assertions pass.
+        """
+        for grid in (grid_01, grid_02):
+            assert isinstance(grid, Grid)
+
+        assert grid_02 is not grid_01  # point to different instances
+        assert grid_02.number_nodes == grid_01.number_nodes
+        assert grid_02.get_number_layers() == grid_01.get_number_layers()
+        assert (
+                grid_02.get_number_snow_layers()
+                == grid_01.get_number_snow_layers()
+        )
+
+        self.check_output(
+            grid_02.get_total_height(), float, grid_01.get_total_height()
+        )
+        self.check_output(
+            grid_02.get_total_snowheight(),
+            float,
+            grid_01.get_total_snowheight(),
+        )
+        self.check_output(
+            sum(grid_02.get_ice_heights()),
+            float,
+            sum(grid_01.get_ice_heights()),
+        )
+
+        return True
+
+    def test_assert_grid_profiles_equal(self):
+        data = {}
+        data["layer_heights"] = numba.float64([0.1, 0.2, 0.5])
+        data["layer_densities"] = numba.float64([250, 250, 917])
+        data["layer_temperatures"] = numba.float64([260, 270, 272])
+        data["layer_liquid_water_content"] = numba.float64([0.0, 0.0, 0.0])
+
+        assert isinstance(data, dict)
+        for array in data.values():
+            assert isinstance(array, np.ndarray)
+            assert len(array) == 3
+
+        grid_01 = Grid(
+            layer_heights=data["layer_heights"],
+            layer_densities=data["layer_densities"],
+            layer_temperatures=data["layer_temperatures"],
+            layer_liquid_water_content=data["layer_liquid_water_content"],
+        )
+        grid_02 = Grid(
+            layer_heights=data["layer_heights"],
+            layer_densities=data["layer_densities"],
+            layer_temperatures=data["layer_temperatures"],
+            layer_liquid_water_content=data["layer_liquid_water_content"],
+        )
+        self.assert_grid_profiles_equal(grid_01, grid_02)
+
     def patch_variable(
         self,
         monkeypatch: pytest.MonkeyPatch,
@@ -461,7 +524,7 @@ class TestBoilerplate:
         self.test_set_timestamp()
         self.test_set_rng_seed()
         self.test_check_output()
-
+        self.test_assert_grid_profiles_equal()
 
 @pytest.fixture(name="conftest_boilerplate", scope="function", autouse=False)
 def conftest_boilerplate():
