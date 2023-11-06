@@ -4,10 +4,12 @@ from constants import densification_method, snow_ice_threshold, minimum_snow_lay
 from numba import njit
 
 def densification(GRID,SLOPE,dt):
-    """ Densification of the snowpack
+    """Densification of the snowpack.
+
     Args:
-        GRID    ::  GRID-Structure
-	dt      ::  integration time
+        GRID    ::  GRID-Structure.
+        SLOPE   ::  Slope of the surface [degrees].
+        dt      ::  integration time [s].
     """
 
     densification_allowed = ['Boone', 'Vionnet', 'empirical', 'constant']
@@ -20,7 +22,33 @@ def densification(GRID,SLOPE,dt):
     elif densification_method == 'constant':
         pass
     else:
-        raise ValueError("Densification method = \"{:s}\" is not allowed, must be one of {:s}".format(densification_method, ", ".join(densification_allowed)))
+        error_msg = (
+            f'Densification method = "{densification_method}"',
+            "is not allowed, must be one of",
+            f'{", ".join(densification_allowed)}',
+        )
+        raise ValueError(" ".join(error_msg))
+    
+@njit
+def copy_layer_profiles(GRID) -> tuple:
+    """Get a copy of the layer profiles.
+
+    `np.array` returns a copy by default and is 2x faster than np.copy
+    (which is not supported by numba).
+
+    Args:
+        GRID (Grid): Grid object.
+    Returns:
+        Profiles for height, density, temperature, liquid water content,
+        and ice fraction.
+    """
+    heights = np.array(GRID.get_height())
+    densities = np.array(GRID.get_density())
+    temperatures = np.array(GRID.get_temperature())
+    lwcs = np.array(GRID.get_liquid_water_content())
+    ice_fractions = np.array(GRID.get_ice_fraction())
+
+    return heights, densities, temperatures, lwcs, ice_fractions
 
 @njit
 def method_Boone(GRID,SLOPE,dt):
@@ -41,12 +69,7 @@ def method_Boone(GRID,SLOPE,dt):
     M_s = 0.0
 
     # Get copy of layer heights and layer densities
-    #np.array returns a copy by default and is 2x faster than np.copy (not supported by numba)
-    rho = np.array(GRID.get_density())
-    height = np.array(GRID.get_height())
-    lwc = np.array(GRID.get_liquid_water_content())
-    t = np.array(GRID.get_temperature())
-    icf = np.array(GRID.get_ice_fraction())
+    height, rho, t, lwc, icf = copy_layer_profiles(GRID)
 
     # Loop over all internal snow nodes
     for idxNode in range(0,GRID.get_number_snow_layers() , 1):
@@ -108,11 +131,7 @@ def method_Vionnet(GRID,SLOPE,dt):
     sigma = 0.0
 
     # Get copy of layer heights and layer densities
-    rho = np.array(GRID.get_density())
-    height = np.array(GRID.get_height())
-    lwc = np.array(GRID.get_liquid_water_content())
-    t = np.array(GRID.get_temperature())
-    icf = np.array(GRID.get_ice_fraction())
+    height, rho, t, lwc, icf = copy_layer_profiles(GRID)
 
     # Loop over all internal snow nodes
     for idxNode in range(0,GRID.get_number_snow_layers() , 1):
@@ -165,7 +184,7 @@ def method_Vionnet(GRID,SLOPE,dt):
 
 
 def method_empirical(GRID,SLOPE,dt):
-    """ Simple empricial snow compaction parametrization using a constant time scale. """
+    """Simple empirical snow compaction parametrization using a constant time scale."""
 
     rho_max = 600.0     # maximum attainable density [kg m^-3]
     #tau = 3.6e5         # empirical compaction time scale [s]
