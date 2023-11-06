@@ -1,7 +1,9 @@
 import math
-import numpy as np
+
 import metpy.calc
+import numpy as np
 from metpy.units import units
+
 
 # The following functions are needed for the radiation method Wohlfahrt 2016
 def solarFParallel(lat, lon, timezone_lon, day, hour):

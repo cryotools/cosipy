@@ -1,8 +1,10 @@
 import sys
+
 import numpy as np
+
 from constants import *
-from config import *
-from cosipy.cpkernel.grid import *
+from cosipy.cpkernel.grid import Grid
+
 
 def init_snowpack(DATA):
     ''' INITIALIZATION '''

@@ -22,31 +22,30 @@
     Correspondence: tobias.sauter@fau.de
 
 """
+import cProfile
+import logging
 import os
+import sys
 from datetime import datetime
 from itertools import product
-import itertools
 
-import logging
+import numpy as np
+import pandas as pd
+import scipy
 import yaml
+# from dask import compute, delayed
+# import dask as da
+# from dask.diagnostics import ProgressBar
+from dask.distributed import as_completed, progress
+from dask_jobqueue import SLURMCluster
+from distributed import Client, LocalCluster
+# import dask
+from tornado import gen
 
 from config import *
+from cosipy.cpkernel.cosipy_core import cosipy_core
+from cosipy.cpkernel.io import IOClass
 from slurm_config import *
-from cosipy.cpkernel.cosipy_core import * 
-from cosipy.cpkernel.io import *
-
-from distributed import Client, LocalCluster
-from dask import compute, delayed
-import dask as da
-from dask.diagnostics import ProgressBar
-from dask.distributed import progress, wait, as_completed
-import dask
-from tornado import gen
-from dask_jobqueue import SLURMCluster
-
-import scipy
-
-import cProfile
 
 def main():
 

@@ -2,17 +2,17 @@
  This file reads the input data (model forcing) and write the output to netcdf file
 """
 
+import configparser
 import os
 import sys
-import xarray as xr
-import pandas as pd
+
 import numpy as np
-import time
-from datetime import timedelta
-from cosipy.modules.radCor import correctRadiation
+import pandas as pd
+import xarray as xr
+
+from config import *
 from constants import *
-from config import * 
-import configparser
+
 
 class IOClass:
 

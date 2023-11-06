@@ -5,7 +5,6 @@ import numpy as np
 from numba import float64, intp, optional, typed, types
 from numba.experimental import jitclass
 
-import config
 import constants
 from cosipy.cpkernel.node import Node
 

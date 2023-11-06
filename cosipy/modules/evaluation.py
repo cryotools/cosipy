@@ -1,4 +1,3 @@
-import numpy as np
 from config import eval_method, obs_type
 
 
