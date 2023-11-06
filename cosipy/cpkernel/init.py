@@ -7,7 +7,7 @@ from cosipy.cpkernel.grid import Grid
 
 
 def init_snowpack(DATA):
-    ''' INITIALIZATION '''
+    """INITIALIZATION"""
 
     ##--------------------------------------
     ## Check for WRF data
@@ -19,7 +19,7 @@ def init_snowpack(DATA):
     else: 
         initial_snowheight = initial_snowheight_constant
     temperature_top = np.minimum(DATA.T2.values[0], 273.16)
-	
+
     #--------------------------------------
     # Do the vertical interpolation
     #--------------------------------------
@@ -43,14 +43,14 @@ def init_snowpack(DATA):
             layer_densities = np.array([initial_top_density_snowpack-drho*(initial_snowheight/nlayers)*i for i in range(1,nlayers+1)])
             layer_T = np.array([temperature_top-dT*(initial_snowheight/nlayers)*i for i in range(1,nlayers+1)])
             layer_liquid_water = np.zeros(nlayers)
-	    
+
         # add glacier
         nlayers = int(initial_glacier_height/initial_glacier_layer_heights)
         layer_heights = np.append(layer_heights, np.ones(nlayers)*initial_glacier_layer_heights)
         layer_densities = np.append(layer_densities, np.ones(nlayers)*ice_density)
         layer_T = np.append(layer_T, [layer_T[-1]-dT*initial_glacier_layer_heights*i for i in range(1,nlayers+1)])
         layer_liquid_water = np.append(layer_liquid_water, np.zeros(nlayers))
-	
+
     else:
     
         # only glacier
@@ -60,7 +60,7 @@ def init_snowpack(DATA):
         layer_densities = np.ones(nlayers)*ice_density
         layer_T = np.array([temperature_top-dT*initial_glacier_layer_heights*i for i in range(1,nlayers+1)])
         layer_liquid_water = np.zeros(nlayers)
-	
+
     # Initialize grid, the grid class contains all relevant grid information
     GRID = Grid(np.array(layer_heights, dtype=np.float64), np.array(layer_densities, dtype=np.float64), 
                 np.array(layer_T, dtype=np.float64), np.array(layer_liquid_water, dtype=np.float64),

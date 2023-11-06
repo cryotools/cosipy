@@ -14,9 +14,9 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLO
 
         GRID    ::  Grid structure
         T0      ::  Surface temperature [K]
-	    dt      ::  Integration time [s] -- can vary in WRF_X_CSPY
+        dt      ::  Integration time [s] -- can vary in WRF_X_CSPY
         alpha   ::  Albedo [-]
-	    z       ::  Measurement height [m] -- varies in WRF_X_CSPY
+        z       ::  Measurement height [m] -- varies in WRF_X_CSPY
         z0      ::  Roughness length [m]
         T2      ::  Air temperature [K]
         rH2     ::  Relative humidity [%]
@@ -39,7 +39,7 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLO
         SWnet   ::  Shortwave radiation budget [W m^-2]
         rho     ::  Air density [kg m^-3]
         Lv      ::  Latent heat of vaporization [J kg^-1]
-	    MOL     ::  Monin-Obukhov length
+        MOL     ::  Monin-Obukhov length
         Cs_t    ::  Stanton number [-]
         Cs_q    ::  Dalton number [-]
         q0      ::  Mixing ratio at the surface [kg kg^-1]
@@ -58,7 +58,7 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLO
         res = minimize(eb_optim, GRID.get_node_temperature(0), method=sfc_temperature_method,
                        bounds=((lower_bnd_ts, zero_temperature),),tol=1e-2,
                        args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, B_Ts, LWin, N))
-		       
+
     elif sfc_temperature_method == 'Newton':
         try:
             res = newton(eb_optim, np.array([GRID.get_node_temperature(0)]), tol=1e-2, maxiter=50,
@@ -66,10 +66,10 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLO
             if res < lower_bnd_ts:
                 raise ValueError("TS Solution is out of bounds")
             res = SimpleNamespace(**{'x':min(np.array([zero_temperature]),res),'fun':None})
-	    
+
         except (RuntimeError,ValueError):
-             #Workaround for non-convergence and unboundedness
-             res = minimize(eb_optim, GRID.get_node_temperature(0), method='SLSQP',
+            #Workaround for non-convergence and unboundedness
+            res = minimize(eb_optim, GRID.get_node_temperature(0), method='SLSQP',
                        bounds=((lower_bnd_ts, zero_temperature),),tol=1e-2,
                        args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, B_Ts, LWin, N))
     else:
@@ -143,16 +143,15 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
         GRID    ::  Grid structure
         T0      ::  Surface temperature [K]
         dt      ::  Integration time [s]
-        alpha   ::  Albedo [-]
-	z       ::  Measurement height [m]
+        z       ::  Measurement height [m]
         z0      ::  Roughness length [m]
         T2      ::  Air temperature [K]
         rH2     ::  Relative humidity [%]
         p       ::  Air pressure [hPa]
-        G       ::  Incoming shortwave radiation [W m^-2]
         u2      ::  Wind velocity [m S^-1]
         RAIN    ::  RAIN (mm)
         SLOPE   ::  Slope of the surface [degree]
+        B_Ts    ::  Subsurface temperatures at interpolation depths [K]
         LWin    ::  Incoming longwave radiation [W m^-2]
         N       ::  Fractional cloud cover [-]
 
@@ -167,7 +166,7 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
         SWnet   ::  Shortwave radiation budget [W m^-2]
         rho     ::  Air density [kg m^-3]
         Lv      ::  Latent heat of vaporization [J kg^-1]
-	MOL     ::  Monin Obhukov length
+        MOL     ::  Monin Obhukov length
         Cs_t    ::  Stanton number [-]
         Cs_q    ::  Dalton number [-]
         q0      ::  Mixing ratio at the surface [kg kg^-1]

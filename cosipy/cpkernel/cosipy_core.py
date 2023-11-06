@@ -206,9 +206,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
 
         if SNOWFALL > 0.0:
             # Add a new snow node on top
-           GRID.add_fresh_snow(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0)
+            GRID.add_fresh_snow(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0)
         else:
-           GRID.set_fresh_snow_props_update_time(dt)
+            GRID.set_fresh_snow_props_update_time(dt)
 
         # Guarantee that solar radiation is greater equal zero
         if (G[t]<0.0):

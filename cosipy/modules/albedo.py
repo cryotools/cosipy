@@ -1,8 +1,9 @@
 import numpy as np
+
 import constants
 
 def updateAlbedo(GRID):
-    """ This methods updates the albedo """
+    """Updates the albedo."""
     albedo_allowed = ['Oerlemans98']
     if constants.albedo_method == 'Oerlemans98':
         alphaMod = method_Oerlemans(GRID)
@@ -31,7 +32,7 @@ def method_Oerlemans(GRID):
     # to the old values of the underlying snowpack
     if (hours_since_snowfall < (constants.albedo_mod_snow_aging * 24)) & (
         fresh_snow_height <= 0.0
-        ):
+    ):
         GRID.set_fresh_snow_props_to_old_props()
         fresh_snow_height, fresh_snow_timestamp, _  = GRID.get_fresh_snow_props()
         

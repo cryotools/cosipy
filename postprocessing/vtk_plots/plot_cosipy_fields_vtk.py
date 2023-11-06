@@ -171,7 +171,7 @@ def write_render_to_image(
 
 
 def smooth_mesh(mesh: vtk.vtkPolyData) -> vtk.vtkButterflySubdivisionFilter:
-    """Smoothes mesh using butterfly subdivision."""
+    """Smooths mesh using butterfly subdivision."""
 
     subdivision = vtk.vtkButterflySubdivisionFilter()
     subdivision.SetInputData(mesh)
@@ -270,10 +270,12 @@ def add_scalar(
     .. todo:: support WRF coordinates (south_north/west_east)
 
     Args:
+        file_path: Path to netcdf file.
         var: Short name of variable in data.
         timestamp: Time index of target data.
         mean: If True, computes and selects the daily mean. Otherwise,
             selects data at ``timestamp``. Default False.
+        gltf: If True, export as a 3D glTF object. Default False.
 
     Returns:
         Array selection at target time.
@@ -396,7 +398,7 @@ def plotSurface(
     lut = vtk.vtkLookupTable()
     lut.SetNumberOfTableValues(num_contours + 1)
     if variable.lower() == "hgt":
-        lut.SetHueRange(0.75, 0.1)  # blue: low altitude)
+        lut.SetHueRange(0.75, 0.1)  # blue: low altitude
     else:
         lut.SetHueRange(0.1, 0.75)  # matches cmap in plot_cosipy_profiles
     lut.SetNanColor(1, 1, 1, 0.5)

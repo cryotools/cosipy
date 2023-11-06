@@ -305,7 +305,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
 
 
 def start_logging():
-    ''' Start the python logging'''
+    """Start the python logging"""
 
     if os.path.exists('./cosipy.yaml'):
         with open('./cosipy.yaml', 'rt') as f:
@@ -360,6 +360,6 @@ def close_everything(scheduler):
 
 
 
-''' MODEL EXECUTION '''
+""" MODEL EXECUTION """
 if __name__ == "__main__":
     main()
