@@ -91,39 +91,48 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLO
 
 
 @njit
-def interp_subT(GRID):
-    ''' Interpolate subsurface temperature to depths used for ground heat flux computation'''
+def get_subsurface_temperature(GRID, cumulative_depth: np.ndarray, zlt: float):
+    """Get subsurface temperature.
+
+    Args:
+        GRID (Grid): Gridded data instance.
+        cumulative_depth: Cumulative glacier layer heights [m].
+        zlt: Interpolation depth [m].
+
+    Returns:
+        float: Subsurface temperature at the interpolation depth.
+    """
+
+    # Find indexes of two depths for temperature interpolation
+    idx1_depth = np.abs(cumulative_depth - zlt).argmin()
+    depth = cumulative_depth.flat[idx1_depth]
+
+    if depth > zlt:
+        idx2_depth = idx1_depth - 1
+    else:
+        idx2_depth = idx1_depth + 1
+
+    temperature_idx1 = GRID.get_node_temperature(idx1_depth)
+    t_z = temperature_idx1 + (
+        (temperature_idx1 - GRID.get_node_temperature(idx2_depth))
+        / (cumulative_depth[idx1_depth] - cumulative_depth[idx2_depth])
+    ) * (zlt - cumulative_depth[idx1_depth])
+
+    return t_z
+
+
+@njit
+def interp_subT(GRID) -> np.ndarray:
+    """Interpolate subsurface temperature to depths used for ground heat flux."""
     
     # Cumulative layer depths
     layer_heights_cum = np.cumsum(np.array(GRID.get_height()))
 
-    # Find indexes of two depths for temperature interpolation
-    idx1_depth_1 = np.abs(layer_heights_cum - zlt1).argmin()
-    depth_1 = layer_heights_cum.flat[np.abs(layer_heights_cum - zlt1).argmin()]
+    t_z1 = get_subsurface_temperature(GRID, layer_heights_cum, zlt1)
+    t_z2 = get_subsurface_temperature(GRID, layer_heights_cum, zlt2)
 
-    if depth_1 > zlt1:
-        idx2_depth_1 = idx1_depth_1 - 1
-    else:
-        idx2_depth_1 = idx1_depth_1 + 1
-    Tz1 = GRID.get_node_temperature(idx1_depth_1) + \
-		((GRID.get_node_temperature(idx1_depth_1) - GRID.get_node_temperature(idx2_depth_1)) / \
-            	(layer_heights_cum[idx1_depth_1] - layer_heights_cum[idx2_depth_1])) * \
-		(zlt1 - layer_heights_cum[idx1_depth_1])
+    return np.array([t_z1, t_z2])
 
-    idx1_depth_2 = np.abs(layer_heights_cum - zlt2).argmin()
-    depth_2 = layer_heights_cum.flat[np.abs(layer_heights_cum - zlt2).argmin()]
-
-    if depth_2 > zlt2:
-        idx2_depth_2 = idx1_depth_2 - 1
-    else:
-        idx2_depth_2 = idx1_depth_2 + 1
-
-    Tz2 = GRID.get_node_temperature(idx1_depth_2) + \
-		((GRID.get_node_temperature(idx1_depth_2) - GRID.get_node_temperature(idx2_depth_2)) / \
-        	(layer_heights_cum[idx1_depth_2] - layer_heights_cum[idx2_depth_2])) * \
-		(zlt2 - layer_heights_cum[idx1_depth_2])
-    return np.array([Tz1,Tz2])
-    
 
 @njit
 def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None, N=None):
@@ -209,6 +218,10 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
     z0q = z0/10     # Roughness length for moisture
     L = None
  
+    # Avoid recalculating
+    slope_radians = np.radians(SLOPE)
+    cos_slope_radians = np.cos(slope_radians)
+
     # Monin-Obukhov stability correction
     if stability_correction == 'MO':
         L = 0.0
@@ -223,19 +236,20 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
             ust = ustar(u2,z,z0,L)
         
             # Sensible heat flux for neutral conditions
+            delta_phi_tq = phi_tq(z, L) - phi_tq(z0, L)
             Cd = np.power(0.41,2.0) / np.power(np.log(z/z0) - phi_m(z,L) - phi_m(z0,L),2.0)
-            Cs_t = 0.41*np.sqrt(Cd) / (np.log(z/z0t) - phi_tq(z,L) - phi_tq(z0,L))
-            Cs_q = 0.41*np.sqrt(Cd) / (np.log(z/z0q) - phi_tq(z,L) - phi_tq(z0,L))
+            Cs_t = 0.41*np.sqrt(Cd) / (np.log(z/z0t) - delta_phi_tq)
+            Cs_q = 0.41*np.sqrt(Cd) / (np.log(z/z0q) - delta_phi_tq)
         
             # Surface heat flux
-            H = rho * spec_heat_air * Cs_t * u2 * (T2-T0) * np.cos(np.radians(SLOPE))
+            H = rho * spec_heat_air * Cs_t * u2 * (T2-T0) * cos_slope_radians
         
             # Latent heat flux
-            LE = rho * Lv * Cs_q * u2 * (q2-q0) *  np.cos(np.radians(SLOPE))
+            LE = rho * Lv * Cs_q * u2 * (q2-q0) * cos_slope_radians
         
             # Monin-Obukhov length
             L = MO(rho, ust, T2, H)
-	    
+
             # Heat flux differences between iterations
             diff = np.abs(H0-H)
            
@@ -260,16 +274,16 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
 
         # Stability correction
         phi = 1
-        if (Ri > 0.01) & (Ri <= 0.2):
+        if 0.01 < Ri <= 0.2:
             phi = np.power(1-5*Ri,2)
         elif Ri > 0.2:
             phi = 0
 
         # Sensible heat flux
-        H = rho * spec_heat_air * Cs_t * u2 * (T2-T0) * phi * np.cos(np.radians(SLOPE))
+        H = rho * spec_heat_air * Cs_t * u2 * (T2-T0) * phi * cos_slope_radians
         
         # Latent heat flux
-        LE = rho * Lv * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
+        LE = rho * Lv * Cs_q * u2 * (q2-q0) * phi * cos_slope_radians
 
     else:
         msg = f"Stability correction {stability_correction} is not supported."
@@ -296,33 +310,58 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
 
 
 @njit
-def phi_m(z,L):
-    """ Stability function for the momentum flux.
+def phi_m_stable(z: float, L: float) -> float:
+    """Get integrated stability function for stable conditions.
+
+    Args:
+        z: Height, [m].
+        L: Obukhov length, [m].
+
+    Returns:
+        Stability function for momentum under stable conditions.
     """
-    if (L>0):
-        if ((z/L)>0.0) & ((z/L)<=1.0):
-            return (-5*z/L)
-        elif ((z/L)>1.0):
-            return (1-5) * (1+np.log(z/L)) - (z/L) 
-    elif L<0:
-        x = np.power((1-16*z/L),0.25)
-        return 2*np.log((1+x)/2.0) + np.log((1+np.power(x,2.0))/2.0) - 2*np.arctan(x) + np.pi/2.0
+    zeta = z / L
+    if (zeta > 0.0) & (zeta <= 1.0):  # weak stability
+        return -5 * zeta
+    elif zeta > 1.0:  # strong stability
+        return (1 - 5) * (1 + np.log(zeta)) - zeta
     else:
         return 0.0
 
 
 @njit
-def phi_tq(z,L):
-    """ Stability function for the heat and moisture flux.
+def phi_m(z: float, L: float) -> float:
+    """Get integrated stability function for the momentum flux.
+
+    Args:
+        z: Height, [m].
+        L: Obukhov length, [m].
+
+    Returns:
+        Integrated stability function for the momentum flux.
     """
-    if (L>0):
-        if ((z/L)>0.0) & ((z/L)<=1.0):
-            return (-5*z/L)
-        elif ((z/L)>1.0):
-            return (1-5) * (1+np.log(z/L)) - (z/L) 
-    elif L<0:
-        x = np.power((1-19.3*z/L),0.25)
-        return 2*np.log((1+np.power(x,2.0))/2.0)
+    if L > 0:
+        return phi_m_stable(z, L)
+    elif L < 0:
+        x = np.power((1 - 16 * z / L), 0.25)
+        return (
+            2 * np.log((1 + x) / 2.0)
+            + np.log((1 + np.power(x, 2.0)) / 2.0)
+            - 2 * np.arctan(x)
+            + np.pi / 2.0
+        )
+    else:
+        return 0.0
+
+
+@njit
+def phi_tq(z: float, L: float) -> float:
+    """Stability function for the heat and moisture flux."""
+    if L > 0:
+        return phi_m_stable(z, L)
+    elif L < 0:
+        x = np.power((1 - 19.3 * z / L), 0.25)
+        return 2 * np.log((1 + np.power(x, 2.0)) / 2.0)
     else:
         return 0.0
 
