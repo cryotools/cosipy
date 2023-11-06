@@ -327,7 +327,7 @@ def transform_coordinates(coords):
     A = 6378.137 # major axis [km]   
     E2 = 6.69437999014e-3 # eccentricity squared    
     
-    coords = np.asarray(coords).astype(np.float)
+    coords = np.asarray(coords).astype(float)
                                                       
     # is coords a tuple? Convert it to an one-element array of tuples
     if coords.ndim == 1:

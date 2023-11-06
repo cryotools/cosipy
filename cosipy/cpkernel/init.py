@@ -72,7 +72,7 @@ def load_snowpack(GRID_RESTART):
     """ Initialize grid from restart file """
 
     # Number of layers
-    num_layers = np.int(GRID_RESTART.NLAYERS.values)
+    num_layers = int(GRID_RESTART.NLAYERS.values)
    
     # Init layer height
     # Weird slicing position to accommodate NestedNamespace in WRF_X_CSPY

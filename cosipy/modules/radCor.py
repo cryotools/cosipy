@@ -262,7 +262,7 @@ def relshad(dem, mask, lats, lons, solh, sdirfn):
                 x_list = np.round(np.linspace(idx[0], idx[1], len(lon_list_short)))
 
                 # Calculate ALTITUDE along profile
-                zi = z[y_list.astype(np.int), x_list.astype(np.int)]
+                zi = z[y_list.astype(int), x_list.astype(int)]
 
                 # Calclulate DISTANCE along profile
                 d_list = []
