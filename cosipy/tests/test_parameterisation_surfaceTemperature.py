@@ -42,12 +42,9 @@ class TestParamSurfaceTemperature:
             N=0.5,  # otherwise tries to retrieve LWin from non-existent file
         )
 
-        assert (
-            surface_temperature <= constants.zero_temperature
-            and surface_temperature >= 220.0
-        )
-        assert lw_radiation_in <= 400 and lw_radiation_in >= 0
-        assert lw_radiation_out <= 0 and lw_radiation_out >= -400
-        assert sensible_heat_flux <= 250 and sensible_heat_flux >= -250
-        assert latent_heat_flux <= 200 and latent_heat_flux >= -200
-        assert ground_heat_flux <= 100 and ground_heat_flux >= -100
+        assert constants.zero_temperature >= surface_temperature >= 220.0
+        assert 400 >= lw_radiation_in >= 0
+        assert 0 >= lw_radiation_out >= -400
+        assert 250 >= sensible_heat_flux >= -250
+        assert 200 >= latent_heat_flux >= -200
+        assert 100 >= ground_heat_flux >= -100

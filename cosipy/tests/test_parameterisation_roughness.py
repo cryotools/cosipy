@@ -12,8 +12,9 @@ class TestParamRoughness:
         GRID = conftest_mock_grid
         roughness = updateRoughness(GRID)
         assert (
-            roughness >= constants.roughness_fresh_snow / 1000
-            and roughness <= constants.roughness_firn / 1000
+            constants.roughness_fresh_snow / 1000
+            <= roughness
+            <= constants.roughness_firn / 1000
         )
 
         GRID_ice = conftest_mock_grid_ice

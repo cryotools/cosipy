@@ -11,9 +11,7 @@ class TestNodeSetter:
         temperature (int): Layer temperature [:math:`K`].
         lwc (float): Liquid water content [:math:`m~w.e.`].
         ice_fraction (float): Volumetric ice fraction [-].
-        refreeze (float): Amount of refreezed water [:math:`m~w.e.`].
         new_height (float): New layer height [:math:`m`].
-        new_density (float): New snow density [:math:`kg~m^{-3}`].
         new_temperature (int): New layer temperature [:math:`K`].
         new_lwc (float): New liquid water content [:math:`m~w.e.`].
         new_ice_fraction (float): New volumetric ice fraction [-].

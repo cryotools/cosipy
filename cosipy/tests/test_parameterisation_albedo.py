@@ -14,10 +14,7 @@ class TestParamAlbedoUpdate:
 
         albedo = module_albedo.updateAlbedo(grid)
         assert isinstance(albedo, float)
-        assert (
-            albedo >= constants.albedo_firn
-            and albedo <= constants.albedo_fresh_snow
-        )
+        assert constants.albedo_firn <= albedo <= constants.albedo_fresh_snow
 
     def test_updateAlbedo_ice(
         self, conftest_mock_grid_ice, conftest_boilerplate
@@ -77,7 +74,7 @@ class TestParamAlbedoMethods:
         grid = conftest_mock_grid
         albedo_limit = constants.albedo_firn + (
             constants.albedo_fresh_snow - constants.albedo_firn
-        ) * np.exp((0) / (constants.albedo_mod_snow_aging * 24.0))
+        ) * np.exp(0 / (constants.albedo_mod_snow_aging * 24.0))
 
         compare_albedo = module_albedo.method_Oerlemans(grid)
 
