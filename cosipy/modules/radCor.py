@@ -464,15 +464,16 @@ def calcRad(solPars, timecorr, doy, hour, lat, tempgrid, pgrid, rhgrid, cldgrid,
         slopegrid_rad = np.radians(slopegrid)  # avoid recalculating
         cos_slopegrid = np.cos(slopegrid_rad)
         sin_slopegrid = np.sin(slopegrid_rad)
-        aspectgrid_rad = np.radians(180 - aspectgrid)
+        rot_aspectgrid = np.radians(180 - aspectgrid)
+        lat_rad = np.radians(lat)
         cos_zetap1 = (
-            cos_slopegrid * np.sin(np.radians(lat))
-            - np.cos(np.radians(lat)) * np.cos(aspectgrid_rad) * sin_slopegrid
+            cos_slopegrid * np.sin(lat_rad)
+            - np.cos(lat_rad) * np.cos(rot_aspectgrid) * sin_slopegrid
         ) * np.sin(soldec)
         cos_zetap2 = (
             (
-                np.sin(np.radians(lat))
-                * np.cos(np.radians(aspectgrid_rad))
+                np.sin(lat_rad)
+                * np.cos(rot_aspectgrid)
                 * sin_slopegrid
                 + cos_slopegrid * np.cos(math.radians(lat))
             )
@@ -480,7 +481,7 @@ def calcRad(solPars, timecorr, doy, hour, lat, tempgrid, pgrid, rhgrid, cldgrid,
             * np.cos(stime * np.pi / 180)
         )
         cos_zetap3 = (
-            np.sin(aspectgrid_rad)
+            np.sin(rot_aspectgrid)
             * sin_slopegrid
             * np.cos(soldec)
             * np.sin(stime * np.pi / 180)
