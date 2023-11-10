@@ -55,7 +55,11 @@ def get_selection(
             )
             raise KeyError(" ".join(error_message))
     else:
-        data = array.sel(time=timestamp).mean(dim="time", skipna=True)
+        data = (
+            array.resample(time="1D", skipna=True)
+            .mean()
+            .sel(time=timestamp, method="nearest")
+        )
 
     return data
 
@@ -176,21 +180,24 @@ def plot_axes(
 
     name = array.attrs.get("long_name", None)
     unit_label = array.attrs.get("units", None)
+    c_map = matplotlib.colormaps["viridis"]  # coolwarm
 
     if name.lower() == "elevation":
         data = array  # HGT has no time dimensions
+        c_map = matplotlib.colormaps["gist_earth"]
     else:
         data = get_selection(array=array, timestamp=timestamp, mean=mean)
-        if topography is not None:
-            plot_topography(ax=ax, elevation=topography)
+
+    if topography is not None:
+        plot_topography(ax=ax, elevation=topography)
 
     if plot_type.lower() == "contour":
         data.plot.contourf(
-            "lon", "lat", ax=ax, cbar_kwargs={"label": unit_label}
+            "lon", "lat", ax=ax, cbar_kwargs={"label": unit_label}, cmap=c_map
         )
     elif plot_type.lower() == "mesh":
         data.plot.pcolormesh(
-            "lon", "lat", ax=ax, cbar_kwargs={"label": unit_label}
+            "lon", "lat", ax=ax, cbar_kwargs={"label": unit_label}, cmap=c_map
         )
     else:
         raise ValueError(
@@ -322,7 +329,8 @@ def plotMesh(
     )
     if save:
         save_image(figure=figure, timestamp=pdate, name=var, suffix="mesh")
-    plt.show()
+    else:
+        plt.show()
 
 
 def plotContour(
@@ -367,7 +375,8 @@ def plotContour(
     )
     if save:
         save_image(figure=figure, timestamp=pdate, name=var, suffix="contour")
-    plt.show()
+    else:
+        plt.show()
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -392,9 +401,7 @@ def parse_arguments() -> argparse.Namespace:
     """
 
     tagline = "Plot results for single or all variables."
-    parser = argparse.ArgumentParser(
-        prog="plot_cosipy_fields.py", description=tagline
-    )
+    parser = argparse.ArgumentParser(prog="plot_cosipy_fields.py", description=tagline)
     # Required
     parser.add_argument(
         "-f",

@@ -53,8 +53,10 @@ def get_selection(
     if not mean:
         data = array.sel(time=timestamp, method="nearest")
     else:
-        data = array.sel(time=timestamp, method="nearest").mean(
-            dim="time", skipna=True
+        data = (
+            array.resample(time="1D", skipna=True)
+            .mean()
+            .sel(time=timestamp, method="nearest")
         )
 
     return data
@@ -390,9 +392,7 @@ def plotSurface(
 
     print(domain)
     domain.GetOutput().GetPointData().SetActiveScalars(variable)
-    scalar_range = (
-        domain.GetOutput().GetPointData().GetArray(variable).GetRange()
-    )
+    scalar_range = domain.GetOutput().GetPointData().GetArray(variable).GetRange()
     num_contours = contours
 
     lut = vtk.vtkLookupTable()
@@ -469,14 +469,10 @@ def plotSurface(
     #    w2if.SetInputConnection(render_large.GetOutputPort())
     #    w2if.Update()
 
-    write_render_to_image(
-        render=render_large, variable=variable, timestamp=timestamp
-    )
+    write_render_to_image(render=render_large, variable=variable, timestamp=timestamp)
 
     if gltf:
-        write_render_to_gltf(
-            render=render, variable=variable, timestamp=timestamp
-        )
+        write_render_to_gltf(render=render, variable=variable, timestamp=timestamp)
 
     return render_large
 
@@ -540,8 +536,6 @@ def parse_arguments() -> argparse.Namespace:
         action="store_true",
         help="Plot daily mean instead of timestep",
     )
-
-    # Optional switches
     parser.add_argument(
         "-g",
         "--gltf",
