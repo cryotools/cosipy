@@ -503,31 +503,13 @@ def create_2D_input(cs_file, cosipy_file, static_file, start_date, end_date, x0=
 
             # Save look-up tables
             Nt = int(366 * (3600 / dtstep) * 24)  # number of time steps
-            Ny = len(lats)  # number of latitudes
-            Nx = len(lons)  # number of longitudes
 
-            f = nc.Dataset('../../data/static/LUT_Rad.nc', 'w')
-            f.createDimension('time', Nt)
-            f.createDimension('lat', Ny)
-            f.createDimension('lon', Nx)
+            LUTout = xr.Dataset({'SVF':(['lat','lon'], svf), 'SHADING':(['time','lat','lon'], shad1yr)}, coords={'time':np.arange(0,Nt), 'lat':lats[::-1], 'lon':lons})
+            LUTout['lat'].attrs['units'] = 'degrees_north'
+            LUTout['lon'].attrs['units'] = 'degrees_east'
 
-            LATS = f.createVariable('lat', 'f4', ('lat',))
-            LATS.units = 'degree'
-            LONS = f.createVariable('lon', 'f4', ('lon',))
-            LONS.units = 'degree'
+            LUTout.to_netcdf('../../data/static/LUT_Rad.nc')
 
-            LATS[:] = lats
-            LONS[:] = lons
-
-            shad = f.createVariable('SHADING', float, ('time', 'lat', 'lon'))
-            shad.long_name = 'Topographic shading'
-            shad[:] = shad1yr
-
-            SVF = f.createVariable('SVF', float, ('lat', 'lon'))
-            SVF.long_name = 'sky view factor'
-            SVF[:] = svf
-
-            f.close()
 
         # In both cases, run the radiation model
         for t in range(len(dso.time)):
