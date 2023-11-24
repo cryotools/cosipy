@@ -66,11 +66,11 @@ def add_variable_along_latlon(ds, var, name, units, long_name):
 # set paths
 regrid = True #regrid to coarser resolution
 ellps = "WGS84"  # Earth's surface approximation (sphere, GRS80 or WGS84)
-path_out = "../../data/static/HRZ/"
+path_out = "../../data/static/HEF/"
 file_sw_dir_cor = "LUT_HORAYZON_sw_dir_cor.nc"
 
-static_file = "../../data/static/Zhadang_static_raw.nc" #path to high resolution dataset
-coarse_static_file = "../../data/static/Zhadang_static_agg.nc" #Load coarse grid
+static_file = "../../data/static/HEF/HEF_static_raw.nc" #path to high resolution dataset
+coarse_static_file = "../../data/static/HEF/HEF_static_agg.nc" #Load coarse grid
 
 # -----------------------------------------------------------------------------
 # Prepare data and initialise Terrain class
