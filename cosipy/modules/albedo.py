@@ -7,7 +7,7 @@ def updateAlbedo(GRID,surface_temperature,albedo_snow):
     albedo_allowed = ['Oerlemans98','Bougamont05']
     if albedo_method == 'Oerlemans98':
         alphaMod = method_Oerlemans(GRID)
-    if albedo_method == 'Bougamont05':
+    elif albedo_method == 'Bougamont05':
         alphaMod, albedo_snow = method_Bougamont(GRID,surface_temperature,albedo_snow)
     else:
         raise ValueError("Albedo method = \"{:s}\" is not allowed, must be one of {:s}".format(albedo_method, ", ".join(albedo_allowed)))
