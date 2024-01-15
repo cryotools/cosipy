@@ -1,9 +1,9 @@
 import numpy as np
-
 import pytest
+
 import constants
-from COSIPY import start_logging
 import cosipy.modules.albedo as module_albedo
+from COSIPY import start_logging
 
 
 class TestParamAlbedoUpdate:
@@ -12,24 +12,32 @@ class TestParamAlbedoUpdate:
     def test_updateAlbedo(self, conftest_mock_grid):
         grid = conftest_mock_grid
 
-        albedo = module_albedo.updateAlbedo(grid)
-        assert isinstance(albedo, float)
-        assert constants.albedo_firn <= albedo <= constants.albedo_fresh_snow
+        surface_albedo, snow_albedo = module_albedo.updateAlbedo(
+            GRID=grid,
+            surface_temperature=270.0,
+            albedo_snow=constants.albedo_fresh_snow,
+        )
+        assert isinstance(surface_albedo, float)
+        assert constants.albedo_firn <= surface_albedo <= constants.albedo_fresh_snow
+        assert isinstance(snow_albedo, float)
 
-    def test_updateAlbedo_ice(
-        self, conftest_mock_grid_ice, conftest_boilerplate
-    ):
+    def test_updateAlbedo_ice(self, conftest_mock_grid_ice, conftest_boilerplate):
         grid_ice = conftest_mock_grid_ice
-        albedo = module_albedo.updateAlbedo(grid_ice)
+        albedo, snow_albedo = module_albedo.updateAlbedo(
+            GRID=grid_ice,
+            surface_temperature=270.0,
+            albedo_snow=constants.albedo_fresh_snow,
+        )
+        assert conftest_boilerplate.check_output(albedo, float, constants.albedo_ice)
         assert conftest_boilerplate.check_output(
-            albedo, float, constants.albedo_ice
+            snow_albedo, float, constants.albedo_fresh_snow
         )
 
 
 class TestParamAlbedoSelection:
     """Tests user selection of parametrisation method."""
 
-    @pytest.mark.parametrize("arg_method", ["Oerlemans98"])
+    @pytest.mark.parametrize("arg_method", ["Oerlemans98", "Bougamont05"])
     def test_updateAlbedo_method(
         self, monkeypatch, conftest_mock_grid, conftest_boilerplate, arg_method
     ):
@@ -41,15 +49,20 @@ class TestParamAlbedoSelection:
             monkeypatch, module_albedo.constants, {"albedo_method": arg_method}
         )
         assert constants.albedo_method == arg_method
-        albedo = module_albedo.updateAlbedo(grid)
-        assert isinstance(albedo, float)
+        surface_albedo, snow_albedo = module_albedo.updateAlbedo(
+            GRID=grid,
+            surface_temperature=270.0,
+            albedo_snow=constants.albedo_fresh_snow,
+        )
+        assert isinstance(surface_albedo, float)
+        assert isinstance(snow_albedo, float)
 
     @pytest.mark.parametrize("arg_method", ["Wrong Method", "", None])
     def test_updateAlbedo_method_error(
         self, monkeypatch, conftest_mock_grid, conftest_boilerplate, arg_method
     ):
         grid = conftest_mock_grid
-        valid_methods = ["Oerlemans98"]
+        valid_methods = ["Oerlemans98", "Bougamont05"]
 
         conftest_boilerplate.patch_variable(
             monkeypatch, module_albedo.constants, {"albedo_method": arg_method}
@@ -62,7 +75,11 @@ class TestParamAlbedoSelection:
         )
 
         with pytest.raises(ValueError, match=" ".join(error_message)):
-            module_albedo.updateAlbedo(grid)
+            module_albedo.updateAlbedo(
+                GRID=grid,
+                surface_temperature=270.0,
+                albedo_snow=constants.albedo_fresh_snow,
+            )
 
 
 class TestParamAlbedoMethods:
