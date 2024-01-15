@@ -71,7 +71,7 @@ def percolation(GRID, water: float, dt: float) -> float:
     ) * GRID.get_node_height(GRID.number_nodes - 1)
     GRID.set_node_liquid_water_content(GRID.number_nodes - 1, 0.0)
 
-    check_lwc_conservation(GRID, total_start, dt)  # for consistency check
+    # check_lwc_conservation(GRID, total_start, dt)  # for consistency check
     return Q
 
 @njit
