@@ -11,7 +11,7 @@ z = 2.0                                         # Measurement height [m]
 
 ' PARAMETERIZATIONS '
 stability_correction = 'Ri'                     # possibilities: 'Ri','MO'
-albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98'
+albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98','Bougamont05'
 densification_method = 'Boone'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
 roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
@@ -71,6 +71,11 @@ albedo_mod_snow_depth = 3                       # effect of snow depth on albedo
 ### For tropical glaciers or High Mountain Asia summer-accumulation glaciers (low latitude), the Moelg et al. 2012, TC should be tested for a possible better albedo fit 
 #albedo_mod_snow_aging = 6                      # effect of ageing on snow albedo [days] (Moelg et al. 2012, TC)
 #albedo_mod_snow_depth = 8                      # effect of snow depth on albedo [cm] (Moelg et al. 2012, TC)
+
+t_star_wet = 10                                 # albedo decay timescale (melting surface) [days]
+t_star_dry = 30                                 # albedo decay timescale (dry snow surface) [days]
+t_star_K = 14                                   # increase in t_star_dry at negative temperatures [day K-1]
+t_star_cutoff = 263.17                          # temperature threshold for t_star_dry increase [K]
 
 roughness_fresh_snow = 0.24                     # surface roughness length for fresh snow [mm] (Moelg et al. 2012, TC)
 roughness_ice = 1.7                             # surface roughness length for ice [mm] (Moelg et al. 2012, TC)
