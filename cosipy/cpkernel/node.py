@@ -187,11 +187,17 @@ class Node:
             lambda : float
                 Thermal conductivity [:math:`W~m^{-1}~K^{-1}`]
         """
-        methods_allowed = ['bulk', 'empirical']
-        if thermal_conductivity_method == 'bulk':
+        methods_allowed = ['bulk','Huintjes15','Sturm97','Calonne19']
+        if thermal_conductivity_method == 'bulk':            # bulk-volumetric
             lam = self.get_layer_ice_fraction()*k_i + self.get_layer_air_porosity()*k_a + self.get_layer_liquid_water_content()*k_w
-        elif thermal_conductivity_method == 'empirical':
+        elif thermal_conductivity_method == 'Huintjes15':    # empirical parameterisation according to Huintjes et al., 2015    
             lam = 0.021 + 2.5 * np.power((self.get_layer_density()/1000),2)
+        elif thermal_conductivity_method == 'Sturm97':       # empirical parameterisation according to Sturm et al., 1997
+            lam = 0.138 - 1.01e-3 * self.get_layer_density() + 3.23e-6 * np.power((self.get_layer_density()),2) 
+        elif thermal_conductivity_method == 'Calonne19':     # empirical parameterisation according to Calonne et al., 2019
+            theta = 1 / (1 + np.exp(-2 * 0.02 * (self.get_layer_density() - 450)))
+            lam = ((k_i * k_a / 2.107 *0.024) * ((1 - theta) * ((0.024 - (1.23e-4 * self.get_layer_density()) + (2.5e-6 * np.power(self.get_layer_density(),2)))))) + \
+                  ((k_i / 2.107) * (theta * (2.107 + 0.003618 * (self.get_layer_density() - ice_density))))
         else:
             raise ValueError("Thermal conductivity method = \"{:s}\" is not allowed, must be one of {:s}".format(thermal_conductivity_method, ", ".join(methods_allowed)))
         return lam
