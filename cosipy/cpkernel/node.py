@@ -135,7 +135,7 @@ class Node:
         methods_allowed = ['bulk','Yen81']
         if specific_heat_capacity_method == 'bulk':    
             cp = self.get_layer_ice_fraction() * spec_heat_ice + self.get_layer_air_porosity() * spec_heat_air + self.get_layer_liquid_water_content() * spec_heat_water
-        elif specific_heat_capacity_method == 'Yen81':
+        elif specific_heat_capacity_method == 'Yen81':    # empirical parameterisation according to Yen, 1981
             cp = 152.2 + 7.122 * self.get_layer_temperature()
         else:
             raise ValueError("Specific heat method = \"{:s}\" is not allowed, must be one of {:s}".format(specific_heat_capacity_method, ", ".join(methods_allowed)))
