@@ -17,6 +17,7 @@ penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
 roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
 thermal_conductivity_method = 'bulk'		    # possibilities: 'bulk', 'empirical'
+specific_heat_capacity_method = 'bulk'          # possibilities: 'bulk', 'Yen81'
 sfc_temperature_method = 'SLSQP'                # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Newton' (Secant, fastest)'
 
 # WRF_X_CSPY: for efficiency and consistency
