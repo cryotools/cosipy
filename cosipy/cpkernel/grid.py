@@ -364,7 +364,33 @@ class Grid:
         # Correct first layer
         self.correct_layer(0 ,first_layer_height)
 
+    def lagrangian_profile(self):
+	""" Remesh in order to try to preserve approximately uniform layer heights.
+        
+	The user has the option to remesh deeper layers into coarser layer heights in order to speed up computation time.
+        
+        The layer_height_threshold, coarse_layer_height_threshold and coarse_layer_depth_threshold variables in the
+        configuration file (constants.py) define the corresponding thresholds. 
+        """
 
+        # Merge fresh snow with the uppermost layer unless it exceeds the maximum layer height
+        if ((self.get_node_height(0) + self.get_node_height(1) <= layer_height_threshold) & (self.fresh_snow_timestamp == 0)):
+            self.merge_nodes(0)
+
+        # Merge internal snow layers if they subsceed the minimum snow layer height
+        idx = 1
+        while ((idx < self.get_number_snow_layers()-1)):
+            if ((self.get_node_height(idx) <= minimum_snow_layer_height)):
+                self.merge_nodes(idx-1)
+            idx += 1
+
+        if dual_layer_height_profile == True:
+            # Merge the lower layers if they go beyond the user-defined depth threshold to make a coarser mesh:
+            idx = 0              
+            while ((idx < self.get_number_snow_layers()-1)):
+                if ((self.get_node_depth(idx) > coarse_layer_depth_threshold) & ((self.get_node_height(idx) + self.get_node_height(idx + 1) <= coarse_layer_height_threshold))):
+                    self.merge_nodes(idx)
+                idx += 1
 
     def split_node(self, pos):
         """ Split node at position pos 
@@ -438,21 +464,28 @@ class Grid:
     def update_grid(self):
         """ Re-meshes the layers (numerical grid).
 
-            Two algorithms are currently implemented to re-mesh the layers:
+            Three algorithms are currently implemented to re-mesh the layers:
 
                 (i)  log_profile
                 (ii) adaptive_profile
+		(iii) uniform_profile
 
-            (i)  The log-profile algorithm arranges the mesh logarithmically.
-                 The user provides a stretching factor (layer_stretching in the configuration file) 
-                 that determines the increase in layer heights.
+            (i)   The log-profile algorithm arranges the mesh logarithmically.
+                  The user provides a stretching factor (layer_stretching in the configuration file) 
+                  that determines the increase in layer heights.
 
-            (ii) The adjustment of the profile is done on the basis of the similarity of layers. 
-                Layers with very similar states (temperature and density) are joined together. The
-                 similarity is determined by user-specified threshold values
-                 (temperature_threshold_merging, density_threshold_merging). In
-                 addition, the maximum number of merging steps per time step
-                 can be specified (merge_max).
+            (ii)  The adjustment of the profile is done on the basis of the similarity of layers. 
+                  Layers with very similar states (temperature and density) are joined together. The
+                  similarity is determined by user-specified threshold values
+                  (temperature_threshold_merging, density_threshold_merging). In
+                  addition, the maximum number of merging steps per time step
+                  can be specified (merge_max).
+		  
+	    (iii) The uniform algorithm aims to maintain layers of approximately uniform height. 
+     		  Fresh fresh snowfall events are merged into a common layer until a user-specified 
+	 	  height threshold is reached and a new layer is created. Note that layers are not 
+                  strictly forced to be exactly uniform - compaction and differences in snowfall mean 
+		  they will always be slighly different in height.
 
         """
         #-------------------------------------------------------------------------
@@ -462,11 +495,12 @@ class Grid:
             self.log_profile()
         elif (remesh_method=='adaptive_profile'):
             self.adaptive_profile()
+	elif (remesh_method=='uniform_profile'):
+	    self.uniform_profile()
 
         # if first layer becomes very small, remove it
         if (self.get_node_height(0)<minimum_snow_layer_height):
             self.remove_node([0])
-
 
     def merge_snow_with_glacier(self, idx):
         """ Merges a snow layer with a ice layer.
