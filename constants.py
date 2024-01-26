@@ -10,7 +10,8 @@ max_layers = 200                                # Max. number of layers, just fo
 z = 2.0                                         # Measurement height [m]
 
 ' PARAMETERIZATIONS '
-stability_correction = 'Ri'                     # possibilities: 'Ri','MO'
+turbulent_fluxes_method = 'Foken08'             # possibilities: 'Foken08', 'Essery&Etchevers04'
+stability_correction = 'Ri'                     # possibilities: 'Ri','MO' (Foken08 only)
 albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98','Bougamont05'
 densification_method = 'Boone'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'

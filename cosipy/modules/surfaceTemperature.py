@@ -200,80 +200,118 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
     # Mixing Ratio at surface and at measurement height  or calculate with other formula? 0.622*e/p = q
     q2 = (rH2 * 0.622 * (Ew / (p - Ew))) / 100.0
     q0 = (100.0 * 0.622 * (Ew0 / (p - Ew0))) / 100.0
+
+    if turbulent_fluxes_method == 'Foken08':
     
-    # Air density 
-    rho = (p*100.0) / (287.058 * (T2 * (1 + 0.608 * q2)))
+        # Air density 
+        rho = (p*100.0) / (287.058 * (T2 * (1 + 0.608 * q2)))
 
-    # Bulk transfer coefficient 
-    z0t = z0/100    # Roughness length for sensible heat
-    z0q = z0/10     # Roughness length for moisture
-    L = None
+        # Bulk transfer coefficient 
+        z0t = z0/100    # Roughness length for sensible heat
+        z0q = z0/10     # Roughness length for moisture
+        L = None
  
-    # Monin-Obukhov stability correction
-    if stability_correction == 'MO':
-        L = 0.0
-        H0 = T0*0. + np.inf		#numba: consistent typing of H0
-        diff = np.inf
-        optim = True
-        niter = 0
+        # Monin-Obukhov stability correction
+        if stability_correction == 'MO':
+            L = 0.0
+            H0 = T0*0. + np.inf		#numba: consistent typing of H0
+            diff = np.inf
+            optim = True
+            niter = 0
 
-        # Optimize Obukhov length
-        while optim:
-            # ustar with initial condition of L == x
-            ust = ustar(u2,z,z0,L)
+            # Optimize Obukhov length
+            while optim:
+                # ustar with initial condition of L == x
+                ust = ustar(u2,z,z0,L)
         
-            # Sensible heat flux for neutral conditions
-            Cd = np.power(0.41,2.0) / np.power(np.log(z/z0) - phi_m(z,L) - phi_m(z0,L),2.0)
-            Cs_t = 0.41*np.sqrt(Cd) / (np.log(z/z0t) - phi_tq(z,L) - phi_tq(z0,L))
-            Cs_q = 0.41*np.sqrt(Cd) / (np.log(z/z0q) - phi_tq(z,L) - phi_tq(z0,L))
+                # Sensible heat flux for neutral conditions
+                Cd = np.power(0.41,2.0) / np.power(np.log(z/z0) - phi_m(z,L) - phi_m(z0,L),2.0)
+                Cs_t = 0.41*np.sqrt(Cd) / (np.log(z/z0t) - phi_tq(z,L) - phi_tq(z0,L))
+                Cs_q = 0.41*np.sqrt(Cd) / (np.log(z/z0q) - phi_tq(z,L) - phi_tq(z0,L))
         
-            # Surface heat flux
-            H = rho * spec_heat_air * Cs_t * u2 * (T2-T0) * np.cos(np.radians(SLOPE))
+                # Surface heat flux
+                H = rho * spec_heat_air * Cs_t * u2 * (T2-T0) * np.cos(np.radians(SLOPE))
+        
+                # Latent heat flux
+                LE = rho * Lv * Cs_q * u2 * (q2-q0) *  np.cos(np.radians(SLOPE))
+        
+                # Monin-Obukhov length
+                L = MO(rho, ust, T2, H)
+	    
+                # Heat flux differences between iterations
+                diff = np.abs(H0-H)
+           
+                # Termination criterion
+                if (diff<1e-1) | (niter>5):
+                    optim = False
+                niter = niter+1
+            
+                # Store last heat flux in H0
+                H0 = H
+  
+        # Richardson-Number stability correction
+        elif stability_correction == 'Ri':
+            # Bulk transfer coefficient 
+            Cs_t = np.power(0.41,2.0) / ( np.log(z/z0) * np.log(z/z0t) )    # Stanton-Number
+            Cs_q = np.power(0.41,2.0) / ( np.log(z/z0) * np.log(z/z0q) )    # Dalton-Number
+        
+            # Bulk Richardson number
+            Ri = 0
+            if (u2!=0):
+                Ri = ( (9.81 * (T2 - T0) * z) / (T2 * np.power(u2, 2)) ).item() #numba can't compare literal & array below
+
+            # Stability correction
+            phi = 1
+            if (Ri > 0.01) & (Ri <= 0.2):
+                phi = np.power(1-5*Ri,2)
+            elif Ri > 0.2:
+                phi = 0
+
+            # Sensible heat flux
+            H = rho * spec_heat_air * Cs_t * u2 * (T2-T0) * phi * np.cos(np.radians(SLOPE))
         
             # Latent heat flux
-            LE = rho * Lv * Cs_q * u2 * (q2-q0) *  np.cos(np.radians(SLOPE))
-        
-            # Monin-Obukhov length
-            L = MO(rho, ust, T2, H)
-	    
-            # Heat flux differences between iterations
-            diff = np.abs(H0-H)
-           
-            # Termination criterion
-            if (diff<1e-1) | (niter>5):
-                optim = False
-            niter = niter+1
-            
-            # Store last heat flux in H0
-            H0 = H
-  
-    # Richardson-Number stability correction
-    elif stability_correction == 'Ri':
-        # Bulk transfer coefficient 
-        Cs_t = np.power(0.41,2.0) / ( np.log(z/z0) * np.log(z/z0t) )    # Stanton-Number
-        Cs_q = np.power(0.41,2.0) / ( np.log(z/z0) * np.log(z/z0q) )    # Dalton-Number
-        
-        # Bulk Richardson number
+            LE = rho * Lv * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
+
+        else:
+            raise ValueError("Stability correction",stability_correction,"is not supported")	#numba refuses to print str(list)
+    
+    if turbulent_fluxes_method == 'Essery&Etchevers04':
+
+        # Unused Variables:
+        L = None
+        Cs_t = None
+        Cs_q = None
+
+        # Dry air density
+        rho = (p*100.0) / (287.058 * T2)
+
+        # Exchange parameters:
+        C_hn = 0.16 * np.power((np.log(z/z0)),-2) 
+        fz = 0.25 * np.power((z0/z),0.5)
+
+        # Richardson number:
         Ri = 0
         if (u2!=0):
-            Ri = ( (9.81 * (T2 - T0) * z) / (T2 * np.power(u2, 2)) ).item() #numba can't compare literal & array below
-
-        # Stability correction
+            Ri = ((9.81 * z / np.power(u2,2)) * (((T2 - T0)/T2) + ((q2 - q0)/(q2 + (0.622 / (1 - 0.622)))))).item()
         phi = 1
-        if (Ri > 0.01) & (Ri <= 0.2):
-            phi = np.power(1-5*Ri,2)
-        elif Ri > 0.2:
-            phi = 0
+        if Ri >= 0:
+            phi = (np.power((1 + (10 * Ri)),-1)).item()
+        elif Ri < 0:
+            phi = (1 - ((10 * Ri) * np.power((1 + ((10 * C_hn) * (np.sqrt(-Ri) / fz))),-1))).item()
+
+        # Tubulent exchange coefficient:
+        C_te = C_hn * phi
 
         # Sensible heat flux
-        H = rho * spec_heat_air * Cs_t * u2 * (T2-T0) * phi * np.cos(np.radians(SLOPE))
+        H = rho * spec_heat_air * C_te * u2 * (T2-T0) * np.cos(np.radians(SLOPE))
         
         # Latent heat flux
-        LE = rho * Lv * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
+        LE = rho * Lv * C_te * u2 * (q2 - q0) * np.cos(np.radians(SLOPE))
 
     else:
-        raise ValueError("Stability correction",stability_correction,"is not supported")	#numba refuses to print str(list)
-    
+        raise ValueError("Stability correction",turbulent_fluxes_method,"is not supported")	#numba refuses to print str(list)
+
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(T0, 4.0)
 
