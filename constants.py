@@ -50,14 +50,19 @@ minimum_snowfall = 0.001                        # minimum snowfall per time step
 
 
 ' REMESHING OPTIONS'
-remesh_method = 'log_profile'                   # Remeshing (log_profile or adaptive_profile)
+remesh_method = 'log_profile'                   # possibilities: 'log_profile', 'adaptive_profile', 'uniform_profile'
+
+' (a) Logarithmic '
 first_layer_height = 0.01                       # The first layer will always have the defined height (m)
 layer_stretching = 1.20                         # Stretching factor used by the log_profile method (e.g. 1.1 mean the subsequent layer is 10% greater than the previous
 
+' (b) Adaptive '
 merge_max = 1                                   # How many mergings are allowed per time step
-density_threshold_merging = 5                   # If merging is true threshold for layer densities difference two layer try: 5-10 (kg m^-3)
-temperature_threshold_merging = 0.01            # If mering is true threshold for layer temperatures to merge  try: 0.05-0.1 (K)
+density_threshold_merging = 5                   # If merging is true threshold for layer densities difference two layer. try: 5-10 (kg m^-3)
+temperature_threshold_merging = 0.01            # If mering is true threshold for layer temperatures to merge.  try: 0.05-0.1 (K)
 
+' (c) Uniform '
+layer_height_threshold = 0.1                    # Height threshold for sub-surface layers (m) - layer height will stay approx. uniform except for compaction differences.
 
 ' PHYSICAL CONSTANTS '
 constant_density = 300.                         # constant density of freshly fallen snow [kg m-3], if densification_method is set to 'constant'
