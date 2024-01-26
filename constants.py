@@ -62,7 +62,11 @@ density_threshold_merging = 5                   # If merging is true threshold f
 temperature_threshold_merging = 0.01            # If mering is true threshold for layer temperatures to merge  try: 0.05-0.1 (K)
 
 ' (c) Uniform '
-layer_height_threshold = 0.1                    # Height threshold for sub-surface layers (m) - layer height will stay approx. uniform except for compaction differences.
+layer_height_threshold = 0.1                    # Height threshold for sub-surface layers (m) - layer height will stay approx. uniform except for compaction differences  try 0.1 (m)
+
+dual_layer_height_profile = False               # Enable to create a coarser sub-surface mesh below a user-defined threshold (decreases computation speed of uniform remeshing technique)
+coarse_layer_depth_threshold = 20               # Simulation depth threshold at which layers are merged to form a coarser mesh.
+coarse_layer_height_threshold = 0.5             # Height threshold for coarser sub-surface layers beneath the depth threshold  try: 0.5 (m)
 
 ' PHYSICAL CONSTANTS '
 constant_density = 300.                         # constant density of freshly fallen snow [kg m-3], if densification_method is set to 'constant'
