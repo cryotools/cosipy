@@ -20,13 +20,14 @@ spec['number_nodes'] = intp
 spec['new_snow_height'] = float64
 spec['new_snow_timestamp'] = float64
 spec['old_snow_timestamp'] = float64
+spec['fresh_snow_timestamp'] = float64
 spec['grid'] = types.ListType(node_type)     
 
 @jitclass(spec)
 class Grid:
 
     def __init__(self, layer_heights, layer_densities, layer_temperatures, layer_liquid_water_content, layer_ice_fraction=None,
-        new_snow_height=None, new_snow_timestamp=None, old_snow_timestamp=None):
+        new_snow_height=None, new_snow_timestamp=None, old_snow_timestamp=None, fresh_snow_timestamp=None):
         """ The Grid-class controls the numerical mesh. 
         
         The grid consists of a list of nodes (layers) that store the information 
@@ -63,14 +64,16 @@ class Grid:
         # snow layer age (old_snow_timestamp)
         if (new_snow_height is not None) and (new_snow_timestamp is not None) and \
            (old_snow_timestamp is not None):
-            self.new_snow_height = new_snow_height         # meter snow accumulation
-            self.new_snow_timestamp = new_snow_timestamp   # seconds since snowfall
-            self.old_snow_timestamp = old_snow_timestamp   # snow age below fresh snow layer
+            self.new_snow_height = new_snow_height              # meter snow accumulation
+            self.new_snow_timestamp = new_snow_timestamp        # seconds since snowfall (reset if uppermost layer melts)
+            self.old_snow_timestamp = old_snow_timestamp        # snow age below fresh snow layer
+            self.fresh_snow_timestamp = fresh_snow_timestamp    # seconds since snowfall (not reset)
         else:
 	    #TO DO: pick better initialization values
             self.new_snow_height = 0.0      
             self.new_snow_timestamp = 0.0   
             self.old_snow_timestamp = 0.0
+            self.fresh_snow_timestamp = 0.0
 
         # Do the grid initialization
         self.grid = typed.List.empty_list(node_type)
@@ -364,10 +367,10 @@ class Grid:
         # Correct first layer
         self.correct_layer(0 ,first_layer_height)
 
+    
     def uniform_profile(self):
-	""" Remesh in order to try to preserve approximately uniform layer heights.
-        
-	The user has the option to remesh deeper layers into coarser layer heights in order to speed up computation time.
+        """ Remesh in order to try to preserve approximately uniform layer heights.
+	    The user has the option to remesh deeper layers into coarser layer heights in order to speed up computation time.
         
         The layer_height_threshold, coarse_layer_height_threshold and coarse_layer_depth_threshold variables in the
         configuration file (constants.py) define the corresponding thresholds. 
@@ -468,7 +471,7 @@ class Grid:
 
                 (i)  log_profile
                 (ii) adaptive_profile
-		(iii) uniform_profile
+		        (iii) uniform_profile
 
             (i)   The log-profile algorithm arranges the mesh logarithmically.
                   The user provides a stretching factor (layer_stretching in the configuration file) 
@@ -481,11 +484,11 @@ class Grid:
                   addition, the maximum number of merging steps per time step
                   can be specified (merge_max).
 		  
-	    (iii) The uniform algorithm aims to maintain layers of approximately uniform height. 
-     		  Fresh fresh snowfall events are merged into a common layer until a user-specified 
-	 	  height threshold is reached and a new layer is created. Note that layers are not 
+	        (iii) The uniform algorithm aims to maintain layers of approximately uniform height. 
+     		      Fresh fresh snowfall events are merged into a common layer until a user-specified 
+	 	          height threshold is reached and a new layer is created. Note that layers are not 
                   strictly forced to be exactly uniform - compaction and differences in snowfall mean 
-		  they will always be slighly different in height.
+		          they will always be slighly different in height.
 
         """
         #-------------------------------------------------------------------------
@@ -495,8 +498,8 @@ class Grid:
             self.log_profile()
         elif (remesh_method=='adaptive_profile'):
             self.adaptive_profile()
-	elif (remesh_method=='uniform_profile'):
-	    self.uniform_profile()
+        elif (remesh_method=='uniform_profile'):
+            self.uniform_profile()
 
         # if first layer becomes very small, remove it
         if (self.get_node_height(0)<minimum_snow_layer_height):
@@ -578,6 +581,7 @@ class Grid:
         self.old_snow_timestamp = self.new_snow_timestamp
         # Set the timestamp to zero
         self.new_snow_timestamp = 0
+        self.fresh_snow_timestamp = 0
 
     def set_fresh_snow_props_to_old_props(self):
         """ Sets the timestamp of the fresh snow properties back to the timestamp of the underlying snow layer.
@@ -601,6 +605,7 @@ class Grid:
         self.old_snow_timestamp = self.old_snow_timestamp + seconds
         # Set the timestamp to zero
         self.new_snow_timestamp = self.new_snow_timestamp + seconds
+        self.fresh_snow_timestamp = self.fresh_snow_timestamp + seconds
 
     def set_fresh_snow_props_height(self, height):
         """ Updates the fresh snow layer height property.
