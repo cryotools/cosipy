@@ -485,10 +485,10 @@ class Grid:
                   can be specified (merge_max).
                   
             (iii) The uniform algorithm aims to maintain layers of approximately uniform height. 
-     		      Fresh fresh snowfall events are merged into a common layer until a user-specified 
-	 	          height threshold is reached and a new layer is created. Note that layers are not 
-                  strictly forced to be exactly uniform - compaction and differences in snowfall mean 
-		          they will always be slighly different in height.
+                  Fresh fresh snowfall events are merged into a common layer until a user-specified height
+                  threshold is reached and a new layer is created. Note that layers are not strictly forced
+                  to be exactly uniform - compaction and differences in snowfall mean they will always be
+                  slighly different in height.
 
         """
         #-------------------------------------------------------------------------
