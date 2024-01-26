@@ -471,7 +471,7 @@ class Grid:
 
                 (i)  log_profile
                 (ii) adaptive_profile
-		        (iii) uniform_profile
+                (iii) uniform_profile
 
             (i)   The log-profile algorithm arranges the mesh logarithmically.
                   The user provides a stretching factor (layer_stretching in the configuration file) 
@@ -483,8 +483,8 @@ class Grid:
                   (temperature_threshold_merging, density_threshold_merging). In
                   addition, the maximum number of merging steps per time step
                   can be specified (merge_max).
-		  
-	        (iii) The uniform algorithm aims to maintain layers of approximately uniform height. 
+                  
+            (iii) The uniform algorithm aims to maintain layers of approximately uniform height. 
      		      Fresh fresh snowfall events are merged into a common layer until a user-specified 
 	 	          height threshold is reached and a new layer is created. Note that layers are not 
                   strictly forced to be exactly uniform - compaction and differences in snowfall mean 
