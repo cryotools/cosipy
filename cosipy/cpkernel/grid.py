@@ -364,7 +364,7 @@ class Grid:
         # Correct first layer
         self.correct_layer(0 ,first_layer_height)
 
-    def lagrangian_profile(self):
+    def uniform_profile(self):
 	""" Remesh in order to try to preserve approximately uniform layer heights.
         
 	The user has the option to remesh deeper layers into coarser layer heights in order to speed up computation time.
