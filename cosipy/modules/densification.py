@@ -1,6 +1,5 @@
 import numpy as np
-from constants import densification_method, snow_ice_threshold, minimum_snow_layer_height, \
-                      zero_temperature, ice_density
+from constants import *
 from numba import njit
 
 def densification(GRID,SLOPE,dt):
@@ -10,11 +9,13 @@ def densification(GRID,SLOPE,dt):
 	dt      ::  integration time
     """
 
-    densification_allowed = ['Boone', 'Vionnet', 'empirical', 'constant']
+    densification_allowed = ['Boone', 'Vionnet', 'empirical', 'constant','Ligtenberg11']
     if densification_method == 'Boone':
         method_Boone(GRID,SLOPE,dt)
     elif densification_method == 'Vionnet':
         method_Vionnet(GRID,SLOPE,dt)
+    if densification_method == 'Ligtenberg11':
+        method_Ligtenberg(GRID,SLOPE,dt)
     elif densification_method == 'empirical':
         method_empirical(GRID,SLOPE,dt)
     elif densification_method == 'constant':
@@ -162,6 +163,63 @@ def method_Vionnet(GRID,SLOPE,dt):
                      GRID.get_node_porosity(idxNode))
                 print('Fraction > 1: %.5f' % (GRID.get_node_ice_fraction(idxNode)+GRID.get_node_liquid_water_content(idxNode)+GRID.get_node_porosity(idxNode)))
 
+@njit
+def method_Ligtenberg(GRID,SLOPE,dt):
+    """ Description: Densification based on in situ measurements of Antarctic snow compaction
+        after Arthern et al. 2010 (modified by Ligtenberg et al. 2011)
+    """
+
+    # Constants
+    g = 9.81            # gravitational acceleration [m s-2]
+    R = 8.314           # universal gas constant [J mol-1]
+    Ec = 60e3           # creep by lattice diffusion activation energy [J mol-1]
+    Eg = 42.4e3         # grain growth activation energy [J mol-1]
+
+    # Extract variables:
+    rho = np.array(GRID.get_density())
+    h   = np.array(GRID.get_height())
+    z   = np.array(GRID.get_depth())
+    T   = np.array(GRID.get_temperature())
+    theta_ice =   np.array(GRID.get_ice_fraction())
+    theta_water = np.array(GRID.get_liquid_water_content())
+
+    # Convert units:
+    b = accumulation    # accumulation [mm a-1]
+    dt = dt / 31536000  # timestep as a fraction of a calendar year
+
+    # Binary mask for snow/ice determination:
+    mask = np.where(rho < snow_ice_threshold,1,0)
+
+    # Gravitational Constant:
+    C = np.where(rho < 550 , 0.07 * np.maximum(1.435 - 0.151 * np.log(b) , 0.25) , 0.03 * np.maximum(2.366 - 0.293 * np.log(b) , 0.25))
+
+    """ Note: Ligtenberg's method required average annual temperature of layers - a value difficult to calculate given layer movement and remeshing.
+              An approximation is made by assuming a thermal regime ressembling a trumpet curve and using linear interpolation"""
+    
+    # Obtain approximate temperatures from interpolation depths (domain base and depth of zero annual amplitude) 
+    Tz1 = T[np.abs(z - z_zaa).argmin()]
+    Tz2 = T[-1] 
+    
+    # Calculate linear temperature profile model constants
+    m = (Tz2 - Tz1) / (z[-1] - z_zaa)
+    q = Tz1 - (m * z_zaa)
+    
+    # Calculate approximate annual average temperature from linear gradient interpolation
+    T_AVG = z * m + q
+    
+    # Layer density change:
+    drho = mask * dt * C * b * g * (ice_density - rho) * np.exp((-Ec / (R * T)) + (Eg / (R * T_AVG)))
+
+    # Calculate change in volumetric ice fraction & liquid water content:
+    dtheta_i = np.where(theta_water == 0, drho / ice_density , drho / 2 * ice_density)
+    dtheta_w = np.where(theta_water == 0, 0 , drho / 2 * water_density)    
+
+    # Set updated volumetric ice fraction & liquid water content:
+    GRID.set_ice_fraction(dtheta_i + theta_ice)
+    GRID.set_liquid_water_content(dtheta_w + theta_water)
+
+    # Set updated layer height due to compaction:
+    GRID.set_height(np.maximum(minimum_snow_layer_height, h * (rho / (rho + drho))))
 
 
 def method_empirical(GRID,SLOPE,dt):
