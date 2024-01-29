@@ -6,7 +6,7 @@ from numba import njit
 def percolation(GRID, water: float, dt: int) -> float:
     """Percolate melt water through the snow- and firn pack.
 
-    Bucket method.
+    Bucket method (Bartelt & Lehning, 2002).
 
     Args:
         GRID: Glacier data mesh.
