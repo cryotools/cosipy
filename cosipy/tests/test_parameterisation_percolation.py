@@ -101,26 +101,21 @@ class TestParamPercolation:
 
     def percolate_layer(self, grid: Grid, idx: int) -> Grid:
         residual, theta_e, theta_w = self.get_layer_runoff(grid=grid, idx=idx)
-        if residual > 0:
-            grid.set_node_liquid_water_content(idx, theta_e)
+        if residual > 0.0:
+            grid.set_node_liquid_water_content(idx, theta_w - residual)
+            residual = residual * grid.get_node_height(idx)
             grid.set_node_liquid_water_content(
                 idx + 1,
                 grid.get_node_liquid_water_content(idx + 1)
                 + residual / grid.get_node_height(idx + 1),
             )
-        else:
-            # edge case where irreducible water content is greater, e.g. when
-            # liquid water content was set to zero.
-            grid.set_node_liquid_water_content(
-                idx, np.maximum(theta_e, theta_w)
-            )
-            # grid.set_node_liquid_water_content(idx, theta_e)
 
         return grid
 
     @pytest.mark.parametrize("arg_idx", [0, 1, -2])
     @pytest.mark.parametrize(
-        "arg_distribution", ["zero", "random", "static", "decreasing"]
+        "arg_distribution",
+        ["zero", "random", "static", "decreasing", "increasing"],
     )
     def test_percolate_layer(
         self,
@@ -143,73 +138,68 @@ class TestParamPercolation:
                 GRID.set_node_liquid_water_content(idx, 0.1)
         elif arg_distribution == "decreasing":
             for idx in range(0, GRID.number_nodes - 1):
-                GRID.set_node_liquid_water_content(
-                    idx, 0.01 * GRID.number_nodes
-                )
+                GRID.set_node_liquid_water_content(idx, 1 - (0.01 * idx))
+        elif arg_distribution == "increasing":
+            for idx in range(0, GRID.number_nodes - 1):
+                GRID.set_node_liquid_water_content(idx, 0.01 * idx)
         else:
             pass
+        assert all(i >= 0.0 for i in GRID.get_liquid_water_content())
+        assert GRID.get_node_liquid_water_content(arg_idx) >= 0.0
 
         start_theta_e = GRID.get_node_irreducible_water_content(arg_idx)
-
         start_theta_w = GRID.get_node_liquid_water_content(arg_idx)
         start_theta_e_next = GRID.get_node_irreducible_water_content(
             arg_idx + 1
         )
         start_theta_w_next = GRID.get_node_liquid_water_content(arg_idx + 1)
         start_residual = np.maximum((start_theta_w - start_theta_e), 0.0)
+        start_height = GRID.get_node_height(arg_idx)
         height_next = GRID.get_node_height(arg_idx + 1)
         predict_theta_w_next = start_theta_w_next + (
-            start_residual / height_next
+            (start_residual * start_height) / height_next
         )
 
         GRID = self.percolate_layer(grid=GRID, idx=arg_idx)
+
+        assert all(i >= 0.0 for i in GRID.get_liquid_water_content())
+        assert GRID.get_node_liquid_water_content(arg_idx) >= 0.0
 
         new_theta_e = GRID.get_node_irreducible_water_content(arg_idx)
         new_theta_w = GRID.get_node_liquid_water_content(arg_idx)
         new_theta_e_next = GRID.get_node_irreducible_water_content(arg_idx + 1)
         new_theta_w_next = GRID.get_node_liquid_water_content(arg_idx + 1)
-
-        assert np.isclose(new_theta_w, start_theta_e)
+        assert new_theta_w >= 0.0
+        assert np.isclose(new_theta_w, start_theta_w - start_residual)
         assert np.isclose(new_theta_e, start_theta_e)
         assert np.isclose(new_theta_e_next, start_theta_e_next)
         assert np.isclose(new_theta_w_next, predict_theta_w_next)
 
-    # def test_percolation_percolate_single_layer(self,conftest_mock_grid):
-
     @pytest.mark.parametrize("arg_melt", [0.0, 0.5, 1.0])
     @pytest.mark.parametrize("arg_lwc", [0.0, 0.1, 0.5])
-    def test_percolation(self, capsys, conftest_mock_grid, arg_lwc, arg_melt):
+    def test_percolation(self, conftest_mock_grid, arg_lwc, arg_melt):
         GRID = conftest_mock_grid
+        heights = GRID.get_height()
         lwc_array = np.full(GRID.number_nodes, arg_lwc)
         GRID.set_liquid_water_content(lwc_array)
         np.testing.assert_allclose(GRID.get_liquid_water_content(), lwc_array)
 
-        initial_lwc = np.nansum(
-            GRID.get_liquid_water_content()
-        ) + arg_melt/GRID.get_node_height(0)
+        initial_mwe = (
+            np.nansum(np.array(GRID.get_liquid_water_content()) * heights)
+            + arg_melt
+        )
 
         runoff = percolation(GRID, arg_melt, self.timedelta)
-        captured = capsys.readouterr()  # numba doesn't support warnings
-        final_lwc = np.nansum(GRID.get_liquid_water_content())
-        final_mwe = runoff + final_lwc
 
+        final_mwe = (
+            np.nansum(np.array(GRID.get_liquid_water_content()) * heights)
+            + runoff
+        )
+
+        assert all(i >= 0.0 for i in GRID.get_liquid_water_content())
         # all liquid water exits last node
         last_node_lwc = GRID.grid[-1].liquid_water_content
         assert last_node_lwc == 0.0
 
-        # Bug? Total water is greater than the initially available water
-        # assert np.isclose(self.melt_water, total_water)
-        assert np.isclose(final_mwe - runoff, final_lwc)
-        assert runoff <= initial_lwc
-        # assert np.isclose(
-        #     final_mwe, self.melt_water + (1 - runoff) * (GRID.number_nodes - 1)
-        # )
-        # assert np.isclose(final_lwc, GRID.number_nodes * (1 - runoff))
-        
-        # error_prefix = "\nWARNING: When percolating, the initial LWC is not equal to final LWC"
-        # timestep = GRID.old_snow_timestamp/self.timedelta
-
-        assert np.isclose(initial_lwc, final_lwc)
-        # assert np.isclose(initial_mwe, final_mwe)
-        # if LWCs are equal, captured.out is an empty string
-        assert captured.out == ""
+        assert runoff <= initial_mwe
+        assert np.isclose(initial_mwe, final_mwe)

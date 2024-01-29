@@ -209,7 +209,7 @@ class TestNodeGetter:
             test_thermal_diffusivity,
         )
 
-    @pytest.mark.parametrize("arg_ice_fraction", [0.1, 0.9])
+    @pytest.mark.parametrize("arg_ice_fraction", [0.1, 0.7, 0.9])
     def test_node_get_layer_irreducible_water_content(
         self, conftest_boilerplate, arg_ice_fraction
     ):

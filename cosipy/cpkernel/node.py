@@ -162,13 +162,15 @@ class Node:
 
         Returns
         -------
-        ret : float
+        theta_e : float
             Irreducible water content [-].
         """
-        if self.get_layer_ice_fraction() <= 0.23:
-            theta_e = 0.0264 + 0.0099*((1-self.get_layer_ice_fraction())/self.get_layer_ice_fraction())
-        elif (self.get_layer_ice_fraction() > 0.23) & (self.get_layer_ice_fraction() <= 0.812):
-            theta_e = 0.08 - 0.1023*(self.get_layer_ice_fraction()-0.03)
+
+        ice_fraction = self.get_layer_ice_fraction()
+        if ice_fraction <= 0.23:
+            theta_e = 0.0264 + 0.0099 * ((1 - ice_fraction) / ice_fraction)
+        elif (ice_fraction > 0.23) & (ice_fraction <= 0.812):
+            theta_e = 0.08 - 0.1023 * (ice_fraction - 0.03)
         else:
             theta_e = 0.0
         return theta_e
