@@ -120,30 +120,16 @@ class TestParamPercolation:
     def test_percolate_layer(
         self,
         conftest_mock_grid,
-        conftest_rng_seed,
+        conftest_boilerplate,
         arg_idx,
         arg_distribution,
     ):
         """Tests percolation between two layers."""
         GRID = conftest_mock_grid
 
-        if arg_distribution == "random":
-            rng = conftest_rng_seed
-            for idx in range(0, GRID.number_nodes - 1):
-                GRID.set_node_liquid_water_content(
-                    idx, rng.uniform(low=0.01, high=0.05)
-                )
-        elif arg_distribution == "static":
-            for idx in range(0, GRID.number_nodes - 1):
-                GRID.set_node_liquid_water_content(idx, 0.1)
-        elif arg_distribution == "decreasing":
-            for idx in range(0, GRID.number_nodes - 1):
-                GRID.set_node_liquid_water_content(idx, 1 - (0.01 * idx))
-        elif arg_distribution == "increasing":
-            for idx in range(0, GRID.number_nodes - 1):
-                GRID.set_node_liquid_water_content(idx, 0.01 * idx)
-        else:
-            pass
+        GRID = conftest_boilerplate.regenerate_grid_values(
+            grid=GRID, distribution=arg_distribution
+        )
         assert all(i >= 0.0 for i in GRID.get_liquid_water_content())
         assert GRID.get_node_liquid_water_content(arg_idx) >= 0.0
 
