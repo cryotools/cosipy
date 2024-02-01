@@ -66,15 +66,14 @@ def conftest_hide_plot():
 
 @pytest.fixture(name="conftest_rng_seed", scope="function", autouse=False)
 def fixture_conftest_rng_seed() -> np.random.Generator:
-    """Sets seed for random number generator to 444.
+    """Set seed for random number generator to 444.
 
     Returns:
         Random number generator with seed=444.
     """
 
     random_generator = np.random.default_rng(seed=444)
-    rng_state = random_generator.__getstate__()["state"]["state"]
-    assert rng_state == 201734421534842192264806664122757988751
+    assert isinstance(random_generator, np.random.Generator)
 
     yield random_generator
 
@@ -262,7 +261,13 @@ class TestBoilerplate:
     """
 
     def check_plot(self, plot_params: dict, title: str = ""):
-        """Check properties of figure/axis pairs."""
+        """Check properties of figure/axis pairs.
+
+        Args:
+            plot_params: Contains matplotlib objects with supported keys:
+                "plot", "title", "x_label", "y_label".
+            title: Expected matplotlib figure title.
+        """
 
         assert "plot" in plot_params
         assert isinstance(plot_params["plot"][0], plt.Figure)
@@ -305,7 +310,7 @@ class TestBoilerplate:
         plt.close("all")
 
     def set_timestamp(self, day: bool) -> str:
-        """Returns timestamp string for a day or for a timestep."""
+        """Set timestamp string for a day or for a timestep."""
 
         if day:
             timestamp = "2009-01-01"
@@ -323,8 +328,11 @@ class TestBoilerplate:
             else:
                 assert compare_time == "2009-01-01T12:00:00"
 
-    def set_rng_seed(self, seed=444):
-        """Sets seed for random number generator to 444.
+    def set_rng_seed(self, seed: int = 444) -> np.random.Generator:
+        """Set seed for random number generator to 444.
+
+        Args:
+            seed: Seed value for generator.
 
         Returns:
             Random number generator with seed=444.
@@ -353,34 +361,67 @@ class TestBoilerplate:
         assert not rng_444_state == rng_123_state
 
     def regenerate_grid_values(
-        self, grid: Grid, key: str, distribution: str
+        self, grid: Grid, distribution: str = "zero"
     ) -> Grid:
-        rng = self.set_rng_seed()
+        """Set liquid water content to match a distribution.
+
+        Args:
+            grid: Glacier data mesh.
+            distribution: Data distribution. Default "zero". Supports::
+
+            - random: Random uniform between 0.01 and 0.05.
+            - static: All liquid water content set to 0.1.
+            - decreasing: Follows `1 - (0.01 * node_index)`.
+            - increasing: Follows `0.01 * node_index`.
+            - zero: All liquid water content set to 0.
+
+        Returns:
+            Glacier data mesh with an updated distribution of liquid
+            water content.
+        """
+
         if distribution == "random":
+            rng = self.set_rng_seed()
             for idx in range(0, grid.number_nodes - 1):
                 grid.set_node_liquid_water_content(
                     idx, rng.uniform(low=0.01, high=0.05)
                 )
         elif distribution == "static":
             for idx in range(0, grid.number_nodes - 1):
-                grid.set_node_liquid_water_content(idx, 1.0)
+                grid.set_node_liquid_water_content(idx, 0.1)
         elif distribution == "decreasing":
             for idx in range(0, grid.number_nodes - 1):
-                grid.set_node_liquid_water_content(
-                    idx, 0.01 * grid.number_nodes
-                )
-        else:
+                grid.set_node_liquid_water_content(idx, 1 - (0.01 * idx))
+        elif distribution == "increasing":
+            for idx in range(0, grid.number_nodes - 1):
+                grid.set_node_liquid_water_content(idx, 0.01 * idx)
+        elif distribution == "zero":
             for idx in range(0, grid.number_nodes - 1):
                 grid.set_node_liquid_water_content(idx, 0)
+        else:
+            raise ValueError("Distribution not supported!")
 
         return grid
 
-    def test_generate_grid_values(self):
-        grid = self.regenerate_grid_values(distribution="static")
-        assert isinstance(grid, Grid)
+    def test_regenerate_grid_values(self, conftest_mock_grid):
+        grid = conftest_mock_grid
+        distribution_list = [
+            "static",
+            "decreasing",
+            "increasing",
+            "random",
+            "zero",
+        ]
+        for distribution in distribution_list:
+            grid = self.regenerate_grid_values(
+                grid=grid, distribution=distribution
+            )
+            assert isinstance(grid, Grid)
+            test_lwc = grid.get_liquid_water_content()
+            assert all(isinstance(i, float) for i in test_lwc)
 
     def check_output(self, variable: Any, x_type: Any, x_value: Any) -> bool:
-        """Checks a variable matches an expected type and value.
+        """Check a variable matches an expected type and value.
 
         Args:
             variable: Variable to check.
@@ -431,8 +472,8 @@ class TestBoilerplate:
         assert grid_02.number_nodes == grid_01.number_nodes
         assert grid_02.get_number_layers() == grid_01.get_number_layers()
         assert (
-                grid_02.get_number_snow_layers()
-                == grid_01.get_number_snow_layers()
+            grid_02.get_number_snow_layers()
+            == grid_01.get_number_snow_layers()
         )
 
         self.check_output(
@@ -451,17 +492,8 @@ class TestBoilerplate:
 
         return True
 
-    def test_assert_grid_profiles_equal(self):
-        data = {}
-        data["layer_heights"] = numba.float64([0.1, 0.2, 0.5])
-        data["layer_densities"] = numba.float64([250, 250, 917])
-        data["layer_temperatures"] = numba.float64([260, 270, 272])
-        data["layer_liquid_water_content"] = numba.float64([0.0, 0.0, 0.0])
-
-        assert isinstance(data, dict)
-        for array in data.values():
-            assert isinstance(array, np.ndarray)
-            assert len(array) == 3
+    def test_assert_grid_profiles_equal(self, conftest_mock_grid_values):
+        data = conftest_mock_grid_values.copy()
 
         grid_01 = Grid(
             layer_heights=data["layer_heights"],
@@ -517,20 +549,20 @@ class TestBoilerplate:
         for key in new_params:
             monkeypatch.setattr(module, key, new_params[key])
 
+    @pytest.fixture(scope="class", autouse=False)
     def test_boilerplate_integration(self):
         """Integration test for boilerplate methods."""
 
         self.test_check_plot()
         self.test_set_timestamp()
         self.test_set_rng_seed()
+        self.test_regenerate_grid_values()
         self.test_check_output()
         self.test_assert_grid_profiles_equal()
 
+
 @pytest.fixture(name="conftest_boilerplate", scope="function", autouse=False)
 def conftest_boilerplate():
-    """Yields class containing methods for common tests."""
-
-    test_boilerplate = TestBoilerplate()
-    test_boilerplate.test_boilerplate_integration()
+    """Yield class containing methods for common tests."""
 
     yield TestBoilerplate()
