@@ -35,7 +35,7 @@ def refreezing(GRID):
                 dtheta_w = theta_r - GRID.get_node_liquid_water_content(idxNode)
 
             dtheta_i = (water_density/ice_density) * -dtheta_w
-            dT       = dtheta_i / A
+            dT       = dtheta_i / (A * GRID.get_node_ice_fraction(idxNode))
             GRID.set_node_temperature(idxNode, GRID.get_node_temperature(idxNode)+dT)
 
             if ((GRID.get_node_ice_fraction(idxNode)+dtheta_i+theta_r) >= 1.0):
