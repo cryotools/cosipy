@@ -16,8 +16,10 @@ densification_method = 'Boone'                  # possibilities: 'Boone','empiri
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
 roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
-thermal_conductivity_method = 'bulk'		# possibilities: 'bulk', 'empirical'
-sfc_temperature_method = 'SLSQP'                # possibilities: 'L-BFGS-B', 'SLSQP'(faster), 'Newton' (Secant, fastest)'
+thermal_conductivity_method = 'bulk'		    # possibilities: 'bulk', 'empirical'
+sfc_temperature_method = 'Newton'               # please use 'Newton' (Secant, fastest); the other options 'L-BFGS-B' and 'SLSQP'(faster) 
+                                                # lead to different results since the update in February 2024 and to a very long runtime; 
+                                                # problem with L-BFGS-B and SLSQP should be solved
 
 # WRF_X_CSPY: for efficiency and consistency
 if WRF_X_CSPY:
