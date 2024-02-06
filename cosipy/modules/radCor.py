@@ -1,7 +1,9 @@
 import math
-import numpy as np
+
 import metpy.calc
+import numpy as np
 from metpy.units import units
+
 
 # The following functions are needed for the radiation method Wohlfahrt 2016
 def solarFParallel(lat, lon, timezone_lon, day, hour):
@@ -13,7 +15,7 @@ def solarFParallel(lat, lon, timezone_lon, day, hour):
         lon             ::  longitude (decimal degree)
         timezone_lon    ::  longitude of standard meridian (decimal degree)
         doy             ::  day of the year (1-366)
-        hour            ::  hour of the day (decimal, e.g. 12:30 = 12.5
+        hour            ::  hour of the day (decimal, e.g. 12:30 = 12.5)
         
     Outputs:
         
@@ -161,7 +163,7 @@ def solpars(lat):
     """
 
     timecorr = np.zeros((366, 4))
-    solpars = np.zeros((366, 7))
+    solparam = np.zeros((366, 7))
 
     for j in np.arange(0, 365):
         # Time correction
@@ -175,19 +177,19 @@ def solpars(lat):
 
         # Solar parameters
         tau = 2 * math.pi * (j) / 365
-        solpars[j, 0] = tau
-        solpars[j, 1] = tau * 180 / math.pi
-        solpars[j, 2] = 1.00011 + 0.034221 * math.cos(tau) + 0.00128 * math.sin(tau) + 0.000719 * math.cos(2*tau) + 0.000077 * math.sin(2 * tau)
-        solpars[j, 3] = 0.006918 - 0.399912 * math.cos(tau) + 0.070257 * math.sin(tau) - 0.006758 * math.cos(2*tau) + 0.000907 * math.sin(2 * tau) - 0.002697 * math.cos(3 * tau) + 0.00148 * math.sin(3 * tau)
-        solpars[j, 4] = solpars[j, 3] * 180 / math.pi
-        solpars[j, 5] = math.acos(-math.tan(lat * math.pi / 180) * math.tan(solpars[j, 3])) * 180 / math.pi
-        solpars[j, 6] = 2 / 15 * solpars[j, 5]
+        solparam[j, 0] = tau
+        solparam[j, 1] = tau * 180 / math.pi
+        solparam[j, 2] = 1.00011 + 0.034221 * math.cos(tau) + 0.00128 * math.sin(tau) + 0.000719 * math.cos(2*tau) + 0.000077 * math.sin(2 * tau)
+        solparam[j, 3] = 0.006918 - 0.399912 * math.cos(tau) + 0.070257 * math.sin(tau) - 0.006758 * math.cos(2*tau) + 0.000907 * math.sin(2 * tau) - 0.002697 * math.cos(3 * tau) + 0.00148 * math.sin(3 * tau)
+        solparam[j, 4] = solparam[j, 3] * 180 / math.pi
+        solparam[j, 5] = math.acos(-math.tan(lat * math.pi / 180) * math.tan(solparam[j, 3])) * 180 / math.pi
+        solparam[j, 6] = 2 / 15 * solparam[j, 5]
 
     # Duplicate line 365 for years with 366 days
-    solpars[365, :] = solpars[364, :]
+    solparam[365, :] = solparam[364, :]
     timecorr[365, :] = timecorr[364, :]
 
-    return solpars, timecorr
+    return solparam, timecorr
 
 
 def haversine(lat1, lon1, lat2, lon2):
@@ -262,7 +264,7 @@ def relshad(dem, mask, lats, lons, solh, sdirfn):
                 x_list = np.round(np.linspace(idx[0], idx[1], len(lon_list_short)))
 
                 # Calculate ALTITUDE along profile
-                zi = z[y_list.astype(np.int), x_list.astype(np.int)]
+                zi = z[y_list.astype(int), x_list.astype(int)]
 
                 # Calclulate DISTANCE along profile
                 d_list = []
@@ -292,7 +294,7 @@ def LUTshad(solpars, timecorr, lat, elvgrid, maskgrid, lats, lons, STEP, TCART):
            timecorr:  Time correction due to orbital forcing
            lat:       Latitude at AWS
            elvgrid:   DEM
-           maksgrid:  Glacier mask
+           maskgrid:  Glacier mask
            lats:      Latitudes
            lons:      Longitudes
            STEP:      Time step (s)
@@ -394,7 +396,7 @@ def calcRad(solPars, timecorr, doy, hour, lat, tempgrid, pgrid, rhgrid, cldgrid,
            rhgrid:    Relative Humidity
            cldgrid:   Cloud fraction
            elvgrid:   DEM
-           maksgrid:  Glacier mask
+           maskgrid:  Glacier mask
            slopegrid: Slope
            aspectgrid:Aspect
            shad1yr:   LUT topographic shading
@@ -447,8 +449,10 @@ def calcRad(solPars, timecorr, doy, hour, lat, tempgrid, pgrid, rhgrid, cldgrid,
         k_aes[k_aes > 1.0] = 1.0  # Aerosol factor: cannot be > 1
         TAUa = k_aes ** (mopt)
         TAUaa = 1.0 - (1.0 - alphss) * (1 - pgrid / 1013.25 * mopt + (pgrid / 1013.25 * mopt) ** (1.06)) * (1.0 - TAUa)
-        TAUw = 1.0 - 2.4959 * mopt * (46.5 * vp_interp / tempgrid) / ((1.0 + 79.034 * mopt * (46.5 * vp_interp / tempgrid)) **
-                                                                      0.6828 + 6.385 * mopt * (46.5 * vp_interp / tempgrid))
+        TAUw = 1.0 - 2.4959 * mopt * (46.5 * vp_interp / tempgrid) / (
+            (1.0 + 79.034 * mopt * (46.5 * vp_interp / tempgrid)) ** 0.6828
+            + 6.385 * mopt * (46.5 * vp_interp / tempgrid)
+        )
         taucs = TAUr * TAUg * TAUa * TAUw
 
         sdir = Sol0 * eccorr * sin_h * taucs  # Direct solar radiation on horizontal surface, clear-sky
@@ -457,27 +461,54 @@ def calcRad(solPars, timecorr, doy, hour, lat, tempgrid, pgrid, rhgrid, cldgrid,
         grcs = sdir + Dcs  # Potential clear-sky global radiation
 
         # Correction for slope and aspect (Iqbal 1983)
-        cos_zetap1 = (np.cos(np.radians(slopegrid)) * np.sin(np.radians(lat)) - np.cos(np.radians(lat)) * np.cos(np.radians(180 - aspectgrid)) *
-                      np.sin(np.radians(slopegrid))) * np.sin(soldec)
-        cos_zetap2 = (np.sin(np.radians(lat)) * np.cos(np.radians(180 - aspectgrid)) * np.sin(np.radians(slopegrid)) +
-                      np.cos(np.radians(slopegrid)) * np.cos(math.radians(lat))) * np.cos(soldec) * np.cos(stime * np.pi / 180)
-        cos_zetap3 = np.sin(np.radians(180 - aspectgrid)) * np.sin(np.radians(slopegrid)) * np.cos(soldec) * np.sin(stime * np.pi / 180)
+        slopegrid_rad = np.radians(slopegrid)  # avoid recalculating
+        cos_slopegrid = np.cos(slopegrid_rad)
+        sin_slopegrid = np.sin(slopegrid_rad)
+        rot_aspectgrid = np.radians(180 - aspectgrid)
+        lat_rad = np.radians(lat)
+        cos_zetap1 = (
+            cos_slopegrid * np.sin(lat_rad)
+            - np.cos(lat_rad) * np.cos(rot_aspectgrid) * sin_slopegrid
+        ) * np.sin(soldec)
+        cos_zetap2 = (
+            (
+                np.sin(lat_rad)
+                * np.cos(rot_aspectgrid)
+                * sin_slopegrid
+                + cos_slopegrid * np.cos(math.radians(lat))
+            )
+            * np.cos(soldec)
+            * np.cos(stime * np.pi / 180)
+        )
+        cos_zetap3 = (
+            np.sin(rot_aspectgrid)
+            * sin_slopegrid
+            * np.cos(soldec)
+            * np.sin(stime * np.pi / 180)
+        )
         cos_zetap = cos_zetap1 + cos_zetap2 + cos_zetap3
 
         # Clear-sky direct solar radiation at surface (aspect & slope corrected)
         swidir0 = Sol0 * eccorr * cos_zetap * taucs
         swidir0[cos_zetap < 0.0] = 0.0  # self-shaded cells set to 0
-        illu = elvgrid * 0.0
-        illu = shad1yr[np.int(((doy - 1) * (86400 / STEP)) + (hour / (STEP / 3600))), :, :]
+        # illu = elvgrid * 0.0
+        illu = shad1yr[int(((doy - 1) * (86400 / STEP)) + (hour / (STEP / 3600))), :, :]
         swidir0[illu == 0.0] = 0.0
         sdir[illu == 0.0] = 0.0
 
         # Correction for cloud fraction
-        swidiff[cldgrid > 0.0] = grcs[cldgrid > 0.0] * (((100 - Cf * 100) - dif1) / 100 * cldgrid[cldgrid > 0.0] +
-                                    (dif1 / 100)) * gridsvf[cldgrid > 0.0]  # diffuse amount as percentage of direct rad.
+        swidiff[cldgrid > 0.0] = (
+            grcs[cldgrid > 0.0]
+            * (
+                ((100 - Cf * 100) - dif1) / 100 * cldgrid[cldgrid > 0.0]
+                + (dif1 / 100)
+            )
+            * gridsvf[cldgrid > 0.0]
+        )  # diffuse amount as percentage of direct rad.
         swidiff[cldgrid == 0.0] = Dcs[cldgrid == 0.0] * gridsvf[cldgrid == 0.0]
-        swiasky[:, :] = swidir0 * (1 - (1 - dirovc) * cldgrid) + swidiff  # all-sky solar radiation at surface
-
+        # all-sky solar radiation at surface
+        swiasky[:, :] = swidir0 * (1 - (1 - dirovc) * cldgrid) + swidiff
+        
     else:
         TOAR = 0.0
         swiasky[maskgrid == 1] = 0 * elvgrid[maskgrid == 1]

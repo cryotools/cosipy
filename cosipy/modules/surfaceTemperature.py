@@ -14,9 +14,9 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLO
 
         GRID    ::  Grid structure
         T0      ::  Surface temperature [K]
-	    dt      ::  Integration time [s] -- can vary in WRF_X_CSPY
+        dt      ::  Integration time [s] -- can vary in WRF_X_CSPY
         alpha   ::  Albedo [-]
-	    z       ::  Measurement height [m] -- varies in WRF_X_CSPY
+        z       ::  Measurement height [m] -- varies in WRF_X_CSPY
         z0      ::  Roughness length [m]
         T2      ::  Air temperature [K]
         rH2     ::  Relative humidity [%]
@@ -39,7 +39,7 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLO
         SWnet   ::  Shortwave radiation budget [W m^-2]
         rho     ::  Air density [kg m^-3]
         Lv      ::  Latent heat of vaporization [J kg^-1]
-	    MOL     ::  Monin-Obukhov length
+        MOL     ::  Monin-Obukhov length
         Cs_t    ::  Stanton number [-]
         Cs_q    ::  Dalton number [-]
         q0      ::  Mixing ratio at the surface [kg kg^-1]
@@ -58,7 +58,7 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLO
         res = minimize(eb_optim, GRID.get_node_temperature(0), method=sfc_temperature_method,
                        bounds=((lower_bnd_ts, zero_temperature),),tol=1e-2,
                        args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, B_Ts, LWin, N))
-		       
+
     elif sfc_temperature_method == 'Newton':
         try:
             res = newton(eb_optim, np.array([GRID.get_node_temperature(0)]), tol=1e-2, maxiter=50,
@@ -66,10 +66,10 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLO
             if res < lower_bnd_ts:
                 raise ValueError("TS Solution is out of bounds")
             res = SimpleNamespace(**{'x':min(np.array([zero_temperature]),res),'fun':None})
-	    
+
         except (RuntimeError,ValueError):
-             #Workaround for non-convergence and unboundedness
-             res = minimize(eb_optim, GRID.get_node_temperature(0), method='SLSQP',
+            #Workaround for non-convergence and unboundedness
+            res = minimize(eb_optim, GRID.get_node_temperature(0), method='SLSQP',
                        bounds=((lower_bnd_ts, zero_temperature),),tol=1e-2,
                        args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, B_Ts, LWin, N))
     else:
@@ -91,39 +91,48 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLO
 
 
 @njit
-def interp_subT(GRID):
-    ''' Interpolate subsurface temperature to depths used for ground heat flux computation'''
+def get_subsurface_temperature(GRID, cumulative_depth: np.ndarray, zlt: float):
+    """Get subsurface temperature.
+
+    Args:
+        GRID (Grid): Gridded data instance.
+        cumulative_depth: Cumulative glacier layer heights [m].
+        zlt: Interpolation depth [m].
+
+    Returns:
+        float: Subsurface temperature at the interpolation depth.
+    """
+
+    # Find indexes of two depths for temperature interpolation
+    idx1_depth = np.abs(cumulative_depth - zlt).argmin()
+    depth = cumulative_depth.flat[idx1_depth]
+
+    if depth > zlt:
+        idx2_depth = idx1_depth - 1
+    else:
+        idx2_depth = idx1_depth + 1
+
+    temperature_idx1 = GRID.get_node_temperature(idx1_depth)
+    t_z = temperature_idx1 + (
+        (temperature_idx1 - GRID.get_node_temperature(idx2_depth))
+        / (cumulative_depth[idx1_depth] - cumulative_depth[idx2_depth])
+    ) * (zlt - cumulative_depth[idx1_depth])
+
+    return t_z
+
+
+@njit
+def interp_subT(GRID) -> np.ndarray:
+    """Interpolate subsurface temperature to depths used for ground heat flux."""
     
     # Cumulative layer depths
     layer_heights_cum = np.cumsum(np.array(GRID.get_height()))
 
-    # Find indexes of two depths for temperature interpolation
-    idx1_depth_1 = np.abs(layer_heights_cum - zlt1).argmin()
-    depth_1 = layer_heights_cum.flat[np.abs(layer_heights_cum - zlt1).argmin()]
+    t_z1 = get_subsurface_temperature(GRID, layer_heights_cum, zlt1)
+    t_z2 = get_subsurface_temperature(GRID, layer_heights_cum, zlt2)
 
-    if depth_1 > zlt1:
-        idx2_depth_1 = idx1_depth_1 - 1
-    else:
-        idx2_depth_1 = idx1_depth_1 + 1
-    Tz1 = GRID.get_node_temperature(idx1_depth_1) + \
-		((GRID.get_node_temperature(idx1_depth_1) - GRID.get_node_temperature(idx2_depth_1)) / \
-            	(layer_heights_cum[idx1_depth_1] - layer_heights_cum[idx2_depth_1])) * \
-		(zlt1 - layer_heights_cum[idx1_depth_1])
+    return np.array([t_z1, t_z2])
 
-    idx1_depth_2 = np.abs(layer_heights_cum - zlt2).argmin()
-    depth_2 = layer_heights_cum.flat[np.abs(layer_heights_cum - zlt2).argmin()]
-
-    if depth_2 > zlt2:
-        idx2_depth_2 = idx1_depth_2 - 1
-    else:
-        idx2_depth_2 = idx1_depth_2 + 1
-
-    Tz2 = GRID.get_node_temperature(idx1_depth_2) + \
-		((GRID.get_node_temperature(idx1_depth_2) - GRID.get_node_temperature(idx2_depth_2)) / \
-        	(layer_heights_cum[idx1_depth_2] - layer_heights_cum[idx2_depth_2])) * \
-		(zlt2 - layer_heights_cum[idx1_depth_2])
-    return np.array([Tz1,Tz2])
-    
 
 @njit
 def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None, N=None):
@@ -134,16 +143,15 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
         GRID    ::  Grid structure
         T0      ::  Surface temperature [K]
         dt      ::  Integration time [s]
-        alpha   ::  Albedo [-]
-	z       ::  Measurement height [m]
+        z       ::  Measurement height [m]
         z0      ::  Roughness length [m]
         T2      ::  Air temperature [K]
         rH2     ::  Relative humidity [%]
         p       ::  Air pressure [hPa]
-        G       ::  Incoming shortwave radiation [W m^-2]
         u2      ::  Wind velocity [m S^-1]
         RAIN    ::  RAIN (mm)
         SLOPE   ::  Slope of the surface [degree]
+        B_Ts    ::  Subsurface temperatures at interpolation depths [K]
         LWin    ::  Incoming longwave radiation [W m^-2]
         N       ::  Fractional cloud cover [-]
 
@@ -158,7 +166,7 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
         SWnet   ::  Shortwave radiation budget [W m^-2]
         rho     ::  Air density [kg m^-3]
         Lv      ::  Latent heat of vaporization [J kg^-1]
-	MOL     ::  Monin Obhukov length
+        MOL     ::  Monin Obhukov length
         Cs_t    ::  Stanton number [-]
         Cs_q    ::  Dalton number [-]
         q0      ::  Mixing ratio at the surface [kg kg^-1]
@@ -209,6 +217,10 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
     z0q = z0/10     # Roughness length for moisture
     L = None
  
+    # Avoid recalculating
+    slope_radians = np.radians(SLOPE)
+    cos_slope_radians = np.cos(slope_radians)
+
     # Monin-Obukhov stability correction
     if stability_correction == 'MO':
         L = 0.0
@@ -223,19 +235,20 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
             ust = ustar(u2,z,z0,L)
         
             # Sensible heat flux for neutral conditions
+            delta_phi_tq = phi_tq(z, L) - phi_tq(z0, L)
             Cd = np.power(0.41,2.0) / np.power(np.log(z/z0) - phi_m(z,L) - phi_m(z0,L),2.0)
-            Cs_t = 0.41*np.sqrt(Cd) / (np.log(z/z0t) - phi_tq(z,L) - phi_tq(z0,L))
-            Cs_q = 0.41*np.sqrt(Cd) / (np.log(z/z0q) - phi_tq(z,L) - phi_tq(z0,L))
+            Cs_t = 0.41*np.sqrt(Cd) / (np.log(z/z0t) - delta_phi_tq)
+            Cs_q = 0.41*np.sqrt(Cd) / (np.log(z/z0q) - delta_phi_tq)
         
             # Surface heat flux
-            H = rho * spec_heat_air * Cs_t * u2 * (T2-T0) * np.cos(np.radians(SLOPE))
+            H = rho * spec_heat_air * Cs_t * u2 * (T2-T0) * cos_slope_radians
         
             # Latent heat flux
-            LE = rho * Lv * Cs_q * u2 * (q2-q0) *  np.cos(np.radians(SLOPE))
+            LE = rho * Lv * Cs_q * u2 * (q2-q0) * cos_slope_radians
         
             # Monin-Obukhov length
             L = MO(rho, ust, T2, H)
-	    
+
             # Heat flux differences between iterations
             diff = np.abs(H0-H)
            
@@ -260,19 +273,20 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
 
         # Stability correction
         phi = 1
-        if (Ri > 0.01) & (Ri <= 0.2):
+        if 0.01 < Ri <= 0.2:
             phi = np.power(1-5*Ri,2)
         elif Ri > 0.2:
             phi = 0
 
         # Sensible heat flux
-        H = rho * spec_heat_air * Cs_t * u2 * (T2-T0) * phi * np.cos(np.radians(SLOPE))
+        H = rho * spec_heat_air * Cs_t * u2 * (T2-T0) * phi * cos_slope_radians
         
         # Latent heat flux
-        LE = rho * Lv * Cs_q * u2 * (q2-q0) * phi * np.cos(np.radians(SLOPE))
+        LE = rho * Lv * Cs_q * u2 * (q2-q0) * phi * cos_slope_radians
 
     else:
-        raise ValueError("Stability correction",stability_correction,"is not supported")	#numba refuses to print str(list)
+        msg = f"Stability correction {stability_correction} is not supported."
+        raise ValueError(msg)
     
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(T0, 4.0)
@@ -295,33 +309,58 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
 
 
 @njit
-def phi_m(z,L):
-    """ Stability function for the momentum flux.
+def phi_m_stable(z: float, L: float) -> float:
+    """Get integrated stability function for stable conditions.
+
+    Args:
+        z: Height, [m].
+        L: Obukhov length, [m].
+
+    Returns:
+        Stability function for momentum under stable conditions.
     """
-    if (L>0):
-        if ((z/L)>0.0) & ((z/L)<=1.0):
-            return (-5*z/L)
-        elif ((z/L)>1.0):
-            return (1-5) * (1+np.log(z/L)) - (z/L) 
-    elif L<0:
-        x = np.power((1-16*z/L),0.25)
-        return 2*np.log((1+x)/2.0) + np.log((1+np.power(x,2.0))/2.0) - 2*np.arctan(x) + np.pi/2.0
+    zeta = z / L
+    if (zeta > 0.0) & (zeta <= 1.0):  # weak stability
+        return -5 * zeta
+    elif zeta > 1.0:  # strong stability
+        return (1 - 5) * (1 + np.log(zeta)) - zeta
     else:
         return 0.0
 
 
 @njit
-def phi_tq(z,L):
-    """ Stability function for the heat and moisture flux.
+def phi_m(z: float, L: float) -> float:
+    """Get integrated stability function for the momentum flux.
+
+    Args:
+        z: Height, [m].
+        L: Obukhov length, [m].
+
+    Returns:
+        Integrated stability function for the momentum flux.
     """
-    if (L>0):
-        if ((z/L)>0.0) & ((z/L)<=1.0):
-            return (-5*z/L)
-        elif ((z/L)>1.0):
-            return (1-5) * (1+np.log(z/L)) - (z/L) 
-    elif L<0:
-        x = np.power((1-19.3*z/L),0.25)
-        return 2*np.log((1+np.power(x,2.0))/2.0)
+    if L > 0:
+        return phi_m_stable(z, L)
+    elif L < 0:
+        x = np.power((1 - 16 * z / L), 0.25)
+        return (
+            2 * np.log((1 + x) / 2.0)
+            + np.log((1 + np.power(x, 2.0)) / 2.0)
+            - 2 * np.arctan(x)
+            + np.pi / 2.0
+        )
+    else:
+        return 0.0
+
+
+@njit
+def phi_tq(z: float, L: float) -> float:
+    """Stability function for the heat and moisture flux."""
+    if L > 0:
+        return phi_m_stable(z, L)
+    elif L < 0:
+        x = np.power((1 - 19.3 * z / L), 0.25)
+        return 2 * np.log((1 + np.power(x, 2.0)) / 2.0)
     else:
         return 0.0
 
@@ -371,4 +410,3 @@ def method_EW_Sonntag(T):
         # over ice
         Ew = 6.112 * np.exp((22.46*(T-273.16)) / ((T-0.55)))
     return Ew
-

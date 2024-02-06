@@ -2,17 +2,17 @@
  This file reads the input data (model forcing) and write the output to netcdf file
 """
 
+import configparser
 import os
 import sys
-import xarray as xr
-import pandas as pd
+
 import numpy as np
-import time
-from datetime import timedelta
-from cosipy.modules.radCor import correctRadiation
+import pandas as pd
+import xarray as xr
+
+from config import *
 from constants import *
-from config import * 
-import configparser
+
 
 class IOClass:
 
@@ -42,7 +42,7 @@ class IOClass:
     def create_data_file(self):
         """ Returns the DATA xarray dataset"""
     
-        if (restart==True):
+        if restart:
             print('--------------------------------------------------------------')
             print('\t RESTART FROM PREVIOUS STATE')
             print('-------------------------------------------------------------- \n')
@@ -168,7 +168,7 @@ class IOClass:
         
         # Define a auxiliary function to check the validity of the data
         def check(field, max, min):
-            '''Check the validity of the input data '''
+            """Check the validity of the input data."""
             if np.nanmax(field) > max or np.nanmin(field) < min:
                 print('Please check the input data, its seems they are out of range %s MAX: %.2f MIN: %.2f \n' % (str.capitalize(field.name), np.nanmax(field), np.nanmin(field)))
         # Check if data is within valid bounds
@@ -426,8 +426,8 @@ class IOClass:
                              local_MB, local_surfMB,local_Q,local_SNOWHEIGHT,local_TOTALHEIGHT,local_TS,local_ALBEDO, \
                              local_LAYERS,local_ME,local_intMB,local_EVAPORATION,local_SUBLIMATION,local_CONDENSATION, \
                              local_DEPOSITION,local_REFREEZE,local_subM,local_Z0,local_surfM,local_MOL,local_LAYER_HEIGHT, \
-			     local_LAYER_RHO,local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY, \
-			     local_LAYER_ICE_FRACTION,local_LAYER_IRREDUCIBLE_WATER,local_LAYER_REFREEZE):
+                             local_LAYER_RHO,local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY, \
+                             local_LAYER_ICE_FRACTION,local_LAYER_IRREDUCIBLE_WATER,local_LAYER_REFREEZE):
 
         if ('RAIN' in self.atm):
             self.RAIN[:,y,x] = local_RAIN
@@ -564,7 +564,7 @@ class IOClass:
             self.add_variable_along_latlontime(self.RESULT, self.surfM, 'surfM', 'm w.e.', 'Surface melt') 
         if ('MOL' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.MOL, 'MOL', '', 'Monin Obukhov length') 
-	            
+
         if full_field:
             if ('HEIGHT' in self.full):
                 self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Layer height') 
@@ -585,6 +585,19 @@ class IOClass:
             if ('REFREEZE' in self.full):
                 self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_REFREEZE, 'LAYER_REFREEZE', 'm w.e.', 'Refreezing') 
 
+    def create_empty_restart(self) -> xr.Dataset:
+        """Create an empty dataset for the RESTART attribute.
+
+        Returns:
+            Empty xarray dataset with coordinates from self.DATA.
+        """
+        dataset = xr.Dataset()
+        dataset.coords['time'] = self.DATA.coords['time'][-1]
+        dataset.coords['lat'] = self.DATA.coords['lat']
+        dataset.coords['lon'] = self.DATA.coords['lon']
+        dataset.coords['layer'] = np.arange(max_layers)
+
+        return dataset
 
     #----------------------------------------------
     # Initializes the restart xarray dataset
@@ -596,13 +609,9 @@ class IOClass:
             
             self.RESTART  ::  xarray structure"""
         
-        self.RESTART = xr.Dataset()
-        self.RESTART.coords['time'] = self.DATA.coords['time'][-1]
-        self.RESTART.coords['lat'] = self.DATA.coords['lat']
-        self.RESTART.coords['lon'] = self.DATA.coords['lon']
-        self.RESTART.coords['layer'] = np.arange(max_layers)
+        self.RESTART = self.create_empty_restart()
     
-        print('Restart ddataset ... ok \n')
+        print('Restart dataset ... ok \n')
         print('--------------------------------------------------------------\n')
         
         return self.RESTART
@@ -638,11 +647,7 @@ class IOClass:
             
             self.RESTART  ::  one-dimensional self.RESULT structure"""
     
-        self.RESTART = xr.Dataset()
-        self.RESTART.coords['time'] = self.DATA.coords['time'][-1]
-        self.RESTART.coords['lat'] = self.DATA.coords['lat']
-        self.RESTART.coords['lon'] = self.DATA.coords['lon']
-        self.RESTART.coords['layer'] = np.arange(max_layers)
+        self.RESTART = self.create_empty_restart()
         
         self.add_variable_along_scalar(self.RESTART, np.full((1), np.nan), 'NLAYERS', '-', 'Number of layers')
         self.add_variable_along_scalar(self.RESTART, np.full((1), np.nan), 'NEWSNOWHEIGHT', 'm .w.e', 'New snow height')

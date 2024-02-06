@@ -22,31 +22,30 @@
     Correspondence: tobias.sauter@fau.de
 
 """
+import cProfile
+import logging
 import os
+import sys
 from datetime import datetime
 from itertools import product
-import itertools
 
-import logging
+import numpy as np
+import pandas as pd
+import scipy
 import yaml
+# from dask import compute, delayed
+# import dask as da
+# from dask.diagnostics import ProgressBar
+from dask.distributed import as_completed, progress
+from dask_jobqueue import SLURMCluster
+from distributed import Client, LocalCluster
+# import dask
+from tornado import gen
 
 from config import *
+from cosipy.cpkernel.cosipy_core import cosipy_core
+from cosipy.cpkernel.io import IOClass
 from slurm_config import *
-from cosipy.cpkernel.cosipy_core import * 
-from cosipy.cpkernel.io import *
-
-from distributed import Client, LocalCluster
-from dask import compute, delayed
-import dask as da
-from dask.diagnostics import ProgressBar
-from dask.distributed import progress, wait, as_completed
-import dask
-from tornado import gen
-from dask_jobqueue import SLURMCluster
-
-import scipy
-
-import cProfile
 
 def main():
 
@@ -217,13 +216,13 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 
             if WRF is True:
                 mask = DATA.MASK.sel(south_north=y, west_east=x)
-	        # Provide restart grid if necessary
-                if ((mask==1) & (restart==False)):
+                # Provide restart grid if necessary
+                if ((mask==1) & (not restart)):
                     if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
                         print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
                         sys.exit()
                     futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
-                elif ((mask==1) & (restart==True)):
+                elif ((mask==1) & (restart)):
                     if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
                         print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
                         sys.exit()
@@ -232,13 +231,13 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                                              stake_names=stake_names, stake_data=df_stakes_data))
             else:
                 mask = DATA.MASK.isel(lat=y, lon=x)
-	        # Provide restart grid if necessary
-                if ((mask==1) & (restart==False)):
+                # Provide restart grid if necessary
+                if ((mask==1) & (not restart)):
                     if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
                         print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
                         sys.exit()
                     futures.append(client.submit(cosipy_core, DATA.isel(lat=y, lon=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
-                elif ((mask==1) & (restart==True)):
+                elif ((mask==1) & (restart)):
                     if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
                         print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
                         sys.exit()
@@ -306,7 +305,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
 
 
 def start_logging():
-    ''' Start the python logging'''
+    """Start the python logging"""
 
     if os.path.exists('./cosipy.yaml'):
         with open('./cosipy.yaml', 'rt') as f:
@@ -327,7 +326,7 @@ def transform_coordinates(coords):
     A = 6378.137 # major axis [km]   
     E2 = 6.69437999014e-3 # eccentricity squared    
     
-    coords = np.asarray(coords).astype(np.float)
+    coords = np.asarray(coords).astype(float)
                                                       
     # is coords a tuple? Convert it to an one-element array of tuples
     if coords.ndim == 1:
@@ -361,6 +360,6 @@ def close_everything(scheduler):
 
 
 
-''' MODEL EXECUTION '''
+""" MODEL EXECUTION """
 if __name__ == "__main__":
     main()

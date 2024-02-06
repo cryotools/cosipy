@@ -8,7 +8,11 @@ def updateRoughness(GRID):
     if roughness_method == 'Moelg12':
         sigma = method_Moelg(GRID)
     else:
-        raise ValueError("Roghness method = \"{:s}\" is not allowed, must be one of {:s}".format(roughness_method,", ".join(roughness_allowed)))
+        error_message = (
+            f'Roughness method = "{roughness_method}" is not allowed,',
+            f'must be one of {", ".join(roughness_allowed)}'
+        )
+        raise ValueError(" ".join(error_message))
 
     return sigma
 

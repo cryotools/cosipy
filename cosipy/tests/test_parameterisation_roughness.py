@@ -1,20 +1,22 @@
-from pytest import approx
-from cosipy.modules.roughness import updateRoughness
-from cosipy.cpkernel.grid import *
+import numpy as np
+
+import constants
 from COSIPY import start_logging
+from cosipy.modules.roughness import updateRoughness
 
-layer_heights = [0.1, 0.2, 0.3, 0.5, 0.5]
-layer_densities = [250, 250, 250, 917, 917]
-layer_temperatures = [260, 270, 271, 271.5, 272]
-layer_liquid_water = [0.0, 0.0, 0.0, 0.0, 0.0]
-#
-GRID = Grid(layer_heights, layer_densities, layer_temperatures, layer_liquid_water)
-GRID_ice = Grid(layer_heights[3:4], layer_densities[3:4], layer_temperatures[3:4],layer_liquid_water[3:4])
 
-def test_roughness_parameterisation():
+class TestParamRoughness:
+    """Tests methods for parametrising roughness."""
 
-    roughness = updateRoughness(GRID,3600)
-    assert roughness >= roughness_fresh_snow/1000 and roughness <= roughness_firn/1000
+    def test_updateRoughness(self, conftest_mock_grid, conftest_mock_grid_ice):
+        GRID = conftest_mock_grid
+        roughness = updateRoughness(GRID)
+        assert (
+            constants.roughness_fresh_snow / 1000
+            <= roughness
+            <= constants.roughness_firn / 1000
+        )
 
-    roughness = updateRoughness(GRID_ice,3600)
-    assert roughness == roughness_ice/1000
+        GRID_ice = conftest_mock_grid_ice
+        ice_roughness = updateRoughness(GRID_ice)
+        assert np.isclose(ice_roughness, constants.roughness_ice / 1000)
