@@ -33,7 +33,7 @@ class IOClass:
       
         # If local IO class is initialized we need to get the dimensions of the dataset
         if DATA is not None:
-            self.time = self.DATA.dims['time']
+            self.time = self.DATA.sizes['time']
 
     #==============================================================================
     # Creates the input data and reads the restart file, if necessary. The function
@@ -70,9 +70,9 @@ class IOClass:
             else:
                 self.DATA = self.DATA.isel(lat=slice(ystart,yend), lon=slice(xstart,xend))
 
-        self.ny = self.DATA.dims[northing]
-        self.nx = self.DATA.dims[easting]
-        self.time = self.DATA.dims['time']
+        self.ny = self.DATA.sizes[northing]
+        self.nx = self.DATA.sizes[easting]
+        self.time = self.DATA.sizes['time']
 
         return self.DATA
 
@@ -136,7 +136,7 @@ class IOClass:
         self.DATA['time'] = np.sort(self.DATA['time'].values)
         start_interval=str(self.DATA.time.values[0])[0:16]
         end_interval = str(self.DATA.time.values[-1])[0:16]
-        time_steps = str(self.DATA.dims['time'])
+        time_steps = str(self.DATA.sizes['time'])
         print('\n Maximum available time interval from %s until %s. Time steps: %s \n\n' % (start_interval, end_interval, time_steps))
 
         # Check if restart option is set

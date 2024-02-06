@@ -150,13 +150,13 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
         print(client)
 
         # Get dimensions of the whole domain
-        ny = DATA.dims[northing]
-        nx = DATA.dims[easting]
+        ny = DATA.sizes[northing]
+        nx = DATA.sizes[easting]
 
         cp = cProfile.Profile()
 
         # Get some information about the cluster/nodes
-        total_grid_points = DATA.dims[northing]*DATA.dims[easting]
+        total_grid_points = DATA.sizes[northing]*DATA.sizes[easting]
         if slurm_use is True:
             total_cores = processes*nodes
             points_per_core = total_grid_points // total_cores
@@ -204,7 +204,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
 
         # Distribute data and model to workers
         start_res = datetime.now()
-        for y,x in product(range(DATA.dims[northing]),range(DATA.dims[easting])):
+        for y,x in product(range(DATA.sizes[northing]),range(DATA.sizes[easting])):
             if stake_evaluation is True:
                 stake_names = []
                 # Check if the grid cell contain stakes and store the stake names in a list

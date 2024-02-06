@@ -68,7 +68,7 @@ compression_level = 2                                       # Choose value betwe
 # PARALLELIZATION 
 #-----------------------------------
 slurm_use = False                                           # use SLURM
-workers = None                                              # setting is ued only without SLURM usage; number of workers (cores); with "None" all available cores are used
+workers = None                                              # setting is used only without SLURM usage; number of workers (cores); with "None" all available cores are used
 local_port = 8786                                           # port for local cluster
 
 #-----------------------------------
