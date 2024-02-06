@@ -9,12 +9,12 @@ def percolation(GRID, water: float, dt: int) -> float:
     Bucket method (Bartelt & Lehning, 2002).
 
     Args:
-        GRID: Glacier data mesh.
+        GRID (Grid): Glacier data mesh.
         water: Melt water at the surface, [m w.e.q.].
         dt: Integration time.
 
     Returns:
-        float: Percolated meltwater.
+        Percolated meltwater.
     """
 
     # convert m to mm = kg/m2, not needed because of change to fraction
@@ -24,9 +24,6 @@ def percolation(GRID, water: float, dt: int) -> float:
     water = water / GRID.get_node_height(0)
     # kg/m3 to fraction
     # water = water / 1000
-
-    # initial runoff [m w.e.]
-    Q = 0.0
 
     # set liquid water of top layer (idx, LWCnew) in m
     GRID.set_node_liquid_water_content(
@@ -63,9 +60,8 @@ def percolation(GRID, water: float, dt: int) -> float:
             )
 
     """Runoff is equal to LWC in the last node & must be converted
-    from kg/m3 to kg/m2.
-    Converting from fraction to kg/m3 (*1000) and from mm to m (/1000)
-    is unnecessary."""
+    from kg/m3 to kg/m2. Converting from fraction to kg/m3 (*1000) and
+    from mm to m (/1000) is unnecessary."""
     Q = GRID.get_node_liquid_water_content(
         GRID.number_nodes - 1
     ) * GRID.get_node_height(GRID.number_nodes - 1)
@@ -79,9 +75,9 @@ def check_lwc_conservation(GRID, start_lwc: float, runoff: float, dt: float):
     """Check total liquid water content is conserved.
 
     Args:
-        GRID: GRID object.
+        GRID (Grid): Glacier data mesh.
         start_lwc: Initial total liquid water content.
-        runoff: Meltwater runoff from lowest node.
+        runoff: Meltwater runoff from the lowest node.
         dt: Integration time [s].
     """
 
