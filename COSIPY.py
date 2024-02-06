@@ -76,8 +76,10 @@ def main():
     #-----------------------------------------------
     if (slurm_use):
 
-        with SLURMCluster(scheduler_port=port, cores=cores, processes=processes, memory=memory, shebang=shebang, name=name, job_extra=slurm_parameters, local_directory='logs/dask-worker-space') as cluster:
-            cluster.scale(processes * nodes)   
+        with SLURMCluster(job_name=name, cores=cores, processes=cores, memory=memory, 
+			 account=account, job_extra_directives=slurm_parameters,
+                         local_directory='logs/dask-worker-space') as cluster:
+            cluster.scale(nodes*cores)   
             print(cluster.job_script())
             print("You are using SLURM!\n")
             print(cluster)
@@ -158,7 +160,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
         # Get some information about the cluster/nodes
         total_grid_points = DATA.sizes[northing]*DATA.sizes[easting]
         if slurm_use is True:
-            total_cores = processes*nodes
+            total_cores = cores*nodes
             points_per_core = total_grid_points // total_cores
             print(total_grid_points, total_cores, points_per_core)
 
