@@ -768,7 +768,7 @@ class Grid:
     def set_refreeze(self, refreeze: np.ndarray):
         """Set the refreezing profile."""
         for idx in range(self.number_nodes):
-            self.grid[idx].set_refreeze(refreeze[idx])
+            self.grid[idx].set_layer_refreeze(refreeze[idx])
 
     def get_temperature(self):
         """Get the temperature profile."""
