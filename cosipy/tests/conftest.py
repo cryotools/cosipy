@@ -167,7 +167,7 @@ def fixture_conftest_mock_xr_dataset_dims() -> dict:
 
     dimensions = {}
     reference_time = pd.Timestamp("2009-01-01T12:00:00")
-    dimensions["time"] = pd.date_range(reference_time, periods=4, freq="6H")
+    dimensions["time"] = pd.date_range(reference_time, periods=4, freq="6h")
     dimensions["latitude"] = [30.460, 30.463, 30.469, 30.472]
     dimensions["longitude"] = [90.621, 90.624, 90.627, 90.630, 90.633]
     dimensions["name"] = ["time", "lat", "lon"]
