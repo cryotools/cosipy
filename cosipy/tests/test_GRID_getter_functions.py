@@ -21,9 +21,7 @@ class TestGridSetup:
             layer_heights=float64(data["layer_heights"]),
             layer_densities=float64(data["layer_densities"]),
             layer_temperatures=float64(data["layer_temperatures"]),
-            layer_liquid_water_content=float64(
-                data["layer_liquid_water_content"]
-            ),
+            layer_liquid_water_content=float64(data["layer_liquid_water_content"]),
         )
         assert isinstance(test_grid, Grid)
         conftest_boilerplate.check_output(
@@ -47,7 +45,7 @@ class TestGridSetup:
 class TestGridGetter:
     """Tests get methods for Grid objects.
 
-    ..
+    .. note::
         Pytest documentation recommends `np.allclose` instead of
         `pytest.approx`.
 
@@ -79,8 +77,7 @@ class TestGridGetter:
         if ice_fraction is None:
             a = (
                 density
-                - (1 - (density / constants.ice_density))
-                * constants.air_density
+                - (1 - (density / constants.ice_density)) * constants.air_density
             )
             ice_fraction = a / constants.ice_density
         else:
@@ -93,8 +90,7 @@ class TestGridGetter:
         if arg_ice_fraction is None:
             a = (
                 test_density
-                - (1 - (test_density / constants.ice_density))
-                * constants.air_density
+                - (1 - (test_density / constants.ice_density)) * constants.air_density
             )
             test_ice = a / constants.ice_density
         else:
@@ -115,9 +111,7 @@ class TestGridGetter:
             )
 
     def test_grid_get_temperature(self, grid, conftest_boilerplate):
-        assert np.allclose(
-            grid.get_temperature(), self.data["layer_temperatures"]
-        )
+        assert np.allclose(grid.get_temperature(), self.data["layer_temperatures"])
         for i in range(grid.number_nodes):
             conftest_boilerplate.check_output(
                 grid.get_node_temperature(i),
@@ -171,23 +165,50 @@ class TestGridGetter:
         self, conftest_mock_grid_values, conftest_mock_grid
     ):
         data = conftest_mock_grid_values.copy()
-        GRID = conftest_mock_grid
+        test_grid = conftest_mock_grid
 
-        assert np.allclose(GRID.get_snow_heights(), data["layer_heights"][0:3])
-        assert np.allclose(GRID.get_ice_heights(), data["layer_heights"][3:5])
-        assert np.allclose(GRID.get_node_height(0), data["layer_heights"][0])
+        assert np.allclose(test_grid.get_snow_heights(), data["layer_heights"][0:3])
+        assert np.allclose(test_grid.get_ice_heights(), data["layer_heights"][3:5])
+        assert np.allclose(test_grid.get_node_height(0), data["layer_heights"][0])
 
-    def test_grid_getter_functions(
-        self, conftest_mock_grid_values, conftest_mock_grid
-    ):
+    def test_grid_get_number_snow_layers(self, grid, conftest_boilerplate):
+        test_layers = sum(
+            [
+                1
+                for idx in range(grid.number_nodes)
+                if grid.get_node_density(idx) < constants.snow_ice_threshold
+            ]
+        )
+
+        compare_layers = grid.get_number_snow_layers()
+        conftest_boilerplate.check_output(compare_layers, int, test_layers)
+
+    def test_grid_get_total_snowheight(self, grid, conftest_boilerplate):
+        test_snowheight = sum(
+            [
+                grid.grid[idx].get_layer_height()
+                for idx in range(grid.get_number_snow_layers())
+            ]
+        )
+
+        compare_snowheight = grid.get_total_snowheight()
+        conftest_boilerplate.check_output(compare_snowheight, float, test_snowheight)
+
+    def test_grid_get_total_height(self, grid, conftest_boilerplate):
+        test_height = sum(
+            [grid.grid[idx].get_layer_height() for idx in range(grid.number_nodes)]
+        )
+
+        compare_height = grid.get_total_height()
+        conftest_boilerplate.check_output(compare_height, float, test_height)
+
+    def test_grid_getter_functions(self, conftest_mock_grid_values, conftest_mock_grid):
         data = conftest_mock_grid_values.copy()
         GRID = conftest_mock_grid
 
         # pytest documentation recommends np.allclose instead of pytest.approx
         assert np.allclose(GRID.get_height(), data["layer_heights"])
-        assert np.allclose(
-            GRID.get_density(), data["layer_densities"], atol=1e-3
-        )
+        assert np.allclose(GRID.get_density(), data["layer_densities"], atol=1e-3)
         assert np.allclose(GRID.get_temperature(), data["layer_temperatures"])
         assert np.allclose(
             GRID.get_liquid_water_content(), data["layer_liquid_water_content"]
@@ -198,6 +219,4 @@ class TestGridGetter:
         assert np.allclose(
             GRID.get_node_density(0), data["layer_densities"][0], atol=1e-3
         )
-        assert np.allclose(
-            GRID.get_node_temperature(0), data["layer_temperatures"][0]
-        )
+        assert np.allclose(GRID.get_node_temperature(0), data["layer_temperatures"][0])
