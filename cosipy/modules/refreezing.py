@@ -22,7 +22,7 @@ def refreezing(GRID):
         if (
             (GRID.get_node_temperature(idxNode) - zero_temperature < 1e-3)
             & (GRID.get_node_liquid_water_content(idxNode) > theta_r)
-            & (GRID.get_node_ice_fraction(idxNode))
+            & (GRID.get_node_ice_fraction(idxNode) > 0.0)
         ):
 
             # Temperature difference between layer and freezing temperature, cold content in temperature
