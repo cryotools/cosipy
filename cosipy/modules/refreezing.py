@@ -19,7 +19,11 @@ def refreezing(GRID):
     # Loop over all internal grid points for percolation
     for idxNode in range(0, GRID.number_nodes-1, 1):
 
-        if ((GRID.get_node_temperature(idxNode)-zero_temperature<1e-3) & (GRID.get_node_liquid_water_content(idxNode)>theta_r)):
+        if (
+            (GRID.get_node_temperature(idxNode) - zero_temperature < 1e-3)
+            & (GRID.get_node_liquid_water_content(idxNode) > theta_r)
+            & (GRID.get_node_ice_fraction(idxNode))
+        ):
 
             # Temperature difference between layer and freezing temperature, cold content in temperature
             dT = GRID.get_node_temperature(idxNode) - zero_temperature
