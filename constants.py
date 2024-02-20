@@ -12,7 +12,7 @@ z = 2.0                                         # Measurement height [m]
 ' PARAMETERIZATIONS '
 stability_correction = 'Ri'                     # possibilities: 'Ri','MO'
 albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98','Bougamont05'
-densification_method = 'Boone'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
+densification_method = 'Boone'                  # possibilities: 'Boone','Ligtenberg11','empirical','constant' TODO: solve error Vionnet
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
 roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
@@ -50,6 +50,8 @@ mult_factor_RRR = 1.0                           # multiplication factor for RRR
 minimum_snow_layer_height = 0.001               # minimum layer height
 minimum_snowfall = 0.001                        # minimum snowfall per time step in m which is added as new snow
 
+accumulation = 1000                             # accumulation rate (mm year^-1) (for Ligtenberg 2011 densification)
+z_zaa = 5                                       # estimated depth of zero annual accumulation (for Ligtenberg 2011 densification)
 
 ' REMESHING OPTIONS'
 remesh_method = 'log_profile'                   # Remeshing (log_profile or adaptive_profile)
