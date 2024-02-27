@@ -10,8 +10,7 @@ from config import force_use_TP, force_use_N, stake_evaluation, full_field, WRF_
 from cosipy.modules.albedo import updateAlbedo
 from cosipy.modules.heatEquation import solveHeatEquation
 from cosipy.modules.penetratingRadiation import penetrating_radiation
-from cosipy.modules.percolation import percolation
-from cosipy.modules.refreezing import refreezing
+from cosipy.modules.percolation_refreezing import percolation_refreezing
 from cosipy.modules.roughness import updateRoughness
 from cosipy.modules.densification import densification
 from cosipy.modules.evaluation import evaluate
@@ -288,14 +287,10 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         lwc_from_melted_layers = GRID.remove_melt_weq(melt - sublimation - deposition)
 
         #--------------------------------------------
-        # Percolation
+        # Percolation & Refreezing
         #--------------------------------------------
-        Q  = percolation(GRID, melt + condensation + RAIN/1000.0 + lwc_from_melted_layers, dt)
-
-        #--------------------------------------------
-        # Refreezing
-        #--------------------------------------------
-        water_refreezed = refreezing(GRID)
+        surface_water = melt + condensation + RAIN/1000.0 + lwc_from_melted_layers
+        Q , water_refreezed = percolation_refreezing(GRID,surface_water)
 
         #--------------------------------------------
         # Solve the heat equation
