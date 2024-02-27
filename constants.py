@@ -15,6 +15,7 @@ albedo_method = 'Oerlemans98'                   # possibilities: 'Oerlemans98','
 densification_method = 'Boone'                  # possibilities: 'Boone','empirical','constant' TODO: solve error Vionnet
 penetrating_method = 'Bintanja95'               # possibilities: 'Bintanja95'
 roughness_method = 'Moelg12'                    # possibilities: 'Moelg12'
+water_percolation_method = 'Marchenko17'       	# possibilities: 'bucket,'Marchenko17'
 saturation_water_vapour_method = 'Sonntag90'    # possibilities: 'Sonntag90'
 thermal_conductivity_method = 'bulk'		    # possibilities: 'bulk', 'empirical'
 sfc_temperature_method = 'Newton'               # please use 'Newton' (Secant, fastest); the other options 'L-BFGS-B' and 'SLSQP'(faster) 
@@ -49,6 +50,7 @@ mult_factor_RRR = 1.0                           # multiplication factor for RRR
 
 minimum_snow_layer_height = 0.001               # minimum layer height
 minimum_snowfall = 0.001                        # minimum snowfall per time step in m which is added as new snow
+z_lim = 4                                       # Statistical preferential percolation depth [m]
 
 
 ' REMESHING OPTIONS'
