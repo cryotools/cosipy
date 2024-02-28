@@ -16,6 +16,18 @@ def refreezing(GRID):
     dtheta_w_max_density = (phi_ice_max - np.asarray(GRID.get_ice_fraction())) * (ice_density/water_density)
 
     # Changes in volumetric contents, maximum amount of water that can refreeze from cold content
+    """
+    NOTES FOR CHECKING:
+
+    The following code line is a bit of an awkward algebraic re-arrangement - explanation below:
+
+    Latent energy release from refreezing water = Layer warming of layer ice content (theta_i) + newly frozen water (dtheta_i) + remaining water that cannot be frozen, if any (theta_water - dtheta_w)
+
+    dtheta_w * lat_heat_melting * water_density = dT_max * (((theta_i +                dtheta_i               ) * spec_heat_ice * ice_density) + ((theta_water - dtheta_w) * spec_heat_water * water_density))
+    dtheta_w * lat_heat_melting * water_density = dT_max * (((theta_i + (water_density/ice_density) * dtheta_w) * spec_heat_ice * ice_density) + ((theta_water - dtheta_w) * spec_heat_water * water_density))
+
+    Re-arranged in terms of dtheta_w (max_coldcontent):
+    """
     dtheta_w_max_coldcontent = (dT_max * ((np.asarray(GRID.get_ice_fraction()) * ice_density * spec_heat_ice) + (np.asarray(GRID.get_liquid_water_content()) * water_density * spec_heat_water))) / (water_density * ((lat_heat_melting) - (dT_max * spec_heat_ice) + (dT_max * spec_heat_water)))
 
     # Water refreeze amount:
