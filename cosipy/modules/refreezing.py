@@ -1,59 +1,40 @@
 import numpy as np
-from constants import zero_temperature, spec_heat_ice, ice_density, \
-                      water_density, lat_heat_melting
+from constants import zero_temperature, spec_heat_ice, spec_heat_water, ice_density, \
+                      water_density, lat_heat_melting, snow_ice_threshold
 from numba import njit
 
 @njit
 def refreezing(GRID):
 
-    # water refreezed
-    water_refreezed = 0.0
-    LWCref = 0.0
+    # Maximum snow fractional ice content:
+    phi_ice_max = (snow_ice_threshold - air_density) / (ice_density - air_density)
 
-    # Irreducible water when refreezed
-    theta_r = 0.0
+    # Temperature difference between layer and freezing temperature, cold content in temperature
+    dT_max = np.asarray(GRID.get_temperature()) - zero_temperature
 
-    #numba expects to sum numpty types
-    total_start = np.sum(np.array(GRID.get_liquid_water_content()))
+    # Volumetric/density limit on refreezing:
+    dtheta_w_max_density = (phi_ice_max - np.asarray(GRID.get_ice_fraction())) * (ice_density/water_density)
 
-    # Loop over all internal grid points for percolation
-    for idxNode in range(0, GRID.number_nodes-1, 1):
+    # Changes in volumetric contents, maximum amount of water that can refreeze from cold content
+    dtheta_w_max_coldcontent = (dT_max * ((np.asarray(GRID.get_ice_fraction()) * ice_density * spec_heat_ice) + (np.asarray(GRID.get_liquid_water_content()) * water_density * spec_heat_water))) / (water_density * ((lat_heat_melting) - (dT_max * spec_heat_ice) + (dT_max * spec_heat_water)))
 
-        if ((GRID.get_node_temperature(idxNode)-zero_temperature<1e-3) & (GRID.get_node_liquid_water_content(idxNode)>theta_r)):
+    # Water refreeze amount:
+    dtheta_w = np.min(np.stack([np.asarray(GRID.get_liquid_water_content()),dtheta_w_max_density,dtheta_w_max_coldcontent]), axis = 0) 
 
-            # Temperature difference between layer and freezing temperature, cold content in temperature
-            dT = GRID.get_node_temperature(idxNode) - zero_temperature
+    # Calculate change in layer ice fraction:
+    dtheta_i = (water_density/ice_density) * dtheta_w
 
-            # Compute conversion factor A (1/K)
-            A = (spec_heat_ice*ice_density)/(water_density*lat_heat_melting)
+    # Set updated ice fraction and liquid water content:
+    GRID.set_liquid_water_content(np.asarray(GRID.get_liquid_water_content()) - dtheta_w)
+    GRID.set_ice_fraction(np.asarray(GRID.get_ice_fraction()) + dtheta_i)
 
-            # Changes in volumetric contents, maximum amount of water that can refreeze from cold content
-            dtheta_w = A * dT * GRID.get_node_ice_fraction(idxNode)
+    # Layer temperature change:
+    dT = (dtheta_w * water_density * lat_heat_melting) / ((spec_heat_ice * ice_density * np.asarray(GRID.get_ice_fraction())) + (spec_heat_water * water_density * np.asarray(GRID.get_liquid_water_content())))
+    GRID.set_temperature(np.asarray(get_temperature()) + dT)
 
-            # Check if enough water water to refreeze, if less water than potential energy from cold content, only available water is refreezed
-            if ((GRID.get_node_liquid_water_content(idxNode)+dtheta_w) < theta_r):
-                dtheta_w = theta_r - GRID.get_node_liquid_water_content(idxNode)
-
-            dtheta_i = (water_density/ice_density) * -dtheta_w
-            dT       = dtheta_i / A
-            GRID.set_node_temperature(idxNode, GRID.get_node_temperature(idxNode)+dT)
-
-            if ((GRID.get_node_ice_fraction(idxNode)+dtheta_i+theta_r) >= 1.0):
-                GRID.set_node_liquid_water_content(idxNode, theta_r)
-                GRID.set_node_ice_fraction(idxNode, 1.0)
-            else:
-                GRID.set_node_liquid_water_content(idxNode, GRID.get_node_liquid_water_content(idxNode)+dtheta_w)
-                GRID.set_node_ice_fraction(idxNode, GRID.get_node_ice_fraction(idxNode)+dtheta_i)
-
-        else:
-
-            dtheta_i = 0
-            dtheta_w = 0
-
-        GRID.set_node_refreeze(idxNode, dtheta_i*GRID.get_node_height(idxNode))
-        water_refreezed =  water_refreezed - dtheta_w * GRID.get_node_height(idxNode)
-
-    total_end = np.sum(np.array(GRID.get_liquid_water_content()))
+    # Set refreezing amounts:
+    GRID.set_refreeze(dtheta_i * np.asarray(GRID.get_height()))
+    water_refreezed =  np.sum(dtheta_w) * np.asarray(GRID.get_height())
 
     return water_refreezed
 
