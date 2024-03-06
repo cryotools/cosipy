@@ -1,5 +1,5 @@
 import numpy as np
-from constants import penetrating_method, snow_ice_threshold, spec_heat_ice, \
+from cosipy.constants import penetrating_method, snow_ice_threshold, spec_heat_ice, \
                       zero_temperature, ice_density, water_density, lat_heat_melting
 from numba import njit
 

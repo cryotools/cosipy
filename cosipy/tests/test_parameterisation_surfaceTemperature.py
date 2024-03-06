@@ -1,4 +1,4 @@
-import constants
+import cosipy.constants as constants
 from COSIPY import start_logging
 from cosipy.modules.surfaceTemperature import update_surface_temperature
 

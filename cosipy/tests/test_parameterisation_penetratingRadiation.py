@@ -1,5 +1,5 @@
 import pytest
-import constants
+import cosipy.constants as constants
 import cosipy.modules.penetratingRadiation as pRad
 
 

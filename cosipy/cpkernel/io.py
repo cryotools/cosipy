@@ -10,8 +10,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from config import *
-from constants import *
+from cosipy.config import *
+from cosipy.constants import *
 
 
 class IOClass:

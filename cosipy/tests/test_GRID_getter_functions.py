@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from numba import float64
 
-import constants
+import cosipy.constants as constants
 from cosipy.cpkernel.grid import Grid
 
 

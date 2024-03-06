@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-import constants
+import cosipy.constants as constants
 import cosipy.modules.albedo as module_albedo
 from COSIPY import start_logging
 

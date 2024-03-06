@@ -42,10 +42,10 @@ from distributed import Client, LocalCluster
 # import dask
 from tornado import gen
 
-from config import *
+from cosipy.config import *
 from cosipy.cpkernel.cosipy_core import cosipy_core
 from cosipy.cpkernel.io import IOClass
-from slurm_config import *
+from cosipy.slurm_config import *
 
 def main():
 

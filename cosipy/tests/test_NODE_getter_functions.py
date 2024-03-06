@@ -1,6 +1,6 @@
 import pytest
 
-import constants
+import cosipy.constants as constants
 from cosipy.cpkernel.node import Node
 
 

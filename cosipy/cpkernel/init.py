@@ -2,7 +2,7 @@ import sys
 
 import numpy as np
 
-from constants import *
+from cosipy.constants import *
 from cosipy.cpkernel.grid import Grid
 
 

@@ -1,4 +1,4 @@
-from config import eval_method, obs_type
+from cosipy.config import eval_method, obs_type
 
 
 def evaluate(stake_names, stake_data, df_):

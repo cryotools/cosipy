@@ -1,6 +1,6 @@
 import numpy as np
 
-import constants
+import cosipy.constants as constants
 
 
 def updateAlbedo(GRID, surface_temperature, albedo_snow):

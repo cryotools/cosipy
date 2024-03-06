@@ -1,5 +1,5 @@
 import numpy as np
-from constants import zero_temperature, spec_heat_ice, ice_density, \
+from cosipy.constants import zero_temperature, spec_heat_ice, ice_density, \
                       water_density, lat_heat_melting
 from numba import njit
 

@@ -1,5 +1,5 @@
 import numpy as np
-from constants import densification_method, snow_ice_threshold, minimum_snow_layer_height, \
+from cosipy.constants import densification_method, snow_ice_threshold, minimum_snow_layer_height, \
                       zero_temperature, ice_density
 from numba import njit
 

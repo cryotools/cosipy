@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
 
-from constants import mult_factor_RRR, densification_method, ice_density, water_density, \
+from cosipy.constants import mult_factor_RRR, densification_method, ice_density, water_density, \
                       minimum_snowfall, zero_temperature, lat_heat_sublimation, \
                       lat_heat_melting, lat_heat_vaporize, center_snow_transfer_function, \
                       spread_snow_transfer_function, constant_density, albedo_fresh_snow
-from config import force_use_TP, force_use_N, stake_evaluation, full_field, WRF_X_CSPY 
+from cosipy.config import force_use_TP, force_use_N, stake_evaluation, full_field, WRF_X_CSPY 
 
 from cosipy.modules.albedo import updateAlbedo
 from cosipy.modules.heatEquation import solveHeatEquation
@@ -43,7 +43,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     """
     
     # Replace values from constants.py if coupled
-    from constants import max_layers, dt, z	#WTF python!
+    from cosipy.constants import max_layers, dt, z	#WTF python!
     if WRF_X_CSPY:
         dt = int(DATA.DT.values)
         max_layers = int(DATA.max_layers.values)

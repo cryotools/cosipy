@@ -4,7 +4,7 @@ import numpy as np
 from numba import float64
 from numba.experimental import jitclass
 
-import constants
+import cosipy.constants as constants
 
 spec = OrderedDict()
 spec["height"] = float64

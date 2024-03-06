@@ -1,5 +1,5 @@
 import numpy as np
-from constants import sfc_temperature_method, saturation_water_vapour_method, zero_temperature, \
+from cosipy.constants import sfc_temperature_method, saturation_water_vapour_method, zero_temperature, \
                       lat_heat_sublimation, lat_heat_vaporize, stability_correction, spec_heat_air, \
                       spec_heat_water, water_density, surface_emission_coeff, sigma, zlt1, zlt2
 from scipy.optimize import minimize, newton
