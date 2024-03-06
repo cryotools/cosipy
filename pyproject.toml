@@ -1,0 +1,104 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cosipy"
+version = "1.4.1"
+authors = [
+    { name = "COSIPY Contributors", email = "" },
+]
+description = "Coupled snowpack and ice surface energy and mass balance model in Python."
+readme = "README.rst"
+requires-python = ">=3.9"
+license = { text = "GPL-3.0" }
+keywords = [
+    "glacier modelling",
+    "energy balance model",
+    "mass balance",
+    "glaciology",
+    "glaciers",
+]
+classifiers = [
+    "Private :: Do Not Upload",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Environment :: Console",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+    "numpy>=1.17.3",
+    "pandas>2.0",
+    "scipy>=1.1.0",
+    "xarray>=0.18.0",
+    "netcdf4>=1.5.1.2",
+    "distributed>=2023.12.1, <2023.12.3",
+    "dask",
+    "dask-jobqueue",
+    "numba",
+    "metpy",
+    "gdal",
+    "nco",
+    "cdo",
+    "matplotlib",
+    "cartopy",
+    "vtk",
+    "richdem",
+]
+
+[project.optional-dependencies]
+tests = [
+    "coveralls",
+    "codecov",
+    "pytest",
+]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme >= 1.1",
+]
+dev = [
+    "cosipy[tests,docs]",
+    "hatchling >= 1.12",
+    "build >= 0.7",
+    "pylint >= 2.16.1",
+    "flake8 >= 6.0",
+    "black >= 23.1",
+    "isort",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/cryotools/cosipy"
+"Bug Tracker" = "https://github.com/cryotools/cosipy/issues"
+"Documentation" = "https://cosipy.readthedocs.io/en/latest/"
+
+# [tool.pytest.ini_options]
+# addopts = [
+#     "--import-mode=importlib",
+# ]
+
+[project.scripts]
+run-cosipy = "COSIPY:main"
+run-aws2cosipy = "cosipy.utilities.aws2cosipy.aws2cosipy:main"
+run-createStatic = "cosipy.utilities.createStatic.create_static_file:main"
+run-wrf2cosipy = "cosipy.utilities.wrf2cosipy.wrf2cosipy:main"
+
+[tool.hatch.build.targets.sdist]
+packages = ["cosipy", "COSIPY.py"]
+exclude = [
+    "data/static/Shapefiles/*.*",
+    "data/static/DEM/*.*",
+    "logs",
+    "*.png",
+    "*.vtu",
+    "*.csv",
+    "*.nc",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["cosipy", "COSIPY.py"]
