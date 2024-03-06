@@ -1,4 +1,4 @@
-from config import WRF_X_CSPY
+from cosipy.config import WRF_X_CSPY
 """
     Declaration of constants
     Do not modify unless you are absolutely sure what you are doing.
