@@ -151,7 +151,8 @@ def main():
         #encoding[var] = dict(zlib=True, complevel=compression_level, dtype=dtype, scale_factor=scale_factor, add_offset=add_offset, _FillValue=FillValue)
         encoding[var] = dict(zlib=True, complevel=Config.compression_level)
     output_netcdf = set_output_netcdf_path()
-    IO.get_result().to_netcdf(os.path.join(Config.data_path,'output',output_netcdf), encoding=encoding, mode = 'w')
+    output_path = create_data_directory(path='output')
+    IO.get_result().to_netcdf(os.path.join(output_path,output_netcdf), encoding=encoding, mode = 'w')
 
     encoding = dict()
     for var in IO.get_restart().data_vars:
@@ -163,7 +164,8 @@ def main():
         #encoding[var] = dict(zlib=True, complevel=compression_level, dtype=dtype, scale_factor=scale_factor, add_offset=add_offset, _FillValue=FillValue)
         encoding[var] = dict(zlib=True, complevel=Config.compression_level)
     
-    IO.get_restart().to_netcdf(os.path.join(Config.data_path,'restart','restart_'+timestamp+'.nc'), encoding=encoding)
+    restart_path = create_data_directory(path='restart')
+    IO.get_restart().to_netcdf(os.path.join(restart_path,f'restart_{timestamp}.nc'), encoding=encoding)
     
     #-----------------------------------------------
     # Stop time measurement
@@ -341,18 +343,45 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
       
         if Config.stake_evaluation:
             # Save the statistics and the mass balance simulations at the stakes to files
-            df_stat.to_csv(os.path.join(Config.data_path,'output','stake_statistics.csv'),sep='\t', float_format='%.2f')
-            df_val.to_csv(os.path.join(Config.data_path,'output','stake_simulations.csv'),sep='\t', float_format='%.2f')
+            output_path = create_data_directory(path='output')
+            df_stat.to_csv(os.path.join(output_path,'stake_statistics.csv'),sep='\t', float_format='%.2f')
+            df_val.to_csv(os.path.join(output_path,'stake_simulations.csv'),sep='\t', float_format='%.2f')
 
 
-def set_timestamp_label(timestamp: str) -> str:
-    return (timestamp[0:10]).replace('-', '')
+def create_data_directory(path: str) -> str:
+    """Create a directory in the configured data folder.
+
+    Returns:
+        Path to the created directory.
+    """
+    dir_path = os.path.join(Config.data_path, path)
+    os.makedirs(dir_path, exist_ok=True)
+
+    return dir_path
+
+
+def get_timestamp_label(timestamp: str) -> str:
+    """Get a formatted label from a timestring.
+
+    Args:
+        An ISO 8601 timestamp.
+
+    Returns:
+        Formatted timestamp with hyphens and time removed.
+    """
+    return (timestamp[0:10]).replace("-", "")
 
 
 def set_output_netcdf_path() -> str:
-    time_start = set_timestamp_label(timestamp=Config.time_start)
-    time_end = set_timestamp_label(timestamp=Config.time_end)
+    """Set the file path for the output netCDF file.
+
+    Returns:
+        The path to the output netCDF file.
+    """
+    time_start = get_timestamp_label(timestamp=Config.time_start)
+    time_end = get_timestamp_label(timestamp=Config.time_end)
     output_path = f"{Config.output_prefix}_{time_start}-{time_end}.nc"
+
     return output_path
 
 
