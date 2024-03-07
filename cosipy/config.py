@@ -1,100 +1,113 @@
 """
- This is the COSIPY configuration (init) file.
- Please make your changes here.
+Hook configuration files for COSIPY.
 """
 
-#-----------------------------------
-# SIMULATION PERIOD 
-#-----------------------------------
-# Zhadang
-time_start = '2009-01-01T06:00'
-time_end   = '2009-01-10T00:00'
+import sys
 
-# Hintereisferner
-#time_start = '2018-09-17T08:00'
-#time_end   = '2019-07-03T13:00'
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib  # backwards compatibility
 
-#-----------------------------------
-# FILENAMES AND PATHS 
-#-----------------------------------
-time_start_str=(time_start[0:10]).replace('-','')
-time_end_str=(time_end[0:10]).replace('-','')
 
-data_path = './data/'
+class Config(object):
+    """Model configuration.
 
-# Zhadang example
-input_netcdf= 'Zhadang/Zhadang_ERA5_2009.nc'
-output_netcdf = 'Zhadang_ERA5_'+time_start_str+'-'+time_end_str+'.nc'
+    Loads, parses, and sets model configuration for COSIPY from a valid
+    .toml file.
 
-# Hintereisferner example
-#input_netcdf = 'HEF/HEF_input.nc'
-#output_netcdf = 'hef.nc'
+    .. note::
+        Attributes must be declared to avoid import errors, but are
+        overwritten once the configuration file is read.
 
-#-----------------------------------
-# RESTART 
-#-----------------------------------
-restart = False                                             # set to true if you want to start from restart file
+    """
 
-#-----------------------------------
-# STAKE DATA 
-#-----------------------------------
-stake_evaluation = False 
-stakes_loc_file = './data/input/HEF/loc_stakes.csv'         # path to stake location file
-stakes_data_file = './data/input/HEF/data_stakes_hef.csv'   # path to stake data file
-eval_method = 'rmse'                                        # how to evaluate the simulations ('rmse')
-obs_type = 'snowheight'                                     # What kind of stake data is used 'mb' or 'snowheight'
+    time_start = "2009-01-01T06:00"
+    time_end = "2009-01-10T00:00"
+    data_path = "./data/"
+    input_netcdf = "Zhadang/Zhadang_ERA5_2009.nc"
+    output_prefix = "Zhadang_ERA5"
+    restart = False
+    stake_evaluation = False
+    stakes_loc_file = "./data/input/HEF/loc_stakes.csv"
+    stakes_data_file = "./data/input/HEF/data_stakes_hef.csv"
+    eval_method = "rmse"
+    obs_type = "snowheight"
+    WRF = False
+    northing = "lat"
+    easting = "lon"
+    WRF_X_CSPY = False
+    compression_level = 2
+    slurm_use = False
+    workers = None
+    local_port = 8786
+    full_field = False
+    force_use_TP = False
+    force_use_N = False
+    tile = False
+    xstart = 20
+    xend = 40
+    ystart = 20
+    yend = 40
 
-#-----------------------------------
-# STANDARD LAT/LON or WRF INPUT 
-#-----------------------------------
-# Dimensions
-WRF = False                                                 # Set to True if you use WRF as input
+    def __init__(self, path: str = "./config.toml"):
+        self.path = path
+        raw_toml = self.get_raw_toml(self.path)
+        parsed_toml = self.set_correct_config(raw_toml)
+        self.set_config_values(parsed_toml)
 
-northing = 'lat'	                                    # name of dimension	in in- and -output
-easting = 'lon'					                        # name of dimension in in- and -output
-if WRF:
-    northing = 'south_north'                                # name of dimension in WRF in- and output
-    easting = 'west_east'                                   # name of dimension in WRF in- and output
+    @staticmethod
+    def get_raw_toml(file_path: str = "./config.toml") -> dict:
+        """Open and load .toml configuration file.
 
-# Interactive simulation with WRF
-WRF_X_CSPY = False
+        Args:
+            file_path: Relative path to .toml configuration file.
 
-#-----------------------------------
-# COMPRESSION of output netCDF
-#-----------------------------------
-compression_level = 2                                       # Choose value between 1 and 9 (highest compression)
-                                                            # Recommendation: choose 1, 2 or 3 (higher not worthwhile, because of needed time for writing output)
-#-----------------------------------
-# PARALLELIZATION 
-#-----------------------------------
-slurm_use = False                                           # use SLURM
-workers = None                                              # setting is used only without SLURM usage; number of workers (cores); with "None" all available cores are used
-local_port = 8786                                           # port for local cluster
+        Returns:
+            Loaded .toml data.
+        """
+        with open(file_path, "rb") as f:
+            raw_config = tomllib.load(f)
 
-#-----------------------------------
-# WRITE FULL FIELDS 
-#-----------------------------------    
-full_field = False                                          # write full fields (2D data) to file
-if WRF_X_CSPY:
-    full_field = True
-    
-#-----------------------------------
-# TOTAL PRECIPITATION  
-#-----------------------------------
-force_use_TP = False                                        # If total precipitation and snowfall in input data;
-                                                            # use total precipitation
+        return raw_config
 
-#-----------------------------------
-# CLOUD COVER FRACTION  
-#-----------------------------------
-force_use_N = False                                         # If cloud cover fraction and incoming longwave radiation
-                                                            # in input data use cloud cover fraction
+    @staticmethod
+    def set_correct_config(config_table: dict) -> dict:
+        """Adjust invalid or mutually exclusive configuration values.
 
-#-----------------------------------
-# SUBSET  (provide pixel values) 
-#-----------------------------------
-tile = False
-xstart = 20
-xend = 40
-ystart = 20
-yend = 40
+        Args:
+            config_table: Loaded .toml data.
+
+        Returns:
+            Adjusted .toml data.
+        """
+        # WRF Compatibility
+        if config_table["WRF"]["WRF"]:
+            config_table["WRF"]["northing"] = "south_north"
+            config_table["WRF"]["easting"] = "west_east"
+        if config_table["WRF"]["WRF_X_CSPY"]:
+            config_table["FULL_FIELDS"]["full_field"] = True
+        # TOML doesn't support null values
+        if config_table["PARALLELIZATION"]["workers"] == 0:
+            config_table["PARALLELIZATION"]["workers"] = None
+
+        return config_table
+
+    @staticmethod
+    def set_config_values(config_table: dict):
+        """Overwrite attributes with configuration data.
+
+        Args:
+            config_table: Loaded .toml data.
+        """
+        for _, table in config_table.items():
+            for k, v in table.items():
+                setattr(Config, k, v)
+
+
+def main():
+    pass
+
+
+if __name__ == "__main__":
+    main()

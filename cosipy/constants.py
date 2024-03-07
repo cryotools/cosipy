@@ -1,4 +1,4 @@
-from cosipy.config import WRF_X_CSPY
+from cosipy.config import Config
 """
     Declaration of constants
     Do not modify unless you are absolutely sure what you are doing.
@@ -22,7 +22,7 @@ sfc_temperature_method = 'Newton'               # please use 'Newton' (Secant, f
                                                 # problem with L-BFGS-B and SLSQP should be solved
 
 # WRF_X_CSPY: for efficiency and consistency
-if WRF_X_CSPY:
+if Config.WRF_X_CSPY:
     stability_correction = 'MO'
     sfc_temperature_method = 'Newton'
 
