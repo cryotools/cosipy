@@ -43,7 +43,7 @@ from distributed import Client, LocalCluster
 # import dask
 from tornado import gen
 
-from cosipy.config import Config
+from cosipy.config import Config, SlurmConfig
 from cosipy.cpkernel.cosipy_core import cosipy_core
 from cosipy.cpkernel.io import IOClass
 from cosipy.slurm_config import *
@@ -57,6 +57,8 @@ def get_user_arguments() -> argparse.Namespace:
 
     Optional arguments:
         -c, --config <str>      Relative path to configuration file.
+        -s, --slurm <str>       Relative path to slurm configuration
+                                file.
 
     Returns:
         Namespace of user arguments.
@@ -77,6 +79,17 @@ def get_user_arguments() -> argparse.Namespace:
         metavar="<path>",
         required=False,
         help="relative path to configuration file",
+    )
+
+    parser.add_argument(
+        "-s",
+        "--slurm",
+        default="./slurm_config.toml",
+        dest="slurm_path",
+        type=str,
+        metavar="<path>",
+        required=False,
+        help="relative path to Slurm configuration file",
     )
 
     arguments = parser.parse_args()
@@ -116,10 +129,17 @@ def main():
     #-----------------------------------------------
     if Config.slurm_use:
 
-        with SLURMCluster(job_name=name, cores=cores, processes=cores, memory=memory, 
-			 account=account, job_extra_directives=slurm_parameters,
-                         local_directory='logs/dask-worker-space') as cluster:
-            cluster.scale(nodes*cores)   
+        SlurmConfig(arguments.slurm_path)
+        with SLURMCluster(
+            job_name=SlurmConfig.name,
+            cores=SlurmConfig.cores,
+            processes=SlurmConfig.cores,
+            memory=SlurmConfig.memory,
+            account=SlurmConfig.account,
+            job_extra_directives=SlurmConfig.slurm_parameters,
+            local_directory=SlurmConfig.local_directory,
+        ) as cluster:
+            cluster.scale(SlurmConfig.nodes * SlurmConfig.cores) 
             print(cluster.job_script())
             print("You are using SLURM!\n")
             print(cluster)
@@ -202,7 +222,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
         # Get some information about the cluster/nodes
         total_grid_points = DATA.sizes[Config.northing]*DATA.sizes[Config.easting]
         if Config.slurm_use:
-            total_cores = cores*nodes
+            total_cores = SlurmConfig.cores * SlurmConfig.nodes
             points_per_core = total_grid_points // total_cores
             print(total_grid_points, total_cores, points_per_core)
 
