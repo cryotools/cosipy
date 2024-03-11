@@ -87,9 +87,14 @@ dev = [
 [project.scripts]
 run-cosipy = "COSIPY:main"
 setup-cosipy = "cosipy.utilities.setup_cosipy.setup_cosipy:main"
-run-aws2cosipy = "cosipy.utilities.aws2cosipy.aws2cosipy:main"
-run-createStatic = "cosipy.utilities.createStatic.create_static_file:main"
-run-wrf2cosipy = "cosipy.utilities.wrf2cosipy.wrf2cosipy:main"
+
+cosipy-aws2cosipy = "cosipy.utilities.aws2cosipy.aws2cosipy:main"
+cosipy-create-static = "cosipy.utilities.createStatic.create_static_file:main"
+cosipy-wrf2cosipy = "cosipy.utilities.wrf2cosipy.wrf2cosipy:main"
+
+cosipy-plot-field = "cosipy.postprocessing.field_plots.plot_cosipy_fields:main"
+cosipy-plot-profile = "cosipy.postprocessing.profile_plots.plot_profiles:main"
+cosipy-plot-vtk = "cosipy.postprocessing.vtk_plots.plot_cosipy_fields_vtk:main"
 
 [tool.hatch.build.targets.sdist]
 packages = ["cosipy", "COSIPY.py"]
