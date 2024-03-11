@@ -3,6 +3,7 @@ Hook configuration files for COSIPY.
 """
 
 import sys
+from collections import namedtuple
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -27,17 +28,6 @@ class TomlLoader(object):
             raw_config = tomllib.load(f)
 
         return raw_config
-
-    @staticmethod
-    def set_config_values(config_table: dict):
-        """Overwrite attributes with configuration data.
-
-        Args:
-            config_table: Loaded .toml data.
-        """
-        for _, table in config_table.items():
-            for k, v in table.items():
-                setattr(Config, k, v)
 
 
 class Config(TomlLoader):
@@ -107,9 +97,20 @@ class Config(TomlLoader):
 
         return config_table
 
+    @staticmethod
+    def set_config_values(config_table: dict):
+        """Overwrite attributes with configuration data.
+
+        Args:
+            config_table: Loaded .toml data.
+        """
+        for _, table in config_table.items():
+            for k, v in table.items():
+                setattr(Config, k, v)
+
 
 class SlurmConfig(TomlLoader):
-    """SLURM configuration.
+    """Slurm configuration.
 
     Loads, parses, and sets Slurm configuration for COSIPY from a valid
     .toml file.
@@ -169,6 +170,54 @@ class SlurmConfig(TomlLoader):
             config_table["MEMORY"]["memory"] = f"{memory}GB"
 
         return config_table
+
+    @staticmethod
+    def set_config_values(config_table: dict):
+        """Overwrite attributes with configuration data.
+
+        Args:
+            config_table: Loaded .toml data.
+        """
+        for _, table in config_table.items():
+            for k, v in table.items():
+                setattr(SlurmConfig, k, v)
+
+
+class UtilitiesConfig(TomlLoader):
+    """Configuration for utilities.
+
+    Loads, parses, and sets Slurm configuration for COSIPY from a valid
+    .toml file.
+
+    .. note::
+        Attributes must be declared to avoid import errors, but are
+        overwritten once the configuration file is read.
+
+    Attributes:
+        aws2cosipy: Configuration parameters for `aws2cosipy.py`.
+        create_static: Configuration parameters for `create_static.py`.
+        wrf2cosipy: Configuration parameters for `wrf2cosipy.py`.
+    """
+
+    aws2cosipy = {}
+    create_static = {}
+    wrf2cosipy = {}
+
+    def __init__(self, path: str = "./utilities_config.toml"):
+        raw_toml = self.get_raw_toml(path)
+        self.set_config_values(raw_toml)
+
+    @staticmethod
+    def set_config_values(config_table: dict):
+        """Overwrite attributes with configuration data.
+
+        Args:
+            config_table: Loaded .toml data.
+        """
+        for header, table in config_table.items():
+            data = namedtuple(header, table.keys())
+            params = data(**table)
+            setattr(UtilitiesConfig, header, params)
 
 
 def main():
