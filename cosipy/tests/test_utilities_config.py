@@ -1,6 +1,6 @@
 import pytest
 
-from cosipy.config import UtilitiesConfig
+from cosipy.utilities.config import UtilitiesConfig
 
 
 class TestConfigUtilities:
@@ -25,7 +25,7 @@ class TestConfigUtilities:
         test_cfg = UtilitiesConfig()
         test_table = test_cfg.aws2cosipy
         table_keys = [
-            "variables",
+            "names",
             "coords",
             "radiation",
             "points",

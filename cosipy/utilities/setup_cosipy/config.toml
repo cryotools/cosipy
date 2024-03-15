@@ -20,13 +20,12 @@ stakes_data_file = "./data/input/HEF/data_stakes_hef.csv" # path to stake data f
 eval_method = "rmse" # how to evaluate the simulations ("rmse")
 obs_type = "snowheight" # What kind of stake data is used "mb" or "snowheight"
 
-[WRF]
+[DIMENSIONS]
 # STANDARD LAT/LON or WRF INPUT
-# Dimensions
 WRF = false # Set to True if you use WRF as input
+WRF_X_CSPY = false # Interactive simulation with WRF
 northing = "lat" # name of dimension in input and output
 easting = "lon" # name of dimension in input and output
-WRF_X_CSPY = false # Interactive simulation with WRF
 
 [COMPRESSION]
 # Compression of output netCDF

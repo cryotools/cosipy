@@ -8,9 +8,11 @@ import numpy as np
 import time
 from itertools import product
 
-sys.path.append('../../')
+# sys.path.append('../../')
 
-from utilities.wrf2cosipy.wrf2cosipyConfig import *
+# from utilities.wrf2cosipy.wrf2cosipyConfig import *
+from cosipy.utilities.config import UtilitiesConfig
+cfg_constants = UtilitiesConfig.wrf2cosipy.constants
 
 import argparse
 
@@ -59,7 +61,7 @@ def create_input(wrf_file, cosipy_file, start_date, end_date):
     dso = add_variable_along_latlon(dso, ds.TSK[0], 'TSK', 'K', 'Skin temperature')
     
     # Wind velocity at 2 m (assuming neutral stratification)
-    z  = hu     # Height of measurement
+    z  = cfg_constants["hu"]     # Height of measurement
     z0 = 0.0040 # Roughness length for momentum
     umag = np.sqrt(ds.V10.values**2+ds.U10.values**2)   # Mean wind velocity
     U2 = umag * (np.log(2 / z0) / np.log(10 / z0))
@@ -68,8 +70,8 @@ def create_input(wrf_file, cosipy_file, start_date, end_date):
 
     # Add glacier mask to file (derived from the land use category)
     mask = ds.LU_INDEX[0].values
-    mask[mask!=lu_class] = 0
-    mask[mask==lu_class] = 1
+    mask[mask!=cfg_constants["lu_class"]] = 0
+    mask[mask==cfg_constants["lu_class"]] = 1
     dso = add_variable_along_latlon(dso, mask, 'MASK', '-', 'Glacier mask')
     
     # Derive precipitation from accumulated values
