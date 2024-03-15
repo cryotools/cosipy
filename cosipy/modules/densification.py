@@ -1,7 +1,13 @@
 import numpy as np
-from cosipy.constants import densification_method, snow_ice_threshold, minimum_snow_layer_height, \
-                      zero_temperature, ice_density
 from numba import njit
+
+from cosipy.constants import Constants
+
+# only required for njitted functions
+snow_ice_threshold = Constants.snow_ice_threshold
+minimum_snow_layer_height = Constants.minimum_snow_layer_height
+zero_temperature = Constants.zero_temperature
+
 
 def densification(GRID,SLOPE,dt):
     """Densification of the snowpack.
@@ -11,7 +17,7 @@ def densification(GRID,SLOPE,dt):
         SLOPE   ::  Slope of the surface [degrees].
         dt      ::  integration time [s].
     """
-
+    densification_method = Constants.densification_method
     densification_allowed = ['Boone', 'Vionnet', 'empirical', 'constant']
     if densification_method == 'Boone':
         method_Boone(GRID,SLOPE,dt)
@@ -201,7 +207,7 @@ def method_empirical(GRID,SLOPE,dt):
 
         if ((1-(dRho/GRID.get_node_density(idxNode)))<1):
             # Set the new ice fraction
-            GRID.set_node_ice_fraction(idxNode, (rho_max + (rho[idxNode]-rho_max) * np.exp(-dt/tau))/ice_density )
+            GRID.set_node_ice_fraction(idxNode, (rho_max + (rho[idxNode]-rho_max) * np.exp(-dt/tau))/Constants.ice_density )
 
             # Set height change
             GRID.set_node_height(idxNode, (1-(dRho/GRID.get_node_density(idxNode)))*GRID.get_node_height(idxNode))

@@ -1,8 +1,16 @@
 # This is the utilities configuration file.
 # Please make your changes here.
+#
+# To call variables in a utility script:
+# from cosipy.utilities.config import UtilitiesConfig
+# in_K = UtilitiesConfig.aws2cosipy.names["in_K"]
+#
+# Alternatively:
+# cfg_names = UtilitiesConfig.aws2cosipy.names
+# in_K = cfg_names["in_K"]
 
 # AWS2COSIPY
-[aws2cosipy.variables]
+[aws2cosipy.names]
 PRES_var = 'PRES'
 T2_var = 'T2'
 in_K = true
@@ -24,7 +32,6 @@ delimiter = ','
 radiationModule = 'Wohlfahrt2016' # 'Moelg2009', 'Wohlfahrt2016', 'none'
 LUT = false  # If there is already a Look-up-table for topographic shading and sky-view-factor built for this area, set to True
 dtstep = 10800  # time step (s)
-stationLat = -54.4  # Latitude of station
 tcart = 26  # Station time correction in hour angle units (1 is 4 min)
 timezone_lon = 90.0  # Longitude of station
 zeni_thld = 85.0  # If you do not know the exact value for your location, set value to 89.0
@@ -38,6 +45,7 @@ hgt = 5665.0
 [aws2cosipy.station]
 stationName = 'Zhadang'
 stationAlt = 5665.0
+stationLat = -54.4  # Latitude of station
 
 [aws2cosipy.lapse]
 lapse_T = -0.006  # Temp K per  m
@@ -65,4 +73,3 @@ latitude_lower_right = 30.46
 [wrf2cosipy.constants]
 hu = 10  # Height of WRF wind velocity
 lu_class = 24 # land use class for glaciers
-

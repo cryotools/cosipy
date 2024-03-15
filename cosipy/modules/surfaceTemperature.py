@@ -1,10 +1,24 @@
-import numpy as np
-from cosipy.constants import sfc_temperature_method, saturation_water_vapour_method, zero_temperature, \
-                      lat_heat_sublimation, lat_heat_vaporize, stability_correction, spec_heat_air, \
-                      spec_heat_water, water_density, surface_emission_coeff, sigma, zlt1, zlt2
-from scipy.optimize import minimize, newton
-from numba import njit
 from types import SimpleNamespace
+
+import numpy as np
+from numba import njit
+from scipy.optimize import minimize, newton
+
+from cosipy.constants import Constants
+
+zlt1 = Constants.zlt1
+zlt2 = Constants.zlt2
+saturation_water_vapour_method = Constants.saturation_water_vapour_method
+zero_temperature = Constants.zero_temperature
+lat_heat_vaporize = Constants.lat_heat_vaporize
+lat_heat_sublimation = Constants.lat_heat_sublimation
+sigma = Constants.sigma
+stability_correction = Constants.stability_correction
+spec_heat_air = Constants.spec_heat_air
+spec_heat_water = Constants.spec_heat_water
+sfc_temperature_method = Constants.sfc_temperature_method
+surface_emission_coeff = Constants.surface_emission_coeff
+water_density = Constants.water_density
 
 
 def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, LWin=None, N=None):
@@ -296,7 +310,7 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
    
     # Ground heat flux
     hminus = zlt1
-    hplus = zlt2 - zlt1
+    hplus = zlt2 - hminus  # avoid namespace collision with zlt1
     Tz1, Tz2 = B_Ts
     B = lam * ((hminus/(hplus+hminus)) * ((Tz2-Tz1)/hplus) + (hplus/(hplus+hminus)) * ((Tz1-T0)/hminus))
 

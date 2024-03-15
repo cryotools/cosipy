@@ -1,14 +1,23 @@
 import numpy as np
-from cosipy.constants import penetrating_method, snow_ice_threshold, spec_heat_ice, \
-                      zero_temperature, ice_density, water_density, lat_heat_melting
 from numba import njit
+
+from cosipy.constants import Constants
+
+# only required for njitted functions
+zero_temperature = Constants.zero_temperature
+spec_heat_ice = Constants.spec_heat_ice
+ice_density = Constants.ice_density
+water_density = Constants.water_density
+snow_ice_threshold = Constants.snow_ice_threshold
+lat_heat_melting = Constants.lat_heat_melting
+
 
 def penetrating_radiation(GRID, SWnet, dt):
     penetrating_allowed = ['Bintanja95']
-    if penetrating_method == 'Bintanja95':
+    if Constants.penetrating_method == 'Bintanja95':
         subsurface_melt, Si = method_Bintanja(GRID, SWnet, dt)
     else:
-        raise ValueError("Penetrating method = \"{:s}\" is not allowed, must be one of {:s}".format(penetrating_method, ", ".join(penetrating_allowed)))
+        raise ValueError("Penetrating method = \"{:s}\" is not allowed, must be one of {:s}".format(Constants.penetrating_method, ", ".join(penetrating_allowed)))
 
     return subsurface_melt, Si
 

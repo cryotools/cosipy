@@ -2,6 +2,7 @@
 Hook configuration files for COSIPY.
 """
 
+import argparse
 import sys
 from collections import namedtuple
 
@@ -9,6 +10,64 @@ if sys.version_info >= (3, 11):
     import tomllib
 else:
     import tomli as tomllib  # backwards compatibility
+
+
+def get_user_arguments() -> argparse.Namespace:
+    """Parse user arguments when run as main.
+
+    Optional switches:
+        -h, --help              Show this help message and exit.
+
+    Optional arguments:
+        -c, --config <str>      Relative path to configuration file.
+        -x, --constants <str>   Relative path to constants file.
+        -s, --slurm <str>       Relative path to slurm configuration
+                                file.
+
+    Returns:
+        Namespace of user arguments.
+    """
+
+    tagline = "Coupled snowpack and ice surface energy and mass balance model in Python."
+    parser = argparse.ArgumentParser(prog="cosipy", description=tagline)
+
+    # Optional arguments
+    parser.add_argument(
+        "-c",
+        "--config",
+        default="./config.toml",
+        dest="config_path",
+        type=str,
+        metavar="<path>",
+        required=False,
+        help="relative path to configuration file",
+    )
+
+    parser.add_argument(
+        "-x",
+        "--constants",
+        default="./constants.toml",
+        dest="constants_path",
+        type=str,
+        metavar="<path>",
+        required=False,
+        help="relative path to constants file",
+    )
+
+    parser.add_argument(
+        "-s",
+        "--slurm",
+        default="./slurm_config.toml",
+        dest="slurm_path",
+        type=str,
+        metavar="<path>",
+        required=False,
+        help="relative path to Slurm configuration file",
+    )
+
+    arguments = parser.parse_args()
+
+    return arguments
 
 
 class TomlLoader(object):
@@ -29,54 +88,37 @@ class TomlLoader(object):
 
         return raw_config
 
+    @classmethod
+    def set_config_values(cls, config_table: dict):
+        """Overwrite attributes with configuration data.
+
+        Args:
+            config_table: Loaded .toml data.
+        """
+        for _, table in config_table.items():
+            for k, v in table.items():
+                setattr(cls, k, v)
+
 
 class Config(TomlLoader):
     """Model configuration.
 
     Loads, parses, and sets model configuration for COSIPY from a valid
     .toml file.
-
-    .. note::
-        Attributes must be declared to avoid import errors, but are
-        overwritten once the configuration file is read.
-
     """
 
-    time_start = "2009-01-01T06:00"
-    time_end = "2009-01-10T00:00"
-    data_path = "./data/"
-    input_netcdf = "Zhadang/Zhadang_ERA5_2009.nc"
-    output_prefix = "Zhadang_ERA5"
-    restart = False
-    stake_evaluation = False
-    stakes_loc_file = "./data/input/HEF/loc_stakes.csv"
-    stakes_data_file = "./data/input/HEF/data_stakes_hef.csv"
-    eval_method = "rmse"
-    obs_type = "snowheight"
-    WRF = False
-    northing = "lat"
-    easting = "lon"
-    WRF_X_CSPY = False
-    compression_level = 2
-    slurm_use = False
-    workers = None
-    local_port = 8786
-    full_field = False
-    force_use_TP = False
-    force_use_N = False
-    tile = False
-    xstart = 20
-    xend = 40
-    ystart = 20
-    yend = 40
+    def __init__(self):
+        args = get_user_arguments()
+        self.load(args.config_path)
 
-    def __init__(self, path: str = "./config.toml"):
-        raw_toml = self.get_raw_toml(path)
-        parsed_toml = self.set_correct_config(raw_toml)
-        self.set_config_values(parsed_toml)
+    @classmethod
+    def load(cls, path: str = "./config.toml"):
+        raw_toml = cls.get_raw_toml(path)
+        parsed_toml = cls.set_correct_config(raw_toml)
+        cls.set_config_values(parsed_toml)
 
-    @staticmethod
-    def set_correct_config(config_table: dict) -> dict:
+    @classmethod
+    def set_correct_config(cls, config_table: dict) -> dict:
         """Adjust invalid or mutually exclusive configuration values.
 
         Args:
@@ -86,10 +128,10 @@ class Config(TomlLoader):
             Adjusted .toml data.
         """
         # WRF Compatibility
-        if config_table["WRF"]["WRF"]:
-            config_table["WRF"]["northing"] = "south_north"
-            config_table["WRF"]["easting"] = "west_east"
-        if config_table["WRF"]["WRF_X_CSPY"]:
+        if config_table["DIMENSIONS"]["WRF"]:
+            config_table["DIMENSIONS"]["northing"] = "south_north"
+            config_table["DIMENSIONS"]["easting"] = "west_east"
+        if config_table["DIMENSIONS"]["WRF_X_CSPY"]:
             config_table["FULL_FIELDS"]["full_field"] = True
         # TOML doesn't support null values
         if config_table["PARALLELIZATION"]["workers"] == 0:
@@ -97,27 +139,12 @@ class Config(TomlLoader):
 
         return config_table
 
-    @staticmethod
-    def set_config_values(config_table: dict):
-        """Overwrite attributes with configuration data.
-
-        Args:
-            config_table: Loaded .toml data.
-        """
-        for _, table in config_table.items():
-            for k, v in table.items():
-                setattr(Config, k, v)
-
 
 class SlurmConfig(TomlLoader):
     """Slurm configuration.
 
     Loads, parses, and sets Slurm configuration for COSIPY from a valid
     .toml file.
-
-    .. note::
-        Attributes must be declared to avoid import errors, but are
-        overwritten once the configuration file is read.
 
     Attributes:
         account (str): Slurm account/group, equivalent to Slurm
@@ -132,28 +159,20 @@ class SlurmConfig(TomlLoader):
         memory (str): Memory per process.
         shebang (str): Shebang string.
         slurm_parameters (List[str]): Additional Slurm parameters.
-
     """
 
-    account = ""
-    name = ""
-    project = ""
-    queue = ""
-    port = 8786
-    cores = 1
-    processes = 20
-    memory = ""
-    nodes = 1
-    shebang = ""
-    slurm_parameters = []
+    def __init__(self):
+        args = get_user_arguments()
+        self.load(args.slurm_path)
 
-    def __init__(self, path: str = "./slurm_config.toml"):
-        raw_toml = self.get_raw_toml(path)
-        parsed_toml = self.set_correct_config(raw_toml)
-        self.set_config_values(parsed_toml)
+    @classmethod
+    def load(cls, path: str = "./slurm_config.toml"):
+        raw_toml = cls.get_raw_toml(path)
+        parsed_toml = cls.set_correct_config(raw_toml)
+        cls.set_config_values(parsed_toml)
 
-    @staticmethod
-    def set_correct_config(config_table: dict) -> dict:
+    @classmethod
+    def set_correct_config(cls, config_table: dict) -> dict:
         """Adjust invalid or mutually exclusive configuration values.
 
         Args:
@@ -171,58 +190,14 @@ class SlurmConfig(TomlLoader):
 
         return config_table
 
-    @staticmethod
-    def set_config_values(config_table: dict):
-        """Overwrite attributes with configuration data.
-
-        Args:
-            config_table: Loaded .toml data.
-        """
-        for _, table in config_table.items():
-            for k, v in table.items():
-                setattr(SlurmConfig, k, v)
-
-
-class UtilitiesConfig(TomlLoader):
-    """Configuration for utilities.
-
-    Loads, parses, and sets Slurm configuration for COSIPY from a valid
-    .toml file.
-
-    .. note::
-        Attributes must be declared to avoid import errors, but are
-        overwritten once the configuration file is read.
-
-    Attributes:
-        aws2cosipy: Configuration parameters for `aws2cosipy.py`.
-        create_static: Configuration parameters for `create_static.py`.
-        wrf2cosipy: Configuration parameters for `wrf2cosipy.py`.
-    """
-
-    aws2cosipy = {}
-    create_static = {}
-    wrf2cosipy = {}
-
-    def __init__(self, path: str = "./utilities_config.toml"):
-        raw_toml = self.get_raw_toml(path)
-        self.set_config_values(raw_toml)
-
-    @staticmethod
-    def set_config_values(config_table: dict):
-        """Overwrite attributes with configuration data.
-
-        Args:
-            config_table: Loaded .toml data.
-        """
-        for header, table in config_table.items():
-            data = namedtuple(header, table.keys())
-            params = data(**table)
-            setattr(UtilitiesConfig, header, params)
-
 
 def main():
-    pass
+    args = get_user_arguments()
+    Config.load(args.config_path)
+    SlurmConfig.load(args.slurm_path)
 
 
 if __name__ == "__main__":
+    main()
+else:
     main()

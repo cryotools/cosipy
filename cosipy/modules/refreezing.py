@@ -1,7 +1,14 @@
 import numpy as np
-from cosipy.constants import zero_temperature, spec_heat_ice, ice_density, \
-                      water_density, lat_heat_melting
 from numba import njit
+
+from cosipy.constants import Constants
+
+zero_temperature = Constants.zero_temperature
+ice_density = Constants.ice_density
+water_density = Constants.water_density
+spec_heat_ice = Constants.spec_heat_ice
+lat_heat_melting = Constants.lat_heat_melting
+
 
 @njit
 def refreezing(GRID):

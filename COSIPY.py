@@ -44,63 +44,14 @@ from distributed import Client, LocalCluster
 from tornado import gen
 
 from cosipy.config import Config, SlurmConfig
+from cosipy.constants import Constants
 from cosipy.cpkernel.cosipy_core import cosipy_core
 from cosipy.cpkernel.io import IOClass
-from cosipy.slurm_config import *
-
-
-def get_user_arguments() -> argparse.Namespace:
-    """Parse user arguments when run as main.
-
-    Optional switches:
-        -h, --help              Show this help message and exit.
-
-    Optional arguments:
-        -c, --config <str>      Relative path to configuration file.
-        -s, --slurm <str>       Relative path to slurm configuration
-                                file.
-
-    Returns:
-        Namespace of user arguments.
-    """
-
-    tagline = (
-        "Coupled snowpack and ice surface energy and mass balance model in Python."
-    )
-    parser = argparse.ArgumentParser(prog="cosipy", description=tagline)
-
-    # Optional arguments
-    parser.add_argument(
-        "-c",
-        "--config",
-        default="./config.toml",
-        dest="config_path",
-        type=str,
-        metavar="<path>",
-        required=False,
-        help="relative path to configuration file",
-    )
-
-    parser.add_argument(
-        "-s",
-        "--slurm",
-        default="./slurm_config.toml",
-        dest="slurm_path",
-        type=str,
-        metavar="<path>",
-        required=False,
-        help="relative path to Slurm configuration file",
-    )
-
-    arguments = parser.parse_args()
-
-    return arguments
 
 
 def main():
-
-    arguments = get_user_arguments()
-    Config(arguments.config_path)
+    Config()
+    Constants()
 
     start_logging()
 
@@ -128,8 +79,7 @@ def main():
     # Create a client for distributed calculations
     #-----------------------------------------------
     if Config.slurm_use:
-
-        SlurmConfig(arguments.slurm_path)
+        SlurmConfig()
         with SLURMCluster(
             job_name=SlurmConfig.name,
             cores=SlurmConfig.cores,
@@ -204,6 +154,8 @@ def main():
 
 
 def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
+    Config()
+    Constants()
 
     with Client(cluster) as client:
         print('--------------------------------------------------------------')

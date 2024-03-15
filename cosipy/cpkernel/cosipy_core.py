@@ -1,24 +1,19 @@
 import numpy as np
 import pandas as pd
 
-from cosipy.constants import mult_factor_RRR, densification_method, ice_density, water_density, \
-                      minimum_snowfall, zero_temperature, lat_heat_sublimation, \
-                      lat_heat_melting, lat_heat_vaporize, center_snow_transfer_function, \
-                      spread_snow_transfer_function, constant_density, albedo_fresh_snow
 from cosipy.config import Config
-
+from cosipy.constants import Constants
+from cosipy.cpkernel.init import init_snowpack, load_snowpack
+from cosipy.cpkernel.io import IOClass
 from cosipy.modules.albedo import updateAlbedo
+from cosipy.modules.densification import densification
+from cosipy.modules.evaluation import evaluate
 from cosipy.modules.heatEquation import solveHeatEquation
 from cosipy.modules.penetratingRadiation import penetrating_radiation
 from cosipy.modules.percolation import percolation
 from cosipy.modules.refreezing import refreezing
 from cosipy.modules.roughness import updateRoughness
-from cosipy.modules.densification import densification
-from cosipy.modules.evaluation import evaluate
 from cosipy.modules.surfaceTemperature import update_surface_temperature
-
-from cosipy.cpkernel.init import init_snowpack, load_snowpack
-from cosipy.cpkernel.io import IOClass
 
 
 def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_data=None):
@@ -41,9 +36,26 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     Returns all calculated variables of one grid point
 
     """
-    
+
+    # Declare locally for faster lookup
+    dt = Constants.dt
+    max_layers = Constants.max_layers
+    z = Constants.z
+    mult_factor_RRR = Constants.mult_factor_RRR
+    densification_method = Constants.densification_method
+    ice_density = Constants.ice_density
+    water_density = Constants.water_density
+    minimum_snowfall = Constants.minimum_snowfall
+    zero_temperature = Constants.zero_temperature
+    lat_heat_sublimation = Constants.lat_heat_sublimation
+    lat_heat_melting = Constants.lat_heat_melting
+    lat_heat_vaporize = Constants.lat_heat_vaporize
+    center_snow_transfer_function = Constants.center_snow_transfer_function
+    spread_snow_transfer_function = Constants.spread_snow_transfer_function
+    constant_density = Constants.constant_density
+    albedo_fresh_snow = Constants.albedo_fresh_snow
+
     # Replace values from constants.py if coupled
-    from cosipy.constants import max_layers, dt, z	#WTF python!
     if Config.WRF_X_CSPY:
         dt = int(DATA.DT.values)
         max_layers = int(DATA.max_layers.values)

@@ -2,12 +2,21 @@ import sys
 
 import numpy as np
 
-from cosipy.constants import *
+from cosipy.constants import Constants
 from cosipy.cpkernel.grid import Grid
 
 
 def init_snowpack(DATA):
     """INITIALIZATION"""
+
+    # Declare locally for faster lookup
+    initial_snowheight_constant = Constants.initial_snowheight_constant
+    initial_glacier_height = Constants.initial_glacier_height
+    initial_glacier_layer_heights = Constants.initial_glacier_layer_heights
+    temperature_bottom = Constants.temperature_bottom
+    initial_top_density_snowpack = Constants.initial_top_density_snowpack
+    initial_bottom_density_snowpack = Constants.initial_bottom_density_snowpack
+    ice_density = Constants.ice_density
 
     ##--------------------------------------
     ## Check for WRF data

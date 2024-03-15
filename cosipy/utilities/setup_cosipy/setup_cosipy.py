@@ -117,7 +117,13 @@ def main():
     if target_path == sample_path:
         raise ValueError("The target and source paths cannot be identical.")
 
-    for file in ["config.toml", "slurm_config.toml", "utilities_config.toml"]:
+    config_files = [
+        "config.toml",
+        "constants.toml",
+        "slurm_config.toml",
+        "utilities_config.toml",
+    ]
+    for file in config_files:
         check_file_exists(file_path=f"{sample_path}/{file}")
         copy_file_to_target(
             basename=file,

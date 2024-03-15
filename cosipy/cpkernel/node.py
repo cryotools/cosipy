@@ -4,7 +4,20 @@ import numpy as np
 from numba import float64
 from numba.experimental import jitclass
 
-import cosipy.constants as constants
+from cosipy.constants import Constants
+
+# only required for jitclass/njit
+ice_density = Constants.ice_density
+water_density = Constants.water_density
+air_density = Constants.air_density
+spec_heat_ice = Constants.spec_heat_ice
+spec_heat_air = Constants.spec_heat_air
+spec_heat_water = Constants.spec_heat_water
+k_i = Constants.k_i
+k_a = Constants.k_a
+k_w = Constants.k_w
+thermal_conductivity_method = Constants.thermal_conductivity_method
+zero_temperature = Constants.zero_temperature
 
 spec = OrderedDict()
 spec["height"] = float64
@@ -12,6 +25,7 @@ spec["temperature"] = float64
 spec["liquid_water_content"] = float64
 spec["ice_fraction"] = float64
 spec["refreeze"] = float64
+
 
 @jitclass(spec)
 class Node:
@@ -57,8 +71,8 @@ class Node:
 
         if ice_fraction is None:
             # Remove weight of air from density
-            a = snow_density - (1 - (snow_density / constants.ice_density)) * constants.air_density
-            self.ice_fraction = a / constants.ice_density
+            a = snow_density - (1 - (snow_density / ice_density)) * air_density
+            self.ice_fraction = a / ice_density
         else:
             self.ice_fraction = ice_fraction
 
@@ -122,9 +136,9 @@ class Node:
             Snow density [:math:`kg~m^{-3}`].
         """
         return (
-            self.get_layer_ice_fraction() * constants.ice_density
-            + self.get_layer_liquid_water_content() * constants.water_density
-            + self.get_layer_air_porosity() * constants.air_density
+            self.get_layer_ice_fraction() * ice_density
+            + self.get_layer_liquid_water_content() * water_density
+            + self.get_layer_air_porosity() * air_density
         )
 
     def get_layer_air_porosity(self) -> float:
@@ -145,7 +159,7 @@ class Node:
         cp : float
             Specific heat capacity [:math:`J~kg^{-1}~K^{-1}`].
         """
-        return self.get_layer_ice_fraction()*constants.spec_heat_ice + self.get_layer_air_porosity()*constants.spec_heat_air + self.get_layer_liquid_water_content()*constants.spec_heat_water
+        return self.get_layer_ice_fraction()*spec_heat_ice + self.get_layer_air_porosity()*spec_heat_air + self.get_layer_liquid_water_content()*spec_heat_water
 
     def get_layer_liquid_water_content(self) -> float:
         """Gets the node's liquid water content.
@@ -183,7 +197,7 @@ class Node:
         cc : float
             Cold content [:math:`J~m^{-2}`].
         """
-        return -self.get_layer_specific_heat() * self.get_layer_density() * self.get_layer_height() * (self.get_layer_temperature()-constants.zero_temperature)
+        return -self.get_layer_specific_heat() * self.get_layer_density() * self.get_layer_height() * (self.get_layer_temperature()-zero_temperature)
 
     def get_layer_porosity(self) -> float:
         """Gets the node's porosity.
@@ -204,13 +218,13 @@ class Node:
             Thermal conductivity [:math:`W~m^{-1}~K^{-1}`].
         """
         methods_allowed = ['bulk', 'empirical']
-        if constants.thermal_conductivity_method == 'bulk':
-            lam = self.get_layer_ice_fraction()*constants.k_i + self.get_layer_air_porosity()*constants.k_a + self.get_layer_liquid_water_content()*constants.k_w
-        elif constants.thermal_conductivity_method == 'empirical':
+        if thermal_conductivity_method == 'bulk':
+            lam = self.get_layer_ice_fraction()*k_i + self.get_layer_air_porosity()*k_a + self.get_layer_liquid_water_content()*k_w
+        elif thermal_conductivity_method == 'empirical':
             lam = 0.021 + 2.5 * np.power((self.get_layer_density()/1000),2)
         else:
             message = ("Thermal conductivity method =",
-                       f"{constants.thermal_conductivity_method}",
+                       f"{thermal_conductivity_method}",
                        f"is not allowed, must be one of",
                        f"{', '.join(methods_allowed)}")
             raise ValueError(" ".join(message))
