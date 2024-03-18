@@ -1,20 +1,27 @@
 """
- This file reads the input data (model forcing) and write the output to netcdf file
+This file reads the input data (model forcing) and writes the output to
+a netcdf file.
+
+Edit the configuration by supplying a valid .toml file. See the sample
+`utilities_config.toml` for more information.
+
+To run from source:
+``python -m cosipy.utilities.wrf2cosipy.wrf2cosipy``
+
+Otherwise, use the entry point:
+``cosipy-wrf2cosipy``
 """
-import sys
-import xarray as xr
-import pandas as pd
-import numpy as np
-import time
-from itertools import product
-
-# sys.path.append('../../')
-
-# from utilities.wrf2cosipy.wrf2cosipyConfig import *
-from cosipy.utilities.config import UtilitiesConfig
-cfg_constants = UtilitiesConfig.wrf2cosipy.constants
-
 import argparse
+
+import numpy as np
+import pandas as pd
+import xarray as xr
+
+from cosipy.utilities.config_utils import UtilitiesConfig
+
+_args = None
+_cfg = None
+
 
 def create_input(wrf_file, cosipy_file, start_date, end_date):
     """ This function creates an input dataset from the Hintereisferner CR3000 Logger Dataset 
@@ -61,7 +68,7 @@ def create_input(wrf_file, cosipy_file, start_date, end_date):
     dso = add_variable_along_latlon(dso, ds.TSK[0], 'TSK', 'K', 'Skin temperature')
     
     # Wind velocity at 2 m (assuming neutral stratification)
-    z  = cfg_constants["hu"]     # Height of measurement
+    z  = _cfg.constants["hu"]     # Height of measurement
     z0 = 0.0040 # Roughness length for momentum
     umag = np.sqrt(ds.V10.values**2+ds.U10.values**2)   # Mean wind velocity
     U2 = umag * (np.log(2 / z0) / np.log(10 / z0))
@@ -70,8 +77,8 @@ def create_input(wrf_file, cosipy_file, start_date, end_date):
 
     # Add glacier mask to file (derived from the land use category)
     mask = ds.LU_INDEX[0].values
-    mask[mask!=cfg_constants["lu_class"]] = 0
-    mask[mask==cfg_constants["lu_class"]] = 1
+    mask[mask!=_cfg.constants["lu_class"]] = 0
+    mask[mask==_cfg.constants["lu_class"]] = 1
     dso = add_variable_along_latlon(dso, mask, 'MASK', '-', 'Glacier mask')
     
     # Derive precipitation from accumulated values
@@ -137,13 +144,57 @@ def wrf_rh(T2, Q2, PSFC):
     rh[rh<0.0] = 0.0
     return rh
 
-if __name__ == "__main__":
-    
-    parser = argparse.ArgumentParser(description='Create 2D input file from WRF file.')
-    parser.add_argument('-i', '-wrf_file', dest='wrf_file', help='WRF file')
-    parser.add_argument('-o', '-cosipy_file', dest='cosipy_file', help='Name of the resulting COSIPY file')
-    parser.add_argument('-b', '-start_date', dest='start_date', const=None, help='Start date')
-    parser.add_argument('-e', '-end_date', dest='end_date', const=None, help='End date')
 
-    args = parser.parse_args()
-    create_input(args.wrf_file, args.cosipy_file, args.start_date, args.end_date) 
+def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
+    """Get user arguments for converting AWS data.
+    
+    Args:
+        parser: An initialised argument parser.
+    
+    Returns:
+        User arguments for conversion.
+    """
+    parser.description = "Create 2D input file from WRF file."
+    parser.prog = __package__
+
+    # Required arguments
+    parser.add_argument('-i', '--wrf_file', dest='wrf_file', type=str, metavar="<path>", required=True, help='WRF file')
+    parser.add_argument('-o', '--cosipy_file', dest='cosipy_file', type=str, metavar="<path>", required=True,
+                        help='Name of the resulting COSIPY file')
+
+    # Optional arguments
+    parser.add_argument('-b', '--start_date', dest='start_date', const=None, help='Start date')
+    parser.add_argument('-e', '--end_date', dest='end_date', const=None, help='End date')
+
+    arguments = parser.parse_args()
+
+    return arguments
+
+
+def load_config(module_name: str) -> tuple:
+    """Load configuration for module.
+    
+    Args:
+        module_name: name of this module.
+
+    Returns:
+        User arguments and configuration parameters.
+    """
+    params = UtilitiesConfig()
+    arguments = get_user_arguments(params.parser)
+    params.load(arguments.utilities_path)
+    params = params.get_config_expansion(name=module_name)
+
+    return arguments, params
+
+
+def main():
+    global _args
+    global _cfg
+    _args, _cfg = load_config(module_name="wrf2cosipy")
+
+    create_input(_args.wrf_file, _args.cosipy_file, _args.start_date, _args.end_date) 
+
+
+if __name__ == "__main__":
+    main()    

@@ -1,6 +1,6 @@
 import pytest
 
-from cosipy.utilities.config import UtilitiesConfig
+from cosipy.utilities.config_utils import UtilitiesConfig
 
 
 class TestConfigUtilities:

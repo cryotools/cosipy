@@ -1,6 +1,17 @@
 """
- This file reads the DEM of the study site and the shapefile and creates the needed static.nc
+This file reads the DEM of the study site and the shapefile and creates
+the needed static.nc.
+
+Edit the configuration by supplying a valid .toml file. See the sample
+`utilities_config.toml` for more information.
+
+To run from source:
+``python -m cosipy.utilities.createStatic.create_static_file``
+
+Otherwise, use the entry point:
+``cosipy-create-static``
 """
+import argparse
 import os
 import sys
 from itertools import product
@@ -9,11 +20,11 @@ import numpy as np
 import richdem as rd
 import xarray as xr
 
-from cosipy.utilities.config import UtilitiesConfig
+from cosipy.utilities.config_utils import UtilitiesConfig
 
 
 def check_folder_path(path: str) -> str:
-    """Check folder path includes a forward slash."""
+    """Check the folder path includes a forward slash."""
     if not path.endswith("/"):
         path = f"{path}/"
 
@@ -42,29 +53,62 @@ def insert_var(ds, var, name, units, long_name):
     ds[name].attrs['_FillValue'] = -9999
 
 
-def main():
-    cfg = UtilitiesConfig()
-    cfg = cfg.create_static
-    static_folder = cfg.paths["static_folder"]
+def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
+    """Get user arguments for converting AWS data.
+    
+    Args:
+        parser: An initialised argument parser.
+    
+    Returns:
+        User arguments for conversion.
+    """
+    parser.description = "Create static file."
+    parser.prog = __package__
 
-    tile = cfg.coords["tile"]
-    aggregate = cfg.coords["aggregate"]
+    arguments = parser.parse_args()
+
+    return arguments
+
+
+def load_config(module_name: str) -> tuple:
+    """Load configuration for module.
+    
+    Args:
+        module_name: name of this module.
+
+    Returns:
+        User arguments and configuration parameters.
+    """
+    params = UtilitiesConfig()
+    arguments = get_user_arguments(params.parser)
+    params.load(arguments.utilities_path)
+    params = params.get_config_expansion(name=module_name)
+
+    return arguments, params
+
+
+def main():
+    _, _cfg = load_config(module_name="create_static")
+
+    static_folder = _cfg.paths["static_folder"]
+    tile = _cfg.coords["tile"]
+    aggregate = _cfg.coords["aggregate"]
 
     ### input digital elevation model (DEM)
-    dem_path_tif = f"{static_folder}{cfg.paths['dem_path']}"
+    dem_path_tif = f"{static_folder}{_cfg.paths['dem_path']}"
     ### input shape of glacier or study area, e.g. from the Randolph glacier inventory
-    shape_path = f"{static_folder}{cfg.paths['shape_path']}"
-    ### path were the static.nc file is saved
-    output_path = f"{static_folder}{cfg.paths['output_file']}"
+    shape_path = f"{static_folder}{_cfg.paths['shape_path']}"
+    ### path where the static.nc file is saved
+    output_path = f"{static_folder}{_cfg.paths['output_file']}"
 
     ### to shrink the DEM use the following lat/lon corners
-    longitude_upper_left = str(cfg.coords["longitude_upper_left"])
-    latitude_upper_left = str(cfg.coords["latitude_upper_left"])
-    longitude_lower_right = str(cfg.coords["longitude_lower_right"])
-    latitude_lower_right = str(cfg.coords["latitude_lower_right"])
+    longitude_upper_left = str(_cfg.coords["longitude_upper_left"])
+    latitude_upper_left = str(_cfg.coords["latitude_upper_left"])
+    longitude_lower_right = str(_cfg.coords["longitude_lower_right"])
+    latitude_lower_right = str(_cfg.coords["latitude_lower_right"])
 
     ### to aggregate the DEM to a coarser spatial resolution
-    aggregate_degree = str(cfg.coords["aggregate_degree"])
+    aggregate_degree = str(_cfg.coords["aggregate_degree"])
 
     ### intermediate files, will be removed afterwards
     dem_path_tif_temp = static_folder + 'DEM_temp.tif'
