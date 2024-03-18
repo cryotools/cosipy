@@ -12,22 +12,8 @@ else:
     import tomli as tomllib  # backwards compatibility
 
 
-def get_user_arguments() -> argparse.Namespace:
-    """Parse user arguments when run as main.
-
-    Optional switches:
-        -h, --help              Show this help message and exit.
-
-    Optional arguments:
-        -c, --config <str>      Relative path to configuration file.
-        -x, --constants <str>   Relative path to constants file.
-        -s, --slurm <str>       Relative path to slurm configuration
-                                file.
-
-    Returns:
-        Namespace of user arguments.
-    """
-
+def set_parser() -> argparse.ArgumentParser:
+    """Set argument parser for COSIPY."""
     tagline = "Coupled snowpack and ice surface energy and mass balance model in Python."
     parser = argparse.ArgumentParser(prog="cosipy", description=tagline)
 
@@ -65,9 +51,37 @@ def get_user_arguments() -> argparse.Namespace:
         help="relative path to Slurm configuration file",
     )
 
+    return parser
+
+
+def get_user_arguments() -> argparse.Namespace:
+    """Parse user arguments when run as main.
+
+    Optional switches:
+        -h, --help              Show this help message and exit.
+
+    Optional arguments:
+        -c, --config <str>      Relative path to configuration file.
+        -x, --constants <str>   Relative path to constants file.
+        -s, --slurm <str>       Relative path to slurm configuration
+                                file.
+
+    Returns:
+        Namespace of user arguments.
+    """
+
+    parser = set_parser()
+
     arguments = parser.parse_args()
 
     return arguments
+
+
+def get_help():
+    """Print help for commands."""
+    parser = set_parser()
+    parser.print_help()
+    sys.exit(1)
 
 
 class TomlLoader(object):

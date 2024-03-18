@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cosipy"
-version = "1.4.1"
+version = "1.5.0"
 authors = [
     { name = "COSIPY Contributors", email = "" },
 ]
@@ -86,7 +86,9 @@ dev = [
 
 [project.scripts]
 run-cosipy = "COSIPY:main"
+cosipy-help = "cosipy.config:get_help"
 setup-cosipy = "cosipy.utilities.setup_cosipy.setup_cosipy:main"
+cosipy-run = "COSIPY:main"
 
 cosipy-aws2cosipy = "cosipy.utilities.aws2cosipy.aws2cosipy:main"
 cosipy-create-static = "cosipy.utilities.createStatic.create_static_file:main"

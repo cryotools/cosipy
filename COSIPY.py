@@ -22,7 +22,6 @@
     Correspondence: tobias.sauter@fau.de
 
 """
-import argparse
 import cProfile
 import logging
 import os
