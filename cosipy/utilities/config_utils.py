@@ -43,9 +43,8 @@ class UtilitiesConfig(TomlLoader):
         wrf2cosipy: Configuration parameters for `wrf2cosipy.py`.
     """
 
-    def __init__(self, utilities_path: str = "./utilities_config.toml"):
+    def __init__(self):
         self.parser = self.set_arg_parser()
-        self.load(utilities_path)
 
     @classmethod
     def load(cls, path: str = "./utilities_config.toml"):
@@ -85,8 +84,8 @@ class UtilitiesConfig(TomlLoader):
         return parser
 
 
-def main(utilities_path: str = "./utilities_config.toml"):
-    UtilitiesConfig.load(utilities_path)
+def main():
+    UtilitiesConfig()
 
 
 if __name__ == "__main__":

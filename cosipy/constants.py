@@ -16,8 +16,8 @@ class Constants(TomlLoader):
     """
 
     def __init__(self):
-        args = get_user_arguments()
-        self.load(args.constants_path)
+        self.args = get_user_arguments()
+        self.load(self.args.constants_path)
 
     @classmethod
     def load(cls, path: str = "./constants.toml"):
@@ -46,8 +46,7 @@ class Constants(TomlLoader):
 
 
 def main():
-    args = get_user_arguments()
-    Constants.load(path=args.constants_path)
+    Constants()
 
 
 if __name__ == "__main__":

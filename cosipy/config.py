@@ -108,8 +108,8 @@ class Config(TomlLoader):
     """
 
     def __init__(self):
-        args = get_user_arguments()
-        self.load(args.config_path)
+        self.args = get_user_arguments()
+        self.load(self.args.config_path)
 
     @classmethod
     def load(cls, path: str = "./config.toml"):
@@ -162,8 +162,8 @@ class SlurmConfig(TomlLoader):
     """
 
     def __init__(self):
-        args = get_user_arguments()
-        self.load(args.slurm_path)
+        self.args = get_user_arguments()
+        self.load(self.args.slurm_path)
 
     @classmethod
     def load(cls, path: str = "./slurm_config.toml"):
@@ -192,9 +192,9 @@ class SlurmConfig(TomlLoader):
 
 
 def main():
-    args = get_user_arguments()
-    Config.load(args.config_path)
-    SlurmConfig.load(args.slurm_path)
+    cfg = Config()
+    if cfg.slurm_use:
+        SlurmConfig()
 
 
 if __name__ == "__main__":
