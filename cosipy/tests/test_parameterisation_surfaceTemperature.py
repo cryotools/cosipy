@@ -1,5 +1,5 @@
-import constants
 from COSIPY import start_logging
+from cosipy.constants import Constants
 from cosipy.modules.surfaceTemperature import update_surface_temperature
 
 
@@ -42,7 +42,7 @@ class TestParamSurfaceTemperature:
             N=0.5,  # otherwise tries to retrieve LWin from non-existent file
         )
 
-        assert constants.zero_temperature >= surface_temperature >= 220.0
+        assert Constants.zero_temperature >= surface_temperature >= 220.0
         assert 400 >= lw_radiation_in >= 0
         assert 0 >= lw_radiation_out >= -400
         assert 250 >= sensible_heat_flux >= -250

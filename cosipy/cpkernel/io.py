@@ -3,6 +3,7 @@
 """
 
 import configparser
+import inspect
 import os
 import sys
 
@@ -10,8 +11,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from config import *
-from constants import *
+from cosipy.config import Config
+from cosipy.constants import Constants
 
 
 class IOClass:
@@ -19,12 +20,10 @@ class IOClass:
     def __init__(self, DATA=None):
         """ Init IO Class"""
 
-        # Read variable list from file
-        config = configparser.ConfigParser()
-        config.read('./cosipy/output')
-        self.atm = config['vars']['atm']
-        self.internal = config['vars']['internal']
-        self.full = config['vars']['full']
+        output_vars = self.get_output_structure()
+        self.atm = output_vars['vars']['atm']
+        self.internal = output_vars['vars']['internal']
+        self.full = output_vars['vars']['full']
 
         # Initialize data
         self.DATA = DATA
@@ -35,6 +34,27 @@ class IOClass:
         if DATA is not None:
             self.time = self.DATA.sizes['time']
 
+    def get_output_structure(self):
+        """Get the model output variables.
+        
+        Returns:
+            Output variables for internal and full-field simulations.
+
+        Raises:
+            FileNotFoundError: If the "output" file is not found.
+        """
+        # Package is not installed in working directory
+        filename = inspect.getfile(inspect.currentframe())
+        filename = f"{filename[:-14]}output"
+        if not os.path.isfile(filename):
+            raise FileNotFoundError(f"{filename} not found.")
+
+        # Read variable list from file
+        output_structure = configparser.ConfigParser()
+        output_structure.read(filename)
+
+        return output_structure
+
     #==============================================================================
     # Creates the input data and reads the restart file, if necessary. The function
     # returns the DATA xarray dataset which contains all input variables.
@@ -42,20 +62,20 @@ class IOClass:
     def create_data_file(self):
         """ Returns the DATA xarray dataset"""
     
-        if restart:
+        if Config.restart:
             print('--------------------------------------------------------------')
             print('\t RESTART FROM PREVIOUS STATE')
             print('-------------------------------------------------------------- \n')
             
             # Load the restart file
-            timestamp = pd.to_datetime(time_start).strftime('%Y-%m-%dT%H-%M')
-            if (os.path.isfile(os.path.join(data_path, 'restart', 'restart_'+timestamp+'.nc')) & (time_start != time_end)):
-                self.GRID_RESTART = xr.open_dataset(os.path.join(data_path, 'restart', 'restart_'+timestamp+'.nc'))
-                self.restart_date = self.GRID_RESTART.time+np.timedelta64(dt,'s')     # Get time of the last calculation and add one time step
+            timestamp = pd.to_datetime(Config.time_start).strftime('%Y-%m-%dT%H-%M')
+            if (os.path.isfile(os.path.join(Config.data_path, 'restart', 'restart_'+timestamp+'.nc')) & (Config.time_start != Config.time_end)):
+                self.GRID_RESTART = xr.open_dataset(os.path.join(Config.data_path, 'restart', 'restart_'+timestamp+'.nc'))
+                self.restart_date = self.GRID_RESTART.time+np.timedelta64(Constants.dt,'s')     # Get time of the last calculation and add one time step
                 self.init_data_dataset()                       # Read data from the last date to the end of the data file
             else:
                 print('No restart file available for the given date %s' % (timestamp))  # if there is a problem kill the program
-                print('OR start date %s equals end date %s \n' % (time_start, time_end))
+                print('OR start date %s equals end date %s \n' % (Config.time_start, Config.time_end))
                 sys.exit(1)
         else:
             self.restart_date = None
@@ -64,14 +84,14 @@ class IOClass:
         #----------------------------------------------
         # Tile the data is desired
         #----------------------------------------------
-        if tile:
-            if WRF:
-                self.DATA = self.DATA.isel(south_north=slice(ystart,yend), west_east=slice(xstart,xend))
+        if Config.tile:
+            if Config.WRF:
+                self.DATA = self.DATA.isel(south_north=slice(Config.ystart,Config.yend), west_east=slice(Config.xstart,Config.xend))
             else:
-                self.DATA = self.DATA.isel(lat=slice(ystart,yend), lon=slice(xstart,xend))
+                self.DATA = self.DATA.isel(lat=slice(Config.ystart,Config.yend), lon=slice(Config.xstart,Config.xend))
 
-        self.ny = self.DATA.sizes[northing]
-        self.nx = self.DATA.sizes[easting]
+        self.ny = self.DATA.sizes[Config.northing]
+        self.nx = self.DATA.sizes[Config.easting]
         self.time = self.DATA.sizes['time']
 
         return self.DATA
@@ -132,7 +152,7 @@ class IOClass:
         """
     
         # Open input dataset
-        self.DATA = xr.open_dataset(os.path.join(data_path,'input',input_netcdf))
+        self.DATA = xr.open_dataset(os.path.join(Config.data_path,'input',Config.input_netcdf))
         self.DATA['time'] = np.sort(self.DATA['time'].values)
         start_interval=str(self.DATA.time.values[0])[0:16]
         end_interval = str(self.DATA.time.values[-1])[0:16]
@@ -142,24 +162,24 @@ class IOClass:
         # Check if restart option is set
         if self.restart_date is None:
             print('--------------------------------------------------------------')
-            print('\t Integration from %s to %s' % (time_start, time_end))
+            print('\t Integration from %s to %s' % (Config.time_start, Config.time_end))
             print('--------------------------------------------------------------\n')
-            self.DATA = self.DATA.sel(time=slice(time_start, time_end))   # Select dates from config.py
+            self.DATA = self.DATA.sel(time=slice(Config.time_start, Config.time_end))   # Select dates from config.py
         else:
             # There is nothing to do if the dates are equal
-            if (self.restart_date==time_end):
+            if (self.restart_date==Config.time_end):
                 print('Start date equals end date ... no new data ... EXIT')
                 sys.exit(1)
             else:
                 # otherwise, run the model from the restart date to the defined end date
-                print('Starting from %s (from restart file) to %s (from config.py) \n' % (self.restart_date.values, time_end))
-                self.DATA = self.DATA.sel(time=slice(self.restart_date, time_end))
+                print('Starting from %s (from restart file) to %s (from config.py) \n' % (self.restart_date.values, Config.time_end))
+                self.DATA = self.DATA.sel(time=slice(self.restart_date, Config.time_end))
 
-        if time_start < start_interval:
+        if Config.time_start < start_interval:
             print('\n WARNING! Selected startpoint before first timestep of input data\n')
-        if time_end > end_interval:
+        if Config.time_end > end_interval:
             print('\n WARNING! Selected endpoint after last timestep of input data\n')
-        if time_start > end_interval or time_end < start_interval:
+        if Config.time_start > end_interval or Config.time_end < start_interval:
             print('\n ERROR! Selected period not available in input data\n')
 
 
@@ -228,78 +248,78 @@ class IOClass:
         self.RESULT.coords['lon'] = self.DATA.coords['lon']
 
         # Global attributes from config.py
-        self.RESULT.attrs['Start_from_restart_file'] = str(restart)
-        self.RESULT.attrs['Stake_evaluation'] = str(stake_evaluation)
-        self.RESULT.attrs['WRF_simulation'] = str(WRF)
-        self.RESULT.attrs['Compression_level'] = compression_level
-        self.RESULT.attrs['Slurm_use'] = str(slurm_use)
-        self.RESULT.attrs['Full_fiels'] = str(full_field)
-        self.RESULT.attrs['Force_use_TP'] = str(force_use_TP)
-        self.RESULT.attrs['Force_use_N'] = str(force_use_N)
-        self.RESULT.attrs['Tile_of_glacier_of_interest'] = str(tile)
+        self.RESULT.attrs['Start_from_restart_file'] = str(Config.restart)
+        self.RESULT.attrs['Stake_evaluation'] = str(Config.stake_evaluation)
+        self.RESULT.attrs['WRF_simulation'] = str(Config.WRF)
+        self.RESULT.attrs['Compression_level'] = Config.compression_level
+        self.RESULT.attrs['Slurm_use'] = str(Config.slurm_use)
+        self.RESULT.attrs['Full_fiels'] = str(Config.full_field)
+        self.RESULT.attrs['Force_use_TP'] = str(Config.force_use_TP)
+        self.RESULT.attrs['Force_use_N'] = str(Config.force_use_N)
+        self.RESULT.attrs['Tile_of_glacier_of_interest'] = str(Config.tile)
 
         # Global attributes from constants.py
-        self.RESULT.attrs['Time_step_input_file_seconds'] = dt
-        self.RESULT.attrs['Max_layers'] = max_layers
-        self.RESULT.attrs['Z_measurment_height'] = z
-        self.RESULT.attrs['Stability_correction'] = stability_correction
-        self.RESULT.attrs['Albedo_method'] = albedo_method
-        self.RESULT.attrs['Densification_method'] = densification_method
-        self.RESULT.attrs['Penetrating_method'] = penetrating_method
-        self.RESULT.attrs['Roughness_method'] = roughness_method
-        self.RESULT.attrs['Saturation_water_vapour_method'] = saturation_water_vapour_method
+        self.RESULT.attrs['Time_step_input_file_seconds'] = Constants.dt
+        self.RESULT.attrs['Max_layers'] = Constants.max_layers
+        self.RESULT.attrs['Z_measurment_height'] = Constants.z
+        self.RESULT.attrs['Stability_correction'] = Constants.stability_correction
+        self.RESULT.attrs['Albedo_method'] = Constants.albedo_method
+        self.RESULT.attrs['Densification_method'] = Constants.densification_method
+        self.RESULT.attrs['Penetrating_method'] = Constants.penetrating_method
+        self.RESULT.attrs['Roughness_method'] = Constants.roughness_method
+        self.RESULT.attrs['Saturation_water_vapour_method'] = Constants.saturation_water_vapour_method
 
-        self.RESULT.attrs['Initial_snowheight'] = initial_snowheight_constant
-        self.RESULT.attrs['Initial_snow_layer_heights'] = initial_snow_layer_heights
-        self.RESULT.attrs['Initial_glacier_height'] = initial_glacier_height
-        self.RESULT.attrs['Initial_glacier_layer_heights'] = initial_glacier_layer_heights
-        self.RESULT.attrs['Initial_top_density_snowpack'] = initial_top_density_snowpack
-        self.RESULT.attrs['Initial_bottom_density_snowpack'] = initial_bottom_density_snowpack
-        self.RESULT.attrs['Temperature_bottom'] = temperature_bottom
-        self.RESULT.attrs['Const_init_temp'] = const_init_temp
+        self.RESULT.attrs['Initial_snowheight'] = Constants.initial_snowheight_constant
+        self.RESULT.attrs['Initial_snow_layer_heights'] = Constants.initial_snow_layer_heights
+        self.RESULT.attrs['Initial_glacier_height'] = Constants.initial_glacier_height
+        self.RESULT.attrs['Initial_glacier_layer_heights'] = Constants.initial_glacier_layer_heights
+        self.RESULT.attrs['Initial_top_density_snowpack'] = Constants.initial_top_density_snowpack
+        self.RESULT.attrs['Initial_bottom_density_snowpack'] = Constants.initial_bottom_density_snowpack
+        self.RESULT.attrs['Temperature_bottom'] = Constants.temperature_bottom
+        self.RESULT.attrs['Const_init_temp'] = Constants.const_init_temp
 
-        self.RESULT.attrs['Center_snow_transfer_function'] = center_snow_transfer_function
-        self.RESULT.attrs['Spread_snow_transfer_function'] = spread_snow_transfer_function
-        self.RESULT.attrs['Multiplication_factor_for_RRR_or_SNOWFALL'] = mult_factor_RRR
-        self.RESULT.attrs['Minimum_snow_layer_height'] = minimum_snow_layer_height
-        self.RESULT.attrs['Minimum_snowfall'] = minimum_snowfall
+        self.RESULT.attrs['Center_snow_transfer_function'] = Constants.center_snow_transfer_function
+        self.RESULT.attrs['Spread_snow_transfer_function'] = Constants.spread_snow_transfer_function
+        self.RESULT.attrs['Multiplication_factor_for_RRR_or_SNOWFALL'] = Constants.mult_factor_RRR
+        self.RESULT.attrs['Minimum_snow_layer_height'] = Constants.minimum_snow_layer_height
+        self.RESULT.attrs['Minimum_snowfall'] = Constants.minimum_snowfall
 
-        self.RESULT.attrs['Remesh_method'] = remesh_method
-        self.RESULT.attrs['First_layer_height_log_profile'] = first_layer_height
-        self.RESULT.attrs['Layer_stretching_log_profile'] = layer_stretching
+        self.RESULT.attrs['Remesh_method'] = Constants.remesh_method
+        self.RESULT.attrs['First_layer_height_log_profile'] = Constants.first_layer_height
+        self.RESULT.attrs['Layer_stretching_log_profile'] = Constants.layer_stretching
 
-        self.RESULT.attrs['Merge_max'] = merge_max
-        self.RESULT.attrs['Layer_stretching_log_profile'] = layer_stretching
-        self.RESULT.attrs['Density_threshold_merging'] = density_threshold_merging
-        self.RESULT.attrs['Temperature_threshold_merging'] = temperature_threshold_merging
+        self.RESULT.attrs['Merge_max'] = Constants.merge_max
+        self.RESULT.attrs['Layer_stretching_log_profile'] = Constants.layer_stretching
+        self.RESULT.attrs['Density_threshold_merging'] = Constants.density_threshold_merging
+        self.RESULT.attrs['Temperature_threshold_merging'] = Constants.temperature_threshold_merging
 
-        self.RESULT.attrs['Density_fresh_snow'] = constant_density
-        self.RESULT.attrs['Albedo_fresh_snow'] = albedo_fresh_snow
-        self.RESULT.attrs['Albedo_firn'] = albedo_firn
-        self.RESULT.attrs['Albedo_ice'] = albedo_ice
-        self.RESULT.attrs['Albedo_mod_snow_aging'] = albedo_mod_snow_aging
-        self.RESULT.attrs['Albedo_mod_snow_depth'] = albedo_mod_snow_depth
-        self.RESULT.attrs['Roughness_fresh_snow'] = roughness_fresh_snow
-        self.RESULT.attrs['Roughness_ice'] = roughness_ice
-        self.RESULT.attrs['Roughness_firn'] = roughness_firn
-        self.RESULT.attrs['Aging_factor_roughness'] = aging_factor_roughness
-        self.RESULT.attrs['Snow_ice_threshold'] = snow_ice_threshold
+        self.RESULT.attrs['Density_fresh_snow'] = Constants.constant_density
+        self.RESULT.attrs['Albedo_fresh_snow'] = Constants.albedo_fresh_snow
+        self.RESULT.attrs['Albedo_firn'] = Constants.albedo_firn
+        self.RESULT.attrs['Albedo_ice'] = Constants.albedo_ice
+        self.RESULT.attrs['Albedo_mod_snow_aging'] = Constants.albedo_mod_snow_aging
+        self.RESULT.attrs['Albedo_mod_snow_depth'] = Constants.albedo_mod_snow_depth
+        self.RESULT.attrs['Roughness_fresh_snow'] = Constants.roughness_fresh_snow
+        self.RESULT.attrs['Roughness_ice'] = Constants.roughness_ice
+        self.RESULT.attrs['Roughness_firn'] = Constants.roughness_firn
+        self.RESULT.attrs['Aging_factor_roughness'] = Constants.aging_factor_roughness
+        self.RESULT.attrs['Snow_ice_threshold'] = Constants.snow_ice_threshold
 
-        self.RESULT.attrs['lat_heat_melting'] = lat_heat_melting
-        self.RESULT.attrs['lat_heat_vaporize'] = lat_heat_vaporize
-        self.RESULT.attrs['lat_heat_sublimation'] = lat_heat_sublimation
-        self.RESULT.attrs['spec_heat_air'] = spec_heat_air
-        self.RESULT.attrs['spec_heat_ice'] = spec_heat_ice
-        self.RESULT.attrs['spec_heat_water'] = spec_heat_water
-        self.RESULT.attrs['k_i'] = k_i
-        self.RESULT.attrs['k_w'] = k_w
-        self.RESULT.attrs['k_a'] = k_a
-        self.RESULT.attrs['water_density'] = water_density
-        self.RESULT.attrs['ice_density'] = ice_density
-        self.RESULT.attrs['air_density'] = air_density
-        self.RESULT.attrs['sigma'] = sigma
-        self.RESULT.attrs['zero_temperature'] = zero_temperature
-        self.RESULT.attrs['Surface_emission_coeff'] = surface_emission_coeff
+        self.RESULT.attrs['lat_heat_melting'] = Constants.lat_heat_melting
+        self.RESULT.attrs['lat_heat_vaporize'] = Constants.lat_heat_vaporize
+        self.RESULT.attrs['lat_heat_sublimation'] = Constants.lat_heat_sublimation
+        self.RESULT.attrs['spec_heat_air'] = Constants.spec_heat_air
+        self.RESULT.attrs['spec_heat_ice'] = Constants.spec_heat_ice
+        self.RESULT.attrs['spec_heat_water'] = Constants.spec_heat_water
+        self.RESULT.attrs['k_i'] = Constants.k_i
+        self.RESULT.attrs['k_w'] = Constants.k_w
+        self.RESULT.attrs['k_a'] = Constants.k_a
+        self.RESULT.attrs['water_density'] = Constants.water_density
+        self.RESULT.attrs['ice_density'] = Constants.ice_density
+        self.RESULT.attrs['air_density'] = Constants.air_density
+        self.RESULT.attrs['sigma'] = Constants.sigma
+        self.RESULT.attrs['zero_temperature'] = Constants.zero_temperature
+        self.RESULT.attrs['Surface_emission_coeff'] = Constants.surface_emission_coeff
 
         # Variables given by the input dataset
         self.add_variable_along_latlon(self.RESULT, self.DATA.HGT, 'HGT', 'm', 'Elevation')
@@ -397,7 +417,8 @@ class IOClass:
         if ('MOL' in self.internal):
             self.MOL = np.full((self.time,self.ny,self.nx), np.nan)
 
-        if full_field:
+        if Config.full_field:
+            max_layers = Constants.max_layers  # faster lookup
             if ('HEIGHT' in self.full):
                 self.LAYER_HEIGHT = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
             if ('RHO' in self.full):
@@ -484,7 +505,7 @@ class IOClass:
         if ('MOL' in self.internal):
             self.MOL[:,y,x] = local_MOL 
 
-        if full_field:
+        if Config.full_field:
             if ('HEIGHT' in self.full):
                 self.LAYER_HEIGHT[:,y,x,:] = local_LAYER_HEIGHT 
             if ('RHO' in self.full):
@@ -565,7 +586,7 @@ class IOClass:
         if ('MOL' in self.internal):
             self.add_variable_along_latlontime(self.RESULT, self.MOL, 'MOL', '', 'Monin Obukhov length') 
 
-        if full_field:
+        if Config.full_field:
             if ('HEIGHT' in self.full):
                 self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Layer height') 
             if ('RHO' in self.full):
@@ -595,7 +616,7 @@ class IOClass:
         dataset.coords['time'] = self.DATA.coords['time'][-1]
         dataset.coords['lat'] = self.DATA.coords['lat']
         dataset.coords['lon'] = self.DATA.coords['lon']
-        dataset.coords['layer'] = np.arange(max_layers)
+        dataset.coords['layer'] = np.arange(Constants.max_layers)
 
         return dataset
 
@@ -623,6 +644,7 @@ class IOClass:
     # the arrays are assigned to the RESTART dataset and is stored to disc (see COSIPY.py)
     #==============================================================================
     def create_global_restart_arrays(self):
+        max_layers = Constants.max_layers  # faster lookup
         self.RES_NLAYERS = np.full((self.ny,self.nx), np.nan)
         self.RES_NEWSNOWHEIGHT = np.full((self.ny, self.nx), np.nan)
         self.RES_NEWSNOWTIMESTAMP = np.full((self.ny, self.nx), np.nan)
@@ -783,7 +805,7 @@ class IOClass:
 
     def add_variable_along_latlon(self, ds, var, name, units, long_name):
         """ This function self.adds missing variables to the self.DATA class """
-        ds[name] = ((northing,easting), var.data)
+        ds[name] = ((Config.northing,Config.easting), var.data)
         ds[name].attrs['units'] = units
         ds[name].attrs['long_name'] = long_name
         ds[name].encoding['_FillValue'] = -9999
@@ -799,7 +821,7 @@ class IOClass:
     
     def add_variable_along_latlontime(self, ds, var, name, units, long_name):
         """ This function self.adds missing variables to the self.DATA class """
-        ds[name] = (('time',northing,easting), var.data)
+        ds[name] = (('time',Config.northing,Config.easting), var.data)
         ds[name].attrs['units'] = units
         ds[name].attrs['long_name'] = long_name
         ds[name].encoding['_FillValue'] = -9999
@@ -807,7 +829,7 @@ class IOClass:
     
     def add_variable_along_latlonlayertime(self, ds, var, name, units, long_name):
         """ This function self.adds missing variables to the self.DATA class """
-        ds[name] = (('time',northing,easting,'layer'), var.data)
+        ds[name] = (('time',Config.northing,Config.easting,'layer'), var.data)
         ds[name].attrs['units'] = units
         ds[name].attrs['long_name'] = long_name
         ds[name].encoding['_FillValue'] = -9999
@@ -815,7 +837,7 @@ class IOClass:
     
     def add_variable_along_latlonlayer(self, ds, var, name, units, long_name):
         """ This function self.adds missing variables to the self.DATA class """
-        ds[name] = ((northing,easting,'layer'), var.data)
+        ds[name] = ((Config.northing,Config.easting,'layer'), var.data)
         ds[name].attrs['units'] = units
         ds[name].attrs['long_name'] = long_name
         ds[name].encoding['_FillValue'] = -9999

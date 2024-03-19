@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
-import constants
 import cosipy.modules.albedo as module_albedo
 from COSIPY import start_logging
+from cosipy.constants import Constants
 
 
 class TestParamAlbedoUpdate:
@@ -15,22 +15,30 @@ class TestParamAlbedoUpdate:
         surface_albedo, snow_albedo = module_albedo.updateAlbedo(
             GRID=grid,
             surface_temperature=270.0,
-            albedo_snow=constants.albedo_fresh_snow,
+            albedo_snow=Constants.albedo_fresh_snow,
         )
         assert isinstance(surface_albedo, float)
-        assert constants.albedo_firn <= surface_albedo <= constants.albedo_fresh_snow
+        assert (
+            Constants.albedo_firn
+            <= surface_albedo
+            <= Constants.albedo_fresh_snow
+        )
         assert isinstance(snow_albedo, float)
 
-    def test_updateAlbedo_ice(self, conftest_mock_grid_ice, conftest_boilerplate):
+    def test_updateAlbedo_ice(
+        self, conftest_mock_grid_ice, conftest_boilerplate
+    ):
         grid_ice = conftest_mock_grid_ice
         albedo, snow_albedo = module_albedo.updateAlbedo(
             GRID=grid_ice,
             surface_temperature=270.0,
-            albedo_snow=constants.albedo_fresh_snow,
+            albedo_snow=Constants.albedo_fresh_snow,
         )
-        assert conftest_boilerplate.check_output(albedo, float, constants.albedo_ice)
         assert conftest_boilerplate.check_output(
-            snow_albedo, float, constants.albedo_fresh_snow
+            albedo, float, Constants.albedo_ice
+        )
+        assert conftest_boilerplate.check_output(
+            snow_albedo, float, Constants.albedo_fresh_snow
         )
 
 
@@ -46,13 +54,13 @@ class TestParamAlbedoSelection:
         grid = conftest_mock_grid
 
         conftest_boilerplate.patch_variable(
-            monkeypatch, module_albedo.constants, {"albedo_method": arg_method}
+            monkeypatch, module_albedo, {"albedo_method": arg_method}
         )
-        assert constants.albedo_method == arg_method
+        assert module_albedo.albedo_method == arg_method
         surface_albedo, snow_albedo = module_albedo.updateAlbedo(
             GRID=grid,
             surface_temperature=270.0,
-            albedo_snow=constants.albedo_fresh_snow,
+            albedo_snow=Constants.albedo_fresh_snow,
         )
         assert isinstance(surface_albedo, float)
         assert isinstance(snow_albedo, float)
@@ -65,11 +73,11 @@ class TestParamAlbedoSelection:
         valid_methods = ["Oerlemans98", "Bougamont05"]
 
         conftest_boilerplate.patch_variable(
-            monkeypatch, module_albedo.constants, {"albedo_method": arg_method}
+            monkeypatch, module_albedo, {"albedo_method": arg_method}
         )
-        assert constants.albedo_method == arg_method
+        assert module_albedo.albedo_method == arg_method
         error_message = (
-            f'Albedo method = "{constants.albedo_method}"',
+            f'Albedo method = "{module_albedo.albedo_method}"',
             f"is not allowed, must be one of",
             f'{", ".join(valid_methods)}',
         )
@@ -78,7 +86,7 @@ class TestParamAlbedoSelection:
             module_albedo.updateAlbedo(
                 GRID=grid,
                 surface_temperature=270.0,
-                albedo_snow=constants.albedo_fresh_snow,
+                albedo_snow=Constants.albedo_fresh_snow,
             )
 
 
@@ -89,9 +97,9 @@ class TestParamAlbedoMethods:
         """Get surface albedo without accounting for snow depth."""
 
         grid = conftest_mock_grid
-        albedo_limit = constants.albedo_firn + (
-            constants.albedo_fresh_snow - constants.albedo_firn
-        ) * np.exp(0 / (constants.albedo_mod_snow_aging * 24.0))
+        albedo_limit = Constants.albedo_firn + (
+            Constants.albedo_fresh_snow - Constants.albedo_firn
+        ) * np.exp(0 / (Constants.albedo_mod_snow_aging * 24.0))
 
         compare_albedo = module_albedo.method_Oerlemans(grid)
 

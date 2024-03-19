@@ -8,14 +8,14 @@ include =
 omit =
     setup.py
     */__init__.py
-    constants.py
+    ./cosipy/constants.py
     COSIPY.py
-    config.py
-    slurm_config.py
+    ./cosipy/config.py
+    ./cosipy/slurm_config.py
     data/*
     docs/*
     logs/*
-    utilities/hpc/*
+    ./cosipy/utilities/hpc/*
 
 [html]
 # avoid workspace clutter

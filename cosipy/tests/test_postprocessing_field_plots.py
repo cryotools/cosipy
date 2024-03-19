@@ -16,7 +16,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 
-import postprocessing.field_plots.plot_cosipy_fields as pcf
+import cosipy.postprocessing.field_plots.plot_cosipy_fields as pcf
 
 # import constants
 # from COSIPY import start_logging
