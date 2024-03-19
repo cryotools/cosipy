@@ -11,20 +11,23 @@ https://cosipy.readthedocs.io/en/latest/
 Convert your existing configuration files before merging the latest update:
 
 .. code-block:: console
+
     git fetch --all
     git checkout master -- convert_config.py
     python convert_config.py  # generate .toml files
 
-Alternatively you can copy and run `convert_config.py` into any older COSIPY source tree.
-This will preserve your configuration for `config.py`, `constants.py`, `aws2cosipyConfig.py` and `wrf2cosipyConfig.py`.
-Parameters for `create_static` must still be added manually to the generated `utilities_config.toml`.
+This works on any branch regardless of local changes.
+Alternatively you can copy and run ``convert_config.py`` into any older COSIPY source tree.
+
+This will preserve your configuration for ``config.py``, ``constants.py``, ``aws2cosipyConfig.py`` and ``wrf2cosipyConfig.py``.
+Parameters for ``create_static`` must still be added manually to the generated ``utilities_config.toml``.
 
 After updating to the latest version of COSIPY, run ``python COSIPY.py --help`` to see how to specify paths to configuration files.
-COSIPY will default to "./config.toml", "./constants.toml", "./slurm_config.toml", "./utilities_config.toml" in the current working directory.
+COSIPY will default to ``./config.toml``, ``./constants.toml``, ``./slurm_config.toml``, ``./utilities_config.toml`` in the current working directory.
 
 Communication and Support
 -------------------------
-We are using the groupware slack for communication (inform about new releases, bugs, features, ..) and support:
+We are using the groupware slack for communication (inform about new releases, bugs, features, ...) and support:
 https://cosipy.slack.com
 
 About
