@@ -86,9 +86,10 @@ dev = [
 
 [project.scripts]
 run-cosipy = "COSIPY:main"
+cosipy-run = "COSIPY:main"
 cosipy-help = "cosipy.config:get_help"
 setup-cosipy = "cosipy.utilities.setup_cosipy.setup_cosipy:main"
-cosipy-run = "COSIPY:main"
+cosipy-setup = "cosipy.utilities.setup_cosipy.setup_cosipy:main"
 
 cosipy-aws2cosipy = "cosipy.utilities.aws2cosipy.aws2cosipy:main"
 cosipy-create-static = "cosipy.utilities.createStatic.create_static_file:main"
