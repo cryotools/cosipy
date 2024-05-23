@@ -127,7 +127,7 @@ class Grid:
         self, height, density, temperature, liquid_water_content
     ):
         """Add a fresh snow layer (node).
-         
+
         Adds a fresh snow layer to the beginning of the node list (upper
         layer).
 
@@ -188,9 +188,9 @@ class Grid:
             if no index is provided.
         """
         # Get overburden pressure for consistency check
-        w0 = self.get_node_height(idx) * self.get_node_density(
-            idx
-        ) + self.get_node_height(idx + 1) * self.get_node_density(idx + 1)
+        # w0 = self.get_node_height(idx) * self.get_node_density(
+        #     idx
+        # ) + self.get_node_height(idx + 1) * self.get_node_density(idx + 1)
 
         # New layer height by adding up the height of the two layers
         new_height = self.get_node_height(idx) + self.get_node_height(idx + 1)
@@ -371,7 +371,7 @@ class Grid:
 
         * The stretching factor is defined by `layer_stretching`.
         * The first layer height is defined by `first_layer_height`.
-        
+
         E.g. for the stretching factor, a value of 1.1 corresponds to a
         10% stretching from one layer to the next.
         """
@@ -950,19 +950,11 @@ class Grid:
 
     def get_total_snowheight(self, verbose=False):
         """Get the total snowheight (density<snow_ice_threshold)."""
-        snowheights = [
-            self.grid[idx].get_layer_height()
-            for idx in range(self.number_nodes)
-            if self.get_node_density(idx) < snow_ice_threshold
-        ]
-        return np.sum(
-            np.array(snowheights)
-        )  # numba needs to be able to determine type of list contents
+        return sum(self.get_snow_heights())
 
     def get_total_height(self, verbose=False):
         """Get the total domain height."""
-        total = [self.get_node_height(idx) for idx in range(self.number_nodes)]
-        return np.sum(np.array(total))
+        return sum(self.get_height())
 
     def get_number_snow_layers(self):
         """Get the number of snow layers (density<snow_ice_threshold)."""
@@ -971,7 +963,7 @@ class Grid:
             for idx in range(self.number_nodes)
             if self.get_node_density(idx) < snow_ice_threshold
         ]
-        return int(np.sum(np.array(nlayers)))
+        return sum(nlayers)
 
     def get_number_layers(self):
         """Get the number of layers."""
@@ -980,16 +972,16 @@ class Grid:
     def info(self):
         """Print some information on grid."""
 
-        print("******************************")
-        print("Number of nodes:", self.number_nodes)
-        print("******************************")
+        print("*" * 30)
+        print(f"Number of nodes: {self.number_nodes}")
+        print("*" * 30)
 
         tmp = 0
         for i in range(self.number_nodes):
             tmp = tmp + self.get_node_height(i)
 
-        print("Grid consists of", self.number_nodes, "nodes")
-        print("Total domain depth is", tmp, "m")
+        print(f"Grid consists of {self.number_nodes} nodes")
+        print(f"Total domain depth is {tmp} m")
 
     def grid_info(self, n=-999):
         """Print the state of the snowpack.
@@ -1023,7 +1015,7 @@ class Grid:
 
     def grid_info_screen(self, n=-999):
         """Prints the state of the snowpack.
-        
+
         Parameters
         ----------
         n : int

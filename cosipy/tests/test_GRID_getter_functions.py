@@ -47,7 +47,7 @@ class TestGridSetup:
 class TestGridGetter:
     """Tests get methods for Grid objects.
 
-    ..
+    .. note::
         Pytest documentation recommends `np.allclose` instead of
         `pytest.approx`.
 
@@ -171,11 +171,53 @@ class TestGridGetter:
         self, conftest_mock_grid_values, conftest_mock_grid
     ):
         data = conftest_mock_grid_values.copy()
-        GRID = conftest_mock_grid
+        test_grid = conftest_mock_grid
 
-        assert np.allclose(GRID.get_snow_heights(), data["layer_heights"][0:3])
-        assert np.allclose(GRID.get_ice_heights(), data["layer_heights"][3:5])
-        assert np.allclose(GRID.get_node_height(0), data["layer_heights"][0])
+        assert np.allclose(
+            test_grid.get_snow_heights(), data["layer_heights"][0:3]
+        )
+        assert np.allclose(
+            test_grid.get_ice_heights(), data["layer_heights"][3:5]
+        )
+        assert np.allclose(
+            test_grid.get_node_height(0), data["layer_heights"][0]
+        )
+
+    def test_grid_get_number_snow_layers(self, grid, conftest_boilerplate):
+        test_layers = sum(
+            [
+                1
+                for idx in range(grid.number_nodes)
+                if grid.get_node_density(idx) < constants.snow_ice_threshold
+            ]
+        )
+
+        compare_layers = grid.get_number_snow_layers()
+        conftest_boilerplate.check_output(compare_layers, int, test_layers)
+
+    def test_grid_get_total_snowheight(self, grid, conftest_boilerplate):
+        test_snowheight = sum(
+            [
+                grid.grid[idx].get_layer_height()
+                for idx in range(grid.get_number_snow_layers())
+            ]
+        )
+
+        compare_snowheight = grid.get_total_snowheight()
+        conftest_boilerplate.check_output(
+            compare_snowheight, float, test_snowheight
+        )
+
+    def test_grid_get_total_height(self, grid, conftest_boilerplate):
+        test_height = sum(
+            [
+                grid.grid[idx].get_layer_height()
+                for idx in range(grid.number_nodes)
+            ]
+        )
+
+        compare_height = grid.get_total_height()
+        conftest_boilerplate.check_output(compare_height, float, test_height)
 
     def test_grid_getter_functions(
         self, conftest_mock_grid_values, conftest_mock_grid
