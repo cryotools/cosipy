@@ -52,15 +52,13 @@ class TestPostprocessPlotFieldsHandling:
             "Use `--mean` to plot the daily mean.",
         )
         with pytest.raises(KeyError, match=" ".join(error_message)):
-            pcf.get_selection(
-                array=dataset["TS"], timestamp=timestamp, mean=False
-            )
+            pcf.get_selection(array=dataset["TS"], timestamp=timestamp, mean=False)
 
     def test_check_2d(self):
         dims = {}
         reference_time = pd.Timestamp("2009-01-01T12:00:00")
         dims["name"] = ["time", "lat", "lon"]
-        dims["time"] = pd.date_range(reference_time, periods=4, freq="6H")
+        dims["time"] = pd.date_range(reference_time, periods=4, freq="6h")
         elevation = xr.Variable(
             data=1000 + 10 * np.random.rand(2, 1),
             dims=dims["name"][1:],

@@ -90,14 +90,15 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLO
         print('Invalid method for minimizing the residual')
 
     # Set surface temperature
-    GRID.set_node_temperature(0, float(res.x))
+    residual = res.x[0]
+    GRID.set_node_temperature(0, residual)
  
     (Li, Lo, H, L, B, Qrr, rho, Lv, MOL, Cs_t, Cs_q, q0, q2) = eb_fluxes(GRID, res.x, dt, 
                                                              z, z0, T2, rH2, p, u2, RAIN, SLOPE, 
                                                              B_Ts, LWin, N,)
      
     # Consistency check
-    if (float(res.x)>zero_temperature) or (float(res.x)<lower_bnd_ts):
+    if (residual>zero_temperature) or (residual<lower_bnd_ts):
         print('Surface temperature is outside bounds:',GRID.get_node_temperature(0))
 
     # Return fluxes
