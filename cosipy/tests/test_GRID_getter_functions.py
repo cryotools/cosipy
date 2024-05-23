@@ -188,7 +188,7 @@ class TestGridGetter:
             [
                 1
                 for idx in range(grid.number_nodes)
-                if grid.get_node_density(idx) < constants.snow_ice_threshold
+                if grid.get_node_density(idx) < Constants.snow_ice_threshold
             ]
         )
 
