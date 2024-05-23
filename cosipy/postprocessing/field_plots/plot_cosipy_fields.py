@@ -22,7 +22,7 @@ def check_2d(array: xr.DataArray):
     """
 
     for dimension in array.dims:
-        if dimension not in ["time", "layer"] and (array.dims[dimension]) <= 1:
+        if dimension not in ["time", "layer"] and (array.sizes[dimension]) <= 1:
             raise ValueError("Spatial coordinates are not 2D.")
 
 
@@ -193,11 +193,11 @@ def plot_axes(
 
     if plot_type.lower() == "contour":
         data.plot.contourf(
-            "lon", "lat", ax=ax, cbar_kwargs={"label": unit_label}, cmap=c_map
+            x="lon", y="lat", ax=ax, cbar_kwargs={"label": unit_label}, cmap=c_map
         )
     elif plot_type.lower() == "mesh":
         data.plot.pcolormesh(
-            "lon", "lat", ax=ax, cbar_kwargs={"label": unit_label}, cmap=c_map
+            x="lon", y="lat", ax=ax, cbar_kwargs={"label": unit_label}, cmap=c_map
         )
     else:
         raise ValueError(
