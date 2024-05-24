@@ -68,11 +68,17 @@ def get_user_arguments() -> argparse.Namespace:
 
     Returns:
         Namespace of user arguments.
+
+    Raises:
+        TypeError: Illegal arguments.
     """
 
     parser = set_parser()
 
-    arguments = parser.parse_args()
+    arguments, unknown = parser.parse_known_args()
+    if "pytest" not in sys.modules and unknown:
+        illegal_args = ", ".join(unknown)
+        raise TypeError(f"Illegal arguments: {illegal_args}")
 
     return arguments
 
