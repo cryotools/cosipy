@@ -231,6 +231,28 @@ class IOClass:
     #----------------------------------------------
     # Initializes the result xarray dataset
     #----------------------------------------------
+    def get_result_metadata(self) -> tuple:
+        """Get variable names and units."""
+        metadata_spatial = {
+            "HGT": ("m", "Elevation"),
+            "MASK": ("boolean", "Glacier mask"),
+            "SLOPE": ("degrees", "Terrain slope"),
+            "ASPECT": ("degrees", "Aspect of slope"),
+        }
+        metadata_spatiotemporal = {
+            "T2": ("K", "Air temperature at 2 m"),
+            "RH2": ("%", "Relative humidity at 2 m"),
+            "U2": ("m s\u207b\xb9", "Wind velocity at 2 m"),
+            "PRES": ("hPa", "Atmospheric pressure"),
+            "G": ("W m\u207b\xb2", "Incoming shortwave radiation"),
+            "RRR": ("mm", "Total precipiation"),
+            "SNOWFALL": ("m", "Snowfall"),
+            "N": ("-", "Cloud fraction"),
+            "LWin": ("W m\u207b\xb2", "Incoming longwave radiation"),
+        }
+
+        return metadata_spatial, metadata_spatiotemporal
+
     def init_result_dataset(self):
         """ This function creates the result file 
         Args:
@@ -322,36 +344,38 @@ class IOClass:
         self.RESULT.attrs['Surface_emission_coeff'] = Constants.surface_emission_coeff
 
         # Variables given by the input dataset
-        self.add_variable_along_latlon(self.RESULT, self.DATA.HGT, 'HGT', 'm', 'Elevation')
-        self.add_variable_along_latlon(self.RESULT, self.DATA.MASK, 'MASK', 'boolean', 'Glacier mask')
-        if ('SLOPE' in self.DATA):
-            self.add_variable_along_latlon(self.RESULT, self.DATA.SLOPE, 'SLOPE', 'degrees', 'Terrain slope')
-        if ('ASPECT' in self.DATA):
-            self.add_variable_along_latlon(self.RESULT, self.DATA.ASPECT, 'ASPECT', 'degrees', 'Aspect of slope')
-        self.add_variable_along_latlontime(self.RESULT, self.DATA.T2, 'T2', 'K', 'Air temperature at 2 m')
-        self.add_variable_along_latlontime(self.RESULT, self.DATA.RH2, 'RH2', '%', 'Relative humidity at 2 m')
-        self.add_variable_along_latlontime(self.RESULT, self.DATA.U2, 'U2', 'm s\u207b\xb9', 'Wind velocity at 2 m')
-        self.add_variable_along_latlontime(self.RESULT, self.DATA.PRES, 'PRES', 'hPa', 'Atmospheric pressure')
-        self.add_variable_along_latlontime(self.RESULT, self.DATA.G, 'G', 'W m\u207b\xb2', 'Incoming shortwave radiation')
-        
-        if ('RRR' in self.DATA):
-            self.add_variable_along_latlontime(self.RESULT, self.DATA.RRR, 'RRR', 'mm','Total precipiation')
-        else:
-            self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'RRR', 'mm','Total precipiation')
-        
-        if ('SNOWFALL' in self.DATA):
-            self.add_variable_along_latlontime(self.RESULT, self.DATA.SNOWFALL, 'SNOWFALL', 'm', 'Snowfall')
-       
-        if ('N' in self.DATA):
-            self.add_variable_along_latlontime(self.RESULT, self.DATA.N, 'N', '-', 'Cloud fraction')
-        else:
-            self.add_variable_along_latlontime(self.RESULT, np.full_like(self.DATA.T2, np.nan), 'N', '-', 'Cloud fraction')
-        
-        if ('LWin' in self.DATA):
-            self.add_variable_along_latlontime(self.RESULT, self.DATA.LWin, 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation')
-        
-        print('\n') 
-        print('Output dataset ... ok')
+        spatial, spatiotemporal = self.get_result_metadata()
+
+        for name, metadata in spatial.items():
+            if name in self.DATA:
+                self.add_variable_along_latlon(
+                    self.RESULT, self.DATA[name], name, metadata[0], metadata[1]
+                )
+        for name, metadata in spatiotemporal.items():
+            if name in self.DATA:
+                self.add_variable_along_latlontime(
+                    self.RESULT, self.DATA[name], name, metadata[0], metadata[1]
+                )
+
+        if "RRR" not in self.DATA:
+            self.add_variable_along_latlontime(
+                self.RESULT,
+                np.full_like(self.DATA.T2, np.nan),
+                "RRR",
+                "mm",
+                "Total precipiation",
+            )
+        if "N" not in self.DATA:
+            self.add_variable_along_latlontime(
+                self.RESULT,
+                np.full_like(self.DATA.T2, np.nan),
+                "N",
+                "-",
+                "Cloud fraction",
+            )
+
+        print("\n")
+        print("Output dataset ... ok")
         return self.RESULT
   
 
