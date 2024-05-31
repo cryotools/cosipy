@@ -161,7 +161,7 @@ def method_Vionnet(GRID,SLOPE,dt):
             dD = (-sigma/eta)*dt 
 
             # Rate of change for the density
-            dRho = dD*rho[idxNode] 
+            # dRho = dD*rho[idxNode] 
             
             # Calc changes in volumetric fractions of ice and water
             # No water in layer

@@ -15,13 +15,13 @@ def refreezing(GRID):
 
     # water refreezed
     water_refreezed = 0.0
-    LWCref = 0.0
+    # LWCref = 0.0
 
     # Irreducible water when refreezed
     theta_r = 0.0
 
     #numba expects to sum numpty types
-    total_start = np.sum(np.array(GRID.get_liquid_water_content()))
+    # total_start = np.sum(np.array(GRID.get_liquid_water_content()))
 
     # Loop over all internal grid points for percolation
     for idxNode in range(0, GRID.number_nodes-1, 1):
@@ -60,7 +60,7 @@ def refreezing(GRID):
         GRID.set_node_refreeze(idxNode, dtheta_i*GRID.get_node_height(idxNode))
         water_refreezed =  water_refreezed - dtheta_w * GRID.get_node_height(idxNode)
 
-    total_end = np.sum(np.array(GRID.get_liquid_water_content()))
+    # total_end = np.sum(np.array(GRID.get_liquid_water_content()))
 
     return water_refreezed
 

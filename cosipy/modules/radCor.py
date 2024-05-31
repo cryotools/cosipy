@@ -303,7 +303,7 @@ def LUTshad(solpars, timecorr, lat, elvgrid, maskgrid, lats, lons, STEP, TCART):
            shad1yr:   Look-up-table for topographic shading for 1 year
     """
 
-    hour = np.arange(1, 25, 1)
+    # hour = np.arange(1, 25, 1)
     shad1yr = np.zeros((int(366 * (3600 / STEP) * 24), len(lats), len(lons)))  # Array (time,lat,lon)
     shad1yr[:, :, :] = np.nan
 

@@ -114,9 +114,9 @@ def main():
     for var in IO.get_result().data_vars:
         dataMin = IO.get_result()[var].min(skipna=True).values
         dataMax = IO.get_result()[var].max(skipna=True).values
-        dtype = 'int16'
-        FillValue = -9999 
-        scale_factor, add_offset = compute_scale_and_offset(dataMin, dataMax, 16)
+        # dtype = 'int16'
+        # FillValue = -9999 
+        # scale_factor, add_offset = compute_scale_and_offset(dataMin, dataMax, 16)
         #encoding[var] = dict(zlib=True, complevel=compression_level, dtype=dtype, scale_factor=scale_factor, add_offset=add_offset, _FillValue=FillValue)
         encoding[var] = dict(zlib=True, complevel=Config.compression_level)
     output_netcdf = set_output_netcdf_path()
@@ -127,9 +127,9 @@ def main():
     for var in IO.get_restart().data_vars:
         dataMin = IO.get_restart()[var].min(skipna=True).values
         dataMax = IO.get_restart()[var].max(skipna=True).values
-        dtype = 'int16'
-        FillValue = -9999 
-        scale_factor, add_offset = compute_scale_and_offset(dataMin, dataMax, 16)
+        # dtype = 'int16'
+        # FillValue = -9999 
+        # scale_factor, add_offset = compute_scale_and_offset(dataMin, dataMax, 16)
         #encoding[var] = dict(zlib=True, complevel=compression_level, dtype=dtype, scale_factor=scale_factor, add_offset=add_offset, _FillValue=FillValue)
         encoding[var] = dict(zlib=True, complevel=Config.compression_level)
     
@@ -165,10 +165,10 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
         print(client)
 
         # Get dimensions of the whole domain
-        ny = DATA.sizes[Config.northing]
-        nx = DATA.sizes[Config.easting]
+        # ny = DATA.sizes[Config.northing]
+        # nx = DATA.sizes[Config.easting]
 
-        cp = cProfile.Profile()
+        # cp = cProfile.Profile()
 
         # Get some information about the cluster/nodes
         total_grid_points = DATA.sizes[Config.northing]*DATA.sizes[Config.easting]
