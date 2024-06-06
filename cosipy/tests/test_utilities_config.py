@@ -15,8 +15,9 @@ class TestConfigUtilities:
     @pytest.mark.parametrize(
         "arg_table", ["aws2cosipy", "create_static", "wrf2cosipy"]
     )
-    def test_get_config_attr(self, arg_table):
+    def test_load_config(self, arg_table):
         test_cfg = UtilitiesConfig()
+        test_cfg.load()
         assert hasattr(test_cfg, arg_table)
         test_table = getattr(test_cfg, arg_table)
         assert isinstance(test_table, tuple)
