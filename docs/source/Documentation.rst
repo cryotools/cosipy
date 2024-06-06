@@ -13,13 +13,12 @@ Requirements
 Packages and libraries
 ----------------------
 
-COSIPY should run with any Python 3 version on any operating system. If you think the
-reason for a problem might be your specific Python 3 version or your operating
-system, please create a topic in the forum. The model is tested and
-developed on:
+COSIPY is compatible with Python 3.9+ on Linux and macOS.
+If you think the reason for a problem might be your specific Python 3 version or your operating system, please create a topic in the forum.
+The model is tested and developed on:
 
- * Anaconda Distribution on max OS
- * Python 3.6.5 on Ubuntu 18.04
+ * Anaconda Distribution on macOS
+ * Python 3.9 on Ubuntu 22.04
  * Anaconda 3 64-bit (Python 3.6.3) on CentOS Linux 7.4
  * High-Performance Cluster Erlangen-Nuremberg University 
 
@@ -34,13 +33,11 @@ The model requires the following libraries:
  * scipy (included in Anaconda)
  * distributed (included in Anaconda)
 
-
 Additional packages (optional):
 
  * gdal (e.g. in Debian-based Linux distributions package called gdal-bin)
  * climate date operators (e.g. in Debian-based Linux distributions package called cdo)
- * netCDF Operators (e.g. in Debian-based Linux distritutions package called nco)
-
+ * netCDF Operators (e.g. in Debian-based Linux distributions package called nco)
 
 .. _tutorial:
 
