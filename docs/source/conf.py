@@ -1,18 +1,35 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# This file only contains a selection of the most common options. For a full
-# list see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""Copyright 2023 COSIPY Contributors.
 
-# -- Path setup --------------------------------------------------------------
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+=====
+
+Configuration file for the Sphinx documentation builder.
+
+For the full list of built-in configuration values, see the
+documentation:
+https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""
+
+# pylint: skip-file
+# flake8: noqa: F541
+
+# -- General configuration ---------------------------------------------------
+
 import os
 import sys
-import datetime
+from datetime import date
 
 sys.path.insert(0, os.path.abspath('../..'))
 
@@ -20,9 +37,9 @@ sys.path.insert(0, os.path.abspath('../..'))
 # -- Project information -----------------------------------------------------
 
 project = 'COSIPY'
-copyright = '2019-{}, COSIPY Developer'.format(datetime.datetime.now().year)
-author = 'COSIPY Developers'
-version = 'v1.1'
+copyright = f"2019-{date.today().year}, COSIPY Contributors"
+author = 'COSIPY Contributors'
+version = 'v1.4'
 
 # -- General configuration ---------------------------------------------------
 
@@ -35,9 +52,9 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
-    'sphinx.ext.autodoc',
     'sphinx_rtd_theme',
-    'sphinx.ext.githubpages'
+    'sphinx.ext.githubpages',
+    'sphinx.ext.viewcode',
 ]
 
 # Default processing flags for sphinx
@@ -77,14 +94,10 @@ exclude_patterns = []
 html_theme = 'sphinx_rtd_theme'
 
 master_doc = 'index'
-
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
+html_show_sphinx = False
+trim_footnote_reference_space = True
 html_static_path = ['_static']
-
 highlight_language = 'python'
-pygments_style = 'sphinx'
-html_title = 'COSIPY Model'
+html_title = 'COSIPY'
 html_logo = './_static/cosipy_logo_transparent.png'
 

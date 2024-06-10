@@ -13,6 +13,7 @@ cosipy.modules.albedo
 
    .. autosummary::
    
+      method_Bougamont
       method_Oerlemans
       updateAlbedo
    

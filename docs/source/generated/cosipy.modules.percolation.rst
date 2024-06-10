@@ -13,6 +13,7 @@ cosipy.modules.percolation
 
    .. autosummary::
    
+      check_lwc_conservation
       percolation
    
    

@@ -13,6 +13,7 @@ cosipy.modules.densification
 
    .. autosummary::
    
+      copy_layer_profiles
       densification
       method_Boone
       method_Vionnet

@@ -1,7 +1,7 @@
-﻿utilities.wrf2cosipy
+﻿utilities.aws2cosipy
 ====================
 
-.. automodule:: utilities.wrf2cosipy
+.. automodule:: utilities.aws2cosipy
 
    
    
@@ -27,6 +27,6 @@
    :toctree:
    :recursive:
 
-   utilities.wrf2cosipy.wrf2cosipy
-   utilities.wrf2cosipy.wrf2cosipyConfig
+   utilities.aws2cosipy.aws2cosipy
+   utilities.aws2cosipy.aws2cosipyConfig
 
