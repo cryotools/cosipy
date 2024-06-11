@@ -31,15 +31,15 @@ import os
 import sys
 from datetime import date
 
-sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath("../.."))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'COSIPY'
+project = "COSIPY"
 copyright = f"2019-{date.today().year}, COSIPY Contributors"
-author = 'COSIPY Contributors'
-version = 'v1.4'
+author = "COSIPY Contributors"
+release = "1.4"
 
 # -- General configuration ---------------------------------------------------
 
@@ -47,26 +47,30 @@ version = 'v1.4'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.todo',
-    'sphinx_rtd_theme',
-    'sphinx.ext.githubpages',
-    'sphinx.ext.viewcode',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.todo",
+    "sphinx_rtd_theme",
+    "sphinx.ext.githubpages",
+    "sphinx.ext.viewcode",
 ]
 
-# Default processing flags for sphinx
-#autoclass_content = 'class'
-#autodoc_member_order = 'bysource'
+# -- Autodoc configuration ---------------------------------------------------
+
+# autodoc_member_order = 'bysource'
 autodoc_default_flags = [
-  'members',
-  'undoc-members',
-  'show-inheritance',
-  ]
-
-
+    "members",
+    "undoc-members",
+    "show-inheritance",
+]
+autodoc_typehints = "description"
+autodoc_type_aliases = {
+    "Node": "cosipy.cpkernel.node.Node",
+    "Grid": "cosipy.cpkernel.grid.Grid",
+    "IOClass": "cosipy.cpkernel.io.IOClass",
+}
 autosummary_generate = True
 
 numpydoc_class_members_toctree = True
@@ -75,29 +79,24 @@ numpydoc_show_class_members = False
 napoleon_use_param = True
 napoleon_use_rtype = True
 
-pygments_style = 'sphinx'
-
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
-
-# List of patterns, relative to source directory, that match files and
-# directories to ignore when looking for source files.
-# This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+pygments_style = "sphinx"
 
 
 # -- Options for HTML output -------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-html_theme = 'sphinx_rtd_theme'
+templates_path = ["_templates"]
+exclude_patterns = []
+html_theme = "sphinx_rtd_theme"
 
-master_doc = 'index'
-html_show_sphinx = False
+master_doc = "index"
 trim_footnote_reference_space = True
-html_static_path = ['_static']
-highlight_language = 'python'
-html_title = 'COSIPY'
-html_logo = './_static/cosipy_logo_transparent.png'
+html_show_sphinx = False
+html_static_path = ["_static"]
+highlight_language = "python"
+html_title = "COSIPY"
+html_logo = "./_static/cosipy_logo_transparent.png"
+html_favicon = "./_static/cosipy_favicon.png"
 
+rst_prolog = f"""
+.. |version| replace:: {release}
+"""

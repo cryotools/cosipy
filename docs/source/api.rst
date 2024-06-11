@@ -3,32 +3,36 @@ API
 ====
 
 
-Kernel classes
-==============
+Kernel
+======
+
 .. currentmodule:: cosipy
 .. autosummary::
-    :toctree: generated
-    :nosignatures:
-    :recursive:
+   :toctree: cpkernel
+   :template: custom-module.rst
+   :nosignatures:
+   :recursive:
 
-    cpkernel
+   cpkernel
 
 Parametrizations
 =================
 
 .. autosummary::
-    :toctree: generated
-    :nosignatures:
-    :recursive:
+   :toctree: modules
+   :template: custom-module.rst
+   :nosignatures:
+   :recursive:
 
-    modules
+   modules
 
 Utilities
 =========
 
 .. currentmodule:: utilities
 .. autosummary::
-    :toctree: generated
+    :toctree: utilities
+    :template: custom-module.rst
     :nosignatures:
     :recursive:
 
@@ -41,7 +45,8 @@ Postprocessing
 
 .. currentmodule:: postprocessing
 .. autosummary::
-    :toctree: generated
+    :toctree: postprocessing
+    :template: custom-module.rst
     :nosignatures:
     :recursive:
 
