@@ -2,8 +2,16 @@ from config import eval_method, obs_type
 
 
 def evaluate(stake_names, stake_data, df_):
-    """ This methods evaluates the simulation with the stake measurements
-        stake_name  ::  """
+    """Evaluate the simulation using stake measurements.
+
+    Args:
+        stake_names (list): Stake IDs.
+        stake_data (pd.Dataframe): Stake measurements.
+        df\_ (pd.Dataframe): Simulated mass balance and snow height.
+    
+    Returns:
+        Statistical evaluation.
+    """
 
     if eval_method == 'rmse':
         stat = rmse(stake_names, stake_data, df_)

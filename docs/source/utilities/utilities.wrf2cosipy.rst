@@ -1,7 +1,7 @@
 ﻿wrf2cosipy
 ==========
 
-.. currentmodule:: utilities.wrf2cosipy
+.. currentmodule:: utilities
 
 .. automodule:: utilities.wrf2cosipy
 

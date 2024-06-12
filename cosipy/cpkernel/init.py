@@ -7,7 +7,11 @@ from cosipy.cpkernel.grid import Grid
 
 
 def init_snowpack(DATA):
-    """INITIALIZATION"""
+    """Initialise the snowpack.
+
+    Returns:
+        Grid: Initialised glacier data structure with snowpack.
+    """
 
     ##--------------------------------------
     ## Check for WRF data
@@ -71,7 +75,7 @@ def init_snowpack(DATA):
 
 
 def load_snowpack(GRID_RESTART):
-    """ Initialize grid from restart file """
+    """Initialize grid from restart file."""
 
     # Number of layers
     num_layers = int(GRID_RESTART.NLAYERS.values)

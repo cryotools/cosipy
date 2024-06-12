@@ -3,10 +3,11 @@ from numba import njit
 
 @njit
 def solveHeatEquation(GRID, dt):
-    """ Solves the heat equation on a non-uniform grid
+    """Solve the heat equation on a non-uniform grid.
 
-    dt  ::  integration time
-    
+    Args:
+        GRID (Grid): Glacier data structure.
+        dt (int): Integration time [s].
     """
     # number of layers
     nl = GRID.get_number_layers()

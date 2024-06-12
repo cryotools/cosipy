@@ -31,29 +31,17 @@ class Grid:
     setter/getter functions to add, read, overwrite, merge, split,
     update or re-mesh the layers.
 
-    Attributes
-    ----------
-    layer_heights : np.ndarray
-        Height of the snowpack layers [:math:`m`].
-    layer_densities : np.ndarray
-        Snow density of the snowpack layers [:math:`kg~m^{-3}`].
-    layer_temperatures : np.ndarray
-        Layer temperatures [:math:`K`].
-    layer_liquid_water_content : np.ndarray
-        Liquid water content of the layers [:math:`m~w.e.`].
-    layer_ice_fraction : np.ndarray
-        Volumetric ice fraction  of the layers [-]. Default None.
-    new_snow_height : float
-        Height of the fresh snow layer [:math:`m`]. Default None.
-    new_snow_timestamp : float
-        Time elapsed since the last snowfall [s]. Default None.
-    old_snow_timestamp : float
-        Time elapsed between the last and penultimate snowfalls [s].
-            Default None.
-    grid : typed.List
-        Numerical mesh for glacier data.
-    number_nodes : int
-        Number of layers in the numerical mesh.
+    Attributes:
+        layer_heights (np.ndarray): Height of the snowpack layers [:math:`m`].
+        layer_densities (np.ndarray): Snow density of the snowpack layers [:math:`kg~m^{-3}`].
+        layer_temperatures (np.ndarray): Layer temperatures [:math:`K`].
+        layer_liquid_water_content (np.ndarray): Liquid water content of the layers [:math:`m~w.e.`].
+        layer_ice_fraction (np.ndarray): Volumetric ice fraction  of the layers [-]. Default None.
+        new_snow_height (float): Height of the fresh snow layer [:math:`m`]. Default None.
+        new_snow_timestamp (float): Time elapsed since the last snowfall [s]. Default None.
+        old_snow_timestamp (float): Time elapsed between the last and penultimate snowfalls [s]. Default None.
+        grid (typed.List): Numerical mesh for glacier data.
+        number_nodes (int): Number of layers in the numerical mesh.
     """
 
     def __init__(
@@ -127,16 +115,11 @@ class Grid:
         Adds a fresh snow layer to the beginning of the node list (upper
         layer).
 
-        Parameters
-        ----------
-        height : float
-            Layer height [:math:`m`].
-        density : float
-            Layer density [:math:`kg~m^{-3}`].
-        temperature : float
-            Layer temperature [:math:`K`].
-        liquid_water_content : float
-            Liquid water content of the layer [:math:`m~w.e.`].
+        Args:
+            height (float): Layer height [:math:`m`].
+            density (float): Layer density [:math:`kg~m^{-3}`].
+            temperature (float): Layer temperature [:math:`K`].
+            liquid_water_content (float): Liquid water content of the layer [:math:`m~w.e.`].
         """
 
         # Add new node
@@ -156,7 +139,7 @@ class Grid:
 
         Args:
             idx: Indices of the node to be removed. The first node is
-            removed if empty or None. Default None.
+                removed if empty or None. Default ``None``.
         """
 
         # Remove node from list when there is at least one node

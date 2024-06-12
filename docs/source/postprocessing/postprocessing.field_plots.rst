@@ -1,7 +1,7 @@
 ﻿field\_plots
 ============
 
-.. currentmodule:: postprocessing.field_plots
+.. currentmodule:: postprocessing
 
 .. automodule:: postprocessing.field_plots
 

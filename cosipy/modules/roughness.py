@@ -18,8 +18,7 @@ def updateRoughness(GRID):
 
 
 def method_Moelg(GRID):
-
-    """ This method updates the roughness length (Moelg et al 2009, J.Clim.)"""
+    """Update the roughness length (Moelg et al 2009, J.Clim.)."""
 
     # Get hours since the last snowfall
     # First get fresh snow properties (height and timestamp)

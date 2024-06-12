@@ -1,7 +1,7 @@
 ﻿createStatic
 ============
 
-.. currentmodule:: utilities.createStatic
+.. currentmodule:: utilities
 
 .. automodule:: utilities.createStatic
 

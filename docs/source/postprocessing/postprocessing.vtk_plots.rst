@@ -1,7 +1,7 @@
 ﻿vtk\_plots
 ==========
 
-.. currentmodule:: postprocessing.vtk_plots
+.. currentmodule:: postprocessing
 
 .. automodule:: postprocessing.vtk_plots
 
