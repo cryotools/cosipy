@@ -1,7 +1,7 @@
 ﻿aws2cosipy
 ==========
 
-.. currentmodule:: utilities
+.. currentmodule:: utilities.aws2cosipy
 
 .. automodule:: utilities.aws2cosipy
 

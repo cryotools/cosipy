@@ -2,6 +2,17 @@
 API
 ====
 
+Configuration
+=============
+
+.. autosummary::
+   :toctree: config
+   :template: custom-module.rst
+   :nosignatures:
+   :recursive:
+
+   config
+   constants
 
 Kernel
 ======

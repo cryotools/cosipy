@@ -1,7 +1,7 @@
 ﻿profile\_plots
 ==============
 
-.. currentmodule:: postprocessing
+.. currentmodule:: postprocessing.profile_plots
 
 .. automodule:: postprocessing.profile_plots
 
