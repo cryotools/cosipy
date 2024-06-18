@@ -34,7 +34,6 @@ import pandas as pd
 import scipy
 import yaml
 # from dask import compute, delayed
-# import dask as da
 # from dask.diagnostics import ProgressBar
 from dask.distributed import as_completed, progress
 from dask_jobqueue import SLURMCluster
@@ -99,10 +98,8 @@ def main():
             print(cluster)
             run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures)
 
-    print('\n')
-    print('--------------------------------------------------------------')
-    print('Write results ...')
-    print('-------------------------------------------------------------- \n')
+    print("\n")
+    print_notice(msg="Write results ...")
     start_writing = datetime.now()
 
     #-----------------------------------------------
@@ -112,8 +109,8 @@ def main():
    
     encoding = dict()
     for var in IO.get_result().data_vars:
-        dataMin = IO.get_result()[var].min(skipna=True).values
-        dataMax = IO.get_result()[var].max(skipna=True).values
+        # dataMin = IO.get_result()[var].min(skipna=True).values
+        # dataMax = IO.get_result()[var].max(skipna=True).values
         # dtype = 'int16'
         # FillValue = -9999 
         # scale_factor, add_offset = compute_scale_and_offset(dataMin, dataMax, 16)
@@ -125,8 +122,8 @@ def main():
 
     encoding = dict()
     for var in IO.get_restart().data_vars:
-        dataMin = IO.get_restart()[var].min(skipna=True).values
-        dataMax = IO.get_restart()[var].max(skipna=True).values
+        # dataMin = IO.get_restart()[var].min(skipna=True).values
+        # dataMax = IO.get_restart()[var].max(skipna=True).values
         # dtype = 'int16'
         # FillValue = -9999 
         # scale_factor, add_offset = compute_scale_and_offset(dataMin, dataMax, 16)
@@ -145,11 +142,11 @@ def main():
     #-----------------------------------------------
     # Print out some information
     #-----------------------------------------------
-    print("\t Time required tor write restart and output files: %4g minutes %2g seconds \n" % (duration_run_writing.total_seconds()//60.0,duration_run_writing.total_seconds()%60.0))
-    print("\t Total run duration: %4g minutes %2g seconds \n" % (duration_run.total_seconds()//60.0,duration_run.total_seconds()%60.0))
-    print('--------------------------------------------------------------')
-    print('\t SIMULATION WAS SUCCESSFUL')
-    print('--------------------------------------------------------------')
+    get_time_required(
+        action="write restart and output files", times=duration_run_writing
+    )
+    print(f"\tTotal run duration: {duration_run.total_seconds()//60.0:4g} minutes {duration_run.total_seconds()%60.0:2g} seconds\n")
+    print_notice(msg=f"\tSIMULATION WAS SUCCESSFUL")
 
 
 def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
@@ -157,10 +154,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
     Constants()
 
     with Client(cluster) as client:
-        print('--------------------------------------------------------------')
-        print('\t Starting clients and submit jobs ... \n')
-        print('-------------------------------------------------------------- \n')
-
+        print_notice(msg="\tStarting clients and submitting jobs ...")
         print(cluster)
         print(client)
 
@@ -232,33 +226,50 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             if Config.WRF:
                 mask = DATA.MASK.sel(south_north=y, west_east=x)
                 # Provide restart grid if necessary
-                if (mask==1) & (not Config.restart):
+                if mask == 1 & (not Config.restart):
                     if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
-                        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
-                        sys.exit()
+                        print_nan_error()
                     futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
-                elif (mask==1) & (Config.restart):
+                elif mask == 1 & Config.restart:
                     if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
-                        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
-                        sys.exit()
-                    futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, 
-                                             GRID_RESTART=IO.create_grid_restart().sel(south_north=y, west_east=x), 
-                                             stake_names=stake_names, stake_data=df_stakes_data))
+                        print_nan_error()
+                    futures.append(
+                        client.submit(
+                            cosipy_core,
+                            DATA.sel(south_north=y, west_east=x),
+                            y,
+                            x,
+                            GRID_RESTART=IO.create_grid_restart().sel(
+                                south_north=y,
+                                west_east=x,
+                                ),
+                            stake_names=stake_names,
+                            stake_data=df_stakes_data
+                        )
+                    )
             else:
                 mask = DATA.MASK.isel(lat=y, lon=x)
                 # Provide restart grid if necessary
-                if (mask==1) & (not Config.restart):
+                if mask == 1 & (not Config.restart):
                     if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
-                        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
-                        sys.exit()
+                        print_nan_error()
                     futures.append(client.submit(cosipy_core, DATA.isel(lat=y, lon=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
-                elif (mask==1) & (Config.restart):
+                elif mask == 1 & Config.restart:
                     if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
-                        print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
-                        sys.exit()
-                    futures.append(client.submit(cosipy_core, DATA.isel(lat=y, lon=x), y, x, 
-                                             GRID_RESTART=IO.create_grid_restart().isel(lat=y, lon=x), 
-                                             stake_names=stake_names, stake_data=df_stakes_data))
+                        print_nan_error()
+                    futures.append(
+                        client.submit(
+                            cosipy_core,
+                            DATA.isel(lat=y, lon=x),
+                            y,
+                            x,
+                            GRID_RESTART=IO.create_grid_restart().isel(
+                                lat=y, lon=x
+                            ),
+                            stake_names=stake_names,
+                            stake_data=df_stakes_data
+                        )
+                    )
         # Finally, do the calculations and print the progress
         progress(futures)
 
@@ -310,7 +321,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
 
         # Measure time
         end_res = datetime.now()-start_res 
-        print("\t Time required to do calculations: %4g minutes %2g seconds \n" % (end_res.total_seconds()//60.0,end_res.total_seconds()%60.0))
+        get_time_required(action="do calculations", times=end_res)
       
         if Config.stake_evaluation:
             # Save the statistics and the mass balance simulations at the stakes to files
@@ -410,6 +421,23 @@ def close_everything(scheduler):
     yield scheduler.retire_workers(workers=scheduler.workers, close_workers=True)
     yield scheduler.close()
 
+
+def print_notice(msg:str):
+    print(f"{'-'*72}\n{msg}\n{'-'*72}\n")
+
+
+def print_nan_error():
+    print('ERROR! There are NaNs in the dataset.')
+    sys.exit()
+
+
+def get_time_required(action:str, times):
+    print(f"\tTime required to {action}: {(times.total_seconds())//60.0:4g} minutes {(times.total_seconds())%60.0:2g} seconds\n")
+
+
+def get_time_elapsed(times) -> str:
+    time_elapsed = f"{(times.total_seconds())//60.0:4g} minutes {(times.total_seconds())%60.0:2g} seconds\n"
+    return time_elapsed
 
 
 """ MODEL EXECUTION """

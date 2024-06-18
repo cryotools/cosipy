@@ -119,7 +119,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         RESTART = IO.create_local_restart_dataset()
 
     # hours since the last snowfall (albedo module)
-    hours_since_snowfall = 0
+    # hours_since_snowfall = 0
 
     #--------------------------------------------
     # Get data from file
@@ -136,12 +136,10 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     if ('SNOWFALL' in DATA) and ('RRR' in DATA):
         SNOWF = DATA.SNOWFALL.values * mult_factor_RRR
         RRR = DATA.RRR.values * mult_factor_RRR
-
-    elif ('SNOWFALL' in DATA):
+    elif 'SNOWFALL' in DATA:
         SNOWF = DATA.SNOWFALL.values * mult_factor_RRR
         RRR = None
         RAIN = None
-
     else:
         SNOWF = None
         RRR = DATA.RRR.values * mult_factor_RRR
@@ -153,10 +151,8 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     if ('LWin' in DATA) and ('N' in DATA):
         LWin = DATA.LWin.values
         N = DATA.N.values
-
-    elif ('LWin' in DATA):
+    elif 'LWin' in DATA:
         LWin = DATA.LWin.values
-
     else:
         LWin = None
         N = DATA.N.values
@@ -165,9 +161,8 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     if Config.force_use_N:
         LWin = None
 
-    if ('SLOPE' in DATA):
+    if 'SLOPE' in DATA:
         SLOPE = DATA.SLOPE.values
-
     else:
         SLOPE = 0.0
 
@@ -191,12 +186,12 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         GRID.grid_check()
 
         # get seconds since start
-        timestamp = dt*t
-        if Config.WRF_X_CSPY:
-            timestamp = np.float64(DATA.CURR_SECS.values)
+        # timestamp = dt*t
+        # if Config.WRF_X_CSPY:
+            # timestamp = np.float64(DATA.CURR_SECS.values)
 
         # Calc fresh snow density
-        if (densification_method!='constant'):
+        if densification_method != 'constant':
             density_fresh_snow = np.maximum(109.0+6.0*(T2[t]-273.16)+26.0*np.sqrt(U2[t]), 50.0)
         else:
             density_fresh_snow = constant_density 
@@ -205,7 +200,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         if (SNOWF is not None) and (RRR is not None):
             SNOWFALL = SNOWF[t]
             RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000.0
-        elif (SNOWF is not None):
+        elif SNOWF is not None:
             SNOWFALL = SNOWF[t]
         else:
             # Else convert total precipitation [mm] to snowheight [m]; liquid/solid fraction
@@ -290,8 +285,16 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Melt process - mass changes of snowpack (melting, sublimation, deposition, evaporation, condensation)
         #--------------------------------------------
         # Melt energy in [W m^-2 or J s^-1 m^-2]
-        melt_energy = max(0, sw_radiation_net + lw_radiation_in + lw_radiation_out + ground_heat_flux + rain_heat_flux +
-                          sensible_heat_flux + latent_heat_flux)
+        melt_energy = max(
+            0,
+            sw_radiation_net
+            + lw_radiation_in
+            + lw_radiation_out
+            + ground_heat_flux
+            + rain_heat_flux
+            + sensible_heat_flux
+            + latent_heat_flux
+        )
 
         # Convert melt energy to m w.e.q.
         melt = melt_energy * dt / (1000 * lat_heat_melting)
@@ -322,12 +325,18 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         #--------------------------------------------
         # Calculate mass balance
         #--------------------------------------------
-        surface_mass_balance = SNOWFALL * (density_fresh_snow / ice_density) - melt + sublimation + deposition + evaporation
+        surface_mass_balance = (
+            SNOWFALL * (density_fresh_snow / ice_density)
+            - melt
+            + sublimation
+            + deposition
+            + evaporation
+        )
         internal_mass_balance = water_refreezed - subsurface_melt
         mass_balance = surface_mass_balance + internal_mass_balance
 
-        internal_mass_balance2 = melt-Q  + subsurface_melt
-        mass_balance_check = surface_mass_balance + internal_mass_balance2
+        # internal_mass_balance2 = melt-Q  + subsurface_melt
+        # mass_balance_check = surface_mass_balance + internal_mass_balance2
 
         # Cumulative mass balance for stake evaluation 
         MB_cum = MB_cum + mass_balance

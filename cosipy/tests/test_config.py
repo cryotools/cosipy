@@ -1,7 +1,5 @@
 import argparse
 
-import pytest
-
 import cosipy.config
 from cosipy.config import Config
 
