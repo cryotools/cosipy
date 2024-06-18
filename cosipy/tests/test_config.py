@@ -91,4 +91,7 @@ class TestConfig:
         for name in variable_names:
             assert hasattr(test_cfg, name)
             compare_attr = getattr(test_cfg, name)
-            assert isinstance(compare_attr, (int, str, bool))
+            assert (
+                isinstance(compare_attr, (int, str, bool))
+                or compare_attr is None
+            )

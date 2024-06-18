@@ -5,7 +5,7 @@ import pytest
 from COSIPY import start_logging
 from cosipy.cpkernel.grid import Grid
 from cosipy.modules.refreezing import refreezing
-import constants
+from cosipy.constants import Constants
 
 
 class TestParamRefreezing:
@@ -47,15 +47,15 @@ class TestParamRefreezing:
 
     def get_delta_theta_w(self, grid_obj):
         delta_temperature = (
-            np.array(grid_obj.get_temperature()) - constants.zero_temperature
+            np.array(grid_obj.get_temperature()) - Constants.zero_temperature
         )
 
         delta_theta_w = (
-            constants.spec_heat_ice
-            * constants.ice_density
+            Constants.spec_heat_ice
+            * Constants.ice_density
             * np.array(grid_obj.get_ice_fraction())
             * delta_temperature
-        ) / (constants.lat_heat_melting * constants.water_density)
+        ) / (Constants.lat_heat_melting * Constants.water_density)
 
         return delta_theta_w
 
@@ -69,7 +69,7 @@ class TestParamRefreezing:
     def get_delta_theta_i(self, theta_w):
 
         delta_theta_i = -(
-            constants.water_density * theta_w / constants.ice_density
+            Constants.water_density * theta_w / Constants.ice_density
         )
         return delta_theta_i
 
@@ -91,8 +91,8 @@ class TestParamRefreezing:
         initial_ice_fraction = np.array(GRID.get_ice_fraction())
         initial_lwc = np.array(GRID.get_liquid_water_content())
         initial_mass = np.nansum(
-            initial_lwc * heights * constants.water_density
-        ) + np.nansum(initial_ice_fraction * heights * constants.ice_density)
+            initial_lwc * heights * Constants.water_density
+        ) + np.nansum(initial_ice_fraction * heights * Constants.ice_density)
 
         water_refreezed = refreezing(GRID)
         assert isinstance(water_refreezed, float)
@@ -104,28 +104,24 @@ class TestParamRefreezing:
         final_mass = (
             np.nansum(
                 np.array(GRID.get_liquid_water_content())
-                * constants.water_density
+                * Constants.water_density
                 * heights
             )
             # + water_refreezed
             + np.nansum(
                 np.array(GRID.get_ice_fraction())
-                * constants.ice_density
+                * Constants.ice_density
                 * heights
             )
         )
 
         delta_w = final_lwc - initial_lwc
         delta_i = final_ice_fraction - initial_ice_fraction
-        delta_w_mass = -delta_w * constants.water_density
-        delta_i_mass = delta_i * constants.ice_density
+        delta_w_mass = -delta_w * Constants.water_density
+        delta_i_mass = delta_i * Constants.ice_density
 
         delta_i_mwe = delta_i_mass / heights
-        delta_w_mmwe = delta_w_mass / heights
-        delta_w_mwe = -delta_w_mass / heights
-        delta_w_mmwe_test = -delta_w*constants.water_density / heights
-        delta_i_test = delta_i_mass / heights
-        assert np.allclose(delta_w_mwe, delta_w_mmwe_test)
+        delta_w_mwe = delta_w_mass / heights
         assert np.allclose(delta_w_mass, delta_i_mass)
         assert np.allclose(delta_w_mwe, delta_i_mwe)
         assert np.isclose(initial_mass, final_mass)
