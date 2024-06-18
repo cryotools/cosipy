@@ -28,11 +28,19 @@ def refreezing(GRID):
 
     .. math::
 
-        \Delta\theta_{i} = \frac{\rho_{w}}{\rho_{i}} * -\Delta\theta_{w}
+        \\Delta\\theta_{i} &= -\\Delta\\theta_{w}\\frac{
+            \\rho_{w}
+                }{
+            \\rho_{i}
+            }
 
-        \Delta T = \frac{\Delta\theta_{w} c_{w} \rho_{w}}{c_{i} \rho_{i} \theta_{i} + c_{w} \rho_{w} \theta_{w}}
+        \\Delta T &= \\frac{
+            c_{w} \\rho_{w} \\Delta\\theta_{w}
+                }{
+            c_{i} \\rho_{i} \\theta_{i} + c_{w} \\rho_{w} \\theta_{w}
+            }
 
-        \theta_{refrozen} [m w.e.] = \Delta\theta_{w} * h
+        \\theta_{refrozen} &= \\Delta\\theta_{w} h
 
     For the maximum water available for refreezing, the latent energy
     release from refreezing water equals the layer warming of the
@@ -40,26 +48,50 @@ def refreezing(GRID):
     that cannot be refrozen:
 
     .. math::
+        Q_{refreeze} &= \\theta_{i}
+            + \\Delta\\theta_{i}
+            + (\\theta_{w} - \\Delta\\theta_{w})
 
-        Q_{refreeze} = \theta_{i} + \Delta\theta_{i} + (\theta_{w} - \Delta\theta_{w})
+        \\Delta\\theta_{w} L_{f} \\rho_{w} &= \\Delta T_{max}
+            \\left [
+                (c_{i} \\rho_{i}(\\theta_{i} + \\Delta\\theta_{i}))
+                + (c_{w} \\rho_{w} (\\theta_{w} - \\Delta\\theta_{w}))
+            \\right ]
 
-        \Delta\theta_{w} L_{f} \rho_{w} = \Delta T_{max} \left (((\theta_{i} + \Delta\theta_{i}) c_{i} \rho_{i}) + ((\theta_{w} - \Delta\theta_{w}) c_{w} \rho_{w}) \right )
+        \\Delta\\theta_{w} L_{f} \\rho_{w} &= \\Delta T_{max}
+            \\left [
+                \\left (
+                    c_{i} \\rho_{i}
+                    \\left (
+                        \\theta_{i} + \\frac{
+                            \\rho_{w}
+                                }{
+                            \\rho_{i}
+                            }\\Delta\\theta_{w}
+                    \\right )
+                \\right )
+                + (c_{i} \\rho_{w}(\\theta_{w} - \\Delta\\theta_{w}))
+            \\right ]
 
-        \Delta\theta_{w} L_{f} \rho_{w} = \Delta T_{max} \left ( ((\theta_{i} + \frac{\rho_{w}}{\rho_{i}}\Delta\theta_{w}) c_{i} \rho_{i}) + (c_{i}\rho_{w}(\theta_{w}-\Delta\theta_{w})) \right )
-
-    Re-arranged in terms of dtheta_w, limited by the maximum cold content:
+    Re-arranged in terms of :math:`\\Delta\\theta_{w}`, limited by the
+    maximum cold content:
 
     .. math::
 
-        \Delta\theta_{w}_{max} = \frac{-\Delta T_{max}(\theta_{i}\rho_{i}c_{i}+\theta_{w}\rho_{w}\c_{w})}{\rho_{w}(L_{f}-\Delta T_{max}(c_{i}-c_{w}))}
+        \\Delta\\theta_{{w}_{max}} = \\frac{
+            -\\Delta T_{max}(\\rho_{i}c_{i}\\theta_{i}
+            + \\rho_{w}c_{w}\\theta_{w})
+                }{
+            \\rho_{w}(L_{f}-\\Delta T_{max}(c_{i}-c_{w}))
+            }
 
     .. note::
 
-        The units for $\Delta\theta_{w} h$ cancel out to m w.e. as long
-        as the density of water is set to 1000 |kg m^-3|.
-        Note that $\Delta\theta_{i} h$ is in m **ice** equivalent, but
-        both the refreeze parameter and returned refrozen water are in
-        m w.e.
+        The units for :math:`\\Delta\\theta_{w} h` cancel out to m w.e.
+        as long as the density of water is set to 1000 kg m^-3.
+        Note that :math:`\\Delta\\theta_{i} h` is in m **ice**
+        equivalent, but both the refreeze parameter and returned
+        refrozen water are in m w.e.
 
     Args:
         GRID (Grid): Glacier data structure.

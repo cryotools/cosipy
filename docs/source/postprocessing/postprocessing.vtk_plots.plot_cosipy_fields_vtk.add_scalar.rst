@@ -1,6 +1,0 @@
-add\_scalar
-===========
-
-.. currentmodule:: postprocessing.vtk_plots.plot_cosipy_fields_vtk
-
-.. autofunction:: add_scalar

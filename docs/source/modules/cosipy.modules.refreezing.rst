@@ -17,6 +17,7 @@ refreezing
       :toctree:
       :template: custom-function.rst
    
+      check_oob
       refreezing
    
    

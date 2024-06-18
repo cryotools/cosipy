@@ -54,8 +54,10 @@ IOClass
       ~IOClass.create_restart_file
       ~IOClass.create_result_file
       ~IOClass.get_grid_restart
+      ~IOClass.get_output_structure
       ~IOClass.get_restart
       ~IOClass.get_result
+      ~IOClass.get_result_metadata
       ~IOClass.init_data_dataset
       ~IOClass.init_restart_dataset
       ~IOClass.init_result_dataset

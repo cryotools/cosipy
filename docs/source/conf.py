@@ -39,7 +39,7 @@ sys.path.insert(0, os.path.abspath("../.."))
 project = "COSIPY"
 copyright = f"2019-{date.today().year}, COSIPY Contributors"
 author = "COSIPY Contributors"
-release = "1.4"
+release = "2.0"
 
 # -- General configuration ---------------------------------------------------
 
@@ -71,6 +71,7 @@ autodoc_type_aliases = {
     "Grid": "cosipy.cpkernel.grid.Grid",
     "IOClass": "cosipy.cpkernel.io.IOClass",
 }
+autodoc_mock_imports = ["cosipy.config", "cosipy.constants"]
 autosummary_generate = True
 
 numpydoc_class_members_toctree = True

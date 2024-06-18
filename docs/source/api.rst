@@ -2,21 +2,10 @@
 API
 ====
 
-Configuration
-=============
-
-.. autosummary::
-   :toctree: config
-   :template: custom-module.rst
-   :nosignatures:
-   :recursive:
-
-   config
-   constants
+Click on a table entry to navigate through the API.
 
 Kernel
 ======
-
 .. currentmodule:: cosipy
 .. autosummary::
    :toctree: cpkernel
@@ -40,27 +29,21 @@ Parametrizations
 Utilities
 =========
 
-.. currentmodule:: utilities
 .. autosummary::
     :toctree: utilities
     :template: custom-module.rst
     :nosignatures:
     :recursive:
 
-    aws2cosipy
-    wrf2cosipy
-    createStatic
+    utilities
 
 Postprocessing
 ==============
 
-.. currentmodule:: postprocessing
 .. autosummary::
     :toctree: postprocessing
     :template: custom-module.rst
     :nosignatures:
     :recursive:
 
-    field_plots
-    profile_plots
-    vtk_plots
+    postprocessing
