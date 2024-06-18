@@ -704,19 +704,19 @@ def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
     parser.prog = __package__
 
     # Required arguments
-    parser.add_argument('-c', '--csv_file', dest='csv_file', type=str, metavar="<path>", required=True,
-                        help='Csv file(see readme for file convention)')
-    parser.add_argument('-o', '--cosipy_file', dest='cosipy_file', type=str, metavar="<path>", required=True,
-                        help='Name of the resulting COSIPY file')
+    parser.add_argument('-c', '--csv_file', dest='csv_file', type=str, metavar='<path>', required=True,
+                        help='Path to .csv file with meteorological data')
+    parser.add_argument('-o', '--cosipy_file', dest='cosipy_file', type=str, metavar='<path>', required=True,
+                        help='Path to the resulting COSIPY netCDF file')
+    parser.add_argument('-s', '--static_file', type=str, dest='static_file', help='Path to static file with DEM, slope etc.')
 
     # Optional arguments
-    parser.add_argument('-s', '--static_file', dest='static_file', help='Static file containing DEM, Slope etc.')
-    parser.add_argument('-b', '--start_date', dest='start_date', help='Start date')
-    parser.add_argument('-e', '--end_date', dest='end_date', help='End date')
-    parser.add_argument('-xl', '--xl', dest='xl', type=float, const=None, help='left longitude value of the subset')
-    parser.add_argument('-xr', '--xr', dest='xr', type=float, const=None, help='right longitude value of the subset')
-    parser.add_argument('-yl', '--yl', dest='yl', type=float, const=None, help='lower latitude value of the subset')
-    parser.add_argument('-yu', '--yu', dest='yu', type=float, const=None, help='upper latitude value of the subset')
+    parser.add_argument('-b', '--start_date', type=str, metavar='<yyyy-mm-dd>', dest='start_date', help='Start date')
+    parser.add_argument('-e', '--end_date', type=str, metavar='<yyyy-mm-dd>', dest='end_date', help='End date')
+    parser.add_argument('--xl', dest='xl', type=float, metavar='<float>', const=None, help='left longitude value of the subset')
+    parser.add_argument('--xr', dest='xr', type=float, metavar='<float>', const=None, help='right longitude value of the subset')
+    parser.add_argument('--yl', dest='yl', type=float, metavar='<float>', const=None, help='lower latitude value of the subset')
+    parser.add_argument('--yu', dest='yu', type=float, metavar='<float>', const=None, help='upper latitude value of the subset')
     arguments = parser.parse_args()
 
     return arguments
