@@ -4,7 +4,7 @@ Hook configuration files for COSIPY.
 
 import argparse
 import sys
-from collections import namedtuple
+from importlib.metadata import entry_points
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -15,7 +15,7 @@ else:
 def set_parser() -> argparse.ArgumentParser:
     """Set argument parser for COSIPY."""
     tagline = "Coupled snowpack and ice surface energy and mass balance model in Python."
-    parser = argparse.ArgumentParser(prog="cosipy", description=tagline)
+    parser = argparse.ArgumentParser(prog="COSIPY", description=tagline)
 
     # Optional arguments
     parser.add_argument(
@@ -88,6 +88,31 @@ def get_help():
     parser = set_parser()
     parser.print_help()
     sys.exit(1)
+
+
+def get_entry_points(package_name: str = "cosipy"):
+    """Get package entry points.
+
+    Returns:
+        Generator: All of the package's available entry points.
+    """
+    entries = entry_points()
+    entries = entries["console_scripts"]
+    entrypoints = (
+        ep
+        for ep in entries
+        if ep.value.startswith(package_name.upper())
+        or ep.value.startswith(package_name.lower())
+    )
+
+    return entrypoints
+
+
+def print_entry_points(package_name: str = "cosipy"):
+    """Print available entry points and their associated function."""
+    entrypoints = get_entry_points(package_name=package_name)
+    for ep in entrypoints:
+        print(f"{ep.name}:\t{ep.value}")
 
 
 class TomlLoader(object):
