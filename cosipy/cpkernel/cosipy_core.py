@@ -17,24 +17,21 @@ from cosipy.modules.surfaceTemperature import update_surface_temperature
 
 
 def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_data=None):
-    """ Cosipy core function, which perform the calculations on one core.
+    """Cosipy core function.
 
-    Params
-    ======
-    DATA: xarray.Dataset
-      xarray dataset which contain one grid point
-    indY: 
-    indX:
-    GRID_RESTART : boolean, optional
-      If restart is given, no inital profile is created
-    stake_name : boolean, optional
-      stake names      
-    stake_data : boolean, optional
-      stake data
-    Returns
-    ======
-    Returns all calculated variables of one grid point
+    The calculations are performed on a single core.
 
+    Args:
+        DATA (xarray.Dataset): Dataset with single grid point.
+        indY (int): The grid cell's Y index.
+        indX (int): The grid cell's X index.
+        GRID_RESTART (xarray.Dataset): Use a restart dataset instead of
+            creating an initial profile. Default ``None``.
+        stake_name (list): Stake names. Default ``None``.
+        stake_data (pd.Dataframe): Stake measurements. Default ``None``.
+
+    Returns:
+        All calculated variables for one grid point.
     """
 
     # Declare locally for faster lookup

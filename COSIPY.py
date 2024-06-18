@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 
 """
-    This is the main code file of the 'COupled Snowpack and Ice surface energy
-    and MAss balance glacier model in Python' (COSIPY). The model was initially written by
-    Tobias Sauter. The version is constantly under development by a core developer team.
-    
-    Core developer team:
+This is the main code file of the 'COupled Snowpack and Ice surface
+energy and MAss balance glacier model in Python' (COSIPY). The model was
+initially written by Tobias Sauter. The version is constantly under
+development by a core developer team.
 
-    Tobias Sauter
-    Anselm Arndt
+Core developer team:
 
-    You are allowed to use and modify this code in a noncommercial manner and by
-    appropriately citing the above mentioned developers.
+Tobias Sauter
+Anselm Arndt
 
-    The code is available on github. https://github.com/cryotools/cosipy
+You are allowed to use and modify this code in a noncommercial manner
+and by appropriately citing the above mentioned developers.
 
-    For more information read the README and see https://cryo-tools.org/
+The code is available on github. https://github.com/cryotools/cosipy
 
-    The model is written in Python 3.6.3 and is tested on Anaconda3-4.4.7 64-bit.
+For more information read the README and see https://cryo-tools.org/
 
-    Correspondence: tobias.sauter@fau.de
+The model is written in Python 3.9 and is tested on Anaconda3-4.4.7 64-bit.
 
+Correspondence: tobias.sauter@fau.de
 """
 import cProfile
 import logging
@@ -382,9 +382,7 @@ def start_logging():
 
 
 def transform_coordinates(coords):
-    """ Transform coordinates from geodetic to cartesian
-    an array of tuples)
-    """
+    """Transform geodetic coordinates to cartesian."""
     # WGS 84 reference coordinate system parameters
     A = 6378.137 # major axis [km]   
     E2 = 6.69437999014e-3 # eccentricity squared    

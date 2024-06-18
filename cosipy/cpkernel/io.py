@@ -1,5 +1,5 @@
 """
- This file reads the input data (model forcing) and write the output to netcdf file
+ Read the input data (model forcing) and write the output to netCDF file.
 """
 
 import configparser
@@ -18,7 +18,7 @@ from cosipy.constants import Constants
 class IOClass:
 
     def __init__(self, DATA=None):
-        """ Init IO Class"""
+        """Initialise the IO Class"""
 
         output_vars = self.get_output_structure()
         self.atm = output_vars['vars']['atm']
@@ -55,12 +55,12 @@ class IOClass:
 
         return output_structure
 
-    #==============================================================================
-    # Creates the input data and reads the restart file, if necessary. The function
-    # returns the DATA xarray dataset which contains all input variables.
-    #==============================================================================
     def create_data_file(self):
-        """ Returns the DATA xarray dataset"""
+        """Create the input data and read the restart file if necessary.
+
+        Returns:
+            xarray.Dataset: Model input data.
+        """
     
         if Config.restart:
             print('--------------------------------------------------------------')
@@ -97,58 +97,38 @@ class IOClass:
         return self.DATA
 
 
-   
-    #==============================================================================
-    # The functions create_result_file, create_restart_file, and create_grid_restart
-    # are three which create and return the following structures:
-    #
-    #   create_result_file  :: Creates and initializes the RESULT xarray dataset
-    #   create_restart_file :: Creates and initializes the RESTART xarray dataset
-    #   create_grid_restart :: Creates and initializes the GRID structure which 
-    #                          contains the layer state of the last time step. The
-    #                          last state is required for the restart option
-    #==============================================================================
-    #----------------------------------------------
-    # Creates the result xarray dataset
-    #----------------------------------------------
-    def create_result_file(self):
-        """ Returns the data xarray """
+    def create_result_file(self) -> xr.Dataset:
+        """Create and initialise the RESULT dataset."""
         self.init_result_dataset()
         return self.RESULT
          
-    #----------------------------------------------
-    # Creates the restart xarray dataset
-    #----------------------------------------------
-    def create_restart_file(self):
-        """ Returns the data xarray """
+    def create_restart_file(self) -> xr.Dataset:
+        """Create and initialise the RESTART dataset."""
         self.init_restart_dataset()
         return self.RESTART
 
-    #----------------------------------------------
-    # Returns the restart dataset 
-    #----------------------------------------------
     def create_grid_restart(self):
+        """Create and initialise the GRID_RESTART structure.
+
+        This contains the layer state of the last time step, which is
+        required for the restart option.
+        """
         return self.GRID_RESTART
 
 
-    #==============================================================================
-    # The init_data_dataset read the input NetCDF dataset and stores the data in
-    # an xarray. 
-    #==============================================================================
-    #----------------------------------------------
-    # Reads the input data into a xarray dataset 
-    #----------------------------------------------
     def init_data_dataset(self):
-        """     
-        PRES        ::   Air Pressure [hPa]
-        N           ::   Cloud cover  [fraction][%/100]
-        RH2         ::   Relative humidity (2m over ground)[%]
-        RRR         ::   Precipitation per time step [mm]
-        SNOWFALL    ::   Snowfall per time step [m]
-        G           ::   Solar radiation at each time step [W m-2]
-        T2          ::   Air temperature (2m over ground) [K]
-        U2          ::   Wind speed (magnitude) [m/s]
-        HGT         ::   Elevation [m]
+        """Read and store the input netCDF data.
+        
+        The input data should contain the following variables:
+            :PRES: Air pressure [hPa].
+            :N: Cloud cover fraction [-].
+            :RH2: 2m relative humidity [%].
+            :RRR: Precipitation per time step [mm].
+            :SNOWFALL: Snowfall per time step [m].
+            :G: Solar radiation per time step [W m^-2].
+            :T2: 2m air temperature [K].
+            :U2: Wind speed (magnitude) [m s^-1].
+            :HGT: Elevation [m].
         """
     
         # Open input dataset
@@ -186,7 +166,7 @@ class IOClass:
         print('--------------------------------------------------------------')
         print('Checking input data .... \n')
         
-        # Define a auxiliary function to check the validity of the data
+        # Define an auxiliary function to check the validity of the data
         def check(field, max, min):
             """Check the validity of the input data."""
             if np.nanmax(field) > max or np.nanmin(field) < min:
@@ -223,14 +203,6 @@ class IOClass:
         print('\n Glacier gridpoints: %s \n\n' %(np.nansum(self.DATA.MASK>=1)))
 
  
-    #==============================================================================
-    # The init_result_datasets creates the final dataset which stores the results
-    # from the individual cosipy runs. After the dataset has been filled with the
-    # runs from all workers the dataset is written to disc.
-    #==============================================================================
-    #----------------------------------------------
-    # Initializes the result xarray dataset
-    #----------------------------------------------
     def get_result_metadata(self) -> tuple:
         """Get variable names and units."""
         metadata_spatial = {
@@ -253,15 +225,16 @@ class IOClass:
 
         return metadata_spatial, metadata_spatiotemporal
 
-    def init_result_dataset(self):
-        """ This function creates the result file 
-        Args:
-            
-            self.DATA    ::  self.DATA structure 
-            
+    def init_result_dataset(self) -> xr.Dataset:
+        """Create the final dataset to aggregate and store the results.
+
+        Aggregates results from individual COSIPY runs. After the
+        dataset is filled with results from all the workers, the dataset
+        is written to disk.
+
         Returns:
-            
-            self.RESULT  ::  one-dimensional self.RESULT structure"""
+            One-dimensional structure with the model output.
+        """
         
         # Coordinates
         self.RESULT = xr.Dataset()
@@ -379,13 +352,13 @@ class IOClass:
         return self.RESULT
   
 
-    #==============================================================================
-    # This function creates the global numpy arrays which store the variables.
-    # The global array is filled with the local results from the workers. Finally,
-    # the arrays are assigned to the RESULT dataset and is stored to disc (see COSIPY.py)
-    #==============================================================================
     def create_global_result_arrays(self):
+        """Create the global numpy arrays to store each output variable.
 
+        Each global array will be filled with local results from the
+        workers. The arrays will then be assigned to the RESULT dataset
+        and stored to disk (see COSIPY.py).
+        """
         if ('RAIN' in self.atm):
             self.RAIN = np.full((self.time,self.ny,self.nx), np.nan)
         if ('SNOWFALL' in self.atm):
@@ -463,17 +436,18 @@ class IOClass:
                 self.LAYER_REFREEZE = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
    
     
-    #==============================================================================
-    # This function assigns the local results from the workers to the global
-    # numpy arrays. The y and x values are the lat/lon indices.
-    #==============================================================================
     def copy_local_to_global(self,y,x,local_RAIN,local_SNOWFALL,local_LWin,local_LWout,local_H,local_LE,local_B,local_QRR,
                              local_MB, local_surfMB,local_Q,local_SNOWHEIGHT,local_TOTALHEIGHT,local_TS,local_ALBEDO, \
                              local_LAYERS,local_ME,local_intMB,local_EVAPORATION,local_SUBLIMATION,local_CONDENSATION, \
                              local_DEPOSITION,local_REFREEZE,local_subM,local_Z0,local_surfM,local_MOL,local_LAYER_HEIGHT, \
                              local_LAYER_RHO,local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY, \
                              local_LAYER_ICE_FRACTION,local_LAYER_IRREDUCIBLE_WATER,local_LAYER_REFREEZE):
+        """Copy the local results from workers to global numpy arrays.
 
+        Args:
+            y: Latitude index.
+            x: Longitude index.
+        """
         if ('RAIN' in self.atm):
             self.RAIN[:,y,x] = local_RAIN
         if ('SNOWFALL' in self.atm):
@@ -550,11 +524,8 @@ class IOClass:
                 self.LAYER_REFREEZE[:,y,x,:] = local_LAYER_REFREEZE 
 
 
-    #==============================================================================
-    # This function adds the global numpy arrays to the RESULT dataset which will
-    # be written to disc.
-    #==============================================================================
     def write_results_to_file(self):
+        """Add the global numpy arrays to the RESULT dataset."""
         if ('RAIN' in self.atm):
             self.add_variable_along_latlontime(self.RESULT, self.RAIN, 'RAIN', 'mm', 'Liquid precipitation') 
         if ('SNOWFALL' in self.atm):
@@ -644,16 +615,12 @@ class IOClass:
 
         return dataset
 
-    #----------------------------------------------
-    # Initializes the restart xarray dataset
-    #----------------------------------------------
-    def init_restart_dataset(self):
-        """ This function creates the restart file 
+    def init_restart_dataset(self) -> xr.Dataset:
+        """Initialise the restart dataset.
             
         Returns:
-            
-            self.RESTART  ::  xarray structure"""
-        
+            The empty restart dataset.
+        """
         self.RESTART = self.create_empty_restart()
     
         print('Restart dataset ... ok \n')
@@ -662,13 +629,16 @@ class IOClass:
         return self.RESTART
   
 
-    #==============================================================================
-    # This function creates the global numpy arrays which store the profiles.
-    # The global array is filled with the local results from the workers. Finally,
-    # the arrays are assigned to the RESTART dataset and is stored to disc (see COSIPY.py)
-    #==============================================================================
     def create_global_restart_arrays(self):
+        """Initialise the global numpy arrays to store layer profiles.
+
+        Each global array will be filled with local results from the
+        workers. The arrays will then be assigned to the RESTART dataset
+        and stored to disk (see COSIPY.py).
+        """
+
         max_layers = Constants.max_layers  # faster lookup
+
         self.RES_NLAYERS = np.full((self.ny,self.nx), np.nan)
         self.RES_NEWSNOWHEIGHT = np.full((self.ny, self.nx), np.nan)
         self.RES_NEWSNOWTIMESTAMP = np.full((self.ny, self.nx), np.nan)
@@ -680,18 +650,12 @@ class IOClass:
         self.RES_LAYER_IF = np.full((self.ny,self.nx,max_layers), np.nan)
 
 
-    #----------------------------------------------
-    # Initializes the local restart xarray dataset
-    #----------------------------------------------
-    def create_local_restart_dataset(self):
-        """ This function creates the result dataset for a grid point 
-        Args:
-            
-            self.DATA    ::  self.DATA structure 
+    def create_local_restart_dataset(self) -> xr.Dataset:
+        """Create the result dataset for a single grid point.
             
         Returns:
-            
-            self.RESTART  ::  one-dimensional self.RESULT structure"""
+            RESTART dataset initialised with layer profiles.
+        """
     
         self.RESTART = self.create_empty_restart()
         
@@ -710,11 +674,14 @@ class IOClass:
         return self.RESTART
     
 
-    #==============================================================================
-    # This function assigns the local results from the workers to the global
-    # numpy arrays. The y and x values are the lat/lon indices.
-    #==============================================================================
     def copy_local_restart_to_global(self,y,x,local_restart):
+        """Copy local restart data from workers to global numpy arrays.
+
+        Args:
+            y: Latitude index.
+            x: Longitude index.
+            local_restart: Local RESTART dataset.
+        """
         self.RES_NLAYERS[y,x] = local_restart.NLAYERS
         self.RES_NEWSNOWHEIGHT[y,x] = local_restart.NEWSNOWHEIGHT
         self.RES_NEWSNOWTIMESTAMP[y,x] = local_restart.NEWSNOWTIMESTAMP
@@ -725,12 +692,9 @@ class IOClass:
         self.RES_LAYER_LWC[y,x,:] = local_restart.LAYER_LWC
         self.RES_LAYER_IF[y,x,:] = local_restart.LAYER_IF
 
-    
-    #==============================================================================
-    # This function adds the global numpy arrays to the RESULT dataset which will
-    # be written to disc.
-    #==============================================================================
+
     def write_restart_to_file(self):
+        """Add global numpy arrays to the RESTART dataset."""
         self.add_variable_along_latlon(self.RESTART, self.RES_NLAYERS, 'NLAYERS', '-', 'Number of layers')
         self.add_variable_along_latlon(self.RESTART, self.RES_NEWSNOWHEIGHT, 'new_snow_height', 'm .w.e', 'New snow height')
         self.add_variable_along_latlon(self.RESTART, self.RES_NEWSNOWTIMESTAMP, 'new_snow_timestamp', 's', 'New snow timestamp')
@@ -801,26 +765,34 @@ class IOClass:
         self.__MB = x
 
 
-    #==============================================================================
-    # The following functions return the RESULT, RESTART and GRID structures
-    #==============================================================================
-    #----------------------------------------------
-    # Getter/Setter functions 
-    #----------------------------------------------
-    def get_result(self):
+    def get_result(self) -> xr.Dataset:
+        """Get the RESULT data structure."""
         return self.RESULT
 
-    def get_restart(self):
+    def get_restart(self) -> xr.Dataset:
+        """Get the RESTART data structure."""
         return self.RESTART
 
-    def get_grid_restart(self):
+    def get_grid_restart(self) -> xr.Dataset:
+        """Get the GRID_RESTART data structure."""
         return self.GRID_RESTART
 
-    #==============================================================================
+    # ==================================================================
     # Auxiliary functions for writing variables to NetCDF files
-    #==============================================================================
+    # ==================================================================
     def add_variable_along_scalar(self, ds, var, name, units, long_name):
-        """ This function self.adds missing variables to the self.DATA class """
+        """Add scalar data to a dataset.
+
+        Args:
+            ds (xr.Dataset): Target data structure.
+            var (np.ndarray): New data.
+            name (str): The new variable's abbreviated name.
+            units (str): New variable units.
+            long_name (str): The new variable's full name.
+
+        Returns:
+            xr.Dataset: Target dataset with the new scalar variable.
+        """
         ds[name] = var.data
         ds[name].attrs['units'] = units
         ds[name].attrs['long_name'] = long_name
@@ -828,7 +800,18 @@ class IOClass:
         return ds
 
     def add_variable_along_latlon(self, ds, var, name, units, long_name):
-        """ This function self.adds missing variables to the self.DATA class """
+        """Add spatial data to a dataset.
+
+        Args:
+            ds (xr.Dataset): Target data structure.
+            var (np.ndarray): New spatial data.
+            name (str): The new variable's abbreviated name.
+            units (str): New variable units.
+            long_name (str): The new variable's full name.
+
+        Returns:
+            xr.Dataset: Target dataset with the new spatial variable.
+        """
         ds[name] = ((Config.northing,Config.easting), var.data)
         ds[name].attrs['units'] = units
         ds[name].attrs['long_name'] = long_name
@@ -836,7 +819,18 @@ class IOClass:
         return ds
     
     def add_variable_along_time(self, ds, var, name, units, long_name):
-        """ This function self.adds missing variables to the self.DATA class """
+        """Add temporal data to a dataset.
+
+        Args:
+            ds (xr.Dataset): Target data structure.
+            var (np.ndarray): New temporal data.
+            name (str): The new variable's abbreviated name.
+            units (str): New variable units.
+            long_name (str): The new variable's full name.
+
+        Returns:
+            xr.Dataset: Target dataset with the new temporal variable.
+        """
         ds[name] = xr.DataArray(var.data, coords=[('time', ds.time)])
         ds[name].attrs['units'] = units
         ds[name].attrs['long_name'] = long_name
@@ -844,7 +838,19 @@ class IOClass:
         return ds
     
     def add_variable_along_latlontime(self, ds, var, name, units, long_name):
-        """ This function self.adds missing variables to the self.DATA class """
+        """Add spatiotemporal data to a dataset.
+
+        Args:
+            ds (xr.Dataset): Target data structure.
+            var (np.ndarray): New spatiotemporal data.
+            name (str): The new variable's abbreviated name.
+            units (str): New variable units.
+            long_name (str): The new variable's full name.
+
+        Returns:
+            xr.Dataset: Target dataset with the new spatiotemporal
+            variable.
+        """
         ds[name] = (('time',Config.northing,Config.easting), var.data)
         ds[name].attrs['units'] = units
         ds[name].attrs['long_name'] = long_name
@@ -852,7 +858,18 @@ class IOClass:
         return ds
     
     def add_variable_along_latlonlayertime(self, ds, var, name, units, long_name):
-        """ This function self.adds missing variables to the self.DATA class """
+        """Add a spatiotemporal mesh to a dataset.
+
+        Args:
+            ds (xr.Dataset): Target data structure.
+            var (np.ndarray): New spatiotemporal mesh data.
+            name (str): The new variable's abbreviated name.
+            units (str): New variable units.
+            long_name (str): The new variable's full name.
+
+        Returns:
+            xr.Dataset: Target dataset with the new spatiotemporal mesh.
+        """
         ds[name] = (('time',Config.northing,Config.easting,'layer'), var.data)
         ds[name].attrs['units'] = units
         ds[name].attrs['long_name'] = long_name
@@ -860,7 +877,18 @@ class IOClass:
         return ds
     
     def add_variable_along_latlonlayer(self, ds, var, name, units, long_name):
-        """ This function self.adds missing variables to the self.DATA class """
+        """Add a spatial mesh to a dataset.
+
+        Args:
+            ds (xr.Dataset): Target data structure.
+            var (np.ndarray): New spatial mesh.
+            name (str): The new variable's abbreviated name.
+            units (str): New variable units.
+            long_name (str): The new variable's full name.
+
+        Returns:
+            xr.Dataset: Target dataset with the new spatial mesh.
+        """
         ds[name] = ((Config.northing,Config.easting,'layer'), var.data)
         ds[name].attrs['units'] = units
         ds[name].attrs['long_name'] = long_name
@@ -868,7 +896,18 @@ class IOClass:
         return ds
     
     def add_variable_along_layertime(self, ds, var, name, units, long_name):
-        """ This function self.adds missing variables to the self.DATA class """
+        """Add temporal layer data to a dataset.
+
+        Args:
+            ds (xr.Dataset): Target data structure.
+            var (np.ndarray): New layer data with a time coordinate.
+            name (str): The new variable's abbreviated name.
+            units (str): New variable units.
+            long_name (str): The new variable's full name.
+
+        Returns:
+            xr.Dataset: Target dataset with the new layer data.
+        """
         ds[name] = (('time','layer'), var.data)
         ds[name].attrs['units'] = units
         ds[name].attrs['long_name'] = long_name
@@ -876,7 +915,18 @@ class IOClass:
         return ds
     
     def add_variable_along_layer(self, ds, var, name, units, long_name):
-        """ This function self.adds missing variables to the self.DATA class """
+        """Add layer data to a dataset.
+
+        Args:
+            ds (xr.Dataset): Target data structure.
+            var (np.ndarray): New layer data.
+            name (str): The new variable's abbreviated name.
+            units (str): New variable units.
+            long_name (str): The new variable's full name.
+
+        Returns:
+            xr.Dataset: Target dataset with the new layer data.
+        """
         ds[name] = (('layer'), var.data)
         ds[name].attrs['units'] = units
         ds[name].attrs['long_name'] = long_name

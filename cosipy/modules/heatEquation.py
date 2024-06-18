@@ -3,12 +3,12 @@ from numba import njit
 
 
 @njit
-def solveHeatEquation(GRID, dt: int):
-    """Solves the heat equation over a non-uniform grid.
+def solveHeatEquation(GRID, dt):
+    """Solve the heat equation on a non-uniform grid.
 
     Args:
-        GRID: Grid object
-        dt: Integration time, [s].
+        GRID (Grid): Glacier data structure.
+        dt (int): Integration time [s].
     """
 
     # Define index arrays

@@ -7,7 +7,11 @@ from cosipy.cpkernel.grid import Grid
 
 
 def init_snowpack(DATA):
-    """INITIALIZATION"""
+    """Initialise the snowpack.
+
+    Returns:
+        Grid: Initialised glacier data structure with snowpack.
+    """
 
     # Declare locally for faster lookup
     initial_snowheight_constant = Constants.initial_snowheight_constant
@@ -80,7 +84,7 @@ def init_snowpack(DATA):
 
 
 def load_snowpack(GRID_RESTART):
-    """ Initialize grid from restart file """
+    """Initialize grid from restart file."""
 
     # Number of layers
     num_layers = int(GRID_RESTART.NLAYERS.values)

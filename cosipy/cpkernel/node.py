@@ -50,10 +50,6 @@ class Node:
         Volumetric ice fraction [-].
     refreeze : float
         Amount of refrozen liquid water [:math:`m~w.e.`].
-
-    Returns
-    -------
-    Node : :py:class:`cosipy.cpkernel.node` object.
     """
 
     def __init__(

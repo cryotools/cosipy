@@ -5,23 +5,22 @@ import numpy as np
 from metpy.units import units
 
 
-# The following functions are needed for the radiation method Wohlfahrt 2016
-def solarFParallel(lat, lon, timezone_lon, day, hour):
-    """ Calculate solar elevation, zenith and azimuth angles
+# Required for the radiation method by Wohlfahrt et al., (2016).
+def solarFParallel(lat:float, lon:float, timezone_lon:float, day:int, hour:float):
+    """ Calculate solar elevation, zenith and azimuth angles.
     
-    Inputs:
+    Args:
+        lat: Latitude [decimal degree].
+        lon: Longitude [decimal degree].
+        timezone_lon: Longitude of standard meridian [decimal degree].
+        doy: Day of the year (1-366).
+        hour: Hour of the day (decimal, e.g. 12:30 = 12.5).
         
-        lat             ::  latitude (decimal degree)
-        lon             ::  longitude (decimal degree)
-        timezone_lon    ::  longitude of standard meridian (decimal degree)
-        doy             ::  day of the year (1-366)
-        hour            ::  hour of the day (decimal, e.g. 12:30 = 12.5)
-        
-    Outputs:
-        
-        beta            ::  solar elevation angle (radians)
-        zeni            ::  zenith angle (radians)
-        azi             ::  solar azimuth angle (radians)
+    Returns:
+        tuple[float,float,float]:
+            :beta: Solar elevation angle [radians].
+            :zeni: Zenith angle [radians].
+            :azi: Solar azimuth angle [radians].
     """
 
     # Calculate conversion factor degree to radians
@@ -65,19 +64,24 @@ def solarFParallel(lat, lon, timezone_lon, day, hour):
 
 
 def Fdif_Neustift(doy, zeni, Rg):
-    """ Estimate fraction of diffuse radiation
-     from Wohlfahrt et al. (2016) doi: 10.1016/j.agrformet.2016.05.012
+    """Estimate the fraction of diffuse radiation.
+
+    Adapted from Wohlfahrt et al. (2016).
+    DOI: 10.1016/j.agrformet.2016.05.012.
     
-     the basic logic here is that we use the ratio between incident global
-     and potential shortwave radiation to define a clearness index and use
-     this to calibrate an empirical function of the diffuse radiation
-     fraction, in this case data from Neustift were used for calibration
+    Defines a clearness index from the ratio between incident global
+    radiation and potential shortwave radiation. This index calibrates
+    an empirical function for the diffuse radiation fraction.
+
+    This instance uses calibration data from Neustift.
+
+    Args:
+        doy (int): Day of year [-].
+        zeni (float): Zenith angle of sun (rad].
+        Rg (float): Incident global shortwave radiation [W m^2].
     
-     doy .... day of year (-)
-     zeni ... zenith angle of sun (rad)
-     Rg ..... incident global (shortwave) radiation (W/m2)
-     
-     last edit: 23.04.2018, Georg
+    Returns:
+        float: Estimated fraction of diffuse radiation.
     """
     So = 1367.0 * (1 + 0.033 * math.cos(2.0 * math.pi * doy / 366.0)) * math.cos(zeni)
     
@@ -98,31 +102,30 @@ def Fdif_Neustift(doy, zeni, Rg):
 
 
 def radCor2D(doy, zeni, azi, angslo, azislo, Rm, zeni_thld):
-    """ Correct solar radiation measured horizontally for slope and aspect of
-    underlying surface
- 
-     here first estimate fraction of diffuse radiation and then correct beam
-     radiation component for slope and aspect of underlying surface based on
-     Ham (2005)
+    """Correct horizontally-measured solar radiation for surface slope
+    and aspect.
+
+    Estimates the fraction of diffuse radiation and corrects the beam
+    radiation component for the underlying surface's slope and aspect.
+    Based on Ham (2005).
     
-     Ham, J.M. (2005) Useful equations and tables in micrometeorology. In: Hatfield, J.L.,
-     Baker, J.M., Viney, M.K. (Eds.), Micrometeorology in Agricultural Systems.
-     American Society of Agronomy Inc.; Crop Science Society of America Inc.; Soil
-     Science Society of America Inc., Madison, Wisconsin, USA, pp. 533560.
+    .. note::
+        Ham, J.M. (2005) Useful equations and tables in micrometeorology.
+        In: Hatfield, J.L., Baker, J.M., Viney, M.K. (Eds.), Micrometeorology in Agricultural Systems.
+        American Society of Agronomy Inc.; Crop Science Society of America Inc.;
+        Soil Science Society of America Inc., Madison, Wisconsin, USA, pp. 533560.
+        
+    Args:
+        doy (int): Day of year.
+        zeni (float): Solar zenith angle from vertical [radians].
+        azi (float): Solar azimuth angle [radians].
+        angslo (np.ndarray): Slope of pixel.
+        azislo (np.ndarray): Azimuth of pixel.
+        Rm (float): Solar radiation measured horizontally [W m^2].
+        zeni_thld (float): Zenith threshold [degrees].
     
-    last edit: 24.03.2018, Georg
-    
-    the following inputs are scalars
-    doy .... day of year
-    zeni ... solar zenith angle (from vertical, rad)
-    azi .... solar azimuth angle (rad)
-    Rm ..... solar radiation measured horizontally (W/m2)
-    zeni_thld ... zenith threshold (deg)
-    
-    the following inputs/outputs represent spatial data (arrays y and x direction)
-    angslo ... slope of pixel 
-    azislo ... azimuth of pixel
-    Rc ... corrected solar radiation (W/m2)
+    Returns:
+        float: Corrected solar radiation [W m^2].
     """
     
     # Calculate conversion factor degree to radians
@@ -156,10 +159,30 @@ def correctRadiation(lat, lon, timezone_lon, doy, hour, angslo, azislo, Rm, zeni
 
 # The following functions are needed for radiation method Moelg2009
 def solpars(lat):
-    """ Calculate time correction due to orbital forcing (Becker 2001)
-     and solar parameters that vary on daily basis (Mölg et al. 2003)
-     0: day angle (rad); 1: in (deg); 2: eccentricity correction factor;
-     3: solar declination (rad); 4: in (deg); 5: sunrise hour angle; 6: day length
+    """Calculate time corrections.
+    
+    Corrections due to orbital forcing (Becker 2001) and solar
+    parameters that vary on daily basis (Mölg et al. 2003).
+    
+    Args:
+        lat (float): Latitude.
+
+    Returns:
+        tuple[np.ndarray, np.ndarray]:
+        Solar parameters indexed as:
+            :0: Day angle [radians].
+            :1: Day angle [degrees].
+            :2: Eccentricity correction factor.
+            :3: Solar declination [radians].
+            :4: Solar declination [degrees].
+            :5: Sunrise hour angle.
+            :6: Day length.
+        Time corrections indexed as:
+            :0: Julian day.
+            :1: Time correction.
+            :2: Time difference between True Local Time (TLT) and Average
+                Local Time (ALT).
+            :3: Time difference in degrees [15°/h].
     """
 
     timecorr = np.zeros((366, 4))
@@ -193,8 +216,7 @@ def solpars(lat):
 
 
 def haversine(lat1, lon1, lat2, lon2):
-    """ This function calculates the distance between two points given their longitudes and latitudes
-     based on the haversine formula. """
+    """Get the distance between two points using the haversine formula."""
 
     lat1_rad = math.radians(lat1)
     lat2_rad = math.radians(lat2)
@@ -208,17 +230,18 @@ def haversine(lat1, lon1, lat2, lon2):
 
 
 def relshad(dem, mask, lats, lons, solh, sdirfn):
-    """ This function calculates the topographic shading based on Mölg et al. 2009
-
-     Input:
-           dem:    A DEM of the study region, that also includes surrounding terrain
-           mask:   A glacier mask
-           lats:   The latitudes
-           lons:   The longitudes
-           solh:   The solar elevation (degrees)
-           sdirfn: The illumination direction (in degrees from north)
-     Output:
-           illu:   Grid illu containing 0 = shaded, 1 = in sun
+    """Get the topographic shading, based on Mölg et al. (2009).
+    
+    Args:
+        dem: DEM of the study region including surrounding terrain.
+        mask: Glacier mask.
+        lats: Latitudinal coordinates.
+        lons: Longitudinal coordinates.
+        solh: Solar elevation [degrees].
+        sdirfn: Illumination direction in degrees from north)
+    
+    Returns:
+        np.ndarray: Illumination mask where 0 = shaded, 1 = in sun.
     """
 
     z = dem
@@ -287,20 +310,21 @@ def relshad(dem, mask, lats, lons, solh, sdirfn):
 
 
 def LUTshad(solpars, timecorr, lat, elvgrid, maskgrid, lats, lons, STEP, TCART):
-    """ This function calculates the look-up-table for topographic shading for one year.
+    """Get the look-up-table for topographic shading for one year.
 
-     Input:
-           solpars:   Solar parameters
-           timecorr:  Time correction due to orbital forcing
-           lat:       Latitude at AWS
-           elvgrid:   DEM
-           maskgrid:  Glacier mask
-           lats:      Latitudes
-           lons:      Longitudes
-           STEP:      Time step (s)
-           TCART:     Time correction due to difference MLT - TLT
-     Output:
-           shad1yr:   Look-up-table for topographic shading for 1 year
+    Args:
+        solpars: Solar parameters.
+        timecorr: Time correction due to orbital forcing.
+        lat: Latitude at AWS.
+        elvgrid: DEM.
+        maskgrid: Glacier mask.
+        lats: Latitudinal coordinates.
+        lons: Longitudinal coordinates.
+        STEP: Time step [s].
+        TCART: Time correction due to difference MLT - TLT.
+    
+    Returns:
+        np.ndarray: Look-up-table for topographic shading for 1 year.
     """
 
     # hour = np.arange(1, 25, 1)
@@ -344,15 +368,15 @@ def LUTshad(solpars, timecorr, lat, elvgrid, maskgrid, lats, lons, STEP, TCART):
 
 
 def LUTsvf(elvgrid, maskgrid, slopegrid, aspectgrid, lats, lons):
-    """ This function calculates the look-up-table for the sky-view-factor for one year.
+    """Get the look-up-table for the sky-view-factor for one year.
 
-     Input:
-           elvgrid:   DEM
-           maksgrid:  Glacier mask
-           slopegrid: Slope
-           aspectgrid:Aspect
-           lats:      Latitudes
-           lons:      Longitudes
+    Args:
+        elvgrid: DEM.
+        maksgrid: Glacier mask.
+        slopegrid: Slope.
+        aspectgrid: Aspect.
+        lats: Latitudinal coordinates.
+        lons: Longitudinal coordinates.
     """
 
     slo = np.radians(slopegrid)
@@ -382,30 +406,32 @@ def LUTsvf(elvgrid, maskgrid, slopegrid, aspectgrid, lats, lons):
 
 def calcRad(solPars, timecorr, doy, hour, lat, tempgrid, pgrid, rhgrid, cldgrid, elvgrid, maskgrid, slopegrid,
             aspectgrid, shad1yr, gridsvf, STEP, TCART):
-    """ This function computes the actual calculation of solar Radiation (direct + diffuse)
-     including corrections for topographic shading and self-shading, based on Mölg et al. 2009, Iqbal 1983, Hastenrath 1984.
+    """Gets the combined all-sky shortwave radiation (direct + diffuse).
 
-     Input:
-           solpars:   Solar parameters
-           timecorr:  Time correction due to orbital forcing
-           doy:       Day of year
-           hour:      Hour of day
-           lat:       Latitude at AWSi
-           tempgrid:  Air Temperature
-           pgrid:     Air Pressure
-           rhgrid:    Relative Humidity
-           cldgrid:   Cloud fraction
-           elvgrid:   DEM
-           maskgrid:  Glacier mask
-           slopegrid: Slope
-           aspectgrid:Aspect
-           shad1yr:   LUT topographic shading
-           gridsvf:   LUT Sky-view-factor
-           STEP:      Time step (s)
-           TCART:     Time correction due to difference MLT - TLT
+    This includes corrections for topographic shading and self-shading,
+    based on Mölg et al. (2009), Iqbal (1983), Hastenrath (1984).
 
-     Output:
-           swiasky:   All-sky shortwave radiation
+    Args:
+        solpars: Solar parameters.
+        timecorr: Time correction due to orbital forcing.
+        doy: Day of year.
+        hour: Hour of day.
+        lat: Latitude at AWS.
+        tempgrid: Air temperature.
+        pgrid: Air pressure.
+        rhgrid: Relative humidity.
+        cldgrid: Cloud fraction.
+        elvgrid: DEM.
+        maskgrid: Glacier mask.
+        slopegrid: Slope.
+        aspectgrid: Aspect.
+        shad1yr: LUT topographic shading.
+        gridsvf: LUT sky-view-factor.
+        STEP: Time step [s].
+        TCART: Time correction due to difference MLT - TLT.
+
+    Returns:
+        np.ndarray: All-sky shortwave radiation
 """
 
     # Constants

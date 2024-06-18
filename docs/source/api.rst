@@ -1,60 +1,66 @@
 ====
 API
 ====
-.. currentmodule:: cosipy
 
-Kernel classes
-==============
+Configuration
+=============
 
 .. autosummary::
-    :toctree: generated/
-    :nosignatures:
-    
-    cpkernel.cosipy_core
-    cpkernel.grid.Grid
-    cpkernel.grid.Node
+   :toctree: config
+   :template: custom-module.rst
+   :nosignatures:
+   :recursive:
 
+   config
+   constants
+
+Kernel
+======
+
+.. currentmodule:: cosipy
+.. autosummary::
+   :toctree: cpkernel
+   :template: custom-module.rst
+   :nosignatures:
+   :recursive:
+
+   cpkernel
 
 Parametrizations
-================
+=================
 
 .. autosummary::
-    :toctree: generated/
-    :nosignatures:
+   :toctree: modules
+   :template: custom-module.rst
+   :nosignatures:
+   :recursive:
 
-    modules.albedo
-    modules.densification
-    modules.evaluation
-    modules.heatEquation
-    modules.penetratingRadiation
-    modules.percolation
-    modules.radCor
-    modules.refreezing
-    modules.roughness
-    modules.surfaceTemperature
-
-.. currentmodule:: utilities
+   modules
 
 Utilities
 =========
 
+.. currentmodule:: utilities
 .. autosummary::
-    :toctree: generated/
+    :toctree: utilities
+    :template: custom-module.rst
     :nosignatures:
+    :recursive:
 
-    aws2cosipy.aws2cosipy
-    createStatic.create_static_file
-    wrf2cosipy.wrf2cosipy
-
-.. currentmodule:: postprocessing
+    aws2cosipy
+    wrf2cosipy
+    createStatic
 
 Postprocessing
 ==============
 
+.. currentmodule:: postprocessing
 .. autosummary::
-    :toctree: generated/
+    :toctree: postprocessing
+    :template: custom-module.rst
     :nosignatures:
+    :recursive:
 
-    field_plots.plot_cosipy_fields
-    profile_plots.plot_profiles
-    vtk_plots.plot_cosipy_fields_vtk
+    field_plots
+    profile_plots
+    vtk_plots

@@ -10,12 +10,15 @@ zero_temperature = Constants.zero_temperature
 
 
 def densification(GRID,SLOPE,dt):
-    """Densification of the snowpack.
+    """Apply densification to the snowpack.
 
     Args:
-        GRID    ::  GRID-Structure.
-        SLOPE   ::  Slope of the surface [degrees].
-        dt      ::  integration time [s].
+        GRID (Grid): Glacier data structure.
+        SLOPE (np.ndarray): Slope of the surface [degrees].
+        dt (int): Integration time [s].
+
+    Raises:
+        NotImplementedError: Densification method is not allowed.
     """
     densification_method = Constants.densification_method
     densification_allowed = ['Boone', 'Vionnet', 'empirical', 'constant']
@@ -39,11 +42,12 @@ def densification(GRID,SLOPE,dt):
 def copy_layer_profiles(GRID) -> tuple:
     """Get a copy of the layer profiles.
 
-    `np.array` returns a copy by default and is 2x faster than np.copy
-    (which is not supported by numba).
+    ``np.array`` returns a copy by default and is 2x faster than
+    ``np.copy`` (which is not supported by numba).
 
     Args:
-        GRID (Grid): Grid object.
+        GRID (Grid): Glacier data structure.
+
     Returns:
         Profiles for height, density, temperature, liquid water content,
         and ice fraction.
@@ -58,8 +62,9 @@ def copy_layer_profiles(GRID) -> tuple:
 
 @njit
 def method_Boone(GRID,SLOPE,dt):
-    """ Description: Densification through overburden pressure
-        after Essery et al. 2013
+    """Densification through overburden pressure.
+
+    After Essery et al., (2013).
     """
 
     # Constants
@@ -122,8 +127,9 @@ def method_Boone(GRID,SLOPE,dt):
 
 
 def method_Vionnet(GRID,SLOPE,dt):
-    """ Description: Densification through overburden stress
-        after Vionnet et al. 2011
+    """Densification through overburden stress.
+
+    After Vionnet et al., (2011).
     """
 
     # Constants
@@ -190,7 +196,7 @@ def method_Vionnet(GRID,SLOPE,dt):
 
 
 def method_empirical(GRID,SLOPE,dt):
-    """Simple empirical snow compaction parametrization using a constant time scale."""
+    """Empirical snow compaction parametrization using a constant time scale."""
 
     rho_max = 600.0     # maximum attainable density [kg m^-3]
     #tau = 3.6e5         # empirical compaction time scale [s]

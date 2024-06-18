@@ -9,9 +9,9 @@ def percolation(GRID, water: float, dt: int) -> float:
     Bucket method (Bartelt & Lehning, 2002).
 
     Args:
-        GRID (Grid): Glacier data mesh.
+        GRID (Grid): Glacier data structure.
         water: Melt water at the surface, [m w.e.q.].
-        dt: Integration time.
+        dt: Integration time [s].
 
     Returns:
         Percolated meltwater.
