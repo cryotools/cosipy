@@ -138,7 +138,7 @@ The static file is created using either:
 
 .. code-block:: bash
 
-    python -m cosipy.utilities.create_static.create_static_file  # from source
+    python -m cosipy.utilities.createStatic.create_static_file  # from source
     cosipy-create-static  # from entry point
 
 The command creates a new file **Zhadang_static.nc** in the ``./data/static/`` folder.
@@ -164,7 +164,13 @@ The script is executed with:
 
 .. code-block:: bash
 
-    python -m cosipy.utilities.aws2cosipy.aws2cosipy \
+    python -m cosipy.utilities.aws2cosipy.aws2cosipy \  # from source
+        -c ./data/input/Zhadang/Zhadang_ERA5_2009_2018.csv \
+        -o ./data/input/Zhadang/Zhadang_ERA5_2009.nc \
+        -s ./data/static/Zhadang_static.nc \
+        -b 20090101 -e 20091231
+
+    cosipy-aws2cosipy \  # from entry point
         -c ./data/input/Zhadang/Zhadang_ERA5_2009_2018.csv \
         -o ./data/input/Zhadang/Zhadang_ERA5_2009.nc \
         -s ./data/static/Zhadang_static.nc \

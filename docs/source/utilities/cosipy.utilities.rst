@@ -1,7 +1,7 @@
 ﻿utilities
 =========
 
-.. currentmodule:: cosipy.utilities
+.. currentmodule:: cosipy
 
 .. automodule:: cosipy.utilities
 

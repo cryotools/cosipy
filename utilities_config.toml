@@ -31,6 +31,7 @@ delimiter = ','
 [aws2cosipy.radiation]
 radiationModule = 'Wohlfahrt2016' # 'Moelg2009', 'Wohlfahrt2016', 'none'
 LUT = false  # If there is already a Look-up-table for topographic shading and sky-view-factor built for this area, set to True
+LUT_path = "./data/static/LUT_Rad.nc"
 dtstep = 10800  # time step (s)
 tcart = 26  # Station time correction in hour angle units (1 is 4 min)
 timezone_lon = 90.0  # Longitude of station
