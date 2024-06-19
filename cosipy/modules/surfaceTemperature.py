@@ -32,30 +32,30 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLO
         T2: Air temperature [K].
         rH2: Relative humidity [%].
         p: Air pressure [hPa].
-        SWnet: Incoming shortwave radiation [W m^-2].
-        u2: Wind velocity [m s^-1].
+        SWnet: Incoming shortwave radiation [|W m^-2|].
+        u2: Wind velocity [|m s^-1|].
         RAIN: RAIN [mm].
         SLOPE: Slope of the surface [degree].
-        LWin: Incoming longwave radiation [W m^-2].
+        LWin: Incoming longwave radiation [|W m^-2|].
         N: Fractional cloud cover [-].
 
     Returns:
         tuple:
         :res.fun: Minimisation function.
         :res.x: Surface temperature [K].
-        :Li: Incoming longwave radiation [W m^-2].
-        :Lo: Outgoing longwave radiation [W m^-2].
-        :H: Sensible heat flux [W m^-2].
-        :L: Latent heat flux [W m^-2].
-        :B: Ground heat flux [W m^-2].
-        :Qrr: Rain heat flux [W m^-2].
-        :rho: Air density [kg m^-3].
-        :Lv: Latent heat of vaporization [J kg^-1].
-        :MOL: Monin-Obukhov length.
+        :Li: Incoming longwave radiation [|W m^-2|].
+        :Lo: Outgoing longwave radiation [|W m^-2|].
+        :H: Sensible heat flux [|W m^-2|].
+        :L: Latent heat flux [|W m^-2|].
+        :B: Ground heat flux [|W m^-2|].
+        :Qrr: Rain heat flux [|W m^-2|].
+        :rho: Air density [|kg m^-3|].
+        :Lv: Latent heat of vaporization [|J kg^-1|].
+        :MOL: Monin-Obukhov length [m].
         :Cs_t: Stanton number [-].
         :Cs_q: Dalton number [-].
-        :q0: Mixing ratio at the surface [kg kg^-1].
-        :q2: Mixing ratio at measurement height [kg kg^-1].
+        :q0: Mixing ratio at the surface [|kg kg^-1|].
+        :q2: Mixing ratio at measurement height [|kg kg^-1|].
     """
     
     #Interpolate subsurface temperatures to selected subsurface depths for GHF computation
@@ -159,28 +159,28 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
         T2: Air temperature [K].
         rH2: Relative humidity [%].
         p: Air pressure [hPa].
-        u2: Wind velocity [m s^-1].
+        u2: Wind velocity [|m s^-1|].
         RAIN: RAIN [mm].
         SLOPE: Slope of the surface [degree].
         B_Ts: Subsurface temperatures at interpolation depths [K].
-        LWin: Incoming longwave radiation [W m^-2].
+        LWin: Incoming longwave radiation [|W m^-2|].
         N: Fractional cloud cover [-].
 
     Returns:
         tuple:
-        :Li: Incoming longwave radiation [W m^-2].
-        :Lo: Outgoing longwave radiation [W m^-2].
-        :H: Sensible heat flux [W m^-2].
-        :LE: Latent heat flux [W m^-2].
-        :B: Ground heat flux [W m^-2].
-        :QRR: Rain heat flux [W m^-2].
-        :rho: Air density [kg m^-3].
-        :Lv: Latent heat of vaporization [J kg^-1].
-        :L: Monin Obukhov length.
+        :Li: Incoming longwave radiation [|W m^-2|].
+        :Lo: Outgoing longwave radiation [|W m^-2|].
+        :H: Sensible heat flux [|W m^-2|].
+        :LE: Latent heat flux [|W m^-2|].
+        :B: Ground heat flux [|W m^-2|].
+        :QRR: Rain heat flux [|W m^-2|].
+        :rho: Air density [|kg m^-3|].
+        :Lv: Latent heat of vaporization [|J kg^-1|].
+        :L: Monin-Obukhov length [m].
         :Cs_t: Stanton number [-].
         :Cs_q: Dalton number [-].
-        :q0: Mixing ratio at the surface [kg kg^-1].
-        :q2: Mixing ratio at measurement height [kg kg^-1].
+        :q0: Mixing ratio at the surface [|kg kg^-1|].
+        :q2: Mixing ratio at measurement height [|kg kg^-1|].
     """
 
     # Saturation vapour pressure (hPa)
@@ -340,7 +340,7 @@ def phi_m_stable(z: float, L: float) -> float:
 
 @njit
 def phi_m(z: float, L: float) -> float:
-    """Get integrated stability function for momentum.
+    """Get the integrated stability function for momentum.
 
     Args:
         z: Height, [m].
@@ -391,7 +391,7 @@ def MO(rho, ust, T2, H):
 
 @njit
 def eb_optim(T0, GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, B_Ts, LWin=None, N=None):
-    """Optimization function to solve for the surface temperature T0"""
+    """Optimization function to solve for the surface temperature T0."""
 
     # Get surface fluxes for surface temperature T0
     (Li,Lo,H,L,B,Qrr,rho,Lv,MOL,Cs_t,Cs_q,q0,q2) = eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin, N)

@@ -38,7 +38,7 @@ albedo_method = Constants.albedo_method
 
 @jitclass(spec)
 class Grid:
-    """The Grid-class controls the numerical mesh.
+    """A ``Grid`` structure controls and stores the numerical mesh.
 
     The grid attribute consists of a list of nodes that each store
     information on an individual layer. The class provides various
@@ -46,14 +46,20 @@ class Grid:
     update or re-mesh the layers.
 
     Attributes:
-        layer_heights (np.ndarray): Height of the snowpack layers [:math:`m`].
-        layer_densities (np.ndarray): Snow density of the snowpack layers [:math:`kg~m^{-3}`].
-        layer_temperatures (np.ndarray): Layer temperatures [:math:`K`].
-        layer_liquid_water_content (np.ndarray): Liquid water content of the layers [:math:`m~w.e.`].
-        layer_ice_fraction (np.ndarray): Volumetric ice fraction  of the layers [-]. Default None.
-        new_snow_height (float): Height of the fresh snow layer [:math:`m`]. Default None.
-        new_snow_timestamp (float): Time elapsed since the last snowfall [s]. Default None.
-        old_snow_timestamp (float): Time elapsed between the last and penultimate snowfalls [s]. Default None.
+        layer_heights (np.ndarray): Height of the snowpack layers [m].
+        layer_densities (np.ndarray): Snow density of the snowpack
+            layers [|kg m^-3|].
+        layer_temperatures (np.ndarray): Layer temperatures [K].
+        layer_liquid_water_content (np.ndarray): Liquid water content of
+            the layers [|m w.e.|].
+        layer_ice_fraction (np.ndarray): Volumetric ice fraction of the
+            layers [-]. Default None.
+        new_snow_height (float): Height of the fresh snow layer [m].
+            Default None.
+        new_snow_timestamp (float): Time elapsed since the last
+            snowfall [s]. Default None.
+        old_snow_timestamp (float): Time elapsed between the last and
+            penultimate snowfalls [s]. Default None.
         grid (typed.List): Numerical mesh for glacier data.
         number_nodes (int): Number of layers in the numerical mesh.
     """
@@ -130,10 +136,11 @@ class Grid:
         layer).
 
         Args:
-            height (float): Layer height [:math:`m`].
-            density (float): Layer density [:math:`kg~m^{-3}`].
-            temperature (float): Layer temperature [:math:`K`].
-            liquid_water_content (float): Liquid water content of the layer [:math:`m~w.e.`].
+            height (float): Layer height [m].
+            density (float): Layer density [|kg m^-3|].
+            temperature (float): Layer temperature [K].
+            liquid_water_content (float): Liquid water content of the
+                layer [|m w.e.|].
         """
 
         # Add new node
@@ -166,19 +173,17 @@ class Grid:
                     del self.grid[index]
                 self.number_nodes -= len(idx)
 
-    def merge_nodes(self, idx):
-        """Merge two subsequent nodes.
+    def merge_nodes(self, idx: int):
+        """Merge two consecutive nodes.
 
-        Merges the two nodes at location `idx` and `idx+1`. The node at
-        `idx` is updated with the new properties (height, liquid water
-        content, ice fraction, temperature). The node at `idx+1` is
-        deleted after merging.
+        Merges the two nodes at location ``idx`` and ``idx+1``. The node
+        at ``idx`` is updated with the new properties (height, liquid
+        water content, ice fraction, temperature). The node at ``idx+1``
+        is deleted after merging.
 
-        Parameters
-        ----------
-        idx : int
-            Index of the node to be removed. The first node is removed
-            if no index is provided.
+        Args:
+            idx: Index of the node to be removed. The first node is
+                removed if no index is provided.
         """
         # Get overburden pressure for consistency check
         # w0 = self.get_node_height(idx) * self.get_node_density(
@@ -245,27 +250,24 @@ class Grid:
         # Remove the second layer
         self.remove_node([idx + 1])
 
-    def correct_layer(self, idx, min_height):
+    def correct_layer(self, idx: int, min_height: float):
         """Adjust the height of a given layer.
 
-        Adjusts the height of the layer at index `idx` to the given
-        height `min_height`. First the layers below are merged until the
-        height is sufficiently large to allow for the adjustment. Then
-        the layer is merged with the subsequent layer.
+        Adjusts the height of the layer at index ``idx`` to the given
+        height ``min_height``. First, the layers below are merged until
+        the height is large enough to allow for the adjustment. Then the
+        layer is merged with the following layer.
 
-        Parameters
-        ----------
-        idx : int
-            Index of the node to be removed.
-        min_height : float
-            New layer height [:math:`m`].
+        Args:
+            idx: Index of the node to be removed.
+            min_height: New layer height [m].
 
         """
         # New layer height by adding up the height of the two layers
         total_height = self.get_node_height(idx)
 
-        # Merge subsequent layer with underlying layers until height of
-        # the layer is greater than the given height
+        # Merge with underlying layers until the height of the layer is
+        # greater than the given height.
         while (total_height < min_height) & (
             idx + 1 < self.get_number_layers()
         ):
@@ -359,10 +361,10 @@ class Grid:
 
         This algorithm remeshes the layer heights (numerical grid)
         logarithmically using a given stretching factor and first layer
-        height. Both are defined in `constants.py`:
+        height. Both are defined in ``constants.py``:
 
-        * The stretching factor is defined by `layer_stretching`.
-        * The first layer height is defined by `first_layer_height`.
+        * The stretching factor is defined by ``layer_stretching``.
+        * The first layer height is defined by ``first_layer_height``.
 
         E.g. for the stretching factor, a value of 1.1 corresponds to a
         10% stretching from one layer to the next.
@@ -421,18 +423,19 @@ class Grid:
         """Remesh according to certain layer state criteria.
 
         This algorithm is an alternative to logarithmic remeshing.
-        It checks the similarity of two subsequent layers. Layers are
+        It checks the similarity of two consecutive layers. Layers are
         merged if:
 
-        (1) the density difference between the layer and the subsequent
-        layer is smaller than the user defined threshold.
+        (1) the density difference between one layer and the next is
+        smaller than the user defined threshold.
         (2) the temperature difference is smaller than the user defined
         threshold.
         (3) the number of merges per time step does not exceed the user
         defined threshold.
 
-        The thresholds are defined by `temperature_threshold_merging`,
-        `density_threshold_merging`, and `merge_max` in `constants.py`.
+        The thresholds are defined by ``temperature_threshold_merging``,
+        ``density_threshold_merging``, and ``merge_max`` in
+        ``constants.py``.
         """
         # First remesh the snowpack
         idx = 0
@@ -463,18 +466,16 @@ class Grid:
         # Correct first layer
         self.correct_layer(0, first_layer_height)
 
-    def split_node(self, pos):
+    def split_node(self, pos: int):
         """Split node at position.
 
-        Splits a node at a location index `pos` into two similar nodes.
-        The new nodes at location `pos` and `pos+1` will have the same
-        properties (height, liquid water content, ice fraction,
+        Splits a node at a location index ``pos`` into two similar
+        nodes. The new nodes at location ``pos`` and ``pos+1`` will have
+        the same properties (height, liquid water content, ice fraction,
         temperature).
 
-        Parameters
-        ----------
-        pos : int
-            Index of the node to split.
+        Args:
+            pos: Index of the node to split.
         """
         self.grid.insert(
             pos + 1,
@@ -501,23 +502,18 @@ class Grid:
     ):
         """Update properties of a specific node.
 
-        Updates a layer's attributes for `height`, `temperature`,
-        `ice_fraction`, and `liquid_water_content`. The density cannot
-        be updated as it is derived from air porosity, liquid water
-        content, and ice fraction.
+        Updates a layer's attributes for ``height``, ``temperature``,
+        ``ice_fraction``, and ``liquid_water_content``. The density
+        cannot be updated as it is derived from air porosity, liquid
+        water content, and ice fraction.
 
-        Parameters
-        ----------
-        idx : int
-            Index of the layer to be updated.
-        height : float
-            Layer's new snowpack height [:math:`m`].
-        temperature : float
-            Layer's new temperature [:math:`K`].
-        ice_fraction : float
-            Layer's new ice fraction [:math:`-`].
-        liquid_water_content : float
-            Layer's new liquid water content [:math:`m~w.e.`].
+        Args:
+            idx (int): Index of the layer to be updated.
+            height (float): Layer's new snowpack height [m].
+            temperature (float): Layer's new temperature [K].
+            ice_fraction (float): Layer's new ice fraction [-].
+            liquid_water_content (float): Layer's new liquid water
+                content [|m w.e.|].
         """
         self.set_node_height(idx, height)
         self.set_node_temperature(idx, temperature)
@@ -554,40 +550,35 @@ class Grid:
 
         (i)  The log-profile algorithm arranges the mesh
              logarithmically. The user specifies the stretching factor
-             `layer_stretching` in `constants.py` to determine the
+             ``layer_stretching`` in ``constants.py`` to determine the
              increase in layer heights.
 
         (ii) Profile adjustment uses layer similarity. Layers with very
              similar temperature and density states are joined.
              Similarity is determined from the user-specified threshold
-             values `temperature_threshold_merging` and
-             `density_threshold_merging` in `constants.py`. The maximum
-             number of merging steps per time step is specified by
-             `merge_max`.
+             values ``temperature_threshold_merging`` and
+             ``density_threshold_merging`` in ``constants.py``. The
+             maximum number of merging steps per time step is specified
+             by ``merge_max``.
         """
-        # -------------------------------------------------------------------------
-        # Remeshing options
-        # -------------------------------------------------------------------------
         if remesh_method == "log_profile":
             self.log_profile()
         elif remesh_method == "adaptive_profile":
             self.adaptive_profile()
 
-        # remove first layer if it is too small
+        # remove the first layer if it is too small
         if self.get_node_height(0) < minimum_snow_layer_height:
             self.remove_node([0])
 
-    def merge_snow_with_glacier(self, idx):
+    def merge_snow_with_glacier(self, idx: int):
         """Merge a snow layer with an ice layer.
 
-        Merges a snow layer at location `idx` (density smaller than the
-        `snow_ice_threshold` value in `constants.py`) with an ice layer
-        at location `idx+1`.
+        Merges a snow layer at location ``idx`` (density smaller than
+        the ``snow_ice_threshold`` value in ``constants.py``) with an
+        ice layer at location ``idx+1``.
 
-        Parameters
-        ----------
-        idx : int
-            Index of the snow layer.
+        Args:
+            idx: Index of the snow layer.
         """
         if (self.get_node_density(idx) < snow_ice_threshold) & (
             self.get_node_density(idx + 1) >= snow_ice_threshold
@@ -608,24 +599,19 @@ class Grid:
 
             # self.check('Merge snow with glacier function')
 
-    def remove_melt_weq(self, melt, idx=0):
+    def remove_melt_weq(self, melt: float, idx: int=0):
         """Remove mass from a layer.
 
-        Reduces the mass/height of layer `idx` by the available melt
+        Reduces the mass/height of layer ``idx`` by the available melt
         energy.
 
-        Parameters
-        ----------
-        melt : float
-            Snow water equivalent of melt [:math:`m~w.e.`].
-        idx : int
-            Index of the layer. If no value is given, the function acts
-            on the first layer.
+        Args:
+            melt: Snow water equivalent of melt [|m w.e.|].
+            idx: Index of the layer. If no value is given, the function
+                acts on the first layer.
         
-        Returns
-        -------
-        lwc_from_layers : float
-            Liquid water content from removed layers.
+        Returns:
+            float: Liquid water content from removed layers.
         """
         lwc_from_layers = 0
 
@@ -662,13 +648,11 @@ class Grid:
     # Getter and setter functions
     # ===============================================================================
 
-    def set_fresh_snow_props(self, height):
+    def set_fresh_snow_props(self, height: float):
         """Track the new snowheight.
 
-        Parameters
-        ----------
-        height : float
-            Height of the fresh snow layer [:math:`m`].
+        Args:
+            height: Height of the fresh snow layer [m].
         """
         self.new_snow_height = height
         # Keep track of the old snow age
@@ -685,19 +669,17 @@ class Grid:
         """
         self.new_snow_timestamp = self.old_snow_timestamp
 
-    def set_fresh_snow_props_update_time(self, seconds):
+    def set_fresh_snow_props_update_time(self, seconds: float):
         """Update the timestamp of the snow properties.
 
-        Parameters
-        ----------
-        seconds : float
-            seconds without snowfall [:math:`s`].
+        Args:
+            seconds : seconds without snowfall [s].
         """
         self.old_snow_timestamp = self.old_snow_timestamp + seconds
         # Set the timestamp to zero
         self.new_snow_timestamp = self.new_snow_timestamp + seconds
 
-    def set_fresh_snow_props_height(self, height):
+    def set_fresh_snow_props_height(self, height: float):
         """Update the fresh snow layer height.
 
         This is used internally to track the albedo properties of the
@@ -717,25 +699,20 @@ class Grid:
             self.old_snow_timestamp,
         )
 
-    def set_node_temperature(self, idx, temperature):
-        """Set the temperature of a layer (node) at location `idx`.
+    def set_node_temperature(self, idx: int, temperature: float):
+        """Set the temperature of a layer (node) at location ``idx``.
 
-        Parameters
-        ----------
-        idx : int
-            Index of the layer.
-        temperature : float
-            Layer's new temperature [:math:`K`].
+        Args:
+            idx: Index of the layer.
+            temperature: Layer's new temperature [K].
         """
         self.grid[idx].set_layer_temperature(temperature)
 
-    def set_temperature(self, temperature):
+    def set_temperature(self, temperature: np.ndarray):
         """Set all layer temperatures.
 
-        Parameters
-        ----------
-        temperature : np.ndarray
-            New layer temperatures [:math:`K`].
+        Args:
+            temperature: New layer temperatures [K].
         """
         for idx in range(self.number_nodes):
             self.grid[idx].set_layer_temperature(temperature[idx])
@@ -772,7 +749,7 @@ class Grid:
             self.grid[idx].set_layer_ice_fraction(ice_fraction[idx])
 
     def set_node_refreeze(self, idx: int, refreeze: float):
-        """Set the amount of refrozen water of a node."""
+        """Set the amount of refrozen water in a node."""
         self.grid[idx].set_layer_refreeze(refreeze)
 
     def set_refreeze(self, refreeze: np.ndarray):
@@ -980,13 +957,11 @@ class Grid:
         print(f"Grid consists of {self.number_nodes} nodes")
         print(f"Total domain depth is {tmp} m")
 
-    def grid_info(self, n=-999):
+    def grid_info(self, n: int = -999):
         """Print the state of the snowpack.
 
-        Parameters
-        ----------
-        n : int
-            Number of nodes to plot from top.
+        Args:
+            n: Number of nodes to plot from the top. Default -999.
         """
         if n == -999:
             n = self.number_nodes
@@ -1010,13 +985,11 @@ class Grid:
                 self.get_node_irreducible_water_content(i),
             )
 
-    def grid_info_screen(self, n=-999):
+    def grid_info_screen(self, n: int = -999):
         """Print the state of the snowpack.
         
-        Parameters
-        ----------
-        n : int
-            Number of nodes to plot from top.
+        Args:
+            n: Number of nodes to plot from the top. Default -999.
         """
         if n == -999:
             n = self.number_nodes
@@ -1039,13 +1012,11 @@ class Grid:
                 self.get_node_refreeze(i),
             )
 
-    def grid_check(self, level=1):
+    def grid_check(self, level: int = 1):
         """Check the grid for out of range values.
 
-        Parameters
-        ----------
-        level : int
-            Level number.
+        Args:
+            level: Level number.
         """
         # if level == 1:
         #    self.check_layer_property(self.get_height(), 'thickness', 1.01, -0.001)

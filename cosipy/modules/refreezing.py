@@ -88,7 +88,7 @@ def refreezing(GRID):
     .. note::
 
         The units for :math:`\\Delta\\theta_{w} h` cancel out to m w.e.
-        as long as the density of water is set to 1000 kg m^-3.
+        as long as the density of waer is set to 1000 kg m^-3.
         Note that :math:`\\Delta\\theta_{i} h` is in m **ice**
         equivalent, but both the refreeze parameter and returned
         refrozen water are in m w.e.
@@ -97,7 +97,7 @@ def refreezing(GRID):
         GRID (Grid): Glacier data structure.
 
     Returns:
-        float: Refrozen water, [m w.e.].
+        float: Refrozen water, [|m w.e.|].
     """
 
     # Maximum snow fractional ice content:

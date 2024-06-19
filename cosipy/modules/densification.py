@@ -14,7 +14,7 @@ def densification(GRID,SLOPE,dt):
 
     Args:
         GRID (Grid): Glacier data structure.
-        SLOPE (np.ndarray): Slope of the surface [degrees].
+        SLOPE (np.ndarray): Slope of the surface [|degree|].
         dt (int): Integration time [s].
 
     Raises:
@@ -42,9 +42,6 @@ def densification(GRID,SLOPE,dt):
 def copy_layer_profiles(GRID) -> tuple:
     """Get a copy of the layer profiles.
 
-    ``np.array`` returns a copy by default and is 2x faster than
-    ``np.copy`` (which is not supported by numba).
-
     Args:
         GRID (Grid): Glacier data structure.
 
@@ -52,6 +49,9 @@ def copy_layer_profiles(GRID) -> tuple:
         Profiles for height, density, temperature, liquid water content,
         and ice fraction.
     """
+
+    # np.array returns a copy by default and is 2x faster than np.copy
+    # (which is not supported by numba).
     heights = np.array(GRID.get_height())
     densities = np.array(GRID.get_density())
     temperatures = np.array(GRID.get_temperature())

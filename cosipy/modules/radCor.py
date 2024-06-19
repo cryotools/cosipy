@@ -18,9 +18,9 @@ def solarFParallel(lat:float, lon:float, timezone_lon:float, day:int, hour:float
         
     Returns:
         tuple[float,float,float]:
-            :beta: Solar elevation angle [radians].
-            :zeni: Zenith angle [radians].
-            :azi: Solar azimuth angle [radians].
+            :beta: Solar elevation angle [|rad|].
+            :zeni: Zenith angle [|rad|].
+            :azi: Solar azimuth angle [|rad|].
     """
 
     # Calculate conversion factor degree to radians
@@ -77,8 +77,8 @@ def Fdif_Neustift(doy, zeni, Rg):
 
     Args:
         doy (int): Day of year [-].
-        zeni (float): Zenith angle of sun (rad].
-        Rg (float): Incident global shortwave radiation [W m^2].
+        zeni (float): Zenith angle of sun [|rad|].
+        Rg (float): Incident global shortwave radiation [|W m^-2|].
     
     Returns:
         float: Estimated fraction of diffuse radiation.
@@ -117,15 +117,15 @@ def radCor2D(doy, zeni, azi, angslo, azislo, Rm, zeni_thld):
         
     Args:
         doy (int): Day of year.
-        zeni (float): Solar zenith angle from vertical [radians].
-        azi (float): Solar azimuth angle [radians].
+        zeni (float): Solar zenith angle from vertical [|rad|].
+        azi (float): Solar azimuth angle [|rad|].
         angslo (np.ndarray): Slope of pixel.
         azislo (np.ndarray): Azimuth of pixel.
-        Rm (float): Solar radiation measured horizontally [W m^2].
-        zeni_thld (float): Zenith threshold [degrees].
+        Rm (float): Solar radiation measured horizontally [|W m^-2|].
+        zeni_thld (float): Zenith threshold [|degree|].
     
     Returns:
-        float: Corrected solar radiation [W m^2].
+        float: Corrected solar radiation [|W m^-2|].
     """
     
     # Calculate conversion factor degree to radians
@@ -170,11 +170,11 @@ def solpars(lat):
     Returns:
         tuple[np.ndarray, np.ndarray]:
         Solar parameters indexed as:
-            :0: Day angle [radians].
-            :1: Day angle [degrees].
+            :0: Day angle [|rad|].
+            :1: Day angle [|degree|].
             :2: Eccentricity correction factor.
-            :3: Solar declination [radians].
-            :4: Solar declination [degrees].
+            :3: Solar declination [|rad|].
+            :4: Solar declination [|degree|].
             :5: Sunrise hour angle.
             :6: Day length.
         Time corrections indexed as:
@@ -237,8 +237,8 @@ def relshad(dem, mask, lats, lons, solh, sdirfn):
         mask: Glacier mask.
         lats: Latitudinal coordinates.
         lons: Longitudinal coordinates.
-        solh: Solar elevation [degrees].
-        sdirfn: Illumination direction in degrees from north)
+        solh: Solar elevation [|degree|].
+        sdirfn: Illumination direction in degrees from north.
     
     Returns:
         np.ndarray: Illumination mask where 0 = shaded, 1 = in sun.
@@ -335,7 +335,7 @@ def LUTshad(solpars, timecorr, lat, elvgrid, maskgrid, lats, lons, STEP, TCART):
     for doy in np.arange(0, 366, 1):
 
         soldec = solpars[doy, 3]  # solar declination (rad)
-        eccorr = solpars[doy, 2]  # eccenctricy correction factor
+        eccorr = solpars[doy, 2]  # eccentricity correction factor
         tcorr = timecorr[doy, 3]  # time correction factor (deg)
 
         # Go through hours of day

@@ -1,7 +1,7 @@
 ﻿cpkernel
 ========
 
-.. currentmodule:: cosipy.cpkernel
+.. currentmodule:: cosipy
 
 .. automodule:: cosipy.cpkernel
 

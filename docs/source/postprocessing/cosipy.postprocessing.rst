@@ -1,7 +1,7 @@
 ﻿postprocessing
 ==============
 
-.. currentmodule:: cosipy.postprocessing
+.. currentmodule:: cosipy
 
 .. automodule:: cosipy.postprocessing
 

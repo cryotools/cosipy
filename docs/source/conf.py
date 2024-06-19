@@ -100,4 +100,24 @@ html_favicon = "./_static/cosipy_favicon.png"
 
 rst_prolog = f"""
 .. |version| replace:: {release}
+.. |J kg^-1| replace:: J :math:`\\cdot` kg :sup:`-1`
+.. |J kg^-1 K^-1| replace:: J :math:`\\cdot` kg :sup:`-1` K :sup:`-1`
+.. |J m^-2| replace:: J m :sup:`-2`
+.. |kappa| replace:: :math:`\\kappa`
+.. |kg m^-3| replace:: kg m :sup:`-3`
+.. |kg kg^-1| replace:: kg kg :sup:`-1`
+.. |lambda| replace:: :math:`\\lambda`
+.. |m s^-1| replace:: m s :sup:`-1`
+.. |m s^-2| replace:: m s :sup:`-2`
+.. |m^2 s^-1| replace:: m :sup:`2` s :sup:`-1`
+.. |m w.e.| replace:: m\xa0w.e.
+.. |phi| replace:: :math:`\\phi`
+.. |phi_v| replace:: :math:`\\phi_{{v}}`
+.. |rad| replace:: rad
+.. |degree| replace:: °
+.. |theta_e| replace:: :math:`\\theta_{{e}}`
+.. |theta_i| replace:: :math:`\\theta_{{i}}`
+.. |theta_w| replace:: :math:`\\theta_{{w}}`
+.. |W m^-1 K^-1| replace:: W m :sup:`-1` K :sup:`-1`
+.. |W m^-2| replace:: W m :sup:`-2`
 """

@@ -125,9 +125,9 @@ class IOClass:
             :RH2: 2m relative humidity [%].
             :RRR: Precipitation per time step [mm].
             :SNOWFALL: Snowfall per time step [m].
-            :G: Solar radiation per time step [W m^-2].
+            :G: Solar radiation per time step [|W m^-2|].
             :T2: 2m air temperature [K].
-            :U2: Wind speed (magnitude) [m s^-1].
+            :U2: Wind speed (magnitude) [|m s^-1|].
             :HGT: Elevation [m].
         """
     
