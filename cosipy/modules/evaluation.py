@@ -7,7 +7,7 @@ def evaluate(stake_names, stake_data, df_):
     Args:
         stake_names (list): Stake IDs.
         stake_data (pd.Dataframe): Stake measurements.
-        df\_ (pd.Dataframe): Simulated mass balance and snow height.
+        df (pd.Dataframe): Simulated mass balance and snow height.
     
     Returns:
         Statistical evaluation.

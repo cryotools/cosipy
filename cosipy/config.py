@@ -76,9 +76,11 @@ def get_user_arguments() -> argparse.Namespace:
     parser = set_parser()
 
     arguments, unknown = parser.parse_known_args()
-    if "pytest" not in sys.modules and unknown:
-        illegal_args = ", ".join(unknown)
-        raise TypeError(f"Illegal arguments: {illegal_args}")
+
+    # Conflicts with Slurm
+    # if "pytest" not in sys.modules and unknown:
+    #     illegal_args = ", ".join(unknown)
+    #     raise TypeError(f"Illegal arguments: {illegal_args}")
 
     return arguments
 

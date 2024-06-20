@@ -46,7 +46,7 @@ class TestParamHeatEquation:
         return dt_stab
 
     def test_dt_stab_minimisation(self, conftest_boilerplate):
-        shape = (80,)
+        shape = (30,)
         nl = shape[0]
         nl_1 = shape[0] - 1
         nl_2 = shape[0] - 2
@@ -146,7 +146,7 @@ class TestParamHeatEquation:
         return temperatures
 
     def test_get_t_new(self):
-        nl = 80
+        nl = 30
         shape = (nl,)
         centre_pts = np.arange(1, nl - 1)  # center points
         lower_pts = np.arange(2, nl)  # lower points

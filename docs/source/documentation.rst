@@ -18,6 +18,11 @@ The model is tested and developed on:
  * Anaconda 3 64-bit (Python 3.9) on CentOS Linux 7.4
  * High-Performance Cluster Erlangen-Nuremberg University 
 
+.. warning::
+    COSIPY 2.0 is not backwards-compatible with older versions of COSIPY.
+    Please :ref:`read the instructions <upgrading>` on upgrading from an older version.
+
+
 .. _installation:
 
 Installation
@@ -31,8 +36,8 @@ Activate your preferred python environment, then run:
 .. code-block:: bash
 
     git clone https://github.com/cryotools/cosipy.git
-    pip install -r requirements.txt
-    pip install -r dev_requirements.txt  # install dev environment
+    pip install -r requirements.txt  # install default environment
+    pip install -r dev_requirements.txt  # or install dev environment
     python3 COSIPY.py -h
 
 Installation as an Editable
@@ -50,12 +55,15 @@ Installing COSIPY as a package or an editable allows it to run in any directory.
     setup-cosipy            # generate sample configuration files
     cosipy-help             # view help
 
+.. _upgrading:
+
 Upgrading from an Older Version of COSIPY
 -----------------------------------------
 
-COSIPY not backwards-compatible with COSIPY 1.4 and below.
-It is strongly recommended to checkout a new branch with a clean version of COSIPY and merge your existing modifications.
-To convert your existing configuration files, navigate to your older COSIPY source tree:
+COSIPY 2.0 is not backwards-compatible with COSIPY 1.4 and below.
+If you have written your own modules that import from ``constants.py``, ``config.py``, or use Slurm, these will break.
+
+Navigate to COSIPY's root directory and convert your existing configuration files:
 
 .. code-block:: bash
 
@@ -71,6 +79,17 @@ This will preserve your configuration for ``config.py``, ``constants.py``, ``aws
     Parameters for ``create_static`` must still be added manually to the generated ``utilities_config.toml``.
     Custom configuration variables that do not appear in the main branch must also be added manually.
 
+Checkout a new branch with a clean version of COSIPY and merge your modifications.
+
+.. code-block:: bash
+
+    git checkout master
+    git pull
+    git checkout -b <new-branch-name>
+    git merge --no-ff <old-branch-name>  # Good luck!
+
+You can also merge the new version of COSIPY into an existing branch, but this creates even more merge conflicts.
+
 After updating to the latest version of COSIPY, run ``python COSIPY.py --help`` to see how to specify paths to configuration files.
 COSIPY will default to ``./config.toml``, ``./constants.toml``, ``./slurm_config.toml``, ``./utilities_config.toml`` in the current working directory.
 
@@ -84,6 +103,7 @@ These entry points accept python arguments (such as ``--help``).
 
 Available shortcuts:
     :cosipy-help:           Display help for running COSIPY.
+    :cosipy-shortcuts:      Display available entry points.
     :cosipy-setup:          Setup missing configuration files.
     :cosipy-run:            Run COSIPY. Accepts python arguments.
     :cosipy-aws2cosipy:     Convert AWS data to netCDF.
@@ -102,7 +122,8 @@ Tutorial
 ========
 
 For this tutorial, download or copy the sample ``data`` folder and place it in your COSIPY working directory.
-If you are not running COSIPY from its source directory, use the entry point ``setup-cosipy`` to generate the sample configuration files.
+If you have installed COSIPY as a package, you can use the entry point ``setup-cosipy`` to generate the sample configuration files.
+Otherwise, run ``python -m cosipy.utilities.setup_cosipy.setup_cosipy``.
 
 Pre-Processing
 --------------
