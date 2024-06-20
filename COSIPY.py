@@ -55,18 +55,18 @@ def main():
 
     #------------------------------------------
     # Create input and output dataset
-    #------------------------------------------ 
+    #------------------------------------------
     IO = IOClass()
-    DATA = IO.create_data_file() 
-    
+    DATA = IO.create_data_file()
+
     # Create global result and restart datasets
-    RESULT = IO.create_result_file() 
-    RESTART = IO.create_restart_file() 
+    RESULT = IO.create_result_file()
+    RESTART = IO.create_restart_file()
 
     #----------------------------------------------
-    # Calculation - Multithreading using all cores  
+    # Calculation - Multithreading using all cores
     #----------------------------------------------
-    
+
     # Auxiliary variables for futures
     futures = []
 
@@ -87,7 +87,7 @@ def main():
             job_extra_directives=SlurmConfig.slurm_parameters,
             local_directory=SlurmConfig.local_directory,
         ) as cluster:
-            cluster.scale(SlurmConfig.nodes * SlurmConfig.cores) 
+            cluster.scale(SlurmConfig.nodes * SlurmConfig.cores)
             print(cluster.job_script())
             print("You are using SLURM!\n")
             print(cluster)
@@ -106,33 +106,33 @@ def main():
     # Write results and restart files
     #-----------------------------------------------
     timestamp = pd.to_datetime(str(IO.get_restart().time.values)).strftime('%Y-%m-%dT%H-%M')
-   
+
     encoding = dict()
     for var in IO.get_result().data_vars:
         # dataMin = IO.get_result()[var].min(skipna=True).values
         # dataMax = IO.get_result()[var].max(skipna=True).values
         # dtype = 'int16'
-        # FillValue = -9999 
+        # FillValue = -9999
         # scale_factor, add_offset = compute_scale_and_offset(dataMin, dataMax, 16)
         #encoding[var] = dict(zlib=True, complevel=compression_level, dtype=dtype, scale_factor=scale_factor, add_offset=add_offset, _FillValue=FillValue)
         encoding[var] = dict(zlib=True, complevel=Config.compression_level)
     output_netcdf = set_output_netcdf_path()
     output_path = create_data_directory(path='output')
-    IO.get_result().to_netcdf(os.path.join(output_path,output_netcdf), encoding=encoding, mode = 'w')
+    IO.get_result().to_netcdf(os.path.join(output_path,output_netcdf), encoding=encoding, mode='w')
 
     encoding = dict()
     for var in IO.get_restart().data_vars:
         # dataMin = IO.get_restart()[var].min(skipna=True).values
         # dataMax = IO.get_restart()[var].max(skipna=True).values
         # dtype = 'int16'
-        # FillValue = -9999 
+        # FillValue = -9999
         # scale_factor, add_offset = compute_scale_and_offset(dataMin, dataMax, 16)
         #encoding[var] = dict(zlib=True, complevel=compression_level, dtype=dtype, scale_factor=scale_factor, add_offset=add_offset, _FillValue=FillValue)
         encoding[var] = dict(zlib=True, complevel=Config.compression_level)
-    
+
     restart_path = create_data_directory(path='restart')
     IO.get_restart().to_netcdf(os.path.join(restart_path,f'restart_{timestamp}.nc'), encoding=encoding)
-    
+
     #-----------------------------------------------
     # Stop time measurement
     #-----------------------------------------------
@@ -145,8 +145,9 @@ def main():
     get_time_required(
         action="write restart and output files", times=duration_run_writing
     )
-    print(f"\tTotal run duration: {duration_run.total_seconds()//60.0:4g} minutes {duration_run.total_seconds()%60.0:2g} seconds\n")
-    print_notice(msg=f"\tSIMULATION WAS SUCCESSFUL")
+    run_time = duration_run.total_seconds()
+    print(f"\tTotal run duration: {run_time // 60.0:4g} minutes {run_time % 60.0:2g} seconds\n")
+    print_notice(msg="\tSIMULATION WAS SUCCESSFUL")
 
 
 def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
@@ -210,7 +211,6 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             stakes_loc = None
             df_stakes_data = None
 
-
         # Distribute data and model to workers
         start_res = datetime.now()
         for y,x in product(range(DATA.sizes[Config.northing]),range(DATA.sizes[Config.easting])):
@@ -222,7 +222,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                         stake_names.append(stake_name)
             else:
                 stake_names = None
-                
+
             if Config.WRF:
                 mask = DATA.MASK.sel(south_north=y, west_east=x)
                 # Provide restart grid if necessary
@@ -242,7 +242,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                             GRID_RESTART=IO.create_grid_restart().sel(
                                 south_north=y,
                                 west_east=x,
-                                ),
+                            ),
                             stake_names=stake_names,
                             stake_data=df_stakes_data
                         )
@@ -278,7 +278,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
         #---------------------------------------
         if Config.restart:
             IO.get_grid_restart().close()
-      
+
         # Create numpy arrays which aggregates all local results
         IO.create_global_result_arrays()
 
@@ -286,43 +286,49 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
         IO.create_global_restart_arrays()
 
         #---------------------------------------
-        # Assign local results to global 
+        # Assign local results to global
         #---------------------------------------
         for future in as_completed(futures):
 
-                # Get the results from the workers
-                indY,indX,local_restart,RAIN,SNOWFALL,LWin,LWout,H,LE,B,QRR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,NLAYERS, \
-                                ME,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL, \
-                                LAYER_HEIGHT,LAYER_RHO,LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_ICE_FRACTION, \
-                                LAYER_IRREDUCIBLE_WATER,LAYER_REFREEZE,stake_names,stat,df_eval = future.result()
-               
-                IO.copy_local_to_global(indY,indX,RAIN,SNOWFALL,LWin,LWout,H,LE,B,QRR,MB,surfMB,Q,SNOWHEIGHT,TOTALHEIGHT,TS,ALBEDO,NLAYERS, \
-                                ME,intMB,EVAPORATION,SUBLIMATION,CONDENSATION,DEPOSITION,REFREEZE,subM,Z0,surfM,MOL,LAYER_HEIGHT,LAYER_RHO, \
-                                LAYER_T,LAYER_LWC,LAYER_CC,LAYER_POROSITY,LAYER_ICE_FRACTION,LAYER_IRREDUCIBLE_WATER,LAYER_REFREEZE)
+            # Get the results from the workers
+            indY, indX, local_restart, RAIN, SNOWFALL, LWin, LWout, H, LE, B, \
+                QRR, MB, surfMB, Q, SNOWHEIGHT, TOTALHEIGHT, TS, ALBEDO, \
+                NLAYERS, ME, intMB, EVAPORATION, SUBLIMATION, CONDENSATION, \
+                DEPOSITION, REFREEZE, subM, Z0, surfM, MOL, LAYER_HEIGHT, \
+                LAYER_RHO, LAYER_T, LAYER_LWC, LAYER_CC, LAYER_POROSITY, \
+                LAYER_ICE_FRACTION, LAYER_IRREDUCIBLE_WATER, LAYER_REFREEZE, \
+                stake_names, stat, df_eval = future.result()
 
-                IO.copy_local_restart_to_global(indY,indX,local_restart)
+            IO.copy_local_to_global(
+                indY, indX, RAIN, SNOWFALL, LWin, LWout, H, LE, B, QRR, MB, surfMB, Q,
+                SNOWHEIGHT, TOTALHEIGHT, TS, ALBEDO, NLAYERS, ME, intMB, EVAPORATION,
+                SUBLIMATION, CONDENSATION, DEPOSITION, REFREEZE, subM, Z0, surfM, MOL,
+                LAYER_HEIGHT, LAYER_RHO, LAYER_T, LAYER_LWC, LAYER_CC, LAYER_POROSITY,
+                LAYER_ICE_FRACTION, LAYER_IRREDUCIBLE_WATER, LAYER_REFREEZE)
 
-                # Write results to file
-                IO.write_results_to_file()
-                
-                # Write restart data to file
-                IO.write_restart_to_file()
+            IO.copy_local_restart_to_global(indY,indX,local_restart)
 
-                if Config.stake_evaluation:
-                    # Store evaluation of stake measurements to dataframe
-                    stat = stat.rename('rmse')
-                    df_stat = pd.concat([df_stat, stat])
+            # Write results to file
+            IO.write_results_to_file()
 
-                    for i in stake_names:
-                        if Config.obs_type == 'mb':
-                            df_val[i] = df_eval.mb
-                        if Config.obs_type == 'snowheight':
-                            df_val[i] = df_eval.snowheight
+            # Write restart data to file
+            IO.write_restart_to_file()
+
+            if Config.stake_evaluation:
+                # Store evaluation of stake measurements to dataframe
+                stat = stat.rename('rmse')
+                df_stat = pd.concat([df_stat, stat])
+
+                for i in stake_names:
+                    if Config.obs_type == 'mb':
+                        df_val[i] = df_eval.mb
+                    if Config.obs_type == 'snowheight':
+                        df_val[i] = df_eval.snowheight
 
         # Measure time
-        end_res = datetime.now()-start_res 
+        end_res = datetime.now()-start_res
         get_time_required(action="do calculations", times=end_res)
-      
+
         if Config.stake_evaluation:
             # Save the statistics and the mass balance simulations at the stakes to files
             output_path = create_data_directory(path='output')
@@ -375,34 +381,34 @@ def start_logging():
             config = yaml.load(f.read(),Loader=yaml.SafeLoader)
         logging.config.dictConfig(config)
     else:
-       logging.basicConfig(level=logging.INFO)
+        logging.basicConfig(level=logging.INFO)
 
     logger = logging.getLogger(__name__)
-    logger.info('COSIPY simulation started')    
+    logger.info('COSIPY simulation started')
 
 
 def transform_coordinates(coords):
     """Transform geodetic coordinates to cartesian."""
     # WGS 84 reference coordinate system parameters
-    A = 6378.137 # major axis [km]   
-    E2 = 6.69437999014e-3 # eccentricity squared    
-    
+    A = 6378.137  # major axis [km]
+    E2 = 6.69437999014e-3  # eccentricity squared
+
     coords = np.asarray(coords).astype(float)
-                                                      
+
     # is coords a tuple? Convert it to an one-element array of tuples
     if coords.ndim == 1:
         coords = np.array([coords])
-    
+
     # convert to radiants
     lat_rad = np.radians(coords[:,0])
-    lon_rad = np.radians(coords[:,1]) 
-    
+    lon_rad = np.radians(coords[:,1])
+
     # convert to cartesian coordinates
     r_n = A / (np.sqrt(1 - E2 * (np.sin(lat_rad) ** 2)))
     x = r_n * np.cos(lat_rad) * np.cos(lon_rad)
     y = r_n * np.cos(lat_rad) * np.sin(lon_rad)
     z = r_n * (1 - E2) * np.sin(lat_rad)
-    
+
     return np.column_stack((x, y, z))
 
 
@@ -430,11 +436,13 @@ def print_nan_error():
 
 
 def get_time_required(action:str, times):
-    print(f"\tTime required to {action}: {(times.total_seconds())//60.0:4g} minutes {(times.total_seconds())%60.0:2g} seconds\n")
+    run_time = get_time_elapsed(times)
+    print(f"\tTime required to {action}: {run_time}")
 
 
 def get_time_elapsed(times) -> str:
-    time_elapsed = f"{(times.total_seconds())//60.0:4g} minutes {(times.total_seconds())%60.0:2g} seconds\n"
+    run_time = times.total_seconds()
+    time_elapsed = f"{run_time//60.0:4g} minutes {run_time % 60.0:2g} seconds\n"
     return time_elapsed
 
 
