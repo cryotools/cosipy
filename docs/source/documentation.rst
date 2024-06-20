@@ -37,7 +37,7 @@ Activate your preferred python environment, then run:
 
     git clone https://github.com/cryotools/cosipy.git
     pip install -r requirements.txt  # install default environment
-    pip install -r dev_requirements.txt  # or install dev environment
+    pip install -r dev_requirements.txt  # install dev environment
     python3 COSIPY.py -h
 
 Installation as an Editable
