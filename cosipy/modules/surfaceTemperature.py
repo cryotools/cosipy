@@ -63,43 +63,45 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLO
     
     #Update surface temperature
     lower_bnd_ts = 220.
+    upper_bnd_ts = 330.
+    initial_guess = min(GRID.get_node_temperature(0), 270)
     
     if sfc_temperature_method == 'L-BFGS-B' or sfc_temperature_method == 'SLSQP':
         # Get surface temperature by minimizing the energy balance function (SWnet+Li+Lo+H+L=0)
-        res = minimize(eb_optim, GRID.get_node_temperature(0), method=sfc_temperature_method,
-                       bounds=((lower_bnd_ts, zero_temperature),),tol=1e-2,
+        res = minimize(eb_optim, initial_guess, method=sfc_temperature_method,
+                       bounds=((lower_bnd_ts, upper_bnd_ts),),tol=1e-2,
                        args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, B_Ts, LWin, N))
 
     elif sfc_temperature_method == 'Newton':
         try:
-            res = newton(eb_optim, np.array([GRID.get_node_temperature(0)]), tol=1e-2, maxiter=50,
+            res = newton(eb_optim, np.array([initial_guess]), tol=1e-2, maxiter=50,
                         args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, B_Ts, LWin, N))
             if res < lower_bnd_ts:
                 raise ValueError("TS Solution is out of bounds")
             res = SimpleNamespace(**{'x':min(np.array([zero_temperature]),res),'fun':None})
 
         except (RuntimeError,ValueError):
-            #Workaround for non-convergence and unboundedness
-            res = minimize(eb_optim, GRID.get_node_temperature(0), method='SLSQP',
-                       bounds=((lower_bnd_ts, zero_temperature),),tol=1e-2,
+             #Workaround for non-convergence and unboundedness
+             res = minimize(eb_optim, initial_guess, method='SLSQP',
+                       bounds=((lower_bnd_ts, upper_bnd_ts),),tol=1e-2,
                        args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, B_Ts, LWin, N))
     else:
         print('Invalid method for minimizing the residual')
 
     # Set surface temperature
-    residual = res.x[0]
-    GRID.set_node_temperature(0, residual)
+    surface_temperature = min(zero_temperature, res.x[0])
+    GRID.set_node_temperature(0, surface_temperature)
  
-    (Li, Lo, H, L, B, Qrr, rho, Lv, MOL, Cs_t, Cs_q, q0, q2) = eb_fluxes(GRID, res.x, dt, 
+    (Li, Lo, H, L, B, Qrr, rho, Lv, MOL, Cs_t, Cs_q, q0, q2) = eb_fluxes(GRID, surface_temperature, dt, 
                                                              z, z0, T2, rH2, p, u2, RAIN, SLOPE, 
                                                              B_Ts, LWin, N,)
      
     # Consistency check
-    if (residual>zero_temperature) or (residual<lower_bnd_ts):
+    if (surface_temperature > zero_temperature) or (surface_temperature < lower_bnd_ts):
         print('Surface temperature is outside bounds:',GRID.get_node_temperature(0))
 
     # Return fluxes
-    return res.fun, res.x, Li, Lo, H, L, B, Qrr, rho, Lv, MOL, Cs_t, Cs_q, q0, q2
+    return res.fun, surface_temperature, Li, Lo, H, L, B, Qrr, rho, Lv, MOL, Cs_t, Cs_q, q0, q2
 
 
 @njit
