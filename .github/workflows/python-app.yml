@@ -45,7 +45,7 @@ jobs:
         run: |
           sudo apt-get install gdal-bin libgdal-dev
           python -m pip install --upgrade pip
-          pip install --upgrade flake8 gdal=`gdal-config --version`
+          pip install --upgrade flake8 gdal==`gdal-config --version`
           pip install --upgrade --upgrade-strategy eager -e .[dev]
       - name: Lint with flake8
         run: |
