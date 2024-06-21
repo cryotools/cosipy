@@ -196,20 +196,20 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Derive snowfall [m] and rain rates [m w.e.]
         if (SNOWF is not None) and (RRR is not None):
             SNOWFALL = SNOWF[t]
-            RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000.0
+            RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/water_density) * 1000.0
         elif SNOWF is not None:
             SNOWFALL = SNOWF[t]
         else:
             # Else convert total precipitation [mm] to snowheight [m]; liquid/solid fraction
-            SNOWFALL = (RRR[t]/1000.0)*(ice_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) - center_snow_transfer_function) * spread_snow_transfer_function) + 1.0))
-            RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/ice_density) * 1000.0
+            SNOWFALL = (RRR[t]/1000.0)*(water_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) - center_snow_transfer_function) * spread_snow_transfer_function) + 1.0))
+            RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/water_density) * 1000.0
 
         # if snowfall is smaller than the threshold
         if SNOWFALL<minimum_snowfall:
             SNOWFALL = 0.0
 
         # if rainfall is smaller than the threshold
-        if RAIN<(minimum_snowfall*(density_fresh_snow/ice_density)*1000.0):
+        if RAIN<(minimum_snowfall*(density_fresh_snow/water_density)*1000.0):
             RAIN = 0.0
 
         if SNOWFALL > 0.0:
@@ -323,7 +323,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         # Calculate mass balance
         #--------------------------------------------
         surface_mass_balance = (
-            SNOWFALL * (density_fresh_snow / ice_density)
+            SNOWFALL * (density_fresh_snow / water_density)
             - melt
             + sublimation
             + deposition
@@ -346,7 +346,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         
         # Save results
         _RAIN[t] = RAIN
-        _SNOWFALL[t] = SNOWFALL * (density_fresh_snow/ice_density)
+        _SNOWFALL[t] = SNOWFALL * (density_fresh_snow/water_density)
         _LWin[t] = lw_radiation_in
         _LWout[t] = lw_radiation_out
         _H[t] = sensible_heat_flux
