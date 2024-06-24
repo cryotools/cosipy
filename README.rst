@@ -38,6 +38,9 @@ About
 -----
 
 :Tests:
+    .. image:: https://github.com/cryotools/cosipy/actions/workflows/python-app.yml/badge.svg?branch=master
+
+        :target: https://github.com/cryotools/cosipy/actions/workflows/python-app.yml
     .. image:: https://readthedocs.org/projects/cosipy/badge/?version=latest
         :target: https://cosipy.readthedocs.io/en/latest/
 
