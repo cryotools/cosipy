@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 
-matplotlib.use("TkAgg")
+# matplotlib.use("TkAgg")
 
 
 def check_2d(array: xr.DataArray):
