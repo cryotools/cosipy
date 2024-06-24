@@ -51,7 +51,7 @@ dependencies = [
     "matplotlib",
     "cartopy",
     "vtk",
-    "richdem",
+    "richdem;python_version<'3.11'",
     "tomli;python_version<'3.11'",
 ]
 
@@ -60,6 +60,7 @@ tests = [
     "coveralls",
     "codecov",
     "pytest",
+    "pytest-dependency",
 ]
 docs = [
     "sphinx",

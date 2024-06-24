@@ -16,15 +16,16 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # no need to run tests for documentation
     if: ${{ !contains(github.event.head_commit.message, 'docs(') &&
       !contains(github.event.head_commit.message, 'docs:') }}
     strategy:
       fail-fast: true
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10" , "3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
         with:
@@ -34,18 +35,18 @@ jobs:
         run: |
           echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
 
-      - name: pip cache
+      - name: pip cache  # cache dependencies to speed up tests
         uses: actions/cache@v3
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('**/dev_requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      - name: Install dependencies
+      - name: Install dependencies # gdal cannot install with eager upgrade
         run: |
           sudo apt-get install gdal-bin libgdal-dev
           python -m pip install --upgrade pip
-          pip install --upgrade flake8 gdal==`gdal-config --version`
+          pip install --upgrade flake8 gdal==`gdal-config --version` pybind11
           pip install --upgrade -e .[dev]
       - name: Lint with flake8
         run: |
