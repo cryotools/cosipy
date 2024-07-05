@@ -22,31 +22,30 @@
     Correspondence: tobias.sauter@fau.de
 
 """
+import cProfile
+import logging
 import os
+import sys
 from datetime import datetime
 from itertools import product
-import itertools
 
-import logging
+import numpy as np
+import pandas as pd
+import scipy
 import yaml
+# from dask import compute, delayed
+# import dask as da
+# from dask.diagnostics import ProgressBar
+from dask.distributed import as_completed, progress
+from dask_jobqueue import SLURMCluster
+from distributed import Client, LocalCluster
+# import dask
+from tornado import gen
 
 from config import *
+from cosipy.cpkernel.cosipy_core import cosipy_core
+from cosipy.cpkernel.io import IOClass
 from slurm_config import *
-from cosipy.cpkernel.cosipy_core import * 
-from cosipy.cpkernel.io import *
-
-from distributed import Client, LocalCluster
-from dask import compute, delayed
-import dask as da
-from dask.diagnostics import ProgressBar
-from dask.distributed import progress, wait, as_completed
-import dask
-from tornado import gen
-from dask_jobqueue import SLURMCluster
-
-import scipy
-
-import cProfile
 
 def main():
 
@@ -77,15 +76,17 @@ def main():
     #-----------------------------------------------
     if (slurm_use):
 
-        with SLURMCluster(scheduler_port=port, cores=cores, processes=processes, memory=memory, shebang=shebang, name=name, job_extra=slurm_parameters, local_directory='logs/dask-worker-space') as cluster:
-            cluster.scale(processes * nodes)   
+        with SLURMCluster(job_name=name, cores=cores, processes=cores, memory=memory, 
+			 account=account, job_extra_directives=slurm_parameters,
+                         local_directory='logs/dask-worker-space') as cluster:
+            cluster.scale(nodes*cores)   
             print(cluster.job_script())
             print("You are using SLURM!\n")
             print(cluster)
             run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures)
 
     else:
-        with LocalCluster(scheduler_port=local_port, n_workers=workers, local_dir='logs/dask-worker-space', threads_per_worker=1, silence_logs=True) as cluster:
+        with LocalCluster(scheduler_port=local_port, n_workers=workers, local_directory='logs/dask-worker-space', threads_per_worker=1, silence_logs=True) as cluster:
             print(cluster)
             run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures)
 
@@ -151,15 +152,15 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
         print(client)
 
         # Get dimensions of the whole domain
-        ny = DATA.dims[northing]
-        nx = DATA.dims[easting]
+        ny = DATA.sizes[northing]
+        nx = DATA.sizes[easting]
 
         cp = cProfile.Profile()
 
         # Get some information about the cluster/nodes
-        total_grid_points = DATA.dims[northing]*DATA.dims[easting]
+        total_grid_points = DATA.sizes[northing]*DATA.sizes[easting]
         if slurm_use is True:
-            total_cores = processes*nodes
+            total_cores = cores*nodes
             points_per_core = total_grid_points // total_cores
             print(total_grid_points, total_cores, points_per_core)
 
@@ -205,7 +206,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
 
         # Distribute data and model to workers
         start_res = datetime.now()
-        for y,x in product(range(DATA.dims[northing]),range(DATA.dims[easting])):
+        for y,x in product(range(DATA.sizes[northing]),range(DATA.sizes[easting])):
             if stake_evaluation is True:
                 stake_names = []
                 # Check if the grid cell contain stakes and store the stake names in a list
@@ -217,13 +218,13 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 
             if WRF is True:
                 mask = DATA.MASK.sel(south_north=y, west_east=x)
-	        # Provide restart grid if necessary
-                if ((mask==1) & (restart==False)):
+                # Provide restart grid if necessary
+                if ((mask==1) & (not restart)):
                     if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
                         print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
                         sys.exit()
                     futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
-                elif ((mask==1) & (restart==True)):
+                elif ((mask==1) & (restart)):
                     if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
                         print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
                         sys.exit()
@@ -232,13 +233,13 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                                              stake_names=stake_names, stake_data=df_stakes_data))
             else:
                 mask = DATA.MASK.isel(lat=y, lon=x)
-	        # Provide restart grid if necessary
-                if ((mask==1) & (restart==False)):
+                # Provide restart grid if necessary
+                if ((mask==1) & (not restart)):
                     if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
                         print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
                         sys.exit()
                     futures.append(client.submit(cosipy_core, DATA.isel(lat=y, lon=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
-                elif ((mask==1) & (restart==True)):
+                elif ((mask==1) & (restart)):
                     if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
                         print('ERROR!!!!!!!!!!! There are NaNs in the dataset')
                         sys.exit()
@@ -306,7 +307,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
 
 
 def start_logging():
-    ''' Start the python logging'''
+    """Start the python logging"""
 
     if os.path.exists('./cosipy.yaml'):
         with open('./cosipy.yaml', 'rt') as f:
@@ -327,7 +328,7 @@ def transform_coordinates(coords):
     A = 6378.137 # major axis [km]   
     E2 = 6.69437999014e-3 # eccentricity squared    
     
-    coords = np.asarray(coords).astype(np.float)
+    coords = np.asarray(coords).astype(float)
                                                       
     # is coords a tuple? Convert it to an one-element array of tuples
     if coords.ndim == 1:
@@ -361,6 +362,6 @@ def close_everything(scheduler):
 
 
 
-''' MODEL EXECUTION '''
+""" MODEL EXECUTION """
 if __name__ == "__main__":
     main()
