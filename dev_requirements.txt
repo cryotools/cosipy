@@ -1,0 +1,24 @@
+numpy>=1.17.3
+pandas>2.0
+scipy>=1.1.0
+xarray>=0.18.0
+netcdf4>=1.5.1.2
+distributed<=2024.2.0; python_version < '3.11'
+distributed; python_version >= '3.11'
+dask
+dask-jobqueue
+numba
+metpy
+gdal
+nco
+cdo
+matplotlib
+cartopy
+vtk
+richdem
+coveralls
+codecov
+pytest
+pytest-dependency
+tomli; python_version < '3.11'
+flake8
