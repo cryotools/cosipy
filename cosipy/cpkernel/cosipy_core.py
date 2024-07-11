@@ -222,7 +222,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
 
         if SNOWFALL > 0.0:
             # Add a new snow node on top
-            GRID.add_fresh_snow(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0)
+            GRID.add_fresh_snow(SNOWFALL, density_fresh_snow, np.minimum(float(T2[t]),zero_temperature), 0.0, dt)
         else:
             GRID.set_fresh_snow_props_update_time(dt)
 
@@ -264,18 +264,18 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             # Find new surface temperature
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
                  ground_heat_flux, rain_heat_flux, sw_radiation_net, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
-                 = update_surface_temperature(GRID, dt, alpha, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, \
+                 = update_surface_temperature(GRID, dt, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, \
                  U2[t], RAIN, SLOPE, LWin=LWin[t], N=N[t])
         elif LWin is not None:
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
                 ground_heat_flux, rain_heat_flux, sw_radiation_net, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
-                = update_surface_temperature(GRID, dt, alpha, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, \
+                = update_surface_temperature(GRID, dt, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, \
                                              U2[t], RAIN, SLOPE, LWin=LWin[t])
         else:
             # Find new surface temperature (LW is parametrized using cloud fraction)
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
                 ground_heat_flux, rain_heat_flux, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
-                = update_surface_temperature(GRID, dt, alpha, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, U2[t], RAIN, SLOPE, N=N[t])
+                = update_surface_temperature(GRID, dt, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, U2[t], RAIN, SLOPE, N=N[t])
 
         #--------------------------------------------
         # Surface mass fluxes [m w.e.q.]
@@ -442,7 +442,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
                     _LAYER_RHO,_LAYER_T,_LAYER_LWC,None,None,_LAYER_ICE_FRACTION,None,None,None,None,None)
 
     if not WRF_X_CSPY:
-        if stake_evaluation:
+        if Config.stake_evaluation:
             # Evaluate stakes
             _stat = evaluate(stake_names, stake_data, _df)
 

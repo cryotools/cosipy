@@ -23,7 +23,7 @@ surface_emission_coeff = Constants.surface_emission_coeff
 water_density = Constants.water_density
 WRF_X_CSPY = Config.WRF_X_CSPY
 
-def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, LWin=None, N=None):
+def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, LWin=None, N=None):
     """Solve the surface temperature and get the surface fluxes.
 
     Args:
@@ -72,12 +72,12 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
         # Get surface temperature by minimizing the energy balance function (SWnet+Li+Lo+H+L=0)
         res = minimize(eb_optim, initial_guess, method=sfc_temperature_method,
                        bounds=((lower_bnd_ts, upper_bnd_ts),),tol=1e-2,
-                       args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin, N))
+                       args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, B_Ts, LWin, N))
 
     elif sfc_temperature_method == 'Newton':
         try:
             res = newton(eb_optim, np.array([initial_guess]), tol=1e-2, maxiter=50,
-                        args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin, N))
+                        args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, B_Ts, LWin, N))
             if res < lower_bnd_ts:
                 raise ValueError("TS Solution is out of bounds")
             res = SimpleNamespace(**{'x':min(np.array([zero_temperature]),res),'fun':None})
@@ -86,18 +86,20 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
              #Workaround for non-convergence and unboundedness
              res = minimize(eb_optim, initial_guess, method='SLSQP',
                        bounds=((lower_bnd_ts, upper_bnd_ts),),tol=1e-2,
-                       args=(GRID, dt, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin, N))
+                       args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, B_Ts, LWin, N))
     elif sfc_temperature_method == 'Secant':
         try:
-            res = call_secant_jitted(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE,
+            res = call_secant_jitted(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE,
                                      B_Ts, lower_bnd_ts, LWin, N)
+            if res < lower_bnd_ts:
+                raise ValueError("TS Solution is out of bounds")
             res = SimpleNamespace(**{'x': min(np.array([zero_temperature]), res), 'fun': None})
 
         except (RuntimeError, ValueError):
             # Workaround for non-convergence and unboundedness
             res = minimize(eb_optim, GRID.get_node_temperature(0), method='SLSQP',
                            bounds=((lower_bnd_ts, zero_temperature),), tol=1e-2,
-                           args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin, N))
+                           args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, B_Ts, LWin, N))
     else:
         raise RuntimeError('Invalid method for minimizing the residual')
 
@@ -105,23 +107,21 @@ def update_surface_temperature(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, 
     surface_temperature = min(zero_temperature, res.x[0])
     GRID.set_node_temperature(0, surface_temperature)
  
-    (Li, Lo, H, L, B, Qrr, SWnet, rho, Lv, MOL, Cs_t, Cs_q, q0, q2) = eb_fluxes(GRID, surface_temperature, dt,
-                                                             alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE,
-                                                             B_Ts, LWin, N,)
+    (Li, Lo, H, L, B, Qrr, rho, Lv, MOL, Cs_t, Cs_q, q0, q2) = eb_fluxes(GRID, surface_temperature, dt,  z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin, N)
      
     # Consistency check
     if (surface_temperature > zero_temperature) or (surface_temperature < lower_bnd_ts):
         print('Surface temperature is outside bounds:',GRID.get_node_temperature(0))
 
     # Return fluxes
-    return res.fun, surface_temperature, Li, Lo, H, L, B, Qrr, SWnet, rho, Lv, MOL, Cs_t, Cs_q, q0, q2
+    return res.fun, surface_temperature, Li, Lo, H, L, B, Qrr, rho, Lv, MOL, Cs_t, Cs_q, q0, q2
 
 
 @njit
-def call_secant_jitted(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, lower_bnd_ts, LWin=None, N=None):
+def call_secant_jitted(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, B_Ts, lower_bnd_ts, LWin=None, N=None):
     """ A jitted call to secant.py """
     res = secant(eb_optim, np.array([GRID.get_node_temperature(0)]), tol=1e-2, maxiter=50,
-        args=(GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin, N))
+        args=(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, B_Ts, LWin, N))
     if res.item() < lower_bnd_ts:
         raise RuntimeError("TS Solution is out of bounds")
     return res
@@ -172,7 +172,7 @@ def interp_subT(GRID) -> np.ndarray:
 
 
 @njit
-def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin=None, N=None):
+def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None, N=None):
     """Get the surface fluxes and apply the Monin-Obukhov stability correction.
 
     Args:
@@ -245,9 +245,6 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, 
     
     # Air density 
     rho = (p*100.0) / (287.058 * (T2 * (1 + 0.608 * q2)))
-
-    # Total net shortwave radiation
-    SWnet = G * (1-alpha)
 
     # Bulk transfer coefficient 
     z0t = z0/100    # Roughness length for sensible heat
@@ -342,7 +339,7 @@ def eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, 
 
     # Return surface fluxes
     # Numba: No implementation of function Function(<class 'float'>) found for signature: >>> float(array(float64, 1d, C))
-    return (Li.item(), Lo.item(), H.item(), LE.item(), B.item(), QRR.item(), SWnet.item(), rho, Lv, L, Cs_t, Cs_q, q0, q2)
+    return (Li.item(), Lo.item(), H.item(), LE.item(), B.item(), QRR.item(), rho, Lv, L, Cs_t, Cs_q, q0, q2)
 
 
 @njit
@@ -421,12 +418,11 @@ def MO(rho, ust, T2, H):
         return 0.0
 
 @njit
-def eb_optim(T0, GRID, dt, alpha, z, z0, T2, rH2, p, G, u2, RAIN, SLOPE, B_Ts, LWin=None, N=None):
+def eb_optim(T0, GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, B_Ts, LWin=None, N=None):
     """Optimization function to solve for the surface temperature T0."""
 
     # Get surface fluxes for surface temperature T0
-    (Li,Lo,H,L,B,Qrr, SWnet,rho,Lv,MOL,Cs_t,Cs_q,q0,q2) = eb_fluxes(GRID, T0, dt, alpha, z, z0, T2, rH2, p, G,
-                                                               u2, RAIN, SLOPE, B_Ts, LWin, N)
+    (Li,Lo,H,L,B,Qrr,rho,Lv,MOL,Cs_t,Cs_q,q0,q2) = eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin, N)
 
     # Return the residual (minimized by the optimization function)
     if sfc_temperature_method in ['Newton', 'Secant']:
