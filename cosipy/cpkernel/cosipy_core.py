@@ -167,6 +167,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         LWin = None
 
     if 'SLOPE' in DATA:
+        if DATA.SLOPE.isnull().any():
+            DATA["SLOPE"] = DATA["SLOPE"].fillna(0.0)
+            print("WARNING: Replaced NaNs with 0.0 in SLOPE data!")
         SLOPE = DATA.SLOPE.values
     else:
         SLOPE = 0.0
@@ -263,12 +266,12 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         if (LWin is not None) and (N is not None):
             # Find new surface temperature
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
-                 ground_heat_flux, rain_heat_flux, sw_radiation_net, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
+                 ground_heat_flux, rain_heat_flux, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
                  = update_surface_temperature(GRID, dt, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, \
                  U2[t], RAIN, SLOPE, LWin=LWin[t], N=N[t])
         elif LWin is not None:
             fun, surface_temperature, lw_radiation_in, lw_radiation_out, sensible_heat_flux, latent_heat_flux, \
-                ground_heat_flux, rain_heat_flux, sw_radiation_net, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
+                ground_heat_flux, rain_heat_flux, rho, Lv, MOL, Cs_t, Cs_q, q0, q2 \
                 = update_surface_temperature(GRID, dt, z, z0, T2[t], RH2[t], PRES[t], sw_radiation_net, \
                                              U2[t], RAIN, SLOPE, LWin=LWin[t])
         else:
