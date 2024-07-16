@@ -218,7 +218,7 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 stake_names = []
                 # Check if the grid cell contain stakes and store the stake names in a list
                 for idx, (stake_loc_y, stake_loc_x, stake_name) in enumerate(stakes_list):
-                    if (y == stake_loc_y) & (x == stake_loc_x):
+                    if (y == stake_loc_y) and (x == stake_loc_x):
                         stake_names.append(stake_name)
             else:
                 stake_names = None
@@ -226,11 +226,11 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             if Config.WRF:
                 mask = DATA.MASK.sel(south_north=y, west_east=x)
                 # Provide restart grid if necessary
-                if mask == 1 & (not Config.restart):
+                if (mask == 1) and (not Config.restart):
                     if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
                         print_nan_error()
                     futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
-                elif mask == 1 & Config.restart:
+                elif (mask == 1) and (Config.restart):
                     if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
                         print_nan_error()
                     futures.append(
@@ -250,11 +250,11 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
             else:
                 mask = DATA.MASK.isel(lat=y, lon=x)
                 # Provide restart grid if necessary
-                if mask == 1 & (not Config.restart):
+                if (mask == 1) and (not Config.restart):
                     if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
                         print_nan_error()
                     futures.append(client.submit(cosipy_core, DATA.isel(lat=y, lon=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
-                elif mask == 1 & Config.restart:
+                elif (mask == 1) and (Config.restart):
                     if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
                         print_nan_error()
                     futures.append(
