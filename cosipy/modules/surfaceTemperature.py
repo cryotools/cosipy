@@ -104,8 +104,8 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLO
         raise RuntimeError('Invalid method for minimizing the residual')
 
     # Set surface temperature
-    surface_temperature = min(zero_temperature, res.x[0])
-    GRID.set_node_temperature(0, surface_temperature)
+    surface_temperature = min(np.array([zero_temperature]), res.x)
+    GRID.set_node_temperature(0, surface_temperature[0])
  
     (Li, Lo, H, L, B, Qrr, rho, Lv, MOL, Cs_t, Cs_q, q0, q2) = eb_fluxes(GRID, surface_temperature, dt,  z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin, N)
      
@@ -114,7 +114,7 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLO
         print('Surface temperature is outside bounds:',GRID.get_node_temperature(0))
 
     # Return fluxes
-    return res.fun, surface_temperature, Li, Lo, H, L, B, Qrr, rho, Lv, MOL, Cs_t, Cs_q, q0, q2
+    return res.fun, surface_temperature[0], Li, Lo, H, L, B, Qrr, rho, Lv, MOL, Cs_t, Cs_q, q0, q2
 
 
 @njit
