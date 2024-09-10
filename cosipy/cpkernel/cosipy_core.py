@@ -167,13 +167,9 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     if Config.force_use_N:
         LWin = None
 
+    SLOPE = 0.
     if 'SLOPE' in DATA:
-        if DATA.SLOPE.isnull().any():
-            DATA["SLOPE"] = DATA["SLOPE"].fillna(0.0)
-            print("WARNING: Replaced NaNs with 0.0 in SLOPE data!")
         SLOPE = DATA.SLOPE.values
-    else:
-        SLOPE = 0.0
 
     # Initial cumulative mass balance variable
     MB_cum = 0
