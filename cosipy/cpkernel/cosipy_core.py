@@ -51,6 +51,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     spread_snow_transfer_function = Constants.spread_snow_transfer_function
     constant_density = Constants.constant_density
     albedo_fresh_snow = Constants.albedo_fresh_snow
+    albedo_firn = Constants.albedo_firn
     WRF_X_CSPY = Config.WRF_X_CSPY
 
     # Replace values from constants.py if coupled
@@ -180,6 +181,8 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     # Initial snow albedo and surface temperature for Bougamont et al. 2005 albedo
     surface_temperature = 270.0
     albedo_snow = albedo_fresh_snow
+    if WRF_X_CSPY:
+        albedo_snow = albedo_firn
 
     if Config.stake_evaluation:
         # Create pandas dataframe for stake evaluation
