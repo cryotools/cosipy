@@ -81,7 +81,7 @@ def main():
         with SLURMCluster(
             job_name=SlurmConfig.name,
             cores=SlurmConfig.cores,
-            processes=SlurmConfig.cores,
+            processes=SlurmConfig.processes,
             memory=SlurmConfig.memory,
             account=SlurmConfig.account,
             job_extra_directives=SlurmConfig.slurm_parameters,

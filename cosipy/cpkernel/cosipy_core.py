@@ -16,6 +16,23 @@ from cosipy.modules.roughness import updateRoughness
 from cosipy.modules.surfaceTemperature import update_surface_temperature
 
 
+def init_empty_array_1d(nt: int):
+    if not Config.WRF_X_CSPY:
+        x = np.full(nt, np.nan)
+    else:
+        x = None
+
+    return x
+
+def init_empty_array_2d(nt: int, max_layers:int):
+    if not Config.WRF_X_CSPY and Config.full_field:
+        x = np.full((nt, max_layers), np.nan)
+    else:
+        x = None
+
+    return x
+
+
 def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_data=None):
     """Cosipy core function.
 
@@ -64,48 +81,48 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     nt = len(DATA.time.values)         #accessing DATA is expensive
     # Local variables -- bypass local array creation for WRF_X_CSPY until more elegant solution is implemented
     if not WRF_X_CSPY:
-        _RRR = np.full(nt, np.nan)
-        _RAIN = np.full(nt, np.nan)
-        _SNOWFALL = np.full(nt, np.nan)
-        _LWin = np.full(nt, np.nan)
-        _LWout = np.full(nt, np.nan)
-        _H = np.full(nt, np.nan)
-        _LE = np.full(nt, np.nan)
-        _B = np.full(nt, np.nan)
-        _QRR = np.full(nt, np.nan)
-        _MB = np.full(nt, np.nan)
-        _surfMB = np.full(nt, np.nan)
-        _MB = np.full(nt, np.nan)
-        _Q = np.full(nt, np.nan)
-        _SNOWHEIGHT = np.full(nt, np.nan)
-        _TOTALHEIGHT = np.full(nt, np.nan)
-        _TS = np.full(nt, np.nan)
-        _ALBEDO = np.full(nt, np.nan)
-        _ME = np.full(nt, np.nan)
-        _intMB = np.full(nt, np.nan)
-        _EVAPORATION = np.full(nt, np.nan)
-        _SUBLIMATION = np.full(nt, np.nan)
-        _CONDENSATION = np.full(nt, np.nan)
-        _DEPOSITION = np.full(nt, np.nan)
-        _REFREEZE = np.full(nt, np.nan)
-        _NLAYERS = np.full(nt, np.nan)
-        _subM = np.full(nt, np.nan)
-        _Z0 = np.full(nt, np.nan)
-        _surfM = np.full(nt, np.nan)
-        _MOL = np.full(nt, np.nan)
-        _new_snow_height = np.full(nt, np.nan)
-        _new_snow_timestamp = np.full(nt, np.nan)
-        _old_snow_timestamp = np.full(nt, np.nan)
+        _RRR = init_empty_array_1d(nt)
+        _RAIN = init_empty_array_1d(nt)
+        _SNOWFALL = init_empty_array_1d(nt)
+        _LWin = init_empty_array_1d(nt)
+        _LWout = init_empty_array_1d(nt)
+        _H = init_empty_array_1d(nt)
+        _LE = init_empty_array_1d(nt)
+        _B = init_empty_array_1d(nt)
+        _QRR = init_empty_array_1d(nt)
+        _MB = init_empty_array_1d(nt)
+        _surfMB = init_empty_array_1d(nt)
+        _MB = init_empty_array_1d(nt)
+        _Q = init_empty_array_1d(nt)
+        _SNOWHEIGHT = init_empty_array_1d(nt)
+        _TOTALHEIGHT = init_empty_array_1d(nt)
+        _TS = init_empty_array_1d(nt)
+        _ALBEDO = init_empty_array_1d(nt)
+        _ME = init_empty_array_1d(nt)
+        _intMB = init_empty_array_1d(nt)
+        _EVAPORATION = init_empty_array_1d(nt)
+        _SUBLIMATION = init_empty_array_1d(nt)
+        _CONDENSATION = init_empty_array_1d(nt)
+        _DEPOSITION = init_empty_array_1d(nt)
+        _REFREEZE = init_empty_array_1d(nt)
+        _NLAYERS = init_empty_array_1d(nt)
+        _subM = init_empty_array_1d(nt)
+        _Z0 = init_empty_array_1d(nt)
+        _surfM = init_empty_array_1d(nt)
+        _MOL = init_empty_array_1d(nt)
+        _new_snow_height = init_empty_array_1d(nt)
+        _new_snow_timestamp = init_empty_array_1d(nt)
+        _old_snow_timestamp = init_empty_array_1d(nt)
 
-        _LAYER_HEIGHT = np.full((nt,max_layers), np.nan)
-        _LAYER_RHO = np.full((nt,max_layers), np.nan)
-        _LAYER_T = np.full((nt,max_layers), np.nan)
-        _LAYER_LWC = np.full((nt,max_layers), np.nan)
-        _LAYER_CC = np.full((nt,max_layers), np.nan)
-        _LAYER_POROSITY = np.full((nt,max_layers), np.nan)
-        _LAYER_ICE_FRACTION = np.full((nt,max_layers), np.nan)
-        _LAYER_IRREDUCIBLE_WATER = np.full((nt,max_layers), np.nan)
-        _LAYER_REFREEZE = np.full((nt,max_layers), np.nan)
+        _LAYER_HEIGHT = init_empty_array_2d(nt, max_layers)
+        _LAYER_RHO = init_empty_array_2d(nt, max_layers)
+        _LAYER_T = init_empty_array_2d(nt, max_layers)
+        _LAYER_LWC = init_empty_array_2d(nt, max_layers)
+        _LAYER_CC = init_empty_array_2d(nt, max_layers)
+        _LAYER_POROSITY = init_empty_array_2d(nt, max_layers)
+        _LAYER_ICE_FRACTION = init_empty_array_2d(nt, max_layers)
+        _LAYER_IRREDUCIBLE_WATER = init_empty_array_2d(nt, max_layers)
+        _LAYER_REFREEZE = init_empty_array_2d(nt, max_layers)
 
 
     #--------------------------------------------
@@ -186,7 +203,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
 
     #--------------------------------------------
     # TIME LOOP
-    #--------------------------------------------    
+    #--------------------------------------------  
     for t in np.arange(nt):
         
         # Check grid
@@ -412,9 +429,6 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
                 _LAYER_ICE_FRACTION = None
                 _LAYER_IRREDUCIBLE_WATER = None
                 _LAYER_REFREEZE = None
-
-
-
 
         # Save results -- WRF_X_CSPY case
         else:

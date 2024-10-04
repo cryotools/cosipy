@@ -199,6 +199,9 @@ class IOClass:
         if ('SNOWFALL' in self.DATA):
             print('Snowfall data (SNOWFALL) ... ok ')
             check(self.DATA.SNOWFALL, 0.1, 0.0)
+        if ('SLOPE' in self.DATA):
+            print('Slope data (SLOPE) ... ok ')
+            check(self.DATA.SLOPE, 0.0, 90.0)
 
         print('\n Glacier gridpoints: %s \n\n' %(np.nansum(self.DATA.MASK>=1)))
 
