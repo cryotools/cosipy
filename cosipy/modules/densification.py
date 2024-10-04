@@ -37,7 +37,8 @@ def densification(GRID,SLOPE,dt):
             f'{", ".join(densification_allowed)}',
         )
         raise ValueError(" ".join(error_msg))
-    
+
+
 @njit
 def copy_layer_profiles(GRID) -> tuple:
     """Get a copy of the layer profiles.
@@ -167,7 +168,7 @@ def method_Vionnet(GRID,SLOPE,dt):
             dD = (-sigma/eta)*dt 
 
             # Rate of change for the density
-            # dRho = dD*rho[idxNode] 
+            # dRho = dD*rho[idxNode]
             
             # Calc changes in volumetric fractions of ice and water
             # No water in layer

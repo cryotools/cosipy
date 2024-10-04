@@ -29,6 +29,7 @@ layer_stretching = Constants.layer_stretching
 temperature_threshold_merging = Constants.temperature_threshold_merging
 density_threshold_merging = Constants.density_threshold_merging
 merge_max = Constants.merge_max
+minimum_snowfall = Constants.minimum_snowfall
 minimum_snow_layer_height = Constants.minimum_snow_layer_height
 remesh_method = Constants.remesh_method
 ice_density = Constants.ice_density
@@ -128,7 +129,7 @@ class Grid:
             )
 
     def add_fresh_snow(
-        self, height, density, temperature, liquid_water_content
+        self, height, density, temperature, liquid_water_content, dt
     ):
         """Add a fresh snow layer (node).
 
@@ -151,9 +152,12 @@ class Grid:
         # Increase node counter
         self.number_nodes += 1
 
-        # Set fresh snow properties for albedo calculation (height and
-        # timestamp)
-        self.set_fresh_snow_props(height)
+        if height < minimum_snowfall:
+            # Ignore impact of small snowfall on fresh snow layer properties
+            self.set_fresh_snow_props_update_time(dt)
+        else:
+            # Set the fresh snow properties for albedo calculation (height and timestamp)
+            self.set_fresh_snow_props(height)
 
     def remove_node(self, idx: list = None):
         """Remove a layer (node) from the grid (node list).
@@ -463,7 +467,23 @@ class Grid:
             else:
                 idx += 1
 
-        # Correct first layer
+        # Remesh ice
+        min_ice_idx = max(
+            1, self.get_number_snow_layers()
+        )  # remeshing layer 0 done by correct_layer above
+        # Ensure top ice layer has first_layer_height when thin snow layers will be removed in update_grid
+        if (min_ice_idx == 1) & (self.get_node_height(0) < first_layer_height):
+            self.correct_layer(min_ice_idx, first_layer_height)
+            min_ice_idx += 1
+
+        idx = min_ice_idx
+        while idx < self.get_number_layers() - 1:
+            # Correct first layer
+
+            if self.get_node_height(idx) < minimum_snow_layer_height:
+                self.merge_nodes(idx)
+            else:
+                idx += 1
         self.correct_layer(0, first_layer_height)
 
     def split_node(self, pos: int):
@@ -599,7 +619,7 @@ class Grid:
 
             # self.check('Merge snow with glacier function')
 
-    def remove_melt_weq(self, melt: float, idx: int=0):
+    def remove_melt_weq(self, melt: float, idx: int = 0):
         """Remove mass from a layer.
 
         Reduces the mass/height of layer ``idx`` by the available melt
@@ -609,7 +629,7 @@ class Grid:
             melt: Snow water equivalent of melt [|m w.e.|].
             idx: Index of the layer. If no value is given, the function
                 acts on the first layer.
-        
+
         Returns:
             float: Liquid water content from removed layers.
         """
@@ -987,7 +1007,7 @@ class Grid:
 
     def grid_info_screen(self, n: int = -999):
         """Print the state of the snowpack.
-        
+
         Args:
             n: Number of nodes to plot from the top. Default -999.
         """

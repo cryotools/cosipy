@@ -36,7 +36,7 @@ class IOClass:
 
     def get_output_structure(self):
         """Get the model output variables.
-        
+
         Returns:
             Output variables for internal and full-field simulations.
 
@@ -118,7 +118,7 @@ class IOClass:
 
     def init_data_dataset(self):
         """Read and store the input netCDF data.
-        
+
         The input data should contain the following variables:
             :PRES: Air pressure [hPa].
             :N: Cloud cover fraction [-].
@@ -435,7 +435,7 @@ class IOClass:
             if ('REFREEZE' in self.full):
                 self.LAYER_REFREEZE = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
    
-    
+
     def copy_local_to_global(self,y,x,local_RAIN,local_SNOWFALL,local_LWin,local_LWout,local_H,local_LE,local_B,local_QRR,
                              local_MB, local_surfMB,local_Q,local_SNOWHEIGHT,local_TOTALHEIGHT,local_TS,local_ALBEDO, \
                              local_LAYERS,local_ME,local_intMB,local_EVAPORATION,local_SUBLIMATION,local_CONDENSATION, \
@@ -617,7 +617,7 @@ class IOClass:
 
     def init_restart_dataset(self) -> xr.Dataset:
         """Initialise the restart dataset.
-            
+
         Returns:
             The empty restart dataset.
         """

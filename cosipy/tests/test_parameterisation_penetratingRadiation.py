@@ -44,7 +44,7 @@ class TestParamRadiation:
         )
         assert pRad.Constants.penetrating_method == "Bintanja95"
         test_grid = conftest_mock_grid
-        test_grid.add_fresh_snow(0.1, arg_density, 270.15, 0.0)
+        test_grid.add_fresh_snow(0.1, arg_density, 270.15, 0.0, 0.0)
         test_swnet = 800.0
         if arg_density <= Constants.snow_ice_threshold:
             test_si = test_swnet * 0.1
