@@ -41,9 +41,9 @@ def init_snowpack(DATA):
     layer_densities = []
     layer_T = []
     layer_liquid_water = []
-
+    
     if initial_snowheight > 0.0:
-        optimal_height = 0.1  # 10 cm
+        optimal_height = 0.1 # 10 cm
         nlayers = int(min(initial_snowheight / optimal_height, 5))
         dT = (temperature_top - temperature_bottom) / (
             initial_snowheight + initial_glacier_height
@@ -116,7 +116,6 @@ def init_snowpack(DATA):
     )
 
     return GRID
-
 
 def load_snowpack(GRID_RESTART):
     """Initialize grid from restart file."""

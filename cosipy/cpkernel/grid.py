@@ -156,8 +156,8 @@ class Grid:
             # Ignore impact of small snowfall on fresh snow layer properties
             self.set_fresh_snow_props_update_time(dt)
         else:
-            # Set the fresh snow properties for albedo calculation (height and timestamp)
-            self.set_fresh_snow_props(height)
+           # Set the fresh snow properties for albedo calculation (height and timestamp)
+           self.set_fresh_snow_props(height)
 
     def remove_node(self, idx: list = None):
         """Remove a layer (node) from the grid (node list).
@@ -468,19 +468,18 @@ class Grid:
                 idx += 1
 
         # Remesh ice
-        min_ice_idx = max(
-            1, self.get_number_snow_layers()
-        )  # remeshing layer 0 done by correct_layer above
+        min_ice_idx = max(1,self.get_number_snow_layers())   #remeshing layer 0 done by correct_layer above
         # Ensure top ice layer has first_layer_height when thin snow layers will be removed in update_grid
-        if (min_ice_idx == 1) & (self.get_node_height(0) < first_layer_height):
-            self.correct_layer(min_ice_idx, first_layer_height)
-            min_ice_idx += 1
+        if( (min_ice_idx == 1) & (self.get_node_height(0) < first_layer_height) ):
+             self.correct_layer(min_ice_idx, first_layer_height)
+             min_ice_idx += 1
 
         idx = min_ice_idx
-        while idx < self.get_number_layers() - 1:
-            # Correct first layer
+        while ((idx < self.get_number_layers()-1)):
+        # Correct first layer
 
-            if self.get_node_height(idx) < minimum_snow_layer_height:
+
+            if (self.get_node_height(idx)<minimum_snow_layer_height):
                 self.merge_nodes(idx)
             else:
                 idx += 1
