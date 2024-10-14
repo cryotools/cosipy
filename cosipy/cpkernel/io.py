@@ -2,8 +2,6 @@
  Read the input data (model forcing) and write the output to netCDF file.
 """
 
-import configparser
-import inspect
 import os
 import sys
 
@@ -18,12 +16,7 @@ from cosipy.constants import Constants
 class IOClass:
 
     def __init__(self, DATA=None):
-        """Initialise the IO Class"""
-
-        output_vars = self.get_output_structure()
-        self.atm = output_vars['vars']['atm']
-        self.internal = output_vars['vars']['internal']
-        self.full = output_vars['vars']['full']
+        """Initialise the IO Class."""
 
         # Initialize data
         self.DATA = DATA
@@ -34,26 +27,6 @@ class IOClass:
         if DATA is not None:
             self.time = self.DATA.sizes['time']
 
-    def get_output_structure(self):
-        """Get the model output variables.
-
-        Returns:
-            Output variables for internal and full-field simulations.
-
-        Raises:
-            FileNotFoundError: If the "output" file is not found.
-        """
-        # Package is not installed in working directory
-        filename = inspect.getfile(inspect.currentframe())
-        filename = f"{filename[:-14]}output"
-        if not os.path.isfile(filename):
-            raise FileNotFoundError(f"{filename} not found.")
-
-        # Read variable list from file
-        output_structure = configparser.ConfigParser()
-        output_structure.read(filename)
-
-        return output_structure
 
     def create_data_file(self):
         """Create the input data and read the restart file if necessary.
@@ -63,19 +36,21 @@ class IOClass:
         """
     
         if Config.restart:
-            print('--------------------------------------------------------------')
-            print('\t RESTART FROM PREVIOUS STATE')
-            print('-------------------------------------------------------------- \n')
+            print(f"{'-'*62}\n\tRESTART FROM PREVIOUS STATE\n{'-'*62}\n")
             
             # Load the restart file
             timestamp = pd.to_datetime(Config.time_start).strftime('%Y-%m-%dT%H-%M')
-            if (os.path.isfile(os.path.join(Config.data_path, 'restart', 'restart_'+timestamp+'.nc')) & (Config.time_start != Config.time_end)):
-                self.GRID_RESTART = xr.open_dataset(os.path.join(Config.data_path, 'restart', 'restart_'+timestamp+'.nc'))
+            restart_path = os.path.join(
+                Config.data_path,"restart", f"restart_{timestamp}.nc"
+            )
+            if os.path.isfile(restart_path) & (Config.time_start != Config.time_end):
+                self.GRID_RESTART = xr.open_dataset(restart_path)
                 self.restart_date = self.GRID_RESTART.time+np.timedelta64(Constants.dt,'s')     # Get time of the last calculation and add one time step
                 self.init_data_dataset()                       # Read data from the last date to the end of the data file
             else:
-                print('No restart file available for the given date %s' % (timestamp))  # if there is a problem kill the program
-                print('OR start date %s equals end date %s \n' % (Config.time_start, Config.time_end))
+                print(  # if there is a problem kill the program
+                    f"No restart file available for the given date {timestamp}\nOR start date {Config.time_start} equals end date {Config.time_end}\n"
+                )
                 sys.exit(1)
         else:
             self.restart_date = None
@@ -115,6 +90,11 @@ class IOClass:
         """
         return self.GRID_RESTART
 
+    def create_nan_array(self):
+        return np.full((self.time, self.ny, self.nx), np.nan)
+
+    def create_2d_nan_array(self, max_layers):
+        return np.full((self.time, self.ny, self.nx, max_layers), np.nan)
 
     def init_data_dataset(self):
         """Read and store the input netCDF data.
@@ -137,73 +117,62 @@ class IOClass:
         start_interval=str(self.DATA.time.values[0])[0:16]
         end_interval = str(self.DATA.time.values[-1])[0:16]
         time_steps = str(self.DATA.sizes['time'])
-        print('\n Maximum available time interval from %s until %s. Time steps: %s \n\n' % (start_interval, end_interval, time_steps))
+        print(
+            f"\nMaximum available time interval from {start_interval} until {end_interval}. Time steps: {time_steps}\n\n")
 
         # Check if restart option is set
         if self.restart_date is None:
-            print('--------------------------------------------------------------')
-            print('\t Integration from %s to %s' % (Config.time_start, Config.time_end))
-            print('--------------------------------------------------------------\n')
+            print(
+                f"{'-'*62}\n\tIntegration from {Config.time_start} to {Config.time_end}\n{'-'*62}\n"
+            )
             self.DATA = self.DATA.sel(time=slice(Config.time_start, Config.time_end))   # Select dates from config.py
         else:
             # There is nothing to do if the dates are equal
-            if (self.restart_date==Config.time_end):
+            if self.restart_date==Config.time_end:
                 print('Start date equals end date ... no new data ... EXIT')
                 sys.exit(1)
             else:
                 # otherwise, run the model from the restart date to the defined end date
-                print('Starting from %s (from restart file) to %s (from config.py) \n' % (self.restart_date.values, Config.time_end))
+                print(f'Starting from {self.restart_date.values} (from restart file) to {Config.time_end} (from config.toml)\n')
                 self.DATA = self.DATA.sel(time=slice(self.restart_date, Config.time_end))
 
         if Config.time_start < start_interval:
-            print('\n WARNING! Selected startpoint before first timestep of input data\n')
+            print('\nWARNING! Selected startpoint before first timestep of input data\n')
         if Config.time_end > end_interval:
-            print('\n WARNING! Selected endpoint after last timestep of input data\n')
+            print('\nWARNING! Selected endpoint after last timestep of input data\n')
         if Config.time_start > end_interval or Config.time_end < start_interval:
-            print('\n ERROR! Selected period not available in input data\n')
+            print('\nERROR! Selected period not available in input data\n')
 
 
         print('--------------------------------------------------------------')
-        print('Checking input data .... \n')
+        print(f"{'-'*62}\nChecking input data ....\n")
         
         # Define an auxiliary function to check the validity of the data
-        def check(field, max, min):
+        def check(field, _max, _min):
             """Check the validity of the input data."""
-            if np.nanmax(field) > max or np.nanmin(field) < min:
-                print('Please check the input data, its seems they are out of range %s MAX: %.2f MIN: %.2f \n' % (str.capitalize(field.name), np.nanmax(field), np.nanmin(field)))
-        # Check if data is within valid bounds
-        if ('T2' in self.DATA):
-            print('Temperature data (T2) ... ok ')
-            check(self.DATA.T2, 313.16, 243.16)
-        if ('RH2' in self.DATA):
-            print('Relative humidity data (RH2) ... ok ')
-            check(self.DATA.RH2, 100.0, 0.0)
-        if ('G' in self.DATA):
-            print('Shortwave data (G) ... ok ')
-            check(self.DATA.G, 1600.0, 0.0)
-        if ('U2' in self.DATA):
-            print('Wind velocity data (U2) ... ok ')
-            check(self.DATA.U2, 50.0, 0.0)
-        if ('RRR' in self.DATA):
-            print('Precipitation data (RRR) ... ok ')
-            check(self.DATA.RRR, 20.0, 0.0)
-        if ('N' in self.DATA):
-            print('Cloud cover data (N) ... ok ')
-            check(self.DATA.N, 1.0, 0.0)
-        if ('PRES' in self.DATA):
-            print('Pressure data (PRES) ... ok ')
-            check(self.DATA.PRES, 1080.0, 400.0)
-        if ('LWin' in self.DATA):
-            print('Incoming longwave data (LWin) ... ok ')
-            check(self.DATA.LWin, 400.0, 200.0)
-        if ('SNOWFALL' in self.DATA):
-            print('Snowfall data (SNOWFALL) ... ok ')
-            check(self.DATA.SNOWFALL, 0.1, 0.0)
-        if ('SLOPE' in self.DATA):
-            print('Slope data (SLOPE) ... ok ')
-            check(self.DATA.SLOPE, 0.0, 90.0)
+            if np.nanmax(field) > _max or np.nanmin(field) < _min:
+                print(f"Please check the input data, its seems they are out of range {str.capitalize(field.name)} MAX: {np.nanmax(field):.2f} MIN: {np.nanmin(field):.2f} \n")
 
-        print('\n Glacier gridpoints: %s \n\n' %(np.nansum(self.DATA.MASK>=1)))
+        # Check if data is within valid bounds
+        data_bounds = {
+            "T2": (313.16, 243.16),
+            "RH2": (100.0, 0.0),
+            "G": (1600.0, 0.0),
+            "U2": (50.0, 0.0),
+            "RRR": (20.0, 0.0),
+            "N": (1.0, 0.0),
+            "PRES": (1080.0, 400.0),
+            "LWin": (400.0, 200.0),
+            "SNOWFALL": (0.1, 0.0),
+            "SLOPE": (0.0, 90.0),
+        }
+
+        for key, bounds in data_bounds.items():
+            if key in self.DATA:
+                print(f"{key} ... ok")
+                check(self.DATA[key], bounds[0], bounds[1])
+
+        print(f"\nGlacier gridpoints: {np.nansum(self.DATA.MASK >= 1)} \n\n")
 
  
     def get_result_metadata(self) -> tuple:
@@ -220,7 +189,7 @@ class IOClass:
             "U2": ("m s\u207b\xb9", "Wind velocity at 2 m"),
             "PRES": ("hPa", "Atmospheric pressure"),
             "G": ("W m\u207b\xb2", "Incoming shortwave radiation"),
-            "RRR": ("mm", "Total precipiation"),
+            "RRR": ("mm", "Total precipitation"),
             "SNOWFALL": ("m", "Snowfall"),
             "N": ("-", "Cloud fraction"),
             "LWin": ("W m\u207b\xb2", "Incoming longwave radiation"),
@@ -251,7 +220,7 @@ class IOClass:
         self.RESULT.attrs['WRF_simulation'] = str(Config.WRF)
         self.RESULT.attrs['Compression_level'] = Config.compression_level
         self.RESULT.attrs['Slurm_use'] = str(Config.slurm_use)
-        self.RESULT.attrs['Full_fiels'] = str(Config.full_field)
+        self.RESULT.attrs['Full_field'] = str(Config.full_field)
         self.RESULT.attrs['Force_use_TP'] = str(Config.force_use_TP)
         self.RESULT.attrs['Force_use_N'] = str(Config.force_use_N)
         self.RESULT.attrs['Tile_of_glacier_of_interest'] = str(Config.tile)
@@ -259,7 +228,7 @@ class IOClass:
         # Global attributes from constants.py
         self.RESULT.attrs['Time_step_input_file_seconds'] = Constants.dt
         self.RESULT.attrs['Max_layers'] = Constants.max_layers
-        self.RESULT.attrs['Z_measurment_height'] = Constants.z
+        self.RESULT.attrs['Z_measurement_height'] = Constants.z
         self.RESULT.attrs['Stability_correction'] = Constants.stability_correction
         self.RESULT.attrs['Albedo_method'] = Constants.albedo_method
         self.RESULT.attrs['Densification_method'] = Constants.densification_method
@@ -338,20 +307,20 @@ class IOClass:
                 self.RESULT,
                 np.full_like(self.DATA.T2, np.nan),
                 "RRR",
-                "mm",
-                "Total precipiation",
+                spatiotemporal["RRR"][1],
+                spatiotemporal["RRR"][0],
             )
         if "N" not in self.DATA:
             self.add_variable_along_latlontime(
                 self.RESULT,
                 np.full_like(self.DATA.T2, np.nan),
                 "N",
-                "-",
-                "Cloud fraction",
+                spatiotemporal["N"][1],
+                spatiotemporal["N"][0],
             )
 
-        print("\n")
-        print("Output dataset ... ok")
+        print(f"\nOutput dataset ... ok")
+
         return self.RESULT
   
 
@@ -362,81 +331,46 @@ class IOClass:
         workers. The arrays will then be assigned to the RESULT dataset
         and stored to disk (see COSIPY.py).
         """
-        if ('RAIN' in self.atm):
-            self.RAIN = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('SNOWFALL' in self.atm):
-            self.SNOWFALL = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('LWin' in self.atm):
-            self.LWin = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('LWout' in self.atm):
-            self.LWout = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('H' in self.atm):
-            self.H = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('LE' in self.atm):
-            self.LE = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('B' in self.atm):
-            self.B = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('QRR' in self.atm):
-            self.QRR = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('MB' in self.internal):
-            self.MB = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('surfMB' in self.internal):
-            self.surfMB = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('Q' in self.internal):
-            self.Q = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('SNOWHEIGHT' in self.internal):
-            self.SNOWHEIGHT = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('TOTALHEIGHT' in self.internal):
-            self.TOTALHEIGHT = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('TS' in self.atm):
-            self.TS = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('ALBEDO' in self.atm):
-            self.ALBEDO = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('LAYERS' in self.internal):
-            self.LAYERS = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('ME' in self.internal):
-            self.ME = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('intMB' in self.internal):
-            self.intMB = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('EVAPORATION' in self.internal):
-            self.EVAPORATION = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('SUBLIMATION' in self.internal):
-            self.SUBLIMATION = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('CONDENSATION' in self.internal):
-            self.CONDENSATION = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('DEPOSITION' in self.internal):
-            self.DEPOSITION = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('REFREEZE' in self.internal):
-            self.REFREEZE = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('subM' in self.internal):
-            self.subM = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('Z0' in self.atm):
-            self.Z0 = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('surfM' in self.internal):
-            self.surfM = np.full((self.time,self.ny,self.nx), np.nan)
-        if ('MOL' in self.internal):
-            self.MOL = np.full((self.time,self.ny,self.nx), np.nan)
+        
+        self.RAIN = self.create_nan_array()
+        self.SNOWFALL = self.create_nan_array()
+        self.LWin = self.create_nan_array()
+        self.LWout = self.create_nan_array()
+        self.H = self.create_nan_array()
+        self.LE = self.create_nan_array()
+        self.B = self.create_nan_array()
+        self.QRR = self.create_nan_array()
+        self.MB = self.create_nan_array()
+        self.surfMB = self.create_nan_array()
+        self.Q = self.create_nan_array()
+        self.SNOWHEIGHT = self.create_nan_array()
+        self.TOTALHEIGHT = self.create_nan_array()
+        self.TS = self.create_nan_array()
+        self.ALBEDO = self.create_nan_array()
+        self.LAYERS = self.create_nan_array()
+        self.ME = self.create_nan_array()
+        self.intMB = self.create_nan_array()
+        self.EVAPORATION = self.create_nan_array()
+        self.SUBLIMATION = self.create_nan_array()
+        self.CONDENSATION = self.create_nan_array()
+        self.DEPOSITION = self.create_nan_array()
+        self.REFREEZE = self.create_nan_array()
+        self.subM = self.create_nan_array()
+        self.Z0 = self.create_nan_array()
+        self.surfM = self.create_nan_array()
+        self.MOL = self.create_nan_array()
 
         if Config.full_field:
             max_layers = Constants.max_layers  # faster lookup
-            if ('HEIGHT' in self.full):
-                self.LAYER_HEIGHT = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            if ('RHO' in self.full):
-                self.LAYER_RHO = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            if ('T' in self.full):
-                self.LAYER_T = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            if ('LWC' in self.full):
-                self.LAYER_LWC = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            if ('CC' in self.full):
-                self.LAYER_CC = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            if ('POROSITY' in self.full):
-                self.LAYER_POROSITY = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            if ('ICE_FRACTION' in self.full):
-                self.LAYER_ICE_FRACTION = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            if ('IRREDUCIBLE_WATER' in self.full):
-                self.LAYER_IRREDUCIBLE_WATER = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
-            if ('REFREEZE' in self.full):
-                self.LAYER_REFREEZE = np.full((self.time,self.ny,self.nx,max_layers), np.nan)
+            self.LAYER_HEIGHT = self.create_2d_nan_array(max_layers)
+            self.LAYER_RHO = self.create_2d_nan_array(max_layers)
+            self.LAYER_T = self.create_2d_nan_array(max_layers)
+            self.LAYER_LWC = self.create_2d_nan_array(max_layers)
+            self.LAYER_CC = self.create_2d_nan_array(max_layers)
+            self.LAYER_POROSITY = self.create_2d_nan_array(max_layers)
+            self.LAYER_ICE_FRACTION = self.create_2d_nan_array(max_layers)
+            self.LAYER_IRREDUCIBLE_WATER = self.create_2d_nan_array(max_layers)
+            self.LAYER_REFREEZE = self.create_2d_nan_array(max_layers)
    
 
     def copy_local_to_global(self,y,x,local_RAIN,local_SNOWFALL,local_LWin,local_LWout,local_H,local_LE,local_B,local_QRR,
@@ -451,158 +385,87 @@ class IOClass:
             y: Latitude index.
             x: Longitude index.
         """
-        if ('RAIN' in self.atm):
-            self.RAIN[:,y,x] = local_RAIN
-        if ('SNOWFALL' in self.atm):
-            self.SNOWFALL[:,y,x] = local_SNOWFALL
-        if ('LWin' in self.atm):
-            self.LWin[:,y,x] = local_LWin
-        if ('LWout' in self.atm):
-            self.LWout[:,y,x] = local_LWout
-        if ('H' in self.atm):
-            self.H[:,y,x] = local_H
-        if ('LE' in self.atm):
-            self.LE[:,y,x] = local_LE
-        if ('B' in self.atm):
-            self.B[:,y,x] = local_B
-        if ('QRR' in self.atm):
-            self.QRR[:,y,x] = local_QRR
-        if ('surfMB' in self.internal):
-            self.surfMB[:,y,x] = local_surfMB
-        if ('MB' in self.internal):
-            self.MB[:,y,x] = local_MB
-        if ('Q' in self.internal):
-            self.Q[:,y,x] = local_Q
-        if ('SNOWHEIGHT' in self.internal):
-            self.SNOWHEIGHT[:,y,x] = local_SNOWHEIGHT
-        if ('TOTALHEIGHT' in self.internal):
-            self.TOTALHEIGHT[:,y,x] = local_TOTALHEIGHT 
-        if ('TS' in self.atm):
-            self.TS[:,y,x] = local_TS 
-        if ('ALBEDO' in self.atm):
-            self.ALBEDO[:,y,x] = local_ALBEDO 
-        if ('LAYERS' in self.internal):
-            self.LAYERS[:,y,x] = local_LAYERS 
-        if ('ME' in self.internal):
-            self.ME[:,y,x] = local_ME 
-        if ('intMB' in self.internal):
-            self.intMB[:,y,x] = local_intMB 
-        if ('EVAPORATION' in self.internal):
-            self.EVAPORATION[:,y,x] = local_EVAPORATION 
-        if ('SUBLIMATION' in self.internal):
-            self.SUBLIMATION[:,y,x] = local_SUBLIMATION 
-        if ('CONDENSATION' in self.internal):
-            self.CONDENSATION[:,y,x] = local_CONDENSATION 
-        if ('DEPOSITION' in self.internal):
-            self.DEPOSITION[:,y,x] = local_DEPOSITION 
-        if ('REFREEZE' in self.internal):
-            self.REFREEZE[:,y,x] = local_REFREEZE 
-        if ('subM' in self.internal):
-            self.subM[:,y,x] = local_subM 
-        if ('Z0' in self.atm):
-            self.Z0[:,y,x] = local_Z0 
-        if ('surfM' in self.internal):
-            self.surfM[:,y,x] = local_surfM 
-        if ('MOL' in self.internal):
-            self.MOL[:,y,x] = local_MOL 
+        self.RAIN[:,y,x] = local_RAIN
+        self.SNOWFALL[:,y,x] = local_SNOWFALL
+        self.LWin[:,y,x] = local_LWin
+        self.LWout[:,y,x] = local_LWout
+        self.H[:,y,x] = local_H
+        self.LE[:,y,x] = local_LE
+        self.B[:,y,x] = local_B
+        self.QRR[:,y,x] = local_QRR
+        self.surfMB[:,y,x] = local_surfMB
+        self.MB[:,y,x] = local_MB
+        self.Q[:,y,x] = local_Q
+        self.SNOWHEIGHT[:,y,x] = local_SNOWHEIGHT
+        self.TOTALHEIGHT[:,y,x] = local_TOTALHEIGHT 
+        self.TS[:,y,x] = local_TS 
+        self.ALBEDO[:,y,x] = local_ALBEDO 
+        self.LAYERS[:,y,x] = local_LAYERS 
+        self.ME[:,y,x] = local_ME 
+        self.intMB[:,y,x] = local_intMB 
+        self.EVAPORATION[:,y,x] = local_EVAPORATION 
+        self.SUBLIMATION[:,y,x] = local_SUBLIMATION 
+        self.CONDENSATION[:,y,x] = local_CONDENSATION 
+        self.DEPOSITION[:,y,x] = local_DEPOSITION 
+        self.REFREEZE[:,y,x] = local_REFREEZE 
+        self.subM[:,y,x] = local_subM 
+        self.Z0[:,y,x] = local_Z0 
+        self.surfM[:,y,x] = local_surfM 
+        self.MOL[:,y,x] = local_MOL 
 
         if Config.full_field:
-            if ('HEIGHT' in self.full):
-                self.LAYER_HEIGHT[:,y,x,:] = local_LAYER_HEIGHT 
-            if ('RHO' in self.full):
-                self.LAYER_RHO[:,y,x,:] = local_LAYER_RHO 
-            if ('T' in self.full):
-                self.LAYER_T[:,y,x,:] = local_LAYER_T 
-            if ('LWC' in self.full):
-                self.LAYER_LWC[:,y,x,:] = local_LAYER_LWC 
-            if ('CC' in self.full):
-                self.LAYER_CC[:,y,x,:] = local_LAYER_CC 
-            if ('POROSITY' in self.full):
-                self.LAYER_POROSITY[:,y,x,:] = local_LAYER_POROSITY 
-            if ('ICE_FRACTION' in self.full):
-                self.LAYER_ICE_FRACTION[:,y,x,:] = local_LAYER_ICE_FRACTION 
-            if ('IRREDUCIBLE_WATER' in self.full):
-                self.LAYER_IRREDUCIBLE_WATER[:,y,x,:] = local_LAYER_IRREDUCIBLE_WATER 
-            if ('REFREEZE' in self.full):
-                self.LAYER_REFREEZE[:,y,x,:] = local_LAYER_REFREEZE 
+            self.LAYER_HEIGHT[:,y,x,:] = local_LAYER_HEIGHT 
+            self.LAYER_RHO[:,y,x,:] = local_LAYER_RHO 
+            self.LAYER_T[:,y,x,:] = local_LAYER_T 
+            self.LAYER_LWC[:,y,x,:] = local_LAYER_LWC 
+            self.LAYER_CC[:,y,x,:] = local_LAYER_CC 
+            self.LAYER_POROSITY[:,y,x,:] = local_LAYER_POROSITY 
+            self.LAYER_ICE_FRACTION[:,y,x,:] = local_LAYER_ICE_FRACTION 
+            self.LAYER_IRREDUCIBLE_WATER[:,y,x,:] = local_LAYER_IRREDUCIBLE_WATER 
+            self.LAYER_REFREEZE[:,y,x,:] = local_LAYER_REFREEZE 
 
 
     def write_results_to_file(self):
         """Add the global numpy arrays to the RESULT dataset."""
-        if ('RAIN' in self.atm):
-            self.add_variable_along_latlontime(self.RESULT, self.RAIN, 'RAIN', 'mm', 'Liquid precipitation') 
-        if ('SNOWFALL' in self.atm):
-            self.add_variable_along_latlontime(self.RESULT, self.SNOWFALL, 'SNOWFALL', 'm w.e.', 'Snowfall') 
-        if ('LWin' in self.atm):
-            self.add_variable_along_latlontime(self.RESULT, self.LWin, 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation') 
-        if ('LWout' in self.atm):
-            self.add_variable_along_latlontime(self.RESULT, self.LWout, 'LWout', 'W m\u207b\xb2', 'Outgoing longwave radiation') 
-        if ('H' in self.atm):
-            self.add_variable_along_latlontime(self.RESULT, self.H, 'H', 'W m\u207b\xb2', 'Sensible heat flux') 
-        if ('LE' in self.atm):
-            self.add_variable_along_latlontime(self.RESULT, self.LE, 'LE', 'W m\u207b\xb2', 'Latent heat flux') 
-        if ('B' in self.atm):
-            self.add_variable_along_latlontime(self.RESULT, self.B, 'B', 'W m\u207b\xb2', 'Ground heat flux')
-        if ('QRR' in self.atm):
-            self.add_variable_along_latlontime(self.RESULT, self.QRR, 'QRR', 'W m\u207b\xb2', 'Rain heat flux')
-        if ('surfMB' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.surfMB, 'surfMB', 'm w.e.', 'Surface mass balance') 
-        if ('MB' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.MB, 'MB', 'm w.e.', 'Mass balance') 
-        if ('Q' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.Q, 'Q', 'm w.e.', 'Runoff') 
-        if ('SNOWHEIGHT' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.SNOWHEIGHT, 'SNOWHEIGHT', 'm', 'Snowheight') 
-        if ('TOTALHEIGHT' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.TOTALHEIGHT, 'TOTALHEIGHT', 'm', 'Total domain height') 
-        if ('TS' in self.atm):
-            self.add_variable_along_latlontime(self.RESULT, self.TS, 'TS', 'K', 'Surface temperature') 
-        if ('ALBEDO' in self.atm):
-            self.add_variable_along_latlontime(self.RESULT, self.ALBEDO, 'ALBEDO', '-', 'Albedo') 
-        if ('LAYERS' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.LAYERS, 'LAYERS', '-', 'Number of layers') 
-        if ('ME' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.ME, 'ME', 'W m\u207b\xb2', 'Available melt energy') 
-        if ('intMB' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.intMB, 'intMB', 'm w.e.', 'Internal mass balance') 
-        if ('EVAPORATION' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.EVAPORATION, 'EVAPORATION', 'm w.e.', 'Evaporation') 
-        if ('SUBLIMATION' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.SUBLIMATION, 'SUBLIMATION', 'm w.e.', 'Sublimation') 
-        if ('CONDENSATION' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.CONDENSATION, 'CONDENSATION', 'm w.e.', 'Condensation') 
-        if ('DEPOSITION' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.DEPOSITION, 'DEPOSITION', 'm w.e.', 'Deposition') 
-        if ('REFREEZE' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.REFREEZE, 'REFREEZE', 'm w.e.', 'Refreezing') 
-        if ('subM' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.subM, 'subM', 'm w.e.', 'Subsurface melt') 
-        if ('Z0' in self.atm):
-            self.add_variable_along_latlontime(self.RESULT, self.Z0, 'Z0', 'm', 'Roughness length') 
-        if ('surfM' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.surfM, 'surfM', 'm w.e.', 'Surface melt') 
-        if ('MOL' in self.internal):
-            self.add_variable_along_latlontime(self.RESULT, self.MOL, 'MOL', '', 'Monin Obukhov length') 
+
+        self.add_variable_along_latlontime(self.RESULT, self.RAIN, 'RAIN', 'mm', 'Liquid precipitation') 
+        self.add_variable_along_latlontime(self.RESULT, self.SNOWFALL, 'SNOWFALL', 'm w.e.', 'Snowfall') 
+        self.add_variable_along_latlontime(self.RESULT, self.LWin, 'LWin', 'W m\u207b\xb2', 'Incoming longwave radiation') 
+        self.add_variable_along_latlontime(self.RESULT, self.LWout, 'LWout', 'W m\u207b\xb2', 'Outgoing longwave radiation') 
+        self.add_variable_along_latlontime(self.RESULT, self.H, 'H', 'W m\u207b\xb2', 'Sensible heat flux') 
+        self.add_variable_along_latlontime(self.RESULT, self.LE, 'LE', 'W m\u207b\xb2', 'Latent heat flux') 
+        self.add_variable_along_latlontime(self.RESULT, self.B, 'B', 'W m\u207b\xb2', 'Ground heat flux')
+        self.add_variable_along_latlontime(self.RESULT, self.QRR, 'QRR', 'W m\u207b\xb2', 'Rain heat flux')
+        self.add_variable_along_latlontime(self.RESULT, self.surfMB, 'surfMB', 'm w.e.', 'Surface mass balance') 
+        self.add_variable_along_latlontime(self.RESULT, self.MB, 'MB', 'm w.e.', 'Mass balance') 
+        self.add_variable_along_latlontime(self.RESULT, self.Q, 'Q', 'm w.e.', 'Runoff') 
+        self.add_variable_along_latlontime(self.RESULT, self.SNOWHEIGHT, 'SNOWHEIGHT', 'm', 'Snowheight') 
+        self.add_variable_along_latlontime(self.RESULT, self.TOTALHEIGHT, 'TOTALHEIGHT', 'm', 'Total domain height') 
+        self.add_variable_along_latlontime(self.RESULT, self.TS, 'TS', 'K', 'Surface temperature') 
+        self.add_variable_along_latlontime(self.RESULT, self.ALBEDO, 'ALBEDO', '-', 'Albedo') 
+        self.add_variable_along_latlontime(self.RESULT, self.LAYERS, 'LAYERS', '-', 'Number of layers') 
+        self.add_variable_along_latlontime(self.RESULT, self.ME, 'ME', 'W m\u207b\xb2', 'Available melt energy') 
+        self.add_variable_along_latlontime(self.RESULT, self.intMB, 'intMB', 'm w.e.', 'Internal mass balance') 
+        self.add_variable_along_latlontime(self.RESULT, self.EVAPORATION, 'EVAPORATION', 'm w.e.', 'Evaporation') 
+        self.add_variable_along_latlontime(self.RESULT, self.SUBLIMATION, 'SUBLIMATION', 'm w.e.', 'Sublimation') 
+        self.add_variable_along_latlontime(self.RESULT, self.CONDENSATION, 'CONDENSATION', 'm w.e.', 'Condensation') 
+        self.add_variable_along_latlontime(self.RESULT, self.DEPOSITION, 'DEPOSITION', 'm w.e.', 'Deposition') 
+        self.add_variable_along_latlontime(self.RESULT, self.REFREEZE, 'REFREEZE', 'm w.e.', 'Refreezing') 
+        self.add_variable_along_latlontime(self.RESULT, self.subM, 'subM', 'm w.e.', 'Subsurface melt') 
+        self.add_variable_along_latlontime(self.RESULT, self.Z0, 'Z0', 'm', 'Roughness length') 
+        self.add_variable_along_latlontime(self.RESULT, self.surfM, 'surfM', 'm w.e.', 'Surface melt') 
+        self.add_variable_along_latlontime(self.RESULT, self.MOL, 'MOL', '', 'Monin Obukhov length') 
 
         if Config.full_field:
-            if ('HEIGHT' in self.full):
-                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Layer height') 
-            if ('RHO' in self.full):
-                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_RHO, 'LAYER_RHO', 'kg m^-3', 'Layer density') 
-            if ('T' in self.full):
-                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_T, 'LAYER_T', 'K', 'Layer temperature') 
-            if ('LWC' in self.full):
-                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_LWC, 'LAYER_LWC', 'kg m^-2', 'Liquid water content') 
-            if ('CC' in self.full):
-                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_CC, 'LAYER_CC', 'J m^-2', 'Cold content') 
-            if ('POROSITY' in self.full):
-                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_POROSITY, 'LAYER_POROSITY', '-', 'Porosity') 
-            if ('ICE_FRACTION' in self.full):
-                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_ICE_FRACTION, 'LAYER_ICE_FRACTION', '-', 'Ice fraction') 
-            if ('IRREDUCIBLE_WATER' in self.full):
-                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_IRREDUCIBLE_WATER, 'LAYER_IRREDUCIBLE_WATER', '-', 'Irreducible water') 
-            if ('REFREEZE' in self.full):
-                self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_REFREEZE, 'LAYER_REFREEZE', 'm w.e.', 'Refreezing') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Layer height') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_RHO, 'LAYER_RHO', 'kg m^-3', 'Layer density') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_T, 'LAYER_T', 'K', 'Layer temperature') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_LWC, 'LAYER_LWC', 'kg m^-2', 'layer liquid water content') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_CC, 'LAYER_CC', 'J m^-2', 'Cold content') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_POROSITY, 'LAYER_POROSITY', '-', 'Porosity') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_ICE_FRACTION, 'LAYER_ICE_FRACTION', '-', 'Layer ice fraction') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_IRREDUCIBLE_WATER, 'LAYER_IRREDUCIBLE_WATER', '-', 'Irreducible water') 
+            self.add_variable_along_latlonlayertime(self.RESULT, self.LAYER_REFREEZE, 'LAYER_REFREEZE', 'm w.e.', 'Refreezing') 
 
     def create_empty_restart(self) -> xr.Dataset:
         """Create an empty dataset for the RESTART attribute.
@@ -625,10 +488,9 @@ class IOClass:
             The empty restart dataset.
         """
         self.RESTART = self.create_empty_restart()
-    
-        print('Restart dataset ... ok \n')
-        print('--------------------------------------------------------------\n')
-        
+
+        print(f"Restart dataset ... ok\n{'-'*62}\n")
+
         return self.RESTART
   
 
@@ -668,7 +530,7 @@ class IOClass:
         self.add_variable_along_scalar(self.RESTART, np.full((1), np.nan), 'OLDSNOWTIMESTAMP', 's', 'Old snow timestamp')
 
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_HEIGHT', 'm', 'Layer height')
-        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_RHO', 'kg m^-3', 'Density of layer')
+        self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_RHO', 'kg m^-3', 'Layer density')
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_T', 'K', 'Layer temperature')
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_LWC', '-', 'Layer liquid water content')
         self.add_variable_along_layer(self.RESTART, np.full((self.RESTART.coords['layer'].shape[0]), np.nan), 'LAYER_IF', '-', 'Layer ice fraction')
@@ -702,7 +564,7 @@ class IOClass:
         self.add_variable_along_latlon(self.RESTART, self.RES_NEWSNOWHEIGHT, 'new_snow_height', 'm .w.e', 'New snow height')
         self.add_variable_along_latlon(self.RESTART, self.RES_NEWSNOWTIMESTAMP, 'new_snow_timestamp', 's', 'New snow timestamp')
         self.add_variable_along_latlon(self.RESTART, self.RES_OLDSNOWTIMESTAMP, 'old_snow_timestamp', 's', 'Old snow timestamp')
-        self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Height of each layer')
+        self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_HEIGHT, 'LAYER_HEIGHT', 'm', 'Layer height')
         self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_RHO, 'LAYER_RHO', 'kg m^-3', 'Layer density')
         self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_T, 'LAYER_T', 'K', 'Layer temperature')
         self.add_variable_along_latlonlayer(self.RESTART, self.RES_LAYER_LWC, 'LAYER_LWC', '-', 'Layer liquid water content')
