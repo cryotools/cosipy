@@ -44,7 +44,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
         indX (int): The grid cell's X index.
         GRID_RESTART (xarray.Dataset): Use a restart dataset instead of
             creating an initial profile. Default ``None``.
-        stake_name (list): Stake names. Default ``None``.
+        stake_names (list): Stake names. Default ``None``.
         stake_data (pd.Dataframe): Stake measurements. Default ``None``.
 
     Returns:
@@ -226,10 +226,12 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
             RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/water_density) * 1000.0
         elif SNOWF is not None:
             SNOWFALL = SNOWF[t]
-        else:
+        elif RRR is not None:
             # Else convert total precipitation [mm] to snowheight [m]; liquid/solid fraction
             SNOWFALL = (RRR[t]/1000.0)*(water_density/density_fresh_snow)*(0.5*(-np.tanh(((T2[t]-zero_temperature) - center_snow_transfer_function) * spread_snow_transfer_function) + 1.0))
             RAIN = RRR[t]-SNOWFALL*(density_fresh_snow/water_density) * 1000.0
+        else:
+            raise ValueError("No SNOWFALL or RRR data provided.")
 
         # if snowfall is smaller than the threshold
         if SNOWFALL<minimum_snowfall:
@@ -373,7 +375,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
 
         # Store cumulative MB in pandas frame for validation
         if stake_names:
-            if (DATA.isel(time=t).time.values in stake_data.index):
+            if DATA.isel(time=t).time.values in stake_data.index:
                 _df['mb'].loc[DATA.isel(time=t).time.values] = MB_cum 
                 _df['snowheight'].loc[DATA.isel(time=t).time.values] = GRID.get_total_snowheight()
 

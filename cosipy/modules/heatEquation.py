@@ -42,8 +42,8 @@ def solveHeatEquation(GRID, dt):
 
         # Update the temperatures
         T[k] = T[k] + (
-            (Kl * dt_use * (T[kl] - T[k]) / (hk1))
-            - (Ku * dt_use * (T[k] - T[ku]) / (hk))
+            (Kl * dt_use * (T[kl] - T[k]) / hk1)
+            - (Ku * dt_use * (T[k] - T[ku]) / hk)
         ) / (0.5 * (hk + hk1))
 
     GRID.set_temperature(T)  # Write results to GRID

@@ -59,3 +59,4 @@ class TestParamRadiation:
         assert isinstance(compare_melt, float)
         compare_si = melt_si[1]
         conftest_boilerplate.check_output(compare_si, float, test_si)
+        assert compare_si >= 0.0

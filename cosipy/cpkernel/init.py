@@ -1,5 +1,3 @@
-import sys
-
 import numpy as np
 from numba import njit
 
@@ -23,9 +21,7 @@ def init_snowpack(DATA):
     initial_bottom_density_snowpack = Constants.initial_bottom_density_snowpack
     ice_density = Constants.ice_density
 
-    ##--------------------------------------
-    ## Check for WRF data
-    ##--------------------------------------
+    # Check for WRF data
     if "SNOWHEIGHT" in DATA:
         initial_snowheight = DATA.SNOWHEIGHT.values
         if np.isnan(initial_snowheight):
@@ -34,16 +30,14 @@ def init_snowpack(DATA):
         initial_snowheight = initial_snowheight_constant
     temperature_top = np.minimum(DATA.T2.values[0], Constants.zero_temperature)
 
-    # --------------------------------------
     # Do the vertical interpolation
-    # --------------------------------------
     layer_heights = []
     layer_densities = []
     layer_T = []
     layer_liquid_water = []
-    
+
     if initial_snowheight > 0.0:
-        optimal_height = 0.1 # 10 cm
+        optimal_height = 0.1  # 10 cm
         nlayers = int(min(initial_snowheight / optimal_height, 5))
         dT = (temperature_top - temperature_bottom) / (
             initial_snowheight + initial_glacier_height
@@ -117,6 +111,7 @@ def init_snowpack(DATA):
 
     return GRID
 
+
 def load_snowpack(GRID_RESTART):
     """Initialize grid from restart file."""
 
@@ -151,16 +146,16 @@ def load_snowpack(GRID_RESTART):
 
 @njit
 def create_grid_jitted(
-    layer_heights,
-    layer_density,
-    layer_T,
-    layer_LWC,
-    layer_IF,
-    new_snow_height,
-    new_snow_timestamp,
-    old_snow_timestamp,
+    layer_heights: np.ndarray,
+    layer_density: np.ndarray,
+    layer_T: np.ndarray,
+    layer_LWC: np.ndarray,
+    layer_IF: np.ndarray,
+    new_snow_height: float,
+    new_snow_timestamp: float,
+    old_snow_timestamp: float,
 ):
-    """Jitted creation of GRID"""
+    """Create Grid with JIT."""
 
     GRID = Grid(
         layer_heights,
@@ -175,6 +170,6 @@ def create_grid_jitted(
 
     if np.isnan(layer_T).any():
         GRID.grid_info_screen()
-        raise ValueError("NaNs encountered in GRID creation")
+        raise ValueError("NaNs encountered in GRID creation.")
 
     return GRID

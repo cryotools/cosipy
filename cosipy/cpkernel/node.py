@@ -128,7 +128,7 @@ class Node:
         return max(0.0, 1 - self.get_layer_liquid_water_content() - self.get_layer_ice_fraction())
 
     def get_layer_specific_heat(self) -> float:
-        """Get the node's volumetric averaged specific heat capacity.
+        """Get the node's volume-weighted specific heat capacity.
 
         Returns:
             Specific heat capacity [|J kg^-1 K^-1|].
@@ -176,7 +176,7 @@ class Node:
         return 1-self.get_layer_ice_fraction()-self.get_layer_liquid_water_content()
 
     def get_layer_thermal_conductivity(self) -> float:
-        """Get the node's volumetric weighted thermal conductivity.
+        """Get the node's volume-weighted thermal conductivity.
 
         Returns:
             Thermal conductivity, |kappa| [|W m^-1 K^-1|].

@@ -142,6 +142,7 @@ class Grid:
             temperature (float): Layer temperature [K].
             liquid_water_content (float): Liquid water content of the
                 layer [|m w.e.|].
+            dt (int): Integration time [s].
         """
 
         # Add new node
@@ -618,7 +619,7 @@ class Grid:
 
             # self.check('Merge snow with glacier function')
 
-    def remove_melt_weq(self, melt: float, idx: int = 0):
+    def remove_melt_weq(self, melt: float, idx: int = 0) -> float:
         """Remove mass from a layer.
 
         Reduces the mass/height of layer ``idx`` by the available melt
@@ -630,11 +631,11 @@ class Grid:
                 acts on the first layer.
 
         Returns:
-            float: Liquid water content from removed layers.
+            Liquid water content from removed layers.
         """
-        lwc_from_layers = 0
+        lwc_from_layers = 0.0
 
-        while melt > 0:
+        while melt > 0.0 and idx <self.number_nodes:
             # Get SWE of layer
             SWE = self.get_node_height(idx) * (
                 self.get_node_density(idx) / water_density
