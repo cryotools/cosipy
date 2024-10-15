@@ -1,60 +1,49 @@
 ====
 API
 ====
+
+Click on a table entry to navigate through the API.
+
+Kernel
+======
 .. currentmodule:: cosipy
-
-Kernel classes
-==============
-
 .. autosummary::
-    :toctree: generated/
-    :nosignatures:
-    
-    cpkernel.cosipy_core
-    cpkernel.grid.Grid
-    cpkernel.grid.Node
+   :toctree: cpkernel
+   :template: custom-module.rst
+   :nosignatures:
+   :recursive:
 
+   cpkernel
 
 Parametrizations
-================
+=================
 
 .. autosummary::
-    :toctree: generated/
-    :nosignatures:
+   :toctree: modules
+   :template: custom-module.rst
+   :nosignatures:
+   :recursive:
 
-    modules.albedo
-    modules.densification
-    modules.evaluation
-    modules.heatEquation
-    modules.penetratingRadiation
-    modules.percolation
-    modules.radCor
-    modules.refreezing
-    modules.roughness
-    modules.surfaceTemperature
-
-.. currentmodule:: utilities
+   modules
 
 Utilities
 =========
 
 .. autosummary::
-    :toctree: generated/
+    :toctree: utilities
+    :template: custom-module.rst
     :nosignatures:
+    :recursive:
 
-    aws2cosipy.aws2cosipy
-    createStatic.create_static_file
-    wrf2cosipy.wrf2cosipy
-
-.. currentmodule:: postprocessing
+    utilities
 
 Postprocessing
 ==============
 
 .. autosummary::
-    :toctree: generated/
+    :toctree: postprocessing
+    :template: custom-module.rst
     :nosignatures:
+    :recursive:
 
-    field_plots.plot_cosipy_fields
-    profile_plots.plot_profiles
-    vtk_plots.plot_cosipy_fields_vtk
+    postprocessing

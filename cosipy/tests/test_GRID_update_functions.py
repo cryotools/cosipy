@@ -109,8 +109,9 @@ class TestGridInteractions:
         assert isinstance(test_snow, tuple)
         assert all(isinstance(parameter, float) for parameter in test_snow)
         assert test_snow[0] == 0
+        dt = 3600
 
-        test_grid.add_fresh_snow(arg_height, 250.0, arg_temperature, arg_lwc)
+        test_grid.add_fresh_snow(arg_height, 250.0, arg_temperature, arg_lwc, dt)
         assert test_grid.number_nodes == test_number_nodes + 1
         assert isinstance(test_grid.grid[0], Node)
 

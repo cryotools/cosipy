@@ -16,7 +16,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 
-import postprocessing.field_plots.plot_cosipy_fields as pcf
+import cosipy.postprocessing.field_plots.plot_cosipy_fields as pcf
 
 # import constants
 # from COSIPY import start_logging
@@ -60,7 +60,7 @@ class TestPostprocessPlotFieldsHandling:
         dims = {}
         reference_time = pd.Timestamp("2009-01-01T12:00:00")
         dims["name"] = ["time", "lat", "lon"]
-        dims["time"] = pd.date_range(reference_time, periods=4, freq="6H")
+        dims["time"] = pd.date_range(reference_time, periods=4, freq="6h")
         elevation = xr.Variable(
             data=1000 + 10 * np.random.rand(2, 1),
             dims=dims["name"][1:],
@@ -111,8 +111,10 @@ class TestPostprocessPlotFieldsPlotting:
 
         compare_ax = pcf.set_gridlines(ax=ax)
         assert isinstance(compare_ax, cartopy.mpl.geoaxes.GeoAxes)
-        assert compare_ax._gridliners
-        for gridlines in compare_ax._gridliners:
+        gridliners = compare_ax.gridlines()
+        print(gridliners)
+        artists = gridliners.xline_artists + gridliners.yline_artists
+        for gridlines in artists:
             kwargs = gridlines.collection_kwargs
             assert kwargs.get("linewidth", None) == 0.5
             assert kwargs.get("color", None) == "gray"
@@ -170,7 +172,7 @@ class TestPostprocessPlotFieldsPlotting:
         )
 
         assert isinstance(compare_ax, plt.Axes)
-        assert compare_ax._gridliners
+        assert compare_ax.gridlines
         assert compare_ax.get_title() == dataset[arg_name].long_name.title()
 
         plt.close("all")
