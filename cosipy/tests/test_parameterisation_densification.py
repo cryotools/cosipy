@@ -1,6 +1,10 @@
+import re
+
 import numba
 import numpy as np
+import pytest
 
+import cosipy.modules.densification as module_densification
 # import constants
 from COSIPY import start_logging
 from cosipy.cpkernel.grid import Grid
@@ -49,3 +53,46 @@ class TestParamDensification:
         # New assertion: Global densification method is set to "Boone",
         # not "constant", so shouldn't the SWEs NOT match?
         assert not np.isclose(SWE_before_sum, SWE_after_sum, atol=1e-3)
+
+
+class TestParamDensificationSelection:
+    """Tests user selection of parametrisation method."""
+
+    @pytest.mark.parametrize("arg_method", ["Oerlemans98", "Bougamont05"])
+    def test_densification_method(
+        self, monkeypatch, conftest_mock_grid, conftest_boilerplate, arg_method
+    ):
+        """Set method from constants.py when calculating albedo."""
+
+        grid = conftest_mock_grid
+
+        conftest_boilerplate.patch_variable(
+            monkeypatch,
+            module_densification,
+            {"densification_method": arg_method},
+        )
+        assert module_densification.densification_method == arg_method
+
+    @pytest.mark.parametrize("arg_method", ["Wrong Method", "", None])
+    def test_densification_method_error(
+        self, monkeypatch, conftest_mock_grid, conftest_boilerplate, arg_method
+    ):
+        grid = conftest_mock_grid
+        valid_methods = ["Boone", "Vionnet", "empirical", "constant"]
+
+        conftest_boilerplate.patch_variable(
+            monkeypatch,
+            module_densification,
+            {"densification_method": arg_method},
+        )
+        assert module_densification.densification_method == arg_method
+        error_message = " ".join(
+            (
+                f'Densification method = "{module_densification.densification_method}"',
+                f"is not allowed, must be one of",
+                f'{", ".join(valid_methods)}',
+            )
+        )
+
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            module_densification.densification(GRID=grid, SLOPE=0.0, dt=3600)
