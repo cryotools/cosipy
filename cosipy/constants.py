@@ -37,6 +37,7 @@ class Constants(TomlLoader):
         """
         # WRF_X_CSPY: for efficiency and consistency
         if Config.WRF_X_CSPY:
+            config_table["PARAMETERIZATIONS"]["albedo_method"] = "Oerlemans98"
             config_table["PARAMETERIZATIONS"]["stability_correction"] = "MO"
             config_table["PARAMETERIZATIONS"][
                 "sfc_temperature_method"
