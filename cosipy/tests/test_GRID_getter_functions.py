@@ -219,6 +219,103 @@ class TestGridGetter:
         compare_height = grid.get_total_height()
         conftest_boilerplate.check_output(compare_height, float, test_height)
 
+    def test_grid_get_node_depth(
+        self, conftest_mock_grid, conftest_boilerplate
+    ):
+        GRID = conftest_mock_grid
+
+        # test_depths = [GRID.get_node_height(0) / 2]
+        # print(f"T1:{test_depths}")
+
+        # test_depths.append((test_depths[0] + (GRID.get_node_height(1) / 2)))
+        # print(f"T2:{test_depths}")
+        # compare_depths = [GRID.get_node_depth(0), GRID.get_node_depth(1)]
+        # print(compare_depths)
+
+        # conftest_boilerplate.check_output(
+        #     test_depths[1],
+        #     float,
+        #     2 * test_depths[0] + (GRID.get_node_height(1) / 2),
+        # )
+
+        depths_len = GRID.number_nodes
+        test_depths = []
+        d = 0
+        for i in range(depths_len):
+            if i == 0:
+                d = d + GRID.get_node_height(i) / 2.0
+            else:
+                d = (
+                    d
+                    + GRID.get_node_height(i - 1) / 2.0
+                    + GRID.get_node_height(i) / 2.0
+                )
+            test_depths.append(d)
+
+        compare_depths = []
+        for i in range(depths_len):
+            compare_depths.append(GRID.get_node_depth(i))
+
+        for t_depth, c_depth in zip(test_depths, compare_depths):
+            print(t_depth)
+            print(t_depth)
+            print(c_depth)
+            conftest_boilerplate.check_output(c_depth, float, t_depth)
+            assert c_depth > 0.0
+        assert compare_depths[1] > compare_depths[0]
+
+        # for t_depth, c_depth in zip(test_depths, compare_depths):
+        #     print(t_depth)
+        #     print(c_depth)
+        #     conftest_boilerplate.check_output(c_depth, float, t_depth)
+        #     assert c_depth > 0.0
+        # assert compare_depths[1] > compare_depths[0]
+
+    def test_grid_get_depth(self, conftest_mock_grid):
+        GRID = conftest_mock_grid
+
+        depths_len = GRID.number_nodes
+        heights = GRID.get_height()
+        test_depths = []
+        d = 0
+        for i in range(depths_len):
+            if i == 0:
+                d = d + GRID.get_node_height(i) / 2.0
+            else:
+                d = (
+                    d
+                    + GRID.get_node_height(i - 1) / 2.0
+                    + GRID.get_node_height(i) / 2.0
+                )
+            test_depths.append(d)
+
+        node_depths = []
+        for i in range(depths_len):
+            node_depths.append(GRID.get_node_depth(i))
+
+        print(heights)
+        compare_depth = GRID.get_depth()
+        print(f"Compare: {compare_depth}")
+
+        true_depth = []
+        
+        true_depth.append(heights[0]/2)
+        for i in range(1,depths_len):
+            depth = heights[i]/2
+            depth += sum(heights[:i])
+            true_depth.append(depth)
+
+        print(f"True: {true_depth}")
+
+        assert np.sum(true_depth) == np.sum(test_depths)
+        assert np.sum(compare_depth) == np.sum(test_depths)
+        np.testing.assert_allclose(compare_depth, test_depths)
+        assert np.sum(compare_depth) == np.sum(test_depths)
+        assert np.sum(compare_depth) == np.sum(node_depths)
+        np.testing.assert_allclose(true_depth, test_depths)
+        np.testing.assert_allclose(compare_depth, true_depth)
+        
+
     def test_grid_getter_functions(
         self, conftest_mock_grid_values, conftest_mock_grid
     ):

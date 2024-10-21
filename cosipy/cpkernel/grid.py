@@ -926,21 +926,20 @@ class Grid:
 
     def get_node_depth(self, idx: int):
         """Get a node's depth relative to the surface."""
-        d = 0
-        for i in range(idx + 1):
-            if i == 0:
-                d = d + self.get_node_height(i) / 2.0
-            else:
-                d = (
-                    d
-                    + self.get_node_height(i - 1) / 2.0
-                    + self.get_node_height(i) / 2.0
-                )
+        d = self.get_node_height(idx) / 2.0
+        if idx != 0:
+            for i in range(idx):
+                d = d + self.get_node_height(i)
         return d
 
     def get_depth(self):
         """Get a depth profile."""
-        return [self.get_node_depth(idx) for idx in range(self.number_nodes)]
+        h = np.array(self.get_height())
+        z = np.array(self.get_height())
+        z[0] = 0.5 * h[0]
+        z[1:] = np.cumsum(h[:-1]) + 0.5 * h[1:]
+
+        return [z[idx] for idx in range(self.number_nodes)]
 
     def get_total_snowheight(self, verbose=False):
         """Get the total snowheight (density<snow_ice_threshold)."""
