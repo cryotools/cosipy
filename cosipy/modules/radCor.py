@@ -31,8 +31,8 @@ def solarFParallel(lat:float, lon:float, timezone_lon:float, day:int, hour:float
         math.sin((356.6 + 0.9856 * day) * FAC)) * FAC))
 
     # Day length in hours
-    length = math.acos(-1.0 * (math.sin(lat * FAC) * math.sin(dec)) /
-        (math.cos(lat * FAC) * math.cos(dec))) / FAC * 2.0/15.0
+    # length = math.acos(-1.0 * (math.sin(lat * FAC) * math.sin(dec)) /
+    #     (math.cos(lat * FAC) * math.cos(dec))) / FAC * 2.0/15.0
 
     # Teta (radians), time equation (hours)
     teta = (279.575 + 0.9856 * day) * FAC
@@ -57,7 +57,7 @@ def solarFParallel(lat:float, lon:float, timezone_lon:float, day:int, hour:float
     # Azimuth angle (radians)
     azi = math.acos((math.sin(lat * FAC) * math.cos(zeni) - math.sin(dec)))/math.cos(lat*FAC)*math.sin(zeni)
     
-    if (solartime < solarnoon):
+    if solartime < solarnoon:
         azi = azi * -1.0
 
     return beta, zeni, azi
@@ -93,7 +93,7 @@ def Fdif_Neustift(doy, zeni, Rg):
     p3 = 9.4758
     p4 = 0.2465
 
-    if (CI>50):
+    if CI > 50:
         Fdif = p4
     else:
         # Eq. C1 in Wohlfahrt et al. (2016)
@@ -136,7 +136,7 @@ def radCor2D(doy, zeni, azi, angslo, azislo, Rm, zeni_thld):
 
     # Derive fraction of diffuse radiation
     Fdif = Fdif_Neustift(doy, zeni, Rm)
-    if (zeni > math.radians(zeni_thld)):
+    if zeni > math.radians(zeni_thld):
         Fdif = 1.0
     
     # Split measured global radiation into beam and diffuse part
@@ -144,8 +144,12 @@ def radCor2D(doy, zeni, azi, angslo, azislo, Rm, zeni_thld):
     Rd = Rm * Fdif          # Diffuse radiation
 
     # Correct beam component for angle and azimuth of pixels
-    cf = (math.cos(zeni) * math.cos(angslo*FAC) + math.sin(zeni) * math.sin(angslo*FAC) * \
-            math.cos(azi-(azislo*FAC))) / math.cos(zeni)
+    cf = (
+        math.cos(zeni) * math.cos(angslo * FAC)
+        + math.sin(zeni)
+        * math.sin(angslo * FAC)
+        * math.cos(azi - (azislo * FAC))
+    ) / math.cos(zeni)
 
     Rc = Rb * cf + Rd
     
@@ -202,7 +206,7 @@ def solpars(lat):
         timecorr[j, 3] = T2 * 15 / 60  # Time difference in deg (15°/h)
 
         # Solar parameters
-        tau = 2 * math.pi * (j) / 365
+        tau = 2 * math.pi * j / 365
         solparam[j, 0] = tau
         solparam[j, 1] = tau * 180 / math.pi
         solparam[j, 2] = 1.00011 + 0.034221 * math.cos(tau) + 0.00128 * math.sin(tau) + 0.000719 * math.cos(2*tau) + 0.000077 * math.sin(2 * tau)
@@ -248,10 +252,10 @@ def relshad(dem, mask, lats, lons, solh, sdirfn):
     """
 
     z = dem
-    illu = dem * 0.0  # create grid that will be filled
-    illu[:, :] = np.nan
+    # create grid that will be filled
+    illu = np.full_like(a=dem, fill_value=np.nan)
 
-    # Define maximum radius (of DEM area) in degreees lat/lon
+    # Define maximum radius (of DEM area) in degrees lat/lon
     rmax = ((np.linalg.norm(np.max(lats) - np.min(lats))) ** 2 + (np.linalg.norm(np.max(lons) - np.min(lons))) ** 2) ** 0.5
     nums = int(rmax * len(lats) / (lats[0] - lats[-1]))
 
@@ -276,9 +280,9 @@ def relshad(dem, mask, lats, lons, solh, sdirfn):
                 lon_list_short = lon_list[(lon_list < max(lons)) & (lon_list > min(lons))]
 
                 # Cut to same extent
-                if (len(lat_list_short) > len(lon_list_short)):
+                if len(lat_list_short) > len(lon_list_short):
                     lat_list_short = lat_list_short[0:len(lon_list_short)]
-                if (len(lon_list_short) > len(lat_list_short)):
+                if len(lon_list_short) > len(lat_list_short):
                     lon_list_short = lon_list_short[0:len(lat_list_short)]
 
                 # Find indices (instead of lat/lon) at closets gridpoint
@@ -331,14 +335,16 @@ def LUTshad(solpars, timecorr, lat, elvgrid, maskgrid, lats, lons, STEP, TCART):
     """
 
     # hour = np.arange(1, 25, 1)
-    shad1yr = np.zeros((int(366 * (3600 / STEP) * 24), len(lats), len(lons)))  # Array (time,lat,lon)
-    shad1yr[:, :, :] = np.nan
+    shad1yr = np.full(  # Array (time,lat,lon)
+        shape=(int(366 * (3600 / STEP) * 24), len(lats), len(lons)),
+        fill_value=np.nan,
+    )
 
     # Go through days of year
     for doy in np.arange(0, 366, 1):
 
         soldec = solpars[doy, 3]  # solar declination (rad)
-        eccorr = solpars[doy, 2]  # eccentricity correction factor
+        # eccorr = solpars[doy, 2]  # eccentricity correction factor
         tcorr = timecorr[doy, 3]  # time correction factor (deg)
 
         # Go through hours of day
@@ -384,7 +390,7 @@ def LUTsvf(elvgrid, maskgrid, slopegrid, aspectgrid, lats, lons):
 
     slo = np.radians(slopegrid)
     asp = np.radians(aspectgrid)
-    res = elvgrid * 0
+    res = np.zeros_like(elvgrid)
     count = 0
 
     # Go through all directions (0-360°)
@@ -400,8 +406,7 @@ def LUTsvf(elvgrid, maskgrid, slopegrid, aspectgrid, lats, lons):
             res = res + a
             count = count + 1
 
-    vsky = elvgrid * 0
-    vsky[:, :] = np.nan
+    vsky = np.full_like(elvgrid, np.nan)
     vsky[maskgrid == 1] = res[maskgrid == 1] / (36 * 44)
 
     return vsky
@@ -443,17 +448,17 @@ def calcRad(solPars, timecorr, doy, hour, lat, tempgrid, pgrid, rhgrid, cldgrid,
     aesc2 = 2.4845e-5    # Increase of aerosol transmissivity per meter altitude
     alphss = 0.9         # Aerosol single scattering albedo (Zhao & Li JGR112), unity (zero) -> all particle extinction is due to scattering (absorption)
     dirovc = 0.00        # Direct solar radiation at overcast conditions (as fraction of clear-sky dir. sol. rad, e.g. 10% = 0.1)
-    dif1 = 4.6           # Diffuse radiation as percentage of potenial clear-sky GR at cld = 0
+    dif1 = 4.6           # Diffuse radiation as percentage of potential clear-sky GR at cld = 0
     difra = 0.66         # Diffuse radiation constant
     Cf = 0.65            # Constant that governs cloud impact
 
     soldec = solPars[doy - 1, 3]  # Solar declination (rad)
-    eccorr = solPars[doy - 1, 2]  # Cccenctricy correction factor
+    eccorr = solPars[doy - 1, 2]  # Eccentricity correction factor
     tcorr = timecorr[doy - 1, 3]  # Time correction factor (deg)
 
     # Output files
-    swiasky = elvgrid.copy() + np.nan
-    swidiff = elvgrid.copy() + np.nan
+    swiasky = np.full_like(elvgrid, np.nan)
+    swidiff = np.full_like(elvgrid, np.nan)
 
     # Mixing ratio from RH and Pres
     mixing_interp = metpy.calc.mixing_ratio_from_relative_humidity(rhgrid * units.percent, tempgrid * units.kelvin, pgrid * units.hPa)
@@ -463,21 +468,22 @@ def calcRad(solPars, timecorr, doy, hour, lat, tempgrid, pgrid, rhgrid, cldgrid,
     stime = 180 + (STEP / 3600 * 15 / 2) - hour * 15 - tcorr + TCART
     sin_h = math.sin(soldec) * math.sin(lat * math.pi / 180) + math.cos(soldec) * math.cos(
         lat * math.pi / 180) * math.cos(stime * math.pi / 180)
-    mopt = 35 * (1224 * (sin_h) ** 2 + 1) ** (-0.5)
     if sin_h < 0:
         mopt = np.nan
+    else:
+        mopt = 35 * (1224 * sin_h ** 2 + 1) ** (-0.5)
 
     if sin_h > 0.01:  # Calculations are only performed when sun is there
 
         # Direct & diffuse radiation under clear-sky conditions
-        TOAR = Sol0 * eccorr * sin_h
+        # TOAR = Sol0 * eccorr * sin_h
         TAUr = np.exp((-0.09030 * ((pgrid / 1013.25 * mopt) ** 0.84)) * (
                     1.0 + (pgrid / 1013.25 * mopt) - ((pgrid / 1013.25 * mopt) ** 1.01)))
         TAUg = np.exp(-0.0127 * mopt ** 0.26)
         k_aes = aesc2 * elvgrid + aesc1
         k_aes[k_aes > 1.0] = 1.0  # Aerosol factor: cannot be > 1
-        TAUa = k_aes ** (mopt)
-        TAUaa = 1.0 - (1.0 - alphss) * (1 - pgrid / 1013.25 * mopt + (pgrid / 1013.25 * mopt) ** (1.06)) * (1.0 - TAUa)
+        TAUa = k_aes ** mopt
+        TAUaa = 1.0 - (1.0 - alphss) * (1 - pgrid / 1013.25 * mopt + (pgrid / 1013.25 * mopt) ** 1.06) * (1.0 - TAUa)
         TAUw = 1.0 - 2.4959 * mopt * (46.5 * vp_interp / tempgrid) / (
             (1.0 + 79.034 * mopt * (46.5 * vp_interp / tempgrid)) ** 0.6828
             + 6.385 * mopt * (46.5 * vp_interp / tempgrid)
@@ -486,7 +492,7 @@ def calcRad(solPars, timecorr, doy, hour, lat, tempgrid, pgrid, rhgrid, cldgrid,
 
         sdir = Sol0 * eccorr * sin_h * taucs  # Direct solar radiation on horizontal surface, clear-sky
         Dcs = difra * Sol0 * eccorr * sin_h * TAUg * TAUw * TAUaa * (1 - TAUr * TAUa / TAUaa) / (
-                    1 - pgrid / 1013.25 * mopt + (pgrid / 1013.25 * mopt) ** (1.02))  # Diffuse solar radiation, clear sky
+                1 - pgrid / 1013.25 * mopt + (pgrid / 1013.25 * mopt) ** 1.02)  # Diffuse solar radiation, clear sky
         grcs = sdir + Dcs  # Potential clear-sky global radiation
 
         # Correction for slope and aspect (Iqbal 1983)
@@ -523,7 +529,7 @@ def calcRad(solPars, timecorr, doy, hour, lat, tempgrid, pgrid, rhgrid, cldgrid,
         # illu = elvgrid * 0.0
         illu = shad1yr[int(((doy - 1) * (86400 / STEP)) + (hour / (STEP / 3600))), :, :]
         swidir0[illu == 0.0] = 0.0
-        sdir[illu == 0.0] = 0.0
+        # sdir[illu == 0.0] = 0.0
 
         # Correction for cloud fraction
         swidiff[cldgrid > 0.0] = (
@@ -539,9 +545,9 @@ def calcRad(solPars, timecorr, doy, hour, lat, tempgrid, pgrid, rhgrid, cldgrid,
         swiasky[:, :] = swidir0 * (1 - (1 - dirovc) * cldgrid) + swidiff
         
     else:
-        TOAR = 0.0
+        # TOAR = 0.0
         swiasky[maskgrid == 1] = 0 * elvgrid[maskgrid == 1]
-        illu = 0.0 * elvgrid - 1
+        # illu = 0.0 * elvgrid - 1
 
     swiasky_ud = swiasky[::-1, :]
     return swiasky_ud
