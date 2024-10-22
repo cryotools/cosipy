@@ -9,9 +9,9 @@ def percolation(GRID, water: float, dt: int) -> float:
     Bucket method (Bartelt & Lehning, 2002).
 
     Args:
-        GRID (Grid): Glacier data mesh.
-        water: Melt water at the surface, [m w.e.q.].
-        dt: Integration time.
+        GRID (Grid): Glacier data structure.
+        water: Melt water at the surface, [|m w.e.| q.].
+        dt: Integration time [s].
 
     Returns:
         Percolated meltwater.
@@ -59,46 +59,30 @@ def percolation(GRID, water: float, dt: int) -> float:
                 + residual / GRID.get_node_height(idxNode + 1),
             )
 
-    """Runoff is equal to LWC in the last node & must be converted
-    from kg/m3 to kg/m2. Converting from fraction to kg/m3 (*1000) and
-    from mm to m (/1000) is unnecessary."""
-    Q = GRID.get_node_liquid_water_content(
-        GRID.number_nodes - 1
-    ) * GRID.get_node_height(GRID.number_nodes - 1)
-    GRID.set_node_liquid_water_content(GRID.number_nodes - 1, 0.0)
+    Q = get_runoff(GRID)
 
     return Q
 
 
 @njit
-def check_lwc_conservation(GRID, start_lwc: float, runoff: float, dt: float):
-    """Check total liquid water content is conserved.
+def get_runoff(grid) -> float:
+    """Get meltwater runoff for a column.
+
+    Runoff is equal to LWC in the last node & must be converted
+    from kg/m3 to kg/m2. Converting from fraction to kg/m3 (\\*1000) and
+    from mm to m (/1000) is unnecessary.
 
     Args:
-        GRID (Grid): Glacier data mesh.
-        start_lwc: Initial total liquid water content.
-        runoff: Meltwater runoff from the lowest node.
-        dt: Integration time [s].
+        grid (Grid): Glacier data structure.
+
+    Returns:
+        Meltwater runoff.
     """
 
-    end_lwc = (
-        np.nansum(
-            np.array(GRID.get_liquid_water_content())
-            * np.array(GRID.get_height())
-        )
-        + runoff
-    )
+    max_index = grid.number_nodes - 1
+    runoff = grid.get_node_liquid_water_content(
+        max_index
+    ) * grid.get_node_height(max_index)
+    grid.set_node_liquid_water_content(max_index, 0.0)
 
-    if not np.isclose(start_lwc, end_lwc):
-        if (
-            GRID.new_snow_timestamp == 0.0
-        ):  # can't index xarrays directly with njit
-            snow_time = GRID.old_snow_timestamp
-        else:
-            snow_time = GRID.new_snow_timestamp
-        timestep = snow_time / dt
-        delta = start_lwc - end_lwc
-        warn_sanity = "\nWARNING: When percolating, the initial LWC is not equal to final LWC"
-        # numba doesn't support warnings, and we don't want to raise an error
-        print(f"{warn_sanity} at timestep {int(timestep)}. dLWC:")
-        print(delta)
+    return runoff
