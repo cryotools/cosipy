@@ -469,18 +469,17 @@ class Grid:
                 idx += 1
 
         # Remesh ice
-        min_ice_idx = max(1,self.get_number_snow_layers())   #remeshing layer 0 done by correct_layer above
+        # remeshing layer 0 done by correct_layer above
+        min_ice_idx = max(1, self.get_number_snow_layers())
         # Ensure top ice layer has first_layer_height when thin snow layers will be removed in update_grid
-        if( (min_ice_idx == 1) & (self.get_node_height(0) < first_layer_height) ):
-             self.correct_layer(min_ice_idx, first_layer_height)
-             min_ice_idx += 1
+        if (min_ice_idx == 1) & (self.get_node_height(0) < first_layer_height):
+            self.correct_layer(min_ice_idx, first_layer_height)
+            min_ice_idx += 1
 
         idx = min_ice_idx
-        while ((idx < self.get_number_layers()-1)):
-        # Correct first layer
-
-
-            if (self.get_node_height(idx)<minimum_snow_layer_height):
+        while idx < self.get_number_layers() - 1:
+            # Correct first layer
+            if self.get_node_height(idx) < minimum_snow_layer_height:
                 self.merge_nodes(idx)
             else:
                 idx += 1
@@ -604,12 +603,12 @@ class Grid:
             self.get_node_density(idx + 1) >= snow_ice_threshold
         ):
             # Update node properties
-            first_layer_height = self.get_node_height(idx) * (
+            surface_layer_height = self.get_node_height(idx) * (
                 self.get_node_density(idx) / ice_density
             )
             self.update_node(
                 idx + 1,
-                self.get_node_height(idx + 1) + first_layer_height,
+                self.get_node_height(idx + 1) + surface_layer_height,
                 self.get_node_temperature(idx + 1),
                 self.get_node_ice_fraction(idx + 1),
                 0.0,
@@ -635,7 +634,7 @@ class Grid:
         """
         lwc_from_layers = 0.0
 
-        while melt > 0.0 and idx <self.number_nodes:
+        while melt > 0.0 and idx < self.number_nodes:
             # Get SWE of layer
             SWE = self.get_node_height(idx) * (
                 self.get_node_density(idx) / water_density
@@ -935,9 +934,9 @@ class Grid:
     def get_depth(self):
         """Get a depth profile."""
         h = np.array(self.get_height())
-        z = np.array(self.get_height())
+        z = np.empty_like(h)  # faster than copy
         z[0] = 0.5 * h[0]
-        z[1:] = np.cumsum(h[:-1]) + 0.5 * h[1:]
+        z[1:] = np.cumsum(h[:-1]) + (0.5 * h[1:])
 
         return [z[idx] for idx in range(self.number_nodes)]
 
@@ -1048,14 +1047,17 @@ class Grid:
         pass
 
     def check_layer_property(
-        self, property, name, maximum, minimum, n=-999, level=1
+        self, layer_property, name, maximum, minimum, n=-999, level=1
     ):
-        if np.nanmax(property) > maximum or np.nanmin(property) < minimum:
+        if (
+            np.nanmax(layer_property) > maximum
+            or np.nanmin(layer_property) < minimum
+        ):
             print(
                 str.capitalize(name),
                 "max",
-                np.nanmax(property),
+                np.nanmax(layer_property),
                 "min",
-                np.nanmin(property),
+                np.nanmin(layer_property),
             )
             os._exit()
