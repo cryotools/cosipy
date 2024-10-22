@@ -1,4 +1,4 @@
-aws2cosipy
+﻿aws2cosipy
 ==========
 
 .. currentmodule:: cosipy.utilities
@@ -30,5 +30,5 @@ aws2cosipy
    :template: custom-module.rst
    :recursive:
 
-   ~cosipy.utilities.aws2cosipy.aws2cosipy
+   ~aws2cosipy
 

@@ -19,6 +19,7 @@ densification
    
       copy_layer_profiles
       densification
+      log_fraction_warning
       method_Boone
       method_Vionnet
       method_empirical

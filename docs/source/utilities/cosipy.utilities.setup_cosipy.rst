@@ -1,4 +1,4 @@
-setup\_cosipy
+﻿setup\_cosipy
 =============
 
 .. currentmodule:: cosipy.utilities
@@ -30,5 +30,5 @@ setup\_cosipy
    :template: custom-module.rst
    :recursive:
 
-   ~cosipy.utilities.setup_cosipy.setup_cosipy
+   ~setup_cosipy
 

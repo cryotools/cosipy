@@ -1,4 +1,4 @@
-profile\_plots
+﻿profile\_plots
 ==============
 
 .. currentmodule:: cosipy.postprocessing
@@ -30,5 +30,5 @@ profile\_plots
    :template: custom-module.rst
    :recursive:
 
-   ~cosipy.postprocessing.profile_plots.plot_profiles
+   ~plot_profiles
 

@@ -23,13 +23,21 @@ def updateAlbedo(
 ) -> tuple:
     """Update the surface albedo.
 
+    Implemented albedo methods:
+
+        - **Oerlemans98**: Oerlemans & Knap (1998)
+        - **Bougamont05**: Bougamont et al. (2005)
+
     Args:
         GRID (Grid): Glacier data structure.
         surface_temperature: Surface temperature.
         albedo_snow: Initial snow albedo.
 
     Returns:
-        Updated surface albedo and snow albedo.
+        tuple[float,float]: Updated surface albedo and snow albedo.
+
+    Raises:
+        NotImplementedError: Albedo method is not allowed.
     """
 
     albedo_allowed = ["Oerlemans98", "Bougamont05"]

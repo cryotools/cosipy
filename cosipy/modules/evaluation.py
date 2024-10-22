@@ -4,13 +4,17 @@ from cosipy.config import Config
 def evaluate(stake_names, stake_data, df):
     """Evaluate the simulation using stake measurements.
 
+    Implemented stake evaluation methods:
+
+        - **rmse**: RMSE of simulated mass balance.
+
     Args:
         stake_names (list): Stake IDs.
         stake_data (pd.Dataframe): Stake measurements.
         df (pd.Dataframe): Simulated mass balance and snow height.
 
     Returns:
-        Statistical evaluation.
+        float or None: Statistical evaluation.
     """
 
     if Config.eval_method == "rmse":

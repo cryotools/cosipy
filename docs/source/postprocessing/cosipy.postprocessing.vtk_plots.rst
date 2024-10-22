@@ -1,4 +1,4 @@
-vtk\_plots
+﻿vtk\_plots
 ==========
 
 .. currentmodule:: cosipy.postprocessing
@@ -30,5 +30,5 @@ vtk\_plots
    :template: custom-module.rst
    :recursive:
 
-   ~cosipy.postprocessing.vtk_plots.plot_cosipy_fields_vtk
+   ~plot_cosipy_fields_vtk
 

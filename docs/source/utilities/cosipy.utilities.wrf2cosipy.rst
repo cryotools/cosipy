@@ -1,4 +1,4 @@
-wrf2cosipy
+﻿wrf2cosipy
 ==========
 
 .. currentmodule:: cosipy.utilities
@@ -30,5 +30,5 @@ wrf2cosipy
    :template: custom-module.rst
    :recursive:
 
-   ~cosipy.utilities.wrf2cosipy.wrf2cosipy
+   ~wrf2cosipy
 

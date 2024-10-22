@@ -1,7 +1,20 @@
 from cosipy.constants import Constants
 
 
-def updateRoughness(GRID):
+def updateRoughness(GRID) -> float:
+    """Update the surface roughness length.
+
+    Implemented methods:
+
+        - **Moelg12**: Linear increase in snow roughness length over
+          time. From Mölg et al. (2009).
+
+    Args:
+        GRID (Grid): Glacier data structure.
+
+    Returns:
+        Updated surface roughness length [mm].
+    """
 
     roughness_allowed = ["Moelg12"]
     if Constants.roughness_method == "Moelg12":

@@ -69,7 +69,7 @@ def get_runoff(grid) -> float:
     """Get meltwater runoff for a column.
 
     Runoff is equal to LWC in the last node & must be converted
-    from kg/m3 to kg/m2. Converting from fraction to kg/m3 (*1000) and
+    from kg/m3 to kg/m2. Converting from fraction to kg/m3 (\\*1000) and
     from mm to m (/1000) is unnecessary.
 
     Args:

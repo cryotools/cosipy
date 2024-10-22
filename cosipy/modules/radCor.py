@@ -13,7 +13,7 @@ def solarFParallel(lat:float, lon:float, timezone_lon:float, day:int, hour:float
         lat: Latitude [decimal degree].
         lon: Longitude [decimal degree].
         timezone_lon: Longitude of standard meridian [decimal degree].
-        doy: Day of the year (1-366).
+        day: Day of the year (1-366).
         hour: Hour of the day (decimal, e.g. 12:30 = 12.5).
         
     Returns:
@@ -110,10 +110,13 @@ def radCor2D(doy, zeni, azi, angslo, azislo, Rm, zeni_thld):
     Based on Ham (2005).
     
     .. note::
-        Ham, J.M. (2005) Useful equations and tables in micrometeorology.
-        In: Hatfield, J.L., Baker, J.M., Viney, M.K. (Eds.), Micrometeorology in Agricultural Systems.
-        American Society of Agronomy Inc.; Crop Science Society of America Inc.;
-        Soil Science Society of America Inc., Madison, Wisconsin, USA, pp. 533560.
+        Ham, J.M. (2005) Useful equations and tables in
+        micrometeorology.
+        In: Hatfield, J.L., Baker, J.M., Viney, M.K. (Eds.),
+        Micrometeorology in Agricultural Systems. American Society of
+        Agronomy Inc.; Crop Science Society of America Inc.; Soil
+        Science Society of America Inc., Madison, Wisconsin, USA,
+        pp. 533560.
         
     Args:
         doy (int): Day of year.
@@ -157,7 +160,7 @@ def correctRadiation(lat, lon, timezone_lon, doy, hour, angslo, azislo, Rm, zeni
     return Rc
 
 
-# The following functions are needed for radiation method Moelg2009
+"""The following functions are needed for radiation method Moelg2009"""
 def solpars(lat):
     """Calculate time corrections.
     
@@ -215,7 +218,7 @@ def solpars(lat):
     return solparam, timecorr
 
 
-def haversine(lat1, lon1, lat2, lon2):
+def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Get the distance between two points using the haversine formula."""
 
     lat1_rad = math.radians(lat1)
@@ -289,7 +292,7 @@ def relshad(dem, mask, lats, lons, solh, sdirfn):
                 # Calculate ALTITUDE along profile
                 zi = z[y_list.astype(int), x_list.astype(int)]
 
-                # Calclulate DISTANCE along profile
+                # Calculate DISTANCE along profile
                 d_list = []
                 for j in range(len(lat_list_short)):
                     lat_p = lat_list_short[j]
@@ -372,7 +375,7 @@ def LUTsvf(elvgrid, maskgrid, slopegrid, aspectgrid, lats, lons):
 
     Args:
         elvgrid: DEM.
-        maksgrid: Glacier mask.
+        maskgrid: Glacier mask.
         slopegrid: Slope.
         aspectgrid: Aspect.
         lats: Latitudinal coordinates.
@@ -412,7 +415,7 @@ def calcRad(solPars, timecorr, doy, hour, lat, tempgrid, pgrid, rhgrid, cldgrid,
     based on Mölg et al. (2009), Iqbal (1983), Hastenrath (1984).
 
     Args:
-        solpars: Solar parameters.
+        solPars: Solar parameters.
         timecorr: Time correction due to orbital forcing.
         doy: Day of year.
         hour: Hour of day.

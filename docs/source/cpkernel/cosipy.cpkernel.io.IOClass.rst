@@ -1,4 +1,4 @@
-IOClass
+﻿IOClass
 =======
 
 .. currentmodule:: cosipy.cpkernel.io
@@ -45,16 +45,17 @@ IOClass
       ~IOClass.add_variable_along_time
       ~IOClass.copy_local_restart_to_global
       ~IOClass.copy_local_to_global
+      ~IOClass.create_2d_nan_array
       ~IOClass.create_data_file
       ~IOClass.create_empty_restart
       ~IOClass.create_global_restart_arrays
       ~IOClass.create_global_result_arrays
       ~IOClass.create_grid_restart
       ~IOClass.create_local_restart_dataset
+      ~IOClass.create_nan_array
       ~IOClass.create_restart_file
       ~IOClass.create_result_file
       ~IOClass.get_grid_restart
-      ~IOClass.get_output_structure
       ~IOClass.get_restart
       ~IOClass.get_result
       ~IOClass.get_result_metadata

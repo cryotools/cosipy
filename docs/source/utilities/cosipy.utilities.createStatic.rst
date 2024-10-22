@@ -1,4 +1,4 @@
-createStatic
+﻿createStatic
 ============
 
 .. currentmodule:: cosipy.utilities
@@ -30,5 +30,5 @@ createStatic
    :template: custom-module.rst
    :recursive:
 
-   ~cosipy.utilities.createStatic.create_static_file
+   ~create_static_file
 

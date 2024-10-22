@@ -12,7 +12,22 @@ snow_ice_threshold = Constants.snow_ice_threshold
 lat_heat_melting = Constants.lat_heat_melting
 
 
-def penetrating_radiation(GRID, SWnet, dt):
+def penetrating_radiation(GRID, SWnet: float, dt: int):
+    """Get the penetrating shortwave radiation.
+
+    Implemented methods:
+
+        - **Bintanja95**: Bintanja & Van Den Broeke (1995)
+
+    Args:
+        GRID (Grid): Glacier data structure.
+        SWnet: Incoming net shortwave radiation.
+        dt: Integration time [s].
+
+    Returns:
+        tuple[float,float]: Subsurface melt and penetrating shortwave
+        radiation.
+    """
     penetrating_allowed = ["Bintanja95"]
     if Constants.penetrating_method == "Bintanja95":
         subsurface_melt, Si = method_Bintanja(GRID, SWnet, dt)
@@ -24,8 +39,20 @@ def penetrating_radiation(GRID, SWnet, dt):
 
 
 @njit
-def method_Bintanja(GRID, SWnet, dt) -> tuple:
+def method_Bintanja(GRID, SWnet: float, dt: int) -> tuple:
+    """Get the penetrating shortwave radiation.
 
+    Adapted from Bintanja & Van Den Broeke (1995).
+
+    Args:
+        GRID (Grid): Glacier data structure.
+        SWnet: Incoming net shortwave radiation.
+        dt: Integration time [s].
+
+    Returns:
+        tuple[float,float]: Subsurface melt and penetrating shortwave
+        radiation.
+    """
     subsurface_melt = 0.0  # Store the total subsurface melt
 
     # Absorption of shortwave radiation

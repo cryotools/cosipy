@@ -17,7 +17,7 @@ percolation
       :toctree:
       :template: custom-function.rst
    
-      check_lwc_conservation
+      get_runoff
       percolation
    
    

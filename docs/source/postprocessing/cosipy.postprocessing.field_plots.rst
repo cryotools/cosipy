@@ -1,4 +1,4 @@
-field\_plots
+﻿field\_plots
 ============
 
 .. currentmodule:: cosipy.postprocessing
@@ -30,5 +30,5 @@ field\_plots
    :template: custom-module.rst
    :recursive:
 
-   ~cosipy.postprocessing.field_plots.plot_cosipy_fields
+   ~plot_cosipy_fields
 

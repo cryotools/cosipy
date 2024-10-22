@@ -1,4 +1,4 @@
-cosipy\_core
+﻿cosipy\_core
 ============
 
 .. currentmodule:: cosipy.cpkernel
@@ -18,6 +18,8 @@ cosipy\_core
       :template: custom-function.rst
    
       cosipy_core
+      init_empty_array_1d
+      init_empty_array_2d
    
    
 

@@ -1,4 +1,4 @@
-init
+﻿init
 ====
 
 .. currentmodule:: cosipy.cpkernel
@@ -17,6 +17,7 @@ init
       :toctree:
       :template: custom-function.rst
    
+      create_grid_jitted
       init_snowpack
       load_snowpack
    

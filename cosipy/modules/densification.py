@@ -13,6 +13,15 @@ zero_temperature = Constants.zero_temperature
 def densification(GRID, SLOPE, dt):
     """Apply densification to the snowpack.
 
+    Implemented densification methods:
+
+        - **Boone**: Densification through overburden pressure. Essery
+          et al. (2013).
+        - **Vionnet**: Densification through overburden stress. Vionnet
+          et al. (2011).
+        - **empirical**: Empirical compaction with constant time scale.
+        - **constant**: Constant density (no compaction).
+
     Args:
         GRID (Grid): Glacier data structure.
         SLOPE (np.ndarray): Slope of the surface [|degree|].

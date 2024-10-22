@@ -157,8 +157,8 @@ class Grid:
             # Ignore impact of small snowfall on fresh snow layer properties
             self.set_fresh_snow_props_update_time(dt)
         else:
-           # Set the fresh snow properties for albedo calculation (height and timestamp)
-           self.set_fresh_snow_props(height)
+            # Set the fresh snow properties for albedo calculation (height and timestamp)
+            self.set_fresh_snow_props(height)
 
     def remove_node(self, idx: list = None):
         """Remove a layer (node) from the grid (node list).
@@ -432,11 +432,11 @@ class Grid:
         merged if:
 
         (1) the density difference between one layer and the next is
-        smaller than the user defined threshold.
+            smaller than the user defined threshold.
         (2) the temperature difference is smaller than the user defined
-        threshold.
+            threshold.
         (3) the number of merges per time step does not exceed the user
-        defined threshold.
+            defined threshold.
 
         The thresholds are defined by ``temperature_threshold_merging``,
         ``density_threshold_merging``, and ``merge_max`` in

@@ -30,7 +30,7 @@
    :template: custom-module.rst
    :recursive:
 
-   ~cosipy.postprocessing.field_plots
-   ~cosipy.postprocessing.profile_plots
-   ~cosipy.postprocessing.vtk_plots
+   ~field_plots
+   ~profile_plots
+   ~vtk_plots
 
