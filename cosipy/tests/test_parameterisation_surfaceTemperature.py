@@ -3,7 +3,6 @@ import pytest
 
 import cosipy.modules.surfaceTemperature as module_surface_temperature
 from cosipy.constants import Constants
-from cosipy.modules.surfaceTemperature import update_surface_temperature
 
 
 class TestParamSurfaceTemperature:
@@ -57,9 +56,15 @@ class TestParamSurfaceTemperature:
     ):
         conftest_boilerplate.patch_variable(
             monkeypatch,
+            Constants,
+            {"sfc_temperature_method": arg_optim},
+        )
+        conftest_boilerplate.patch_variable(
+            monkeypatch,
             module_surface_temperature.Constants,
             {"sfc_temperature_method": arg_optim},
         )
+
         test_grid = conftest_mock_grid
         bounds = (220.0, 330.0)
         (
@@ -183,7 +188,7 @@ class TestParamSurfaceTemperature:
             Cs_q,
             q0,
             q2,
-        ) = update_surface_temperature(
+        ) = module_surface_temperature.update_surface_temperature(
             # Old args: GRID, 0.6, (0.24 / 1000), 275, 0.6, 789, 1000, 4.5, 0.0, 0.1
             GRID=GRID,
             dt=3600,

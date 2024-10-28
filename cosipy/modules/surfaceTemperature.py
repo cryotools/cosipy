@@ -1,5 +1,3 @@
-from types import SimpleNamespace
-
 import numpy as np
 from numba import njit
 from scipy.optimize import minimize, newton
