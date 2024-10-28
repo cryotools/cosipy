@@ -107,6 +107,11 @@ def method_Boone(GRID, SLOPE, dt):
     """Densification through overburden pressure.
 
     After Essery et al., (2013).
+
+    Args:
+        GRID (Grid): Glacier data structure.
+        SLOPE (np.ndarray): Slope of the surface [|degree|].
+        dt (int): Integration time [s].
     """
 
     # Constants
@@ -166,6 +171,11 @@ def method_Vionnet(GRID, SLOPE, dt):
     """Densification through overburden stress.
 
     After Vionnet et al., (2011).
+
+    Args:
+        GRID (Grid): Glacier data structure.
+        SLOPE (np.ndarray): Slope of the surface [|degree|].
+        dt (int): Integration time [s].
     """
 
     # Constants
@@ -226,7 +236,13 @@ def method_Vionnet(GRID, SLOPE, dt):
 
 
 def method_empirical(GRID, SLOPE, dt):
-    """Empirical snow compaction using a constant time scale."""
+    """Empirical snow compaction using a constant time scale.
+    
+    Args:
+        GRID (Grid): Glacier data structure.
+        SLOPE (np.ndarray): Slope of the surface [|degree|].
+        dt (int): Integration time [s].
+    """
 
     rho_max = 600.0  # maximum attainable density [kg m^-3]
     #tau = 3.6e5  # empirical compaction time scale [s]

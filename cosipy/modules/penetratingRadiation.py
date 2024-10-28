@@ -50,7 +50,7 @@ def method_Bintanja(GRID, SWnet: float, dt: int) -> tuple:
         dt: Integration time [s].
 
     Returns:
-        tuple[float,float]: Subsurface melt and penetrating shortwave
+        tuple[float, float]: Subsurface melt and penetrating shortwave
         radiation.
     """
     subsurface_melt = 0.0  # Store the total subsurface melt

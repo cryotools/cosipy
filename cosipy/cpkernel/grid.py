@@ -692,7 +692,7 @@ class Grid:
         """Update the timestamp of the snow properties.
 
         Args:
-            seconds : seconds without snowfall [s].
+            seconds: seconds without snowfall [s].
         """
         self.old_snow_timestamp = self.old_snow_timestamp + seconds
         # Set the timestamp to zero
@@ -706,11 +706,16 @@ class Grid:
         """
         self.new_snow_height = height
 
-    def get_fresh_snow_props(self):
+    def get_fresh_snow_props(self) -> tuple:
         """Get the first snow layer's properties.
 
         This is used internally to track the albedo properties of the
         first snow layer.
+
+        Returns:
+            First snow layer's updated height, time elapsed since the
+            last snowfall, and the time elapsed between the last and
+            penultimate snowfall.
         """
         return (
             self.new_snow_height,
@@ -776,7 +781,7 @@ class Grid:
         for idx in range(self.number_nodes):
             self.grid[idx].set_layer_refreeze(refreeze[idx])
 
-    def get_temperature(self):
+    def get_temperature(self) -> list:
         """Get the temperature profile."""
         return [
             self.grid[idx].get_layer_temperature()
@@ -787,7 +792,7 @@ class Grid:
         """Get a node's temperature."""
         return self.grid[idx].get_layer_temperature()
 
-    def get_specific_heat(self):
+    def get_specific_heat(self) -> list:
         """Get the specific heat capacity profile (air+water+ice)."""
         return [
             self.grid[idx].get_layer_specific_heat()
@@ -798,21 +803,21 @@ class Grid:
         """Get a node's specific heat capacity (air+water+ice)."""
         return self.grid[idx].get_layer_specific_heat()
 
-    def get_height(self):
+    def get_height(self) -> list:
         """Get the heights of all the layers."""
         return [
             self.grid[idx].get_layer_height()
             for idx in range(self.number_nodes)
         ]
 
-    def get_snow_heights(self):
+    def get_snow_heights(self) -> list:
         """Get the heights of the snow layers."""
         return [
             self.grid[idx].get_layer_height()
             for idx in range(self.get_number_snow_layers())
         ]
 
-    def get_ice_heights(self):
+    def get_ice_heights(self) -> list:
         """Get the heights of the ice layers."""
         return [
             self.grid[idx].get_layer_height()
@@ -828,7 +833,7 @@ class Grid:
         """Get a node's density."""
         return self.grid[idx].get_layer_density()
 
-    def get_density(self):
+    def get_density(self) -> list:
         """Get the density profile."""
         return [
             self.grid[idx].get_layer_density()
@@ -839,7 +844,7 @@ class Grid:
         """Get a node's liquid water content."""
         return self.grid[idx].get_layer_liquid_water_content()
 
-    def get_liquid_water_content(self):
+    def get_liquid_water_content(self) -> list:
         """Get a profile of the liquid water content."""
         return [
             self.grid[idx].get_layer_liquid_water_content()
@@ -850,7 +855,7 @@ class Grid:
         """Get a node's ice fraction."""
         return self.grid[idx].get_layer_ice_fraction()
 
-    def get_ice_fraction(self):
+    def get_ice_fraction(self) -> list:
         """Get a profile of the ice fraction."""
         return [
             self.grid[idx].get_layer_ice_fraction()
@@ -861,7 +866,7 @@ class Grid:
         """Get a node's irreducible water content."""
         return self.grid[idx].get_layer_irreducible_water_content()
 
-    def get_irreducible_water_content(self):
+    def get_irreducible_water_content(self) -> list:
         """Get a profile of the irreducible water content."""
         return [
             self.grid[idx].get_layer_irreducible_water_content()
@@ -872,7 +877,7 @@ class Grid:
         """Get a node's cold content."""
         return self.grid[idx].get_layer_cold_content()
 
-    def get_cold_content(self):
+    def get_cold_content(self) -> list:
         """Get the cold content profile."""
         return [
             self.grid[idx].get_layer_cold_content()
@@ -883,7 +888,7 @@ class Grid:
         """Get a node's porosity."""
         return self.grid[idx].get_layer_porosity()
 
-    def get_porosity(self):
+    def get_porosity(self) -> list:
         """Get the porosity profile."""
         return [
             self.grid[idx].get_layer_porosity()
@@ -894,7 +899,7 @@ class Grid:
         """Get a node's thermal conductivity."""
         return self.grid[idx].get_layer_thermal_conductivity()
 
-    def get_thermal_conductivity(self):
+    def get_thermal_conductivity(self) -> list:
         """Get the thermal conductivity profile."""
         return [
             self.grid[idx].get_layer_thermal_conductivity()
@@ -905,7 +910,7 @@ class Grid:
         """Get a node's thermal diffusivity."""
         return self.grid[idx].get_layer_thermal_diffusivity()
 
-    def get_thermal_diffusivity(self):
+    def get_thermal_diffusivity(self) -> list:
         """Get the thermal diffusivity profile."""
         return [
             self.grid[idx].get_layer_thermal_diffusivity()
@@ -916,7 +921,7 @@ class Grid:
         """Get the amount of refrozen water in a node."""
         return self.grid[idx].get_layer_refreeze()
 
-    def get_refreeze(self):
+    def get_refreeze(self) -> list:
         """Get the profile of refrozen water."""
         return [
             self.grid[idx].get_layer_refreeze()
@@ -931,7 +936,7 @@ class Grid:
                 d = d + self.get_node_height(i)
         return d
 
-    def get_depth(self):
+    def get_depth(self) -> list:
         """Get a depth profile."""
         h = np.array(self.get_height())
         z = np.empty_like(h)  # faster than copy

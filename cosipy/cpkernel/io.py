@@ -16,7 +16,13 @@ from cosipy.constants import Constants
 class IOClass:
 
     def __init__(self, DATA=None):
-        """Initialise the IO Class."""
+        """Initialise the IO Class.
+        
+        Attributes:
+            DATA (xarray.Dataset or None): Meteorological data.
+            RESTART (xarray.Dataset or None): Restart file data.
+            RESULT (xarray.Dataset or None): Model result data.
+        """
 
         # Initialize data
         self.DATA = DATA
@@ -90,10 +96,25 @@ class IOClass:
         """
         return self.GRID_RESTART
 
-    def create_nan_array(self):
+    def create_nan_array(self) -> np.ndarray:
+        """Create and fill a NaN array with time, (x,y) dimensions.
+        
+        Returns:
+            Filled array with time and 2D spatial coordinates.
+        """
+
         return np.full((self.time, self.ny, self.nx), np.nan)
 
-    def create_2d_nan_array(self, max_layers):
+    def create_3d_nan_array(self, max_layers: int) -> np.ndarray:
+        """Create and fill a NaN array with time, (x,y,z) dimensions.
+
+        Args:
+            The maximum number of model layers.
+
+        Returns:
+            Filled array with time and 3D spatial coordinates.
+        """
+
         return np.full((self.time, self.ny, self.nx, max_layers), np.nan)
 
     def init_data_dataset(self):
@@ -176,7 +197,13 @@ class IOClass:
 
  
     def get_result_metadata(self) -> tuple:
-        """Get variable names and units."""
+        """Get variable names and units.
+        
+        Returns:
+            tuple[dict, dict]: Metadata for spatial and spatiotemporal
+            variables, which includes netCDF keyname, unit, and long
+            name.
+        """
         metadata_spatial = {
             "HGT": ("m", "Elevation"),
             "MASK": ("boolean", "Glacier mask"),
@@ -362,15 +389,15 @@ class IOClass:
 
         if Config.full_field:
             max_layers = Constants.max_layers  # faster lookup
-            self.LAYER_HEIGHT = self.create_2d_nan_array(max_layers)
-            self.LAYER_RHO = self.create_2d_nan_array(max_layers)
-            self.LAYER_T = self.create_2d_nan_array(max_layers)
-            self.LAYER_LWC = self.create_2d_nan_array(max_layers)
-            self.LAYER_CC = self.create_2d_nan_array(max_layers)
-            self.LAYER_POROSITY = self.create_2d_nan_array(max_layers)
-            self.LAYER_ICE_FRACTION = self.create_2d_nan_array(max_layers)
-            self.LAYER_IRREDUCIBLE_WATER = self.create_2d_nan_array(max_layers)
-            self.LAYER_REFREEZE = self.create_2d_nan_array(max_layers)
+            self.LAYER_HEIGHT = self.create_3d_nan_array(max_layers)
+            self.LAYER_RHO = self.create_3d_nan_array(max_layers)
+            self.LAYER_T = self.create_3d_nan_array(max_layers)
+            self.LAYER_LWC = self.create_3d_nan_array(max_layers)
+            self.LAYER_CC = self.create_3d_nan_array(max_layers)
+            self.LAYER_POROSITY = self.create_3d_nan_array(max_layers)
+            self.LAYER_ICE_FRACTION = self.create_3d_nan_array(max_layers)
+            self.LAYER_IRREDUCIBLE_WATER = self.create_3d_nan_array(max_layers)
+            self.LAYER_REFREEZE = self.create_3d_nan_array(max_layers)
    
 
     def copy_local_to_global(self,y,x,local_RAIN,local_SNOWFALL,local_LWin,local_LWout,local_H,local_LE,local_B,local_QRR,
@@ -379,12 +406,7 @@ class IOClass:
                              local_DEPOSITION,local_REFREEZE,local_subM,local_Z0,local_surfM,local_MOL,local_LAYER_HEIGHT, \
                              local_LAYER_RHO,local_LAYER_T,local_LAYER_LWC,local_LAYER_CC,local_LAYER_POROSITY, \
                              local_LAYER_ICE_FRACTION,local_LAYER_IRREDUCIBLE_WATER,local_LAYER_REFREEZE):
-        """Copy the local results from workers to global numpy arrays.
-
-        Args:
-            y: Latitude index.
-            x: Longitude index.
-        """
+        """Copy the local results from workers to global numpy arrays."""
         self.RAIN[:,y,x] = local_RAIN
         self.SNOWFALL[:,y,x] = local_SNOWFALL
         self.LWin[:,y,x] = local_LWin
@@ -792,7 +814,7 @@ class IOClass:
         Returns:
             xr.Dataset: Target dataset with the new layer data.
         """
-        ds[name] = (('layer'), var.data)
+        ds[name] = ('layer', var.data)
         ds[name].attrs['units'] = units
         ds[name].attrs['long_name'] = long_name
         ds[name].encoding['_FillValue'] = -9999

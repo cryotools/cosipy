@@ -18,8 +18,8 @@
       :template: custom-function.rst
    
       cosipy_core
-      init_empty_array_1d
-      init_empty_array_2d
+      init_nan_array_1d
+      init_nan_array_2d
    
    
 

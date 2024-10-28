@@ -13,7 +13,18 @@ snow_ice_threshold = Constants.snow_ice_threshold
 
 
 @njit
-def check_oob(ice_fraction, lwc):
+def check_oob(ice_fraction: float, lwc: float):
+    """Check layer mass is conserved.
+
+    Args:
+        ice_fraction: Layer's volumetric ice fraction.
+        lwc: Layer's liquid water content.
+
+    Raises:
+        ValueError: Ice fraction out of bounds.
+        ValueError: Liquid water content out of bounds.
+    """
+
     if not 0.0 <= ice_fraction <= 1.0:
         raise ValueError("Ice fraction OOB")
     elif not 0.0 <= lwc <= 1.0:
@@ -21,7 +32,7 @@ def check_oob(ice_fraction, lwc):
 
 
 @njit
-def refreezing(GRID):
+def refreezing(GRID) -> float:
     """Refreeze water in layers.
 
     This approach is adapted from Bartelt & Lehning (2002).
@@ -97,7 +108,7 @@ def refreezing(GRID):
         GRID (Grid): Glacier data structure.
 
     Returns:
-        float: Refrozen water, [|m w.e.|].
+        Refrozen water, [|m w.e.|].
     """
 
     # Maximum snow fractional ice content:

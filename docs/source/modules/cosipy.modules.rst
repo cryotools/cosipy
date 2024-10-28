@@ -40,5 +40,6 @@
    ~refreezing
    ~roughness
    ~secant
+   ~secant_old
    ~surfaceTemperature
 

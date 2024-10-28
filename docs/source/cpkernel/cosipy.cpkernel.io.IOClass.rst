@@ -45,7 +45,7 @@
       ~IOClass.add_variable_along_time
       ~IOClass.copy_local_restart_to_global
       ~IOClass.copy_local_to_global
-      ~IOClass.create_2d_nan_array
+      ~IOClass.create_3d_nan_array
       ~IOClass.create_data_file
       ~IOClass.create_empty_restart
       ~IOClass.create_global_restart_arrays

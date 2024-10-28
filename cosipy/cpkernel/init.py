@@ -8,6 +8,9 @@ from cosipy.cpkernel.grid import Grid
 def init_snowpack(DATA):
     """Initialise the snowpack.
 
+    Args:
+        DATA (xarray.Dataset): Glacier data for a single grid point.
+
     Returns:
         Grid: Initialised glacier data structure with snowpack.
     """
@@ -155,7 +158,11 @@ def create_grid_jitted(
     new_snow_timestamp: float,
     old_snow_timestamp: float,
 ):
-    """Create Grid with JIT."""
+    """Create Grid with JIT.
+    
+    Returns:
+        Grid: Glacier data structure.
+    """
 
     GRID = Grid(
         layer_heights,

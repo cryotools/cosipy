@@ -36,6 +36,9 @@ def method_Moelg(GRID) -> float:
     snow linearly increases from 0.24 (fresh snow) to 4 (firn) in
     60 days (1440 hours) i.e. (4-0.24)/1440 = 0.0026.
 
+    Args:
+        GRID (Grid): Glacier data structure.
+
     Returns:
         Surface roughness length, [mm]
     """

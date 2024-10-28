@@ -16,7 +16,15 @@ from cosipy.modules.roughness import updateRoughness
 from cosipy.modules.surfaceTemperature import update_surface_temperature
 
 
-def init_empty_array_1d(nt: int):
+def init_nan_array_1d(nt: int) -> np.ndarray:
+    """Initialise and fill an array with NaNs.
+    
+    Args:
+        nt: Array size (time dimension).
+
+    Returns:
+        NaN array.
+    """
     if not Config.WRF_X_CSPY:
         x = np.full(nt, np.nan)
     else:
@@ -24,7 +32,17 @@ def init_empty_array_1d(nt: int):
 
     return x
 
-def init_empty_array_2d(nt: int, max_layers:int):
+
+def init_nan_array_2d(nt: int, max_layers: int) -> np.ndarray:
+    """Initialise and fill an array with NaNs.
+    
+    Args:
+        nt: Array's temporal resolution.
+        max_layers: Array's spatial resolution.
+
+    Returns:
+        2D NaN array.
+    """
     if not Config.WRF_X_CSPY and Config.full_field:
         x = np.full((nt, max_layers), np.nan)
     else:
@@ -72,57 +90,61 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
     WRF_X_CSPY = Config.WRF_X_CSPY
 
     # Replace values from constants.py if coupled
+    # TODO: This only affects the current module scope instead of global.
     if WRF_X_CSPY:
         dt = int(DATA.DT.values)
         max_layers = int(DATA.max_layers.values)
         z = float(DATA.ZLVL.values)
 
 
-    nt = len(DATA.time.values)         #accessing DATA is expensive
-    # Local variables -- bypass local array creation for WRF_X_CSPY until more elegant solution is implemented
+    nt = len(DATA.time.values)  # accessing DATA is expensive
+    """
+    Local variables bypass local array creation for WRF_X_CSPY
+    TODO: Implement more elegant solution.
+    """
     if not WRF_X_CSPY:
-        _RRR = init_empty_array_1d(nt)
-        _RAIN = init_empty_array_1d(nt)
-        _SNOWFALL = init_empty_array_1d(nt)
-        _LWin = init_empty_array_1d(nt)
-        _LWout = init_empty_array_1d(nt)
-        _H = init_empty_array_1d(nt)
-        _LE = init_empty_array_1d(nt)
-        _B = init_empty_array_1d(nt)
-        _QRR = init_empty_array_1d(nt)
-        _MB = init_empty_array_1d(nt)
-        _surfMB = init_empty_array_1d(nt)
-        _MB = init_empty_array_1d(nt)
-        _Q = init_empty_array_1d(nt)
-        _SNOWHEIGHT = init_empty_array_1d(nt)
-        _TOTALHEIGHT = init_empty_array_1d(nt)
-        _TS = init_empty_array_1d(nt)
-        _ALBEDO = init_empty_array_1d(nt)
-        _ME = init_empty_array_1d(nt)
-        _intMB = init_empty_array_1d(nt)
-        _EVAPORATION = init_empty_array_1d(nt)
-        _SUBLIMATION = init_empty_array_1d(nt)
-        _CONDENSATION = init_empty_array_1d(nt)
-        _DEPOSITION = init_empty_array_1d(nt)
-        _REFREEZE = init_empty_array_1d(nt)
-        _NLAYERS = init_empty_array_1d(nt)
-        _subM = init_empty_array_1d(nt)
-        _Z0 = init_empty_array_1d(nt)
-        _surfM = init_empty_array_1d(nt)
-        _MOL = init_empty_array_1d(nt)
-        _new_snow_height = init_empty_array_1d(nt)
-        _new_snow_timestamp = init_empty_array_1d(nt)
-        _old_snow_timestamp = init_empty_array_1d(nt)
+        _RRR = init_nan_array_1d(nt)
+        _RAIN = init_nan_array_1d(nt)
+        _SNOWFALL = init_nan_array_1d(nt)
+        _LWin = init_nan_array_1d(nt)
+        _LWout = init_nan_array_1d(nt)
+        _H = init_nan_array_1d(nt)
+        _LE = init_nan_array_1d(nt)
+        _B = init_nan_array_1d(nt)
+        _QRR = init_nan_array_1d(nt)
+        _MB = init_nan_array_1d(nt)
+        _surfMB = init_nan_array_1d(nt)
+        _MB = init_nan_array_1d(nt)
+        _Q = init_nan_array_1d(nt)
+        _SNOWHEIGHT = init_nan_array_1d(nt)
+        _TOTALHEIGHT = init_nan_array_1d(nt)
+        _TS = init_nan_array_1d(nt)
+        _ALBEDO = init_nan_array_1d(nt)
+        _ME = init_nan_array_1d(nt)
+        _intMB = init_nan_array_1d(nt)
+        _EVAPORATION = init_nan_array_1d(nt)
+        _SUBLIMATION = init_nan_array_1d(nt)
+        _CONDENSATION = init_nan_array_1d(nt)
+        _DEPOSITION = init_nan_array_1d(nt)
+        _REFREEZE = init_nan_array_1d(nt)
+        _NLAYERS = init_nan_array_1d(nt)
+        _subM = init_nan_array_1d(nt)
+        _Z0 = init_nan_array_1d(nt)
+        _surfM = init_nan_array_1d(nt)
+        _MOL = init_nan_array_1d(nt)
+        _new_snow_height = init_nan_array_1d(nt)
+        _new_snow_timestamp = init_nan_array_1d(nt)
+        _old_snow_timestamp = init_nan_array_1d(nt)
 
-        _LAYER_HEIGHT = init_empty_array_2d(nt, max_layers)
-        _LAYER_RHO = init_empty_array_2d(nt, max_layers)
-        _LAYER_T = init_empty_array_2d(nt, max_layers)
-        _LAYER_LWC = init_empty_array_2d(nt, max_layers)
-        _LAYER_CC = init_empty_array_2d(nt, max_layers)
-        _LAYER_POROSITY = init_empty_array_2d(nt, max_layers)
-        _LAYER_ICE_FRACTION = init_empty_array_2d(nt, max_layers)
-        _LAYER_IRREDUCIBLE_WATER = init_empty_array_2d(nt, max_layers)
-        _LAYER_REFREEZE = init_empty_array_2d(nt, max_layers)
+        _LAYER_HEIGHT = init_nan_array_2d(nt, max_layers)
+        _LAYER_RHO = init_nan_array_2d(nt, max_layers)
+        _LAYER_T = init_nan_array_2d(nt, max_layers)
+        _LAYER_LWC = init_nan_array_2d(nt, max_layers)
+        _LAYER_CC = init_nan_array_2d(nt, max_layers)
+        _LAYER_POROSITY = init_nan_array_2d(nt, max_layers)
+        _LAYER_ICE_FRACTION = init_nan_array_2d(nt, max_layers)
+        _LAYER_IRREDUCIBLE_WATER = init_nan_array_2d(nt, max_layers)
+        _LAYER_REFREEZE = init_nan_array_2d(nt, max_layers)
 
 
     #--------------------------------------------
