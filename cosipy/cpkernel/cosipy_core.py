@@ -225,7 +225,7 @@ def cosipy_core(DATA, indY, indX, GRID_RESTART=None, stake_names=None, stake_dat
 
     #--------------------------------------------
     # TIME LOOP
-    #--------------------------------------------  
+    #--------------------------------------------
     for t in np.arange(nt):
         
         # Check grid

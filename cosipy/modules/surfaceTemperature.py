@@ -1,6 +1,6 @@
 import numpy as np
 from numba import njit
-from scipy.optimize import minimize, newton
+from scipy.optimize import minimize, newton, OptimizeResult
 
 from cosipy.config import Config
 from cosipy.constants import Constants
@@ -111,10 +111,10 @@ def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLO
 
     # Set surface temperature
     if isinstance(res, np.ndarray):
-        surface_temperature = min(zero_temperature, res)
+        surface_temperature = min(np.array([zero_temperature]), res)
         minimisation_function = None
     else:
-        surface_temperature = min(zero_temperature, res.x)
+        surface_temperature = min(np.array([zero_temperature]), res.x)
         minimisation_function = res.fun
     GRID.set_node_temperature(0, surface_temperature)
  
