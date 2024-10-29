@@ -99,10 +99,7 @@ class TestParamSurfaceTemperature:
             N=self.N,
         )
 
-        # assert isinstance(residual, OptimizeResult)
-        conftest_boilerplate.check_output(
-            residual, float, Constants.zero_temperature
-        )
+        assert isinstance(residual, np.ndarray)
         assert bounds[0] < residual < bounds[1]
 
         self.assert_minimisation_ranges(
@@ -158,7 +155,7 @@ class TestParamSurfaceTemperature:
             N=self.N,
         )
 
-        assert isinstance(residual, float)
+        assert isinstance(residual, np.ndarray)
         assert bounds[0] < residual < bounds[1]
         self.assert_minimisation_ranges(
             residual,
