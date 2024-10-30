@@ -14,13 +14,13 @@ If you think your specific Python version or operating system causes an issue wi
 The model is tested and developed on:
 
  * Anaconda distribution on macOS
- * Python 3.9 on Ubuntu 22.04
+ * Python 3.9+ on Ubuntu 22.04 / Debian 12
  * Anaconda 3 64-bit (Python 3.9) on CentOS Linux 7.4
  * High-Performance Cluster Erlangen-Nuremberg University 
 
 .. warning::
     COSIPY 2.0 is not backwards-compatible with older versions of COSIPY.
-    Please :ref:`read the instructions <upgrading>` on upgrading from an older version.
+    Please :ref:`read the instructions <upgrading>` on upgrading from an older version, and using the :ref:`new configuration system <configuration>`.
 
 
 .. _installation:
@@ -222,7 +222,7 @@ Optional arguments:
 .. _run:
 
 Run the COSIPY model
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 To run COSIPY, run the following command in the root directory:
 
@@ -243,6 +243,8 @@ Optional arguments:
     -c <path>, --config <path>      Relative path to configuration file.
     -x <path>, --constants <path>   Relative path to constants file.
     -s <path>, --slurm <path>       Relative path to Slurm configuration file.
+
+.. _configuration:
 
 Configuration
 ~~~~~~~~~~~~~

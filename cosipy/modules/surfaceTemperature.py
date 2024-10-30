@@ -339,10 +339,10 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
             Cd = np.power(0.41,2.0) / np.power(np.log(z/z0) - phi_m(z,L) - phi_m(z0,L),2.0)
             Cs_t = 0.41*np.sqrt(Cd) / (np.log(z/z0t) - delta_phi_tq)
             Cs_q = 0.41*np.sqrt(Cd) / (np.log(z/z0q) - delta_phi_tq)
-        
+
             # Surface heat flux
             H = get_sensible_heat_flux(rho, Cs_t, u2, (T2 - T0), cos_slope_radians)
-        
+
             # Latent heat flux
             LE = get_latent_heat_flux(rho, Lv, Cs_q, u2, (q2 - q0), cos_slope_radians)
         
@@ -387,7 +387,7 @@ def eb_fluxes(GRID, T0, dt, z, z0, T2, rH2, p, u2, RAIN, SLOPE, B_Ts, LWin=None,
     else:
         msg = f"Stability correction {stability_correction} is not supported."
         raise ValueError(msg)
-    
+
     # Outgoing longwave radiation
     Lo = -surface_emission_coeff * sigma * np.power(T0, 4.0)
 
