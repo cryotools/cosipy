@@ -1,4 +1,4 @@
-﻿init
+init
 ====
 
 .. currentmodule:: cosipy.cpkernel

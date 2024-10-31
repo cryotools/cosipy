@@ -1,4 +1,4 @@
-﻿cosipy\_core
+cosipy\_core
 ============
 
 .. currentmodule:: cosipy.cpkernel

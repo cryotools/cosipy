@@ -1,4 +1,4 @@
-﻿vtk\_plots
+vtk\_plots
 ==========
 
 .. currentmodule:: cosipy.postprocessing

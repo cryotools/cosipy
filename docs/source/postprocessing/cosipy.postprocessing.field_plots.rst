@@ -1,4 +1,4 @@
-﻿field\_plots
+field\_plots
 ============
 
 .. currentmodule:: cosipy.postprocessing

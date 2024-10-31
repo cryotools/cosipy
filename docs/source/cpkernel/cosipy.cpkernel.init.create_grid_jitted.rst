@@ -1,4 +1,4 @@
-﻿create\_grid\_jitted
+create\_grid\_jitted
 ====================
 
 .. currentmodule:: cosipy.cpkernel.init

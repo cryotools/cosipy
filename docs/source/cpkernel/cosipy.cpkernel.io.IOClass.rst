@@ -1,4 +1,4 @@
-﻿IOClass
+IOClass
 =======
 
 .. currentmodule:: cosipy.cpkernel.io

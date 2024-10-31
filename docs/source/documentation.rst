@@ -39,6 +39,9 @@ Creating the static file requires GDAL:
     pip install --upgrade gdal==`gdal-config --version` pybind11  # with pip
     mamba install gdal  # with conda/mamba
 
+The ``richdem`` package cannot be installed using pip for Python 3.11+.
+For more recent versions of python, please install dependencies using conda/mamba.
+
 Installation from Source
 ------------------------
 
@@ -47,9 +50,9 @@ Activate your preferred python environment, then run:
 .. code-block:: bash
 
     git clone https://github.com/cryotools/cosipy.git
-    pip install -r requirements.txt  # install default environment
-    pip install -r dev_requirements.txt  # install dev environment
-    mamba install --file mamba_requirements.txt  # install using mamba
+    pip install -r requirements.txt              # install default environment
+    pip install -r dev_requirements.txt          # install dev environment
+    mamba install --file conda_requirements.txt  # install using mamba
     python3 COSIPY.py -h
 
 Installation as an Editable
@@ -199,14 +202,14 @@ The script is executed with:
 
     # from source
     python -m cosipy.utilities.aws2cosipy.aws2cosipy \
-        -c ./data/input/Zhadang/Zhadang_ERA5_2009_2018.csv \
+        -i ./data/input/Zhadang/Zhadang_ERA5_2009_2018.csv \
         -o ./data/input/Zhadang/Zhadang_ERA5_2009.nc \
         -s ./data/static/Zhadang_static.nc \
         -b 20090101 -e 20091231
 
     # from entry point
     cosipy-aws2cosipy \
-        -c ./data/input/Zhadang/Zhadang_ERA5_2009_2018.csv \
+        -i ./data/input/Zhadang/Zhadang_ERA5_2009_2018.csv \
         -o ./data/input/Zhadang/Zhadang_ERA5_2009.nc \
         -s ./data/static/Zhadang_static.nc \
         -b 20090101 -e 20091231
@@ -220,7 +223,7 @@ If the script executes successfully it will create the file ``./data/input/Zhada
     cosipy.utilities.aws2cosipy [-h] [-u <path>] -c <path> -o <path> -s <path> [-b <str>] [-e <str>] [-xl <float>] [-xr <float>] [-yl <float>] [-yu <float>]
 
 Required arguments:
-    -c, --csv_file <path>       Path to .csv file with meteorological data.
+    -i, --csv_file <path>       Path to .csv file with meteorological data.
     -o, --cosipy_file <path>    Path to the resulting COSIPY netCDF file.
     -s, --static_file <path>    Path to static file with DEM, slope etc.
 

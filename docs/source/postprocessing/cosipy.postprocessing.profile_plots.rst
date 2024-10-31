@@ -1,4 +1,4 @@
-﻿profile\_plots
+profile\_plots
 ==============
 
 .. currentmodule:: cosipy.postprocessing
