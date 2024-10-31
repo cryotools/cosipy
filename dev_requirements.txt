@@ -16,7 +16,7 @@ nco
 cdo
 cartopy
 vtk
-richdem; python_version != '3.11'
+richdem; python_version < '3.11'
 tomli; python_version < '3.11'
 coveralls
 codecov
