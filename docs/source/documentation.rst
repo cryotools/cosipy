@@ -42,6 +42,13 @@ Creating the static file requires GDAL:
 The ``richdem`` package cannot be installed using pip for Python 3.11+.
 For more recent versions of python, please install dependencies using conda/mamba.
 
+The `icc_rt` package may provide a performance boost on some systems.
+
+.. code-block:: bash
+
+    pip install icc-rt             # with pip
+    mamba install icc_rt -c numba  # with conda/mamba
+
 Installation from Source
 ------------------------
 
