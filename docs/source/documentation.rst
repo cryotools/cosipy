@@ -28,6 +28,17 @@ The model is tested and developed on:
 Installation
 ============
 
+Pre-requisites
+--------------
+
+Creating the static file requires GDAL:
+
+.. code-block:: bash
+
+    sudo apt-get install gdal-bin libgdal-dev
+    pip install --upgrade gdal==`gdal-config --version` pybind11  # with pip
+    mamba install gdal  # with conda/mamba
+
 Installation from Source
 ------------------------
 
@@ -38,6 +49,7 @@ Activate your preferred python environment, then run:
     git clone https://github.com/cryotools/cosipy.git
     pip install -r requirements.txt  # install default environment
     pip install -r dev_requirements.txt  # install dev environment
+    mamba install --file mamba_requirements.txt  # install using mamba
     python3 COSIPY.py -h
 
 Installation as an Editable
@@ -185,13 +197,15 @@ The script is executed with:
 
 .. code-block:: bash
 
-    python -m cosipy.utilities.aws2cosipy.aws2cosipy \  # from source
+    # from source
+    python -m cosipy.utilities.aws2cosipy.aws2cosipy \
         -c ./data/input/Zhadang/Zhadang_ERA5_2009_2018.csv \
         -o ./data/input/Zhadang/Zhadang_ERA5_2009.nc \
         -s ./data/static/Zhadang_static.nc \
         -b 20090101 -e 20091231
 
-    cosipy-aws2cosipy \  # from entry point
+    # from entry point
+    cosipy-aws2cosipy \
         -c ./data/input/Zhadang/Zhadang_ERA5_2009_2018.csv \
         -o ./data/input/Zhadang/Zhadang_ERA5_2009.nc \
         -s ./data/static/Zhadang_static.nc \
@@ -229,7 +243,7 @@ To run COSIPY, run the following command in the root directory:
 .. code-block:: bash
 
     python COSIPY.py  # from source
-    run-cosipy  # from package
+    run-cosipy        # from package
 
 The example should take 1-2 minutes on a workstation with 4 cores.
 
