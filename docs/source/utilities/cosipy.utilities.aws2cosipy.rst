@@ -1,4 +1,4 @@
-﻿aws2cosipy
+aws2cosipy
 ==========
 
 .. currentmodule:: cosipy.utilities

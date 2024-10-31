@@ -1,15 +1,20 @@
 """
-This file reads the DEM of the study site and the shapefile and creates
-the needed static.nc.
+Reads the DEM of the study site and the shapefile and creates a
+corresponding static file, ``static.nc``.
 
 Edit the configuration by supplying a valid .toml file. See the sample
-`utilities_config.toml` for more information.
+``utilities_config.toml`` for more information.
 
-To run from source:
-``python -m cosipy.utilities.createStatic.create_static_file``
+Usage:
 
-Otherwise, use the entry point:
-``cosipy-create-static``
+From source:
+``python -m cosipy.utilities.createStatic.create_static_file [-u <path>]``
+
+Entry point:
+``cosipy-create-static [-u <path>]``
+
+Optional arguments:
+    -u, --u <path>  Relative path to utilities' configuration file.
 """
 import argparse
 import os
@@ -37,12 +42,10 @@ def check_for_nan(ds,var=None):
         if mask==1:
             if var is None:
                 if np.isnan(ds.isel(lat=y, lon=x).to_array()).any():
-                    print('ERROR!!!!!!!!!!! There are NaNs in the static fields')
-                    sys.exit()
+                    raise ValueError("ERROR! There are NaNs in the static fields")
             else:
                 if np.isnan(ds[var].isel(lat=y, lon=x)).any():
-                    print('ERROR!!!!!!!!!!! There are NaNs in the static fields')
-                    sys.exit()
+                    raise ValueError("ERROR! There are NaNs in the static fields")
 
 
 def insert_var(ds, var, name, units, long_name):
@@ -94,57 +97,66 @@ def main():
     tile = _cfg.coords["tile"]
     aggregate = _cfg.coords["aggregate"]
 
-    ### input digital elevation model (DEM)
+    # input digital elevation model (DEM)
     dem_path_tif = f"{static_folder}{_cfg.paths['dem_path']}"
-    ### input shape of glacier or study area, e.g. from the Randolph glacier inventory
+    # input shape of glacier or study area, e.g. from the Randolph glacier inventory
     shape_path = f"{static_folder}{_cfg.paths['shape_path']}"
-    ### path where the static.nc file is saved
+    # path where the static.nc file is saved
     output_path = f"{static_folder}{_cfg.paths['output_file']}"
 
-    ### to shrink the DEM use the following lat/lon corners
+    # to shrink the DEM use the following lat/lon corners
     longitude_upper_left = str(_cfg.coords["longitude_upper_left"])
     latitude_upper_left = str(_cfg.coords["latitude_upper_left"])
     longitude_lower_right = str(_cfg.coords["longitude_lower_right"])
     latitude_lower_right = str(_cfg.coords["latitude_lower_right"])
 
-    ### to aggregate the DEM to a coarser spatial resolution
+    # to aggregate the DEM to a coarser spatial resolution
     aggregate_degree = str(_cfg.coords["aggregate_degree"])
 
-    ### intermediate files, will be removed afterwards
-    dem_path_tif_temp = static_folder + 'DEM_temp.tif'
-    dem_path_tif_temp2 = static_folder + 'DEM_temp2.tif'
-    dem_path = static_folder + 'dem.nc'
-    aspect_path = static_folder + 'aspect.nc'
-    mask_path = static_folder + 'mask.nc'
-    slope_path = static_folder + 'slope.nc'
+    # intermediate files, will be removed afterwards
+    dem_path_tif_temp = f"{static_folder}DEM_temp.tif"
+    dem_path_tif_temp2 = f"{static_folder}DEM_temp2.tif"
+    dem_path = f"{static_folder}dem.nc"
+    aspect_path = f"{static_folder}aspect.nc"
+    mask_path = f"{static_folder}mask.nc"
+    slope_path = f"{static_folder}slope.nc"
 
     if tile:
-        os.system('gdal_translate -projwin ' + longitude_upper_left + ' ' + latitude_upper_left + ' ' +
-              longitude_lower_right + ' ' + latitude_lower_right + ' ' + dem_path_tif + ' ' + dem_path_tif_temp)
+        os.system(
+            f"gdal_translate -projwin {longitude_upper_left} "
+            + f"{latitude_upper_left} {longitude_lower_right} "
+            + f"{latitude_lower_right} {dem_path_tif} {dem_path_tif_temp}"
+        )
         dem_path_tif = dem_path_tif_temp
 
     if aggregate:
-        os.system('gdalwarp -tr ' + aggregate_degree + ' ' + aggregate_degree + ' -r average ' + dem_path_tif + ' ' + dem_path_tif_temp2)
+        os.system(
+            f"gdalwarp -tr {aggregate_degree} {aggregate_degree} -r average "
+            + f"{dem_path_tif} {dem_path_tif_temp2}"
+        )
         dem_path_tif = dem_path_tif_temp2
 
-    ### convert DEM from tif to NetCDF
-    os.system('gdal_translate -of NETCDF ' + dem_path_tif  + ' ' + dem_path)
+    # convert DEM from tif to NetCDF
+    os.system(f"gdal_translate -of NETCDF {dem_path_tif} {dem_path}")
 
-    ### calculate slope as NetCDF from DEM
-    os.system('gdaldem slope -of NETCDF ' + dem_path + ' ' + slope_path + ' -s 111120')
+    # calculate slope as NetCDF from DEM
+    os.system(f"gdaldem slope -of NETCDF {dem_path} {slope_path} -s 111120")
 
-    ### calculate aspect from DEM
+    # calculate aspect from DEM
     aspect = np.flipud(rd.TerrainAttribute(rd.LoadGDAL(dem_path_tif), attrib = 'aspect'))
 
-    ### calculate mask as NetCDF with DEM and shapefile
-    os.system('gdalwarp -of NETCDF  --config GDALWARP_IGNORE_BAD_CUTLINE YES -cutline ' + shape_path + ' ' + dem_path_tif  + ' ' + mask_path)
+    # calculate mask as NetCDF with DEM and shapefile
+    os.system(
+        f"gdalwarp -of NETCDF --config GDALWARP_IGNORE_BAD_CUTLINE YES "
+        + f"-cutline {shape_path} {dem_path_tif} {mask_path}"
+    )
 
-    ### open intermediate netcdf files
+    # open intermediate netcdf files
     dem = xr.open_dataset(dem_path)
     mask = xr.open_dataset(mask_path)
     slope = xr.open_dataset(slope_path)
 
-    ### set NaNs in mask to -9999 and elevation within the shape to 1
+    # set NaNs in mask to -9999 and elevation within the shape to 1
     mask=mask.Band1.values
     mask[np.isnan(mask)]=-9999
     mask[mask>0]=1
@@ -162,16 +174,19 @@ def main():
     ds.lat.attrs['long_name'] = 'latitude'
     ds.lat.attrs['units'] = 'degrees_north'
 
-    ### insert needed static variables
+    # insert needed static variables
     insert_var(ds, dem.Band1.values,'HGT','meters','meter above sea level')
     insert_var(ds, aspect,'ASPECT','degrees','Aspect of slope')
     insert_var(ds, slope.Band1.values,'SLOPE','degrees','Terrain slope')
     insert_var(ds, mask,'MASK','boolean','Glacier mask')
 
-    os.system('rm '+ dem_path + ' ' + mask_path + ' ' + slope_path + ' ' + dem_path_tif_temp + ' '+ dem_path_tif_temp2)
+    os.system(
+        f"rm {dem_path} {mask_path} {slope_path} "
+        + f"{dem_path_tif_temp} {dem_path_tif_temp2}"
+    )
 
-    ### save combined static file, delete intermediate files and print number of glacier grid points
-
+    """Save combined static file, delete intermediate files, print
+    number of glacier grid points."""
     check_for_nan(ds)
     ds.to_netcdf(output_path)
     print("Study area consists of ", np.nansum(mask[mask==1]), " glacier points")

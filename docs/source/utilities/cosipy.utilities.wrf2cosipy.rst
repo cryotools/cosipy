@@ -1,4 +1,4 @@
-﻿wrf2cosipy
+wrf2cosipy
 ==========
 
 .. currentmodule:: cosipy.utilities

@@ -1,7 +1,6 @@
 """Generate sample configuration files for COSIPY."""
 
 import argparse
-import distutils.util
 import inspect
 import os
 import shutil
@@ -97,11 +96,20 @@ def copy_file_to_target(
         decision = input(
             f"{basename} already exists in {target_dir}/\nOverwrite?\n"
         )
-        decision = distutils.util.strtobool(decision)
+        decision = strtobool(decision)
     if decision:
         shutil.copyfile(
             f"{source_dir}/{basename}", target_path, follow_symlinks=True
         )
+
+
+def strtobool(val: str) -> bool:
+    """Convert user input to bool."""
+    val = val.lower()
+    if val in ("y", "yes"):
+        return True
+    elif val in ("n", "no"):
+        return False
 
 
 def main():

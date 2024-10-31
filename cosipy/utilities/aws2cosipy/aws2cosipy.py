@@ -1,24 +1,39 @@
 """
-This module can read the input data (model forcing) and write the output
-to a netCDF file. It supports point models with ``create_1D_input`` and
-distributed simulations with ``create_2D_input``.
+Reads the input data (model forcing) and writes the output to a netCDF
+file. It supports point models with ``create_1D_input`` and distributed
+simulations with ``create_2D_input``.
 
 The 1D input function works without a static file, in which the static
 variables are created.
 
-For both cases, lapse rates can be determined in a .toml configuration
-file. See the sample `utilities_config.toml` for more information.
+Edit the configuration by supplying a valid .toml file - this includes
+lapse rates for both cases. See the sample ``utilities_config.toml`` for
+more information.
 
 Usage:
 
 From source:
-``python -m cosipy.utilities.aws2cosipy.aws2cosipy -c [<input>] -o [<output>] -s [<static>]``
+``python -m cosipy.utilities.aws2cosipy.aws2cosipy -i <input> -o <output> -s <static> [-u <path>] [-b <date>] [-e <date>]``
 
-Otherwise, use the entry point:
-``cosipy-aws2cosipy -c [<input>] -o [<output>] -s [<static>]``
+Entry point:
+``cosipy-aws2cosipy -i <input> -o <output> -s <static> [-u <path>] [-b <date>] [-e <date>]``
 
 Options and arguments:
 
+Required arguments:
+    -i, --csv_file <path>       Path to .csv file with meteorological data.
+    -o, --cosipy_file <path>    Path to the resulting COSIPY netCDF file.
+    -s, --static_file <path>    Path to static file with DEM, slope etc.
+
+Optional arguments:
+    -u, --u <path>          Relative path to utilities' configuration
+                                file.
+    -b, --start_date <int>  Start date.
+    -e, --end_date <int>    End date.
+    --xl <float>            Left longitude value of the subset.
+    --xr <float>            Right longitude value of the subset.
+    --yl <float>            Lower latitude value of the subset.
+    --yu <float>            Upper latitude value of the subset.
 """
 
 import argparse
@@ -77,6 +92,9 @@ def set_order_and_type(
         dataframe: Contains input data.
         replace_pressure: Set pressure data to 660 hPa if no pressure
             data is available.
+
+    Returns:
+        Ordered dataframe.
     """
     for name in ["T2_var", "RH2_var", "U2_var", "G_var", "PRES_var"]:
         dataframe[_cfg.names[name]] = convert_to_numeric(
@@ -139,7 +157,10 @@ def get_time_slice(dataframe, start_date, end_date):
 
 
 def set_bias(
-    data: np.ndarray, lapse_type: str, altitude: float = 0.0, limit: bool = True
+    data: np.ndarray,
+    lapse_type: str,
+    altitude: float = 0.0,
+    limit: bool = True,
 ):
     """Apply lapse rate to data.
 
@@ -904,7 +925,7 @@ def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
 
     # Required arguments
     parser.add_argument(
-        "-c",
+        "-i",
         "--csv_file",
         dest="csv_file",
         type=str,
@@ -952,7 +973,7 @@ def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
         type=float,
         metavar="<float>",
         const=None,
-        help="left longitude value of the subset",
+        help="Left longitude value of the subset",
     )
     parser.add_argument(
         "--xr",
@@ -960,7 +981,7 @@ def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
         type=float,
         metavar="<float>",
         const=None,
-        help="right longitude value of the subset",
+        help="Right longitude value of the subset",
     )
     parser.add_argument(
         "--yl",
@@ -968,7 +989,7 @@ def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
         type=float,
         metavar="<float>",
         const=None,
-        help="lower latitude value of the subset",
+        help="Lower latitude value of the subset",
     )
     parser.add_argument(
         "--yu",
@@ -976,7 +997,7 @@ def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
         type=float,
         metavar="<float>",
         const=None,
-        help="upper latitude value of the subset",
+        help="Upper latitude value of the subset",
     )
     arguments = parser.parse_args()
 

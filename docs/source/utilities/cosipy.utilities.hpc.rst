@@ -1,4 +1,4 @@
-﻿hpc
+hpc
 ===
 
 .. currentmodule:: cosipy.utilities
@@ -30,7 +30,6 @@
    :template: custom-module.rst
    :recursive:
 
-   ~slurm_config
    ~slurm_config_FAU_Erlangen
    ~slurm_config_HU_Berlin
 

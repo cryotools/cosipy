@@ -22,6 +22,7 @@ setup\_cosipy
       get_sample_directory
       get_user_arguments
       main
+      strtobool
    
    
 

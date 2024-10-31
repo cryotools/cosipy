@@ -1,4 +1,4 @@
-﻿createStatic
+createStatic
 ============
 
 .. currentmodule:: cosipy.utilities

@@ -1,4 +1,4 @@
-﻿setup\_cosipy
+setup\_cosipy
 =============
 
 .. currentmodule:: cosipy.utilities

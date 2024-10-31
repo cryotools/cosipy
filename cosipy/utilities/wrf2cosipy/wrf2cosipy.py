@@ -1,15 +1,29 @@
 """
-This file reads the input data (model forcing) and writes the output to
-a netcdf file.
+Create 2D input from WRF data.
 
-Edit the configuration by supplying a valid .toml file. See the sample
-`utilities_config.toml` for more information.
+Reads the input data (model forcing) and writes the output to
+a netcdf file. Edit the configuration by supplying a valid .toml file.
+See the sample ``utilities_config.toml`` for more information.
 
-To run from source:
-``python -m cosipy.utilities.wrf2cosipy.wrf2cosipy``
+Usage:
 
-Otherwise, use the entry point:
-``cosipy-wrf2cosipy``
+From source:
+``python -m cosipy.utilities.wrf2cosipy.wrf2cosipy -i <path> -o <path> -u [<path] [-b <date>] [-e <date>]``
+
+Entry point:
+``cosipy-wrf2cosipy -i <path> -o <path> -u [<path] [-b <date>] [-e <date>]``
+
+Options and arguments:
+
+Required arguments:
+    -i, --wrf_file <path>       Path to WRF file.
+    -o, --cosipy_file <path>    Path to the resulting COSIPY file.
+
+Optional arguments:
+    -u, --u <path>              Relative path to utilities'
+                                    configuration file.
+    -b, --start_date <yyyymmdd> Start date.
+    -e, --end_date <yyyymmdd>   End date.
 """
 import argparse
 
@@ -26,12 +40,10 @@ _cfg = None
 
 
 def create_input(wrf_file, cosipy_file, start_date, end_date):
-    """ This function creates an input dataset from WRF data
-    """
+    """Create an input dataset from WRF data."""
 
     print('-------------------------------------------')
-    print('Create input \n')
-    print('Read input file %s' % (wrf_file))
+    print(f"Create input\nRead input file {wrf_file}")
 
     # Read WRF file
     ds = xr.open_dataset(wrf_file)
@@ -122,26 +134,33 @@ def create_input(wrf_file, cosipy_file, start_date, end_date):
 
 
 def add_variable_along_latlon(ds, var, name, units, long_name):
-    """ This function self.adds missing variables to the self.DATA class """
+    """Add spatial data to a dataset."""
     ds[name] = (('south_north','west_east'), var)
     ds[name].attrs['units'] = units
     ds[name].attrs['long_name'] = long_name
     ds[name].encoding['_FillValue'] = -9999
     return ds
-    
+
+
 def add_variable_along_timelatlon(ds, var, name, units, long_name):
-    """ This function adds missing variables to the DATA class """
+    """Add spatiotemporal data to a dataset."""
     ds[name] = (('time','south_north','west_east'), var)
     ds[name].attrs['units'] = units
     ds[name].attrs['long_name'] = long_name
     return ds
 
-def check(field, max, min):
-    '''Check the validity of the input data '''
-    if np.nanmax(field) > max or np.nanmin(field) < min:
-        print('\n\nWARNING! Please check the data, its seems they are out of a reasonable range %s MAX: %.2f MIN: %.2f \n' % (str.capitalize(field.name), np.nanmax(field), np.nanmin(field)))
+
+def check(field, max_bound, min_bound):
+    """Check the validity of the input data."""
+    if np.nanmax(field) > max_bound or np.nanmin(field) < min_bound:
+        msg = f"{str.capitalize(field.name)} MAX: {np.nanmax(field):.2f} MIN: {np.nanmin(field):.2f}"
+        print(
+            f"\n\nWARNING! Please check the data, it seems they are out of a reasonable range {msg}"
+        )
+
 
 def wrf_rh(T2, Q2, PSFC):
+    """Get the relative humidity."""
     pq0 = 379.90516
     a2 = 17.2693882
     a3 = 273.16
@@ -166,14 +185,32 @@ def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
     parser.prog = __package__
 
     # Required arguments
-    parser.add_argument('-i', '--wrf_file', dest='wrf_file', type=str, metavar="<path>", required=True, help='WRF file')
-    parser.add_argument('-o', '--cosipy_file', dest='cosipy_file', type=str, metavar="<path>", required=True,
-                        help='Name of the resulting COSIPY file')
+    parser.add_argument(
+        "-i",
+        "--wrf_file",
+        dest="wrf_file",
+        type=str,
+        metavar="<path>",
+        required=True,
+        help="Path to WRF file",
+    )
+    parser.add_argument(
+        "-o",
+        "--cosipy_file",
+        dest="cosipy_file",
+        type=str,
+        metavar="<path>",
+        required=True,
+        help="Path to the resulting COSIPY file",
+    )
 
     # Optional arguments
-    parser.add_argument('-b', '--start_date', dest='start_date', const=None, help='Start date')
-    parser.add_argument('-e', '--end_date', dest='end_date', const=None, help='End date')
-
+    parser.add_argument(
+        "-b", "--start_date", dest="start_date", const=None, help="Start date"
+    )
+    parser.add_argument(
+        "-e", "--end_date", dest="end_date", const=None, help="End date"
+    )
     arguments = parser.parse_args()
 
     return arguments
