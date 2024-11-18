@@ -355,7 +355,7 @@ class TestPostprocessPlotFieldsPlotting:
     def test_parse_arguments(self):
         with patch(
             "sys.argv",
-            ["main", "--file", "./path/file", "--date", "'2009-01-01'"],
+            ["main", "--input", "./path/file", "--date", "'2009-01-01'"],
         ):
             args = pcf.parse_arguments()
         assert isinstance(args, argparse.Namespace)
