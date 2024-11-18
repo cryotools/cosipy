@@ -16,14 +16,15 @@ Entry point:
 Options and arguments:
 
 Required arguments:
-    -i, --wrf_file <path>       Path to WRF file.
-    -o, --cosipy_file <path>    Path to the resulting COSIPY file.
+    -i, --input <path>      Path to WRF file.
+    -o, --output <path>     Path to the resulting COSIPY file.
 
 Optional arguments:
     -u, --u <path>              Relative path to utilities'
                                     configuration file.
     -b, --start_date <yyyymmdd> Start date.
     -e, --end_date <yyyymmdd>   End date.
+    
 """
 import argparse
 
@@ -187,7 +188,7 @@ def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
     # Required arguments
     parser.add_argument(
         "-i",
-        "--wrf_file",
+        "--input",
         dest="wrf_file",
         type=str,
         metavar="<path>",
@@ -196,7 +197,7 @@ def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
     )
     parser.add_argument(
         "-o",
-        "--cosipy_file",
+        "--output",
         dest="cosipy_file",
         type=str,
         metavar="<path>",

@@ -18,7 +18,6 @@ Optional arguments:
 """
 import argparse
 import os
-import sys
 from itertools import product
 
 import numpy as np

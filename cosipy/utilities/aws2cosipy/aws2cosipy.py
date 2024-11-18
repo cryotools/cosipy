@@ -21,8 +21,8 @@ Entry point:
 Options and arguments:
 
 Required arguments:
-    -i, --csv_file <path>       Path to .csv file with meteorological data.
-    -o, --cosipy_file <path>    Path to the resulting COSIPY netCDF file.
+    -i, --input <path>          Path to .csv file with meteorological data.
+    -o, --output <path>         Path to the resulting COSIPY netCDF file.
     -s, --static_file <path>    Path to static file with DEM, slope etc.
 
 Optional arguments:
@@ -926,7 +926,7 @@ def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
     # Required arguments
     parser.add_argument(
         "-i",
-        "--csv_file",
+        "--input",
         dest="csv_file",
         type=str,
         metavar="<path>",
@@ -935,7 +935,7 @@ def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
     )
     parser.add_argument(
         "-o",
-        "--cosipy_file",
+        "--output",
         dest="cosipy_file",
         type=str,
         metavar="<path>",

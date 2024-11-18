@@ -383,29 +383,29 @@ def parse_arguments() -> argparse.Namespace:
     """Parse user arguments.
 
     Required arguments:
-        -f, --file <path>       Path to .nc file.
-        -d, --date <str>        Target date or timestamp.
+        -i, --input <path>       Path to .nc file.
+        -d, --date <str>         Target date or timestamp.
 
     Optional switches:
-        -h, --help              Show this help message and exit.
-        -s, --save              Save plot. File name is automatically
-                                    generated. Default False.
-        -m, --mean              Plot daily mean instead of timestep.
-                                    Default False.
+        -h, --help               Show this help message and exit.
+        -s, --save               Save plot. File name is automatically
+                                     generated. Default False.
+        -m, --mean               Plot daily mean instead of timestep.
+                                     Default False.
 
     Optional arguments:
-        -v, --var <str>         Variable to plot. If not set, creates a
-                                    stamp plot.
-        -t, --type <int>        Set plot type. 1: contour, 2: mesh.
-                                    Default 1.
+        -v, --var <str>          Variable to plot. If not set, creates a
+                                     stamp plot.
+        -t, --type <int>         Set plot type. 1: contour, 2: mesh.
+                                     Default 1.
     """
 
     tagline = "Plot results for single or all variables."
     parser = argparse.ArgumentParser(prog="plot_cosipy_fields.py", description=tagline)
     # Required
     parser.add_argument(
-        "-f",
-        "--file",
+        "-i",
+        "--input",
         dest="file",
         required=True,
         default=None,
