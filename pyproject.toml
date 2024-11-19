@@ -68,7 +68,7 @@ docs = [
     "sphinx-rtd-theme >= 1.1",
 ]
 dev = [
-    "cosipy[tests,docs]",
+    "cosipymodel[tests,docs]",
     "hatchling >= 1.12",
     "build >= 0.7",
     "pylint >= 2.16.1",
