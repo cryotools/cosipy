@@ -13,8 +13,8 @@ COSIPY is compatible with Python 3.9+ on Linux and MacOS.
 If you think your specific Python version or operating system causes an issue with COSIPY, please create a topic in the forum.
 The model is tested and developed on:
 
- * Anaconda distribution on macOS
  * Python 3.9+ on Ubuntu 22.04 / Debian 12
+ * Anaconda distribution on macOS
  * Anaconda 3 64-bit (Python 3.9) on CentOS Linux 7.4
  * High-Performance Cluster Erlangen-Nuremberg University 
 
@@ -39,15 +39,24 @@ Creating the static file requires GDAL:
     pip install --upgrade gdal==`gdal-config --version` pybind11  # with pip
     mamba install gdal  # with conda/mamba
 
-The ``richdem`` package cannot be installed using pip for Python 3.11+.
-For more recent versions of python, please install dependencies using conda/mamba.
+If you are installing dependencies with conda/mamba, use ``-c conda-forge`` if it does not already have the highest channel priority.
 
-The `icc_rt` package may provide a performance boost on some systems.
+The `icc_rt` package may provide a performance boost on some systems:
 
 .. code-block:: bash
 
     pip install icc-rt             # with pip
     mamba install icc_rt -c numba  # with conda/mamba
+
+Installation with pip
+---------------------
+
+Installing COSIPY as a package allows it to run in any directory:
+
+.. code-block:: bash
+    pip install cosipymodel
+    setup-cosipy  # generate sample configuration files
+    cosipy-help   # view help
 
 Installation from Source
 ------------------------
@@ -65,7 +74,7 @@ Activate your preferred python environment, then run:
 Installation as an Editable
 ---------------------------
 
-Installing COSIPY as a package or an editable allows it to run in any directory.
+Installing COSIPY as an editable allows it to run in any directory.
 
 .. code-block:: bash
 
@@ -100,13 +109,7 @@ This will preserve your configuration for ``config.py``, ``constants.py``, ``aws
 .. warning::
     Parameters for ``create_static`` must still be added manually to the generated ``utilities_config.toml``.
     Custom configuration variables that do not appear in the main branch must also be added manually.
-
-Checkout a new branch with a clean version of COSIPY and merge your modifications.
-
-.. code-block:: bash
-
-    git checkout master
-    git pull
+added
     git checkout -b <new-branch-name>
     git merge --no-ff <old-branch-name>  # Good luck!
 
