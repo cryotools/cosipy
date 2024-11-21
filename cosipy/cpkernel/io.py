@@ -40,7 +40,10 @@ class IOClass:
     def get_output_variables(self, variables: str) -> list:
         """Get output variable names from configuration string."""
         # Sets are unordered -> same config, different checksums
-        return [item for item in variables.split(",")]
+        if not variables:
+            return []
+        else:
+            return [item for item in variables.split(",")]
 
     def init_atm_attribute(self, name: str):
         """Initialise empty atm attribute."""
@@ -565,13 +568,15 @@ class IOClass:
         disk (see COSIPY.py).
         """
 
-        for atm_var in self.atm:
-            self.init_atm_attribute(atm_var)
+        if self.atm:
+            for atm_var in self.atm:
+                self.init_atm_attribute(atm_var)
 
-        for internal_var in self.internal:
-            self.init_internal_attribute(internal_var)
+        if self.internal:
+            for internal_var in self.internal:
+                self.init_internal_attribute(internal_var)
 
-        if Config.full_field:
+        if Config.full_field and self.full:
             max_layers = Constants.max_layers  # faster lookup
             for full_field_var in self.full:
                 self.init_full_field_attribute(full_field_var, max_layers)
@@ -667,34 +672,36 @@ class IOClass:
         """Add the global numpy arrays to the RESULT dataset."""
 
         metadata = self.get_result_metadata()
-        for atm_var in self.atm:
-            self.add_variable_along_latlontime(
-                self.RESULT,
-                getattr(self, atm_var),
-                atm_var,
-                metadata[atm_var][0],
-                metadata[atm_var][1],
-            )
-
-        for internal_var in self.internal:
-            self.add_variable_along_latlontime(
-                self.RESULT,
-                getattr(self, internal_var),
-                internal_var,
-                metadata[internal_var][0],
-                metadata[internal_var][1],
-            )
-
-        if Config.full_field:
-            for full_field_var in self.full:
-                layer_name = f"LAYER_{full_field_var}"
-                self.add_variable_along_latlonlayertime(
+        if self.atm:
+            for atm_var in self.atm:
+                self.add_variable_along_latlontime(
                     self.RESULT,
-                    getattr(self, layer_name),
-                    layer_name,
-                    metadata[layer_name][0],
-                    metadata[layer_name][1],
+                    getattr(self, atm_var),
+                    atm_var,
+                    metadata[atm_var][0],
+                    metadata[atm_var][1],
                 )
+
+        if self.internal:
+            for internal_var in self.internal:
+                self.add_variable_along_latlontime(
+                    self.RESULT,
+                    getattr(self, internal_var),
+                    internal_var,
+                    metadata[internal_var][0],
+                    metadata[internal_var][1],
+                )
+
+        if Config.full_field and self.full:
+                for full_field_var in self.full:
+                    layer_name = f"LAYER_{full_field_var}"
+                    self.add_variable_along_latlonlayertime(
+                        self.RESULT,
+                        getattr(self, layer_name),
+                        layer_name,
+                        metadata[layer_name][0],
+                        metadata[layer_name][1],
+                    )
 
     def create_empty_restart(self) -> xr.Dataset:
         """Create an empty dataset for the RESTART attribute.
