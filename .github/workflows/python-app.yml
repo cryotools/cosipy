@@ -44,6 +44,7 @@ jobs:
             ${{ runner.os }}-pip-
       - name: Install dependencies # gdal cannot install with eager upgrade
         run: |
+          sudo apt-get update
           sudo apt-get install gdal-bin libgdal-dev
           python -m pip install --upgrade pip
           pip install --upgrade flake8 gdal==`gdal-config --version` pybind11
