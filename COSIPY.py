@@ -25,7 +25,6 @@ Correspondence: tobias.sauter@fau.de
 import cProfile
 import logging
 import os
-import sys
 from datetime import datetime
 from itertools import product
 
@@ -227,12 +226,10 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 mask = DATA.MASK.sel(south_north=y, west_east=x)
                 # Provide restart grid if necessary
                 if (mask == 1) and (not Config.restart):
-                    if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
-                        print_nan_error()
+                    check_for_nan(data=DATA.sel(south_north=y, west_east=x))
                     futures.append(client.submit(cosipy_core, DATA.sel(south_north=y, west_east=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
                 elif (mask == 1) and (Config.restart):
-                    if np.isnan(DATA.sel(south_north=y, west_east=x).to_array()).any():
-                        print_nan_error()
+                    check_for_nan(data=DATA.sel(south_north=y, west_east=x))
                     futures.append(
                         client.submit(
                             cosipy_core,
@@ -251,12 +248,10 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 mask = DATA.MASK.isel(lat=y, lon=x)
                 # Provide restart grid if necessary
                 if (mask == 1) and (not Config.restart):
-                    if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
-                        print_nan_error()
+                    check_for_nan(data=DATA.isel(lat=y,lon=x))
                     futures.append(client.submit(cosipy_core, DATA.isel(lat=y, lon=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
                 elif (mask == 1) and (Config.restart):
-                    if np.isnan(DATA.isel(lat=y,lon=x).to_array()).any():
-                        print_nan_error()
+                    check_for_nan(data=DATA.isel(lat=y,lon=x))
                     futures.append(
                         client.submit(
                             cosipy_core,
@@ -430,10 +425,9 @@ def print_notice(msg:str):
     print(f"{'-'*72}\n{msg}\n{'-'*72}\n")
 
 
-def print_nan_error():
-    print('ERROR! There are NaNs in the dataset.')
-    sys.exit()
-
+def check_for_nan(data):
+    if np.isnan(data.to_array()).any():
+        raise SystemExit('ERROR! There are NaNs in the dataset.')
 
 def get_time_required(action:str, times):
     run_time = get_time_elapsed(times)

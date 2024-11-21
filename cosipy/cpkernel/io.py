@@ -151,9 +151,9 @@ class IOClass:
                     # Read data from the last date to the end of the data file
                     self.init_data_dataset()
             except FileNotFoundError:
-                print(f"No restart file available for the given date: {timestamp}")
+                raise SystemExit(f"No restart file available for the given date: {timestamp}")
             except IndexError:
-                print(f"Start date {time_start} equals end date {time_end}\n")
+                raise SystemExit(f"Start date {time_start} equals end date {time_end}\n")
         else:
             # If no restart, read data according to the dates defined in config file
             self.restart_date = None
@@ -271,7 +271,8 @@ class IOClass:
             input_path = os.path.join(Config.data_path, "input", Config.input_netcdf)
             self.DATA = xr.open_dataset(input_path)
         except FileNotFoundError:
-            print(f"Input file not found at: {input_path}")
+            raise SystemExit(f"Input file not found at: {input_path}")
+
 
         self.DATA["time"] = np.sort(self.DATA["time"].values)
         minimum_time = str(self.DATA.time.values[0])[0:16]
