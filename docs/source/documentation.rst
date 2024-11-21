@@ -117,6 +117,7 @@ You can also merge the new version of COSIPY into an existing branch, but this c
 
 After updating to the latest version of COSIPY, run ``python COSIPY.py --help`` to see how to specify paths to configuration files.
 COSIPY will default to ``./config.toml``, ``./constants.toml``, ``./slurm_config.toml``, ``./utilities_config.toml`` in the current working directory.
+**You no longer need to hardcode different simulation parameters into a single file.**
 
 .. _entry_points:
 
@@ -282,3 +283,24 @@ All user configuration is done with .toml files.
 If COSIPY is installed as a package, generate sample configuration files using ``setup-cosipy``.
 Configuration is split into four parts: model configuration, constants, utilities, and Slurm configuration.
 You can keep multiple configuration files for different simulations in the same (or indeed any working directory).
+
+You can select which output variables are saved to disk under ``[OUTPUT_VARIABLES]`` in config.toml.
+This can prevent out-of-memory errors when working with very large datasets.
+
+You can import configuration parameters or constants into a module.
+These are read-only to avoid namespace collisions.
+
+.. code-block:: python
+    from cosipy.config import Config
+    from cosipy.constants import Constants
+
+    foo = Config.foo  # declare at module level if used in an njitted function
+
+    @njit
+    def get_foo_njit(...):
+        """Njitted functions cannot reference the imported parameters directly."""
+        return foo
+
+    def get_foo_nopython(...):
+        """Non-compiled functions can reference the parameters directly."""
+        return Config.foo
