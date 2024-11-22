@@ -1,5 +1,5 @@
 import matplotlib
-matplotlib.use("TkAgg")
+# matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.colors import BoundaryNorm
