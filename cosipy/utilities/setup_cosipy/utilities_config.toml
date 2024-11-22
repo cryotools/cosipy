@@ -13,7 +13,7 @@
 [aws2cosipy.names]
 PRES_var = 'PRES'
 T2_var = 'T2'
-in_K = true
+in_K = true  # input data is already in K
 RH2_var = 'RH2'
 G_var = 'G'
 RRR_var = 'RRR'

@@ -14,7 +14,9 @@ else:
 
 def set_parser() -> argparse.ArgumentParser:
     """Set argument parser for COSIPY."""
-    tagline = "Coupled snowpack and ice surface energy and mass balance model in Python."
+    tagline = (
+        "Coupled snowpack and ice surface energy and mass balance model in Python."
+    )
     parser = argparse.ArgumentParser(prog="COSIPY", description=tagline)
 
     # Optional arguments
@@ -98,13 +100,17 @@ def get_entry_points(package_name: str = "cosipy"):
     Returns:
         Generator: All of the package's available entry points.
     """
-    entries = entry_points()
-    entries = entries["console_scripts"]
+
+    if sys.version_info >= (3, 10):
+        entries = entry_points(group="console_scripts")
+    else:
+        entries = entries["console_scripts"]
     entrypoints = (
         ep
         for ep in entries
-        if ep.value.startswith(package_name.upper())
-        or ep.value.startswith(package_name.lower())
+        if ep.name.startswith(package_name.upper())
+        or ep.name.startswith(package_name.lower())
+        or package_name.lower() in ep.name
     )
 
     return entrypoints
