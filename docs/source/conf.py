@@ -71,7 +71,7 @@ autodoc_type_aliases = {
     "Grid": "cosipy.cpkernel.grid.Grid",
     "IOClass": "cosipy.cpkernel.io.IOClass",
 }
-autodoc_mock_imports = ["cosipy.config", "cosipy.constants"]
+autodoc_mock_imports = ["cosipy.config", "cosipy.constants","cosipy.postprocessing.profile_plots.plot_profile"]
 if sys.version_info >= (3, 11):
     autodoc_mock_imports.append("richdem")  # mock richdem for Python 3.11+
 autosummary_generate = True
