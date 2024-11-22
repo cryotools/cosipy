@@ -11,7 +11,6 @@ dask-jobqueue
 numba
 metpy
 matplotlib
-gdal
 nco
 cdo
 cartopy
