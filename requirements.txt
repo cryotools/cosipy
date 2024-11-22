@@ -2,19 +2,23 @@ numpy>=1.17.3
 pandas>2.0
 scipy>=1.1.0
 xarray>=0.18.0
+xarray-spatial
 netcdf4>=1.5.1.2
-distributed>=2022.3,<=2023.8; python_version < '3.11'
-distributed<=2023.2; python_version == '3.11'
+distributed<=2024.2.0; python_version < '3.11'
+distributed; python_version >= '3.11'
 dask
 dask-jobqueue
 numba
 metpy
 matplotlib
-vtk; python_version < '3.11'
-richdem; python_version < '3.11'
+gdal
 nco
 cdo
 cartopy
+vtk
+richdem; python_version < '3.11'
 coveralls
 codecov
 pytest
+pytest-dependency
+tomli; python_version < '3.11'

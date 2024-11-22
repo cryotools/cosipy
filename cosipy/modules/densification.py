@@ -1,17 +1,35 @@
 import numpy as np
-from constants import densification_method, snow_ice_threshold, minimum_snow_layer_height, \
-                      zero_temperature, ice_density
 from numba import njit
 
-def densification(GRID,SLOPE,dt):
-    """Densification of the snowpack.
+from cosipy.constants import Constants
+
+# only required for njitted functions
+densification_method = Constants.densification_method
+snow_ice_threshold = Constants.snow_ice_threshold
+minimum_snow_layer_height = Constants.minimum_snow_layer_height
+zero_temperature = Constants.zero_temperature
+
+
+def densification(GRID, SLOPE, dt):
+    """Apply densification to the snowpack.
+
+    Implemented densification methods:
+
+        - **Boone**: Densification through overburden pressure. Essery
+          et al. (2013).
+        - **Vionnet**: Densification through overburden stress. Vionnet
+          et al. (2011).
+        - **empirical**: Empirical compaction with constant time scale.
+        - **constant**: Constant density (no compaction).
 
     Args:
-        GRID    ::  GRID-Structure.
-        SLOPE   ::  Slope of the surface [degrees].
-        dt      ::  integration time [s].
-    """
+        GRID (Grid): Glacier data structure.
+        SLOPE (np.ndarray): Slope of the surface [|degree|].
+        dt (int): Integration time [s].
 
+    Raises:
+        NotImplementedError: Densification method is not allowed.
+    """
     densification_allowed = ['Boone', 'Vionnet', 'empirical', 'constant']
     if densification_method == 'Boone':
         method_Boone(GRID,SLOPE,dt)
@@ -28,7 +46,39 @@ def densification(GRID,SLOPE,dt):
             f'{", ".join(densification_allowed)}',
         )
         raise ValueError(" ".join(error_msg))
+
+
+@njit
+def log_fraction_warning(grid, idx: int, dtheta_i: float, dtheta_w: float):
+    """Warn user if liquid fractions are physically impossible.
     
+    Args:
+        grid (Grid): Glacier data structure.
+        idx: Node index.
+        dtheta_i: Change in volumetric ice fraction.
+        dtheta_w: Change in volumetric liquid water content.
+    """
+    if (
+        grid.get_node_ice_fraction(idx)
+        + grid.get_node_liquid_water_content(idx)
+        + grid.get_node_porosity(idx)
+        > 1.0
+    ):
+        ice_fraction = (1 + dtheta_i) * grid.get_node_ice_fraction(idx)
+        lwc_fraction = (1 + dtheta_w) * grid.get_node_liquid_water_content(idx)
+        porosity = grid.get_node_porosity(idx)
+        print(ice_fraction, lwc_fraction, porosity)
+        print(ice_fraction + lwc_fraction + porosity)
+        print(
+            "Fraction > 1: ",
+            (
+                grid.get_node_ice_fraction(idx)
+                + grid.get_node_liquid_water_content(idx)
+                + porosity
+            ),
+        )
+
+
 @njit
 def copy_layer_profiles(GRID) -> tuple:
     """Get a copy of the layer profiles.
@@ -37,11 +87,13 @@ def copy_layer_profiles(GRID) -> tuple:
     (which is not supported by numba).
 
     Args:
-        GRID (Grid): Grid object.
+        GRID (Grid): Glacier data structure.
+
     Returns:
         Profiles for height, density, temperature, liquid water content,
         and ice fraction.
     """
+
     heights = np.array(GRID.get_height())
     densities = np.array(GRID.get_density())
     temperatures = np.array(GRID.get_temperature())
@@ -51,9 +103,15 @@ def copy_layer_profiles(GRID) -> tuple:
     return heights, densities, temperatures, lwcs, ice_fractions
 
 @njit
-def method_Boone(GRID,SLOPE,dt):
-    """ Description: Densification through overburden pressure
-        after Essery et al. 2013
+def method_Boone(GRID, SLOPE, dt):
+    """Densification through overburden pressure.
+
+    After Essery et al., (2013).
+
+    Args:
+        GRID (Grid): Glacier data structure.
+        SLOPE (np.ndarray): Slope of the surface [|degree|].
+        dt (int): Integration time [s].
     """
 
     # Constants
@@ -74,12 +132,12 @@ def method_Boone(GRID,SLOPE,dt):
     # Loop over all internal snow nodes
     for idxNode in range(0,GRID.get_number_snow_layers() , 1):
 
-        if ((rho[idxNode]<snow_ice_threshold) & (height[idxNode]>minimum_snow_layer_height)):
+        if (rho[idxNode] < snow_ice_threshold) & (height[idxNode] > minimum_snow_layer_height):
 
             # Get overburden snow mass
-            if (idxNode>0):
+            if idxNode>0:
                 M_s = M_s + rho[idxNode-1]*height[idxNode-1]
-            elif (idxNode==0):
+            elif idxNode==0:
                 M_s = M_s + rho[0]*(height[0]/2.0)
 
             # Viscosity
@@ -90,7 +148,7 @@ def method_Boone(GRID,SLOPE,dt):
            
             # Calc changes in volumetric fractions of ice and water
             # No water in layer
-            if (lwc[idxNode]==0.0):
+            if lwc[idxNode] == 0.0:
                 dtheta_i = dRho
                 dtheta_w = 0.0
             # layer contains water
@@ -105,19 +163,19 @@ def method_Boone(GRID,SLOPE,dt):
             # Set new layer height (compaction)
             GRID.set_node_height(idxNode, (1-dRho) * height[idxNode])
 
-            if (GRID.get_node_ice_fraction(idxNode)+GRID.get_node_liquid_water_content(idxNode)+GRID.get_node_porosity(idxNode)>1.0):
-                print((1+dtheta_i)*GRID.get_node_ice_fraction(idxNode),(1+dtheta_w)*GRID.get_node_liquid_water_content(idxNode),\
-                     GRID.get_node_porosity(idxNode))
-                print((1+dtheta_i)*GRID.get_node_ice_fraction(idxNode)+(1+dtheta_w)*GRID.get_node_liquid_water_content(idxNode)+\
-                     GRID.get_node_porosity(idxNode))
-                print('Fraction > 1:',(GRID.get_node_ice_fraction(idxNode)+GRID.get_node_liquid_water_content(idxNode)+GRID.get_node_porosity(idxNode)))
+            log_fraction_warning(GRID, idxNode, dtheta_i, dtheta_w)
 
 
 
+def method_Vionnet(GRID, SLOPE, dt):
+    """Densification through overburden stress.
 
-def method_Vionnet(GRID,SLOPE,dt):
-    """ Description: Densification through overburden stress
-        after Vionnet et al. 2011
+    After Vionnet et al., (2011).
+
+    Args:
+        GRID (Grid): Glacier data structure.
+        SLOPE (np.ndarray): Slope of the surface [|degree|].
+        dt (int): Integration time [s].
     """
 
     # Constants
@@ -136,7 +194,7 @@ def method_Vionnet(GRID,SLOPE,dt):
     # Loop over all internal snow nodes
     for idxNode in range(0,GRID.get_number_snow_layers() , 1):
 
-        if ((rho[idxNode]<snow_ice_threshold) & (height[idxNode]>minimum_snow_layer_height)):
+        if (rho[idxNode] < snow_ice_threshold) & (height[idxNode] > minimum_snow_layer_height):
 
             # Parameter f1
             f1 = 1 / (1+60.0*(lwc[idxNode]/height[idxNode]))
@@ -145,9 +203,9 @@ def method_Vionnet(GRID,SLOPE,dt):
             eta = f1*f2*eta0*(rho[idxNode]/c)*np.exp(a*(273.14-t[idxNode])+b*rho[idxNode])
 
             # Vertical stress
-            if (idxNode>0):
+            if idxNode>0:
                 sigma = sigma + 9.81*np.cos(SLOPE)*rho[idxNode-1]*height[idxNode-1]
-            elif (idxNode==0):
+            elif idxNode==0:
                 # Take only half layer height of the first layer
                 sigma = sigma + 9.81*np.cos(SLOPE)*rho[0]*(height[0]/2.0)
 
@@ -155,11 +213,11 @@ def method_Vionnet(GRID,SLOPE,dt):
             dD = (-sigma/eta)*dt 
 
             # Rate of change for the density
-            dRho = dD*rho[idxNode] 
+            # dRho = dD*rho[idxNode]
             
             # Calc changes in volumetric fractions of ice and water
             # No water in layer
-            if (lwc[idxNode]==0.0):
+            if lwc[idxNode]==0.0:
                 dtheta_i = -dD
                 dtheta_w = 0.0
             # layer contains water
@@ -174,21 +232,21 @@ def method_Vionnet(GRID,SLOPE,dt):
             # Set new layer height (compaction)
             GRID.set_node_height(idxNode, (1+dD)*height[idxNode])
 
-            if (GRID.get_node_ice_fraction(idxNode)+GRID.get_node_liquid_water_content(idxNode)+GRID.get_node_porosity(idxNode)>1.0):
-                print((1+dtheta_i)*GRID.get_node_ice_fraction(idxNode),(1+dtheta_w)*GRID.get_node_liquid_water_content(idxNode),\
-                     GRID.get_node_porosity(idxNode))
-                print((1+dtheta_i)*GRID.get_node_ice_fraction(idxNode)+(1+dtheta_w)*GRID.get_node_liquid_water_content(idxNode)+\
-                     GRID.get_node_porosity(idxNode))
-                print('Fraction > 1: %.5f' % (GRID.get_node_ice_fraction(idxNode)+GRID.get_node_liquid_water_content(idxNode)+GRID.get_node_porosity(idxNode)))
+            log_fraction_warning(GRID, idxNode, dtheta_i, dtheta_w)
 
 
+def method_empirical(GRID, SLOPE, dt):
+    """Empirical snow compaction using a constant time scale.
+    
+    Args:
+        GRID (Grid): Glacier data structure.
+        SLOPE (np.ndarray): Slope of the surface [|degree|].
+        dt (int): Integration time [s].
+    """
 
-def method_empirical(GRID,SLOPE,dt):
-    """Simple empirical snow compaction parametrization using a constant time scale."""
-
-    rho_max = 600.0     # maximum attainable density [kg m^-3]
-    #tau = 3.6e5         # empirical compaction time scale [s]
-    tau = 8.0e5         # empirical compaction time scale [s]
+    rho_max = 600.0  # maximum attainable density [kg m^-3]
+    #tau = 3.6e5  # empirical compaction time scale [s]
+    tau = 8.0e5  # empirical compaction time scale [s]
     
     # Get copy of layer heights and layer densities
     rho = np.array(GRID.get_density())
@@ -199,9 +257,9 @@ def method_empirical(GRID,SLOPE,dt):
         # Rate of density change
         dRho = (1/tau) * (rho_max-GRID.get_node_density(idxNode)) * dt
 
-        if ((1-(dRho/GRID.get_node_density(idxNode)))<1):
+        if (1 - (dRho / GRID.get_node_density(idxNode))) < 1:
             # Set the new ice fraction
-            GRID.set_node_ice_fraction(idxNode, (rho_max + (rho[idxNode]-rho_max) * np.exp(-dt/tau))/ice_density )
+            GRID.set_node_ice_fraction(idxNode, (rho_max + (rho[idxNode]-rho_max) * np.exp(-dt/tau))/Constants.ice_density )
 
             # Set height change
             GRID.set_node_height(idxNode, (1-(dRho/GRID.get_node_density(idxNode)))*GRID.get_node_height(idxNode))

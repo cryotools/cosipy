@@ -1,6 +1,6 @@
 import pytest
 
-import constants
+from cosipy.constants import Constants
 from cosipy.cpkernel.node import Node
 
 
@@ -73,26 +73,6 @@ class TestNodeGetter:
         node = self.create_node()
         assert isinstance(node, Node)
 
-    def calculate_irreducible_water_content(
-        self, current_ice_fraction: float
-    ) -> float:
-        """Calculate irreducible water content."""
-        if current_ice_fraction <= 0.23:
-            theta_e = 0.0264 + 0.0099 * (
-                (1 - current_ice_fraction) / current_ice_fraction
-            )
-        elif (current_ice_fraction > 0.23) & (current_ice_fraction <= 0.812):
-            theta_e = 0.08 - 0.1023 * (current_ice_fraction - 0.03)
-        else:
-            theta_e = 0.0
-
-        return theta_e
-
-    @pytest.mark.parametrize("arg_ice_fraction", [0.2, 0.5, 0.9])
-    def test_calculate_irreducible_water_content(self, arg_ice_fraction):
-        theta_e = self.calculate_irreducible_water_content(arg_ice_fraction)
-        assert isinstance(theta_e, float)
-
     @pytest.fixture(name="node", autouse=False, scope="function")
     def fixture_node(self):
         return self.create_node()
@@ -127,9 +107,9 @@ class TestNodeGetter:
         if arg_ice_fraction is None:
             test_ice_fraction = (
                 self.snow_density
-                - (1 - (self.snow_density / constants.ice_density))
-                * constants.air_density
-            ) / constants.ice_density
+                - (1 - (self.snow_density / Constants.ice_density))
+                * Constants.air_density
+            ) / Constants.ice_density
         else:
             test_ice_fraction = arg_ice_fraction
         compare_ice_fraction = node.get_layer_ice_fraction()
@@ -148,9 +128,9 @@ class TestNodeGetter:
 
     def test_node_get_layer_density(self, node, conftest_boilerplate):
         test_density = (
-            self.ice_fraction * constants.ice_density
-            + self.lwc * constants.water_density
-            + node.get_layer_air_porosity() * constants.air_density
+            self.ice_fraction * Constants.ice_density
+            + self.lwc * Constants.water_density
+            + node.get_layer_air_porosity() * Constants.air_density
         )
         assert conftest_boilerplate.check_output(
             node.get_layer_density(), float, test_density
@@ -164,9 +144,9 @@ class TestNodeGetter:
 
     def test_node_get_layer_specific_heat(self, node, conftest_boilerplate):
         test_specific_heat = (
-            (1 - self.lwc - self.ice_fraction) * constants.spec_heat_air
-            + self.ice_fraction * constants.spec_heat_ice
-            + self.lwc * constants.spec_heat_water
+            (1 - self.lwc - self.ice_fraction) * Constants.spec_heat_air
+            + self.ice_fraction * Constants.spec_heat_ice
+            + self.lwc * Constants.spec_heat_water
         )
         conftest_boilerplate.check_output(
             node.get_layer_specific_heat(), float, test_specific_heat
@@ -177,7 +157,7 @@ class TestNodeGetter:
             -node.get_layer_specific_heat()
             * node.get_layer_density()
             * self.height
-            * (self.temperature - constants.zero_temperature)
+            * (self.temperature - Constants.zero_temperature)
         )
         conftest_boilerplate.check_output(
             node.get_layer_cold_content(), float, test_cold_content
@@ -187,9 +167,9 @@ class TestNodeGetter:
         self, node, conftest_boilerplate
     ):
         test_thermal_conductivity = (
-            self.ice_fraction * constants.k_i
-            + node.get_layer_porosity() * constants.k_a
-            + self.lwc * constants.k_w
+            self.ice_fraction * Constants.k_i
+            + node.get_layer_porosity() * Constants.k_a
+            + self.lwc * Constants.k_w
         )
         conftest_boilerplate.check_output(
             node.get_layer_thermal_conductivity(),
@@ -216,7 +196,7 @@ class TestNodeGetter:
         node = self.create_node(ice_fraction=arg_ice_fraction)
 
         test_irreducible_water_content = (
-            self.calculate_irreducible_water_content(
+            conftest_boilerplate.calculate_irreducible_water_content(
                 node.get_layer_ice_fraction()
             )
         )

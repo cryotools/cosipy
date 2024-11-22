@@ -1,0 +1,75 @@
+# This is the utilities configuration file.
+# Please make your changes here.
+#
+# To call variables in a utility script:
+# from cosipy.utilities.config import UtilitiesConfig
+# in_K = UtilitiesConfig.aws2cosipy.names["in_K"]
+#
+# Alternatively:
+# cfg_names = UtilitiesConfig.aws2cosipy.names
+# in_K = cfg_names["in_K"]
+
+# AWS2COSIPY
+[aws2cosipy.names]
+PRES_var = 'PRES'
+T2_var = 'T2'
+in_K = true  # input data is already in K
+RH2_var = 'RH2'
+G_var = 'G'
+RRR_var = 'RRR'
+U2_var = 'U2'
+LWin_var = 'LWinCor_Avg'
+SNOWFALL_var = 'SNOWFALL'
+N_var = 'N'
+
+[aws2cosipy.coords]
+WRF = false
+aggregate = false
+aggregation_step = 'H'
+delimiter = ','
+
+[aws2cosipy.radiation]
+radiationModule = 'Wohlfahrt2016' # 'Moelg2009', 'Wohlfahrt2016', 'none'
+LUT = false  # If there is already a Look-up-table for topographic shading and sky-view-factor built for this area, set to True
+dtstep = 10800  # time step (s)
+tcart = 26  # Station time correction in hour angle units (1 is 4 min)
+timezone_lon = 90.0  # Longitude of station
+zeni_thld = 85.0  # If you do not know the exact value for your location, set value to 89.0
+
+[aws2cosipy.points]
+point_model = false
+plon = 90.64
+plat = 30.47
+hgt = 5665.0
+
+[aws2cosipy.station]
+stationName = 'Zhadang'
+stationAlt = 5665.0
+stationLat = -54.4  # Latitude of station
+
+[aws2cosipy.lapse]
+lapse_T = -0.006  # Temp K per  m
+lapse_RH = 0.000  # RH % per m (0 to 1)
+lapse_RRR = 0.0000  # mm per m
+lapse_SNOWFALL = 0.0000  # Snowfall % per m (0 to 1)
+
+# CREATE STATIC FILE
+[create_static.paths]
+static_folder = "./data/static/"
+dem_path = "DEM/n30_e090_3arc_v2.tif"
+shape_path = "Shapefiles/Zhadang_RGI6.shp"
+output_file = "Zhadang_static.nc"
+
+[create_static.coords]
+tile = true
+aggregate = true
+aggregate_degree = 0.003
+longitude_upper_left = 90.62
+latitude_upper_left = 30.48
+longitude_lower_right = 90.66
+latitude_lower_right = 30.46
+
+# WRF2COSIPY
+[wrf2cosipy.constants]
+hu = 10  # Height of WRF wind velocity
+lu_class = 24 # land use class for glaciers

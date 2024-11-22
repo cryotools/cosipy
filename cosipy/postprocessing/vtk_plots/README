@@ -1,0 +1,27 @@
+Create a 3D model of glacier surface for one timestep or for a daily mean.
+
+python plot_cosipy_fields_vtk.py -i nc_file -t timestamp -n variable
+python plot_cosipy_fields_vtk.py -i nc_file -t timestamp [-n name] [-m] 
+
+Example:
+
+Create a 3D model of the daily mean for surface mass balance for the
+Zhadang test data, and save the plot as an image.
+
+python plot_cosipy_fields_vtk.py \
+  -i "../../../data/output/Zhadang_ERA5_20090101-20090110.nc" \
+  -t "2009-01-05" \
+  -n "surfMB" \
+  -m
+    
+Required arguments:
+    -i, --input <path>      Path to .nc file.
+    -t, --time <str>        Target date or timestamp.
+    -n, --name <str>        Name of variable to plot as contours.
+
+Optional switches:
+    -h, --help              Show this help message and exit.
+    -m, --mean              Plot daily mean instead of timestep.
+                                Default False.
+    -g, --gltf              Export plot as a 3D glTF object.
+                                Default False.

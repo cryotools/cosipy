@@ -1,0 +1,120 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cosipymodel"
+version = "2.0.0"
+authors = [
+    { name = "COSIPY Contributors", email = "" },
+]
+description = "Coupled snowpack and ice surface energy and mass balance model in Python."
+readme = "README.rst"
+requires-python = ">=3.9"
+license = { text = "GPL-3.0" }
+keywords = [
+    "glacier modelling",
+    "energy balance model",
+    "mass balance",
+    "glaciology",
+    "glaciers",
+]
+classifiers = [
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Environment :: Console",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+    "numpy>=1.17.3",
+    "pandas>2.0",
+    "scipy>=1.1.0",
+    "xarray>=0.18.0",
+    "xarray-spatial",
+    "netcdf4>=1.5.1.2",
+    "distributed<=2024.2.0; python_version < '3.11'",
+    "distributed; python_version > '3.11'",
+    "dask",
+    "dask-jobqueue",
+    "numba",
+    "metpy",
+    "matplotlib",
+    "gdal",
+    "nco",
+    "cdo",
+    "cartopy",
+    "vtk",
+    "richdem; python_version < '3.11'",
+    "tomli; python_version < '3.11'",
+]
+
+[project.optional-dependencies]
+tests = [
+    "coveralls",
+    "codecov",
+    "pytest",
+    "pytest-dependency",
+]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme >= 1.1",
+]
+dev = [
+    "cosipymodel[tests,docs]",
+    "hatchling >= 1.12",
+    "build >= 0.7",
+    "pylint >= 2.16.1",
+    "flake8 >= 6.0",
+    "black >= 23.1",
+    "isort",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/cryotools/cosipy"
+"Bug Tracker" = "https://github.com/cryotools/cosipy/issues"
+"Documentation" = "https://cosipy.readthedocs.io/en/latest/"
+
+# [tool.pytest.ini_options]
+# addopts = [
+#     "--import-mode=importlib",
+# ]
+
+[project.scripts]
+run-cosipy = "COSIPY:main"
+cosipy-run = "COSIPY:main"
+cosipy-help = "cosipy.config:get_help"
+cosipy-shortcuts = "cosipy.config:print_entry_points"
+setup-cosipy = "cosipy.utilities.setup_cosipy.setup_cosipy:main"
+cosipy-setup = "cosipy.utilities.setup_cosipy.setup_cosipy:main"
+
+cosipy-aws2cosipy = "cosipy.utilities.aws2cosipy.aws2cosipy:main"
+cosipy-create-static = "cosipy.utilities.createStatic.create_static_file:main"
+cosipy-wrf2cosipy = "cosipy.utilities.wrf2cosipy.wrf2cosipy:main"
+
+cosipy-plot-field = "cosipy.postprocessing.field_plots.plot_cosipy_fields:main"
+cosipy-plot-profile = "cosipy.postprocessing.profile_plots.plot_profiles:main"
+cosipy-plot-vtk = "cosipy.postprocessing.vtk_plots.plot_cosipy_fields_vtk:main"
+
+[tool.hatch.build.targets.sdist]
+packages = ["cosipy", "COSIPY.py"]
+exclude = [
+    "data/static/Shapefiles/*.*",
+    "data/static/DEM/*.*",
+    "logs",
+    "*.png",
+    "*.vtu",
+    "*.csv",
+    "*.nc",
+    "*.bat",
+    "*.sh",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["cosipy", "COSIPY.py"]

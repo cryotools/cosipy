@@ -1,0 +1,30 @@
+Create simple distributed plots of one timestep or of a daily mean.
+
+python plot_cosipy_fields.py -f nc_file -d timestamp
+python plot_cosipy_fields.py -f nc_file -d timestamp [-m] [-s] [-v variable] [-t <int>]
+
+Example:
+
+Create a contour plot of the daily mean for surface mass balance for the
+Zhadang test data, and save the plot to disk.
+
+python plot_cosipy_fields.py \
+    -i "../../../data/output/Zhadang_ERA5_20090101-20090110.nc"
+    -d "2009-01-05" \
+    -v "surfMB" \
+    -t 1 \
+    -m \
+    -s
+
+Required arguments:
+    -i, --input <path>       Path to .nc file.
+    -d, --date <str>         Target date or timestamp.
+
+Optional switches:
+    -s, --save               Save plot. File name is automatically generated.
+                                 Default False.
+    -m, --mean               Plot daily mean instead of timestep. Default False.
+
+Optional arguments:
+    -v, --var <str>          Variable to plot. If not set, creates a stamp plot.
+    -t, --type <int>         Set plot type. 1: contour, 2: mesh. Default 1.
