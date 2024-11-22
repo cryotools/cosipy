@@ -35,6 +35,7 @@ Installation
 
 Install GDAL:
 .. code-block:: console
+
     sudo apt-get install gdal-bin libgdal-dev
     pip install --upgrade gdal==`gdal-config --version` pybind11  # with pip
 
