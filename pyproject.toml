@@ -46,7 +46,6 @@ dependencies = [
     "numba",
     "metpy",
     "matplotlib",
-    "gdal",
     "nco",
     "cdo",
     "cartopy",
