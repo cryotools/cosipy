@@ -6,9 +6,9 @@ name: Pytest
 
 on:
   push:
-    branches: ["master", "Development", "release-**"]
+    branches: ["master", "release-**"]
   pull_request:
-    branches: ["master", "Development", "release-**"]
+    branches: ["master", "development", "release-**"]
 
 permissions:
   contents: read

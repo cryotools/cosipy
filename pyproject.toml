@@ -20,7 +20,6 @@ keywords = [
     "glaciers",
 ]
 classifiers = [
-    "Private :: Do Not Upload",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
@@ -113,6 +112,8 @@ exclude = [
     "*.vtu",
     "*.csv",
     "*.nc",
+    "*.bat",
+    "*.sh",
 ]
 
 [tool.hatch.build.targets.wheel]
