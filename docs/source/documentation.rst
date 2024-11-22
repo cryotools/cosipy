@@ -89,6 +89,7 @@ Installing COSIPY as an editable allows it to run from any directory.
 .. code-block:: bash
 
     git clone https://github.com/cryotools/cosipy.git
+    cd cosipy
     pip install -e .
     pip install -e .[tests] # install with dependencies for tests
     pip install -e .[docs]  # install with dependencies for documentation
