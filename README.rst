@@ -41,12 +41,14 @@ Install GDAL:
 
 Install COSIPY with pip (for general use):
 .. code-block:: console
+
     pip install cosipymodel
     cosipy-setup  # generate template configuration files
     cosipy-help   # view help
 
 Install COSIPY from source (for development):
 .. code-block:: console
+
     git clone https://github.com/cryotools/cosipy.git
     pip install -r requirements.txt              # install default environment
     pip install -r dev_requirements.txt          # install dev environment
