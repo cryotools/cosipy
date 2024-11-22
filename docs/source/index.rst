@@ -10,8 +10,9 @@ COSIPY is a Python-based coupled snowpack and ice surface energy and mass balanc
 .. toctree::
    :maxdepth: 3
    :caption: Documentation
-
+   
    documentation
+   troubleshooting
 
 .. toctree::
    :maxdepth: 3

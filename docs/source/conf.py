@@ -72,6 +72,8 @@ autodoc_type_aliases = {
     "IOClass": "cosipy.cpkernel.io.IOClass",
 }
 autodoc_mock_imports = ["cosipy.config", "cosipy.constants"]
+if sys.version_info >= (3, 11):
+    autodoc_mock_imports.append("richdem")  # mock richdem for Python 3.11+
 autosummary_generate = True
 
 numpydoc_class_members_toctree = True

@@ -20,12 +20,12 @@ Required arguments:
     -o, --output <path>     Path to the resulting COSIPY file.
 
 Optional arguments:
-    -u, --u <path>              Relative path to utilities'
-                                    configuration file.
-    -b, --start_date <yyyymmdd> Start date.
-    -e, --end_date <yyyymmdd>   End date.
-    
+    -u, --u <path>                  Relative path to utilities'
+                                        configuration file.
+    -b, --start_date <yyyymmdd>     Start date.
+    -e, --end_date <yyyymmdd>       End date. 
 """
+
 import argparse
 
 import numpy as np

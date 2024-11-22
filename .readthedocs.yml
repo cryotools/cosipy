@@ -5,8 +5,13 @@
 # Required
 version: 2
 
+build:
+  os: "ubuntu-22.04"
+  tools:
+    python: "3.12"  # richdem is mocked for Python 3.11+
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
+  builder: html
   configuration: docs/source/conf.py
 
 # Build documentation with MkDocs
@@ -14,13 +19,13 @@ sphinx:
 #  configuration: mkdocs.yml
 
 # Optionally build your docs in additional formats such as PDF and ePub
-formats: all
+# formats: all
 
-build:
-  image: stable
-
-# Optionally set the version of Python and requirements required to build your docs
 python:
-  version: 3.7
   install:
     - requirements: docs/requirements.txt
+    - method: pip
+      path: .
+submodules:
+  include: all
+  recursive: true

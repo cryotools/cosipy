@@ -14,6 +14,7 @@ Convert your existing configuration files before merging the latest update:
 
 .. code-block:: console
 
+    pip install toml
     git fetch --all
     git checkout master -- convert_config.py
     python convert_config.py  # generate .toml files
@@ -28,6 +29,28 @@ Checkout a new branch with a clean version of COSIPY and merge your modification
 This minimises the number of merge conflicts.
 After updating to the latest version of COSIPY, run ``python COSIPY.py --help`` to see how to specify paths to configuration files.
 COSIPY will default to ``./config.toml``, ``./constants.toml``, ``./slurm_config.toml``, ``./utilities_config.toml`` in the current working directory.
+
+Installation
+------------
+
+Install GDAL:
+.. code-block:: console
+    sudo apt-get install gdal-bin libgdal-dev
+    pip install --upgrade gdal==`gdal-config --version` pybind11  # with pip
+
+Install COSIPY with pip (for general use):
+.. code-block:: console
+    pip install cosipymodel
+    cosipy-setup  # generate template configuration files
+    cosipy-help   # view help
+
+Install COSIPY from source (for development):
+.. code-block:: console
+    git clone https://github.com/cryotools/cosipy.git
+    pip install -r requirements.txt              # install default environment
+    pip install -r dev_requirements.txt          # install dev environment
+    conda install --file conda_requirements.txt  # install using conda/mamba
+    python3 COSIPY.py -h
 
 Communication and Support
 -------------------------

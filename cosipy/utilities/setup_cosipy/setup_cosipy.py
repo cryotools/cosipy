@@ -1,4 +1,25 @@
-"""Generate sample configuration files for COSIPY."""
+"""
+Generate sample configuration files for COSIPY.
+
+Usage:
+
+Entry point:
+``cosipy-setup [-y] [-o <path>]``
+
+From source:
+``python -m cosipy.utilities.setup_cosipy.setup_cosipy -i <input> -o <output> -s <static> [-u <path>] [-b <date>] [-e <date>]``
+
+Options and arguments:
+
+Optional switches:
+    -h, --help              Show this help message and exit.
+    -y, --yes               Silently overwrite existing configuration
+                                files.
+
+Optional arguments:
+    -o, --output <path>     Relative path to target configuration
+                                directory.
+"""
 
 import argparse
 import inspect
@@ -12,11 +33,11 @@ def get_user_arguments() -> argparse.Namespace:
     Optional switches:
         -h, --help              Show this help message and exit.
         -y, --yes               Silently overwrite existing
-                                configuration files.
+                                    configuration files.
 
     Optional arguments:
-        -o, --output <str>      Relative path to target configuration
-                                directory.
+        -o, --output <path>     Relative path to target configuration
+                                    directory.
 
     Returns:
         Namespace of user arguments.
@@ -32,7 +53,7 @@ def get_user_arguments() -> argparse.Namespace:
         "-y",
         "--yes",
         action="store_true",
-        default=None,
+        default=False,
         dest="overwrite",
         help="silently overwrite existing configuration files",
     )

@@ -9,11 +9,11 @@ Getting started
 Requirements
 ============
 
-COSIPY is compatible with Python 3.9+ on Linux and MacOS.
+COSIPY is compatible with Python 3.9-3.12 on Linux and MacOS.
 If you think your specific Python version or operating system causes an issue with COSIPY, please create a topic in the forum.
 The model is tested and developed on:
 
- * Python 3.9+ on Ubuntu 22.04 / Debian 12
+ * Python 3.9-3.12 on Ubuntu 22.04 / Debian 12
  * Anaconda distribution on macOS
  * Anaconda 3 64-bit (Python 3.9) on CentOS Linux 7.4
  * High-Performance Cluster Erlangen-Nuremberg University 
@@ -22,41 +22,51 @@ The model is tested and developed on:
     COSIPY 2.0 is not backwards-compatible with older versions of COSIPY.
     Please :ref:`read the instructions <upgrading>` on upgrading from an older version, and using the :ref:`new configuration system <configuration>`.
 
-
 .. _installation:
 
 Installation
 ============
 
+For Python 3.11 and above, the recommended environment manangers are conda/mamba.
+
 Pre-requisites
 --------------
 
-Creating the static file requires GDAL:
+Install GDAL:
 
 .. code-block:: bash
 
     sudo apt-get install gdal-bin libgdal-dev
     pip install --upgrade gdal==`gdal-config --version` pybind11  # with pip
-    mamba install gdal  # with conda/mamba
+    conda install gdal  # with conda/mamba
 
 If you are installing dependencies with conda/mamba, use ``-c conda-forge`` if it does not already have the highest channel priority.
 
-The `icc_rt` package may provide a performance boost on some systems:
+.. note:: If you are installing with **pip** and Python 3.11+, you will need to `compile and install richdem`_.
+    This is not necessary when using conda/mamba.
+
+.. _`compile and install richdem`: https://github.com/r-barnes/richdem?tab=readme-ov-file#compilation
+
+The ``icc_rt`` package may provide a performance boost on some systems:
 
 .. code-block:: bash
 
     pip install icc-rt             # with pip
-    mamba install icc_rt -c numba  # with conda/mamba
+    conda install icc_rt -c numba  # with conda/mamba
 
 Installation with pip
 ---------------------
 
-Installing COSIPY as a package allows it to run in any directory:
+Installing COSIPY as a package allows it to run from any directory:
 
 .. code-block:: bash
+
     pip install cosipymodel
-    setup-cosipy  # generate sample configuration files
+    conda install richdem  # if you are using conda/mamba and python 3.11+
+    cosipy-setup  # generate sample configuration files
     cosipy-help   # view help
+
+This is the recommended installation method if you do not plan to modify the source code.
 
 Installation from Source
 ------------------------
@@ -68,13 +78,13 @@ Activate your preferred python environment, then run:
     git clone https://github.com/cryotools/cosipy.git
     pip install -r requirements.txt              # install default environment
     pip install -r dev_requirements.txt          # install dev environment
-    mamba install --file conda_requirements.txt  # install using mamba
+    conda install --file conda_requirements.txt  # install using conda/mamba
     python3 COSIPY.py -h
 
 Installation as an Editable
 ---------------------------
 
-Installing COSIPY as an editable allows it to run in any directory.
+Installing COSIPY as an editable allows it to run from any directory.
 
 .. code-block:: bash
 
@@ -83,7 +93,7 @@ Installing COSIPY as an editable allows it to run in any directory.
     pip install -e .[tests] # install with dependencies for tests
     pip install -e .[docs]  # install with dependencies for documentation
     pip install -e .[dev]   # install with dependencies for development
-    setup-cosipy            # generate sample configuration files
+    cosipy-setup            # generate sample configuration files
     cosipy-help             # view help
 
 .. _upgrading:
@@ -91,13 +101,14 @@ Installing COSIPY as an editable allows it to run in any directory.
 Upgrading from an Older Version of COSIPY
 -----------------------------------------
 
-COSIPY 2.0 is not backwards-compatible with COSIPY 1.4 and below.
+COSIPY 2.0 is not backwards-compatible with previous versions of COSIPY.
 If you have written your own modules that import from ``constants.py``, ``config.py``, or use Slurm, these will break.
 
 Navigate to COSIPY's root directory and convert your existing configuration files:
 
 .. code-block:: bash
 
+    pip install toml
     git fetch --all
     git checkout master -- convert_config.py
     python convert_config.py  # convert .toml files
@@ -109,38 +120,24 @@ This will preserve your configuration for ``config.py``, ``constants.py``, ``aws
 .. warning::
     Parameters for ``create_static`` must still be added manually to the generated ``utilities_config.toml``.
     Custom configuration variables that do not appear in the main branch must also be added manually.
-added
+
+Checkout a new branch with a clean version of COSIPY and merge your modifications.
+
+.. code-block:: bash
+
+    git checkout master
+    git pull
     git checkout -b <new-branch-name>
     git merge --no-ff <old-branch-name>  # Good luck!
 
 You can also merge the new version of COSIPY into an existing branch, but this creates even more merge conflicts.
+Most conflicts involve importing configuration parameters or constants.
+In most cases you simply need to prepend ``Config.`` or ``Constants.`` to a variable.
+Please read the documentation for the :ref:`new configuration system <configuration>`.
 
 After updating to the latest version of COSIPY, run ``python COSIPY.py --help`` to see how to specify paths to configuration files.
 COSIPY will default to ``./config.toml``, ``./constants.toml``, ``./slurm_config.toml``, ``./utilities_config.toml`` in the current working directory.
 **You no longer need to hardcode different simulation parameters into a single file.**
-
-.. _entry_points:
-
-Entry Points
-------------
-
-If installed as an editable or package, COSIPY provides several entry points to speed up common operations.
-These entry points accept python arguments (such as ``--help``).
-
-Available shortcuts:
-    :cosipy-help:           Display help for running COSIPY.
-    :cosipy-shortcuts:      Display available entry points.
-    :cosipy-setup:          Setup missing configuration files.
-    :cosipy-run:            Run COSIPY. Accepts python arguments.
-    :cosipy-aws2cosipy:     Convert AWS data to netCDF.
-    :cosipy-create-static:  Create static file.
-    :cosipy-wrf2cosipy:     Convert WRF data to netCDF.
-    :cosipy-plot-field:     Generate field plots.
-    :cosipy-plot-profile:   Generate profile plots.
-    :cosipy-plot-vtk:       Generate 3D plots.
-    :help-cosipy:           Alias for ``cosipy-help``.
-    :run-cosipy:            Alias for ``cosipy-run``.
-    :setup-cosipy:          Alias for ``cosipy-setup``.
 
 .. _tutorial:
 
@@ -247,10 +244,10 @@ Optional arguments:
     --yl <float>                Lower latitude value of the subset.
     --yu <float>                Upper latitude value of the subset.
 
-.. _run:
+.. _run_model:
 
 Run the COSIPY model
-~~~~~~~~~~~~~~~~~~~~
+--------------------
 
 To run COSIPY, run the following command in the root directory:
 
@@ -259,38 +256,78 @@ To run COSIPY, run the following command in the root directory:
     python COSIPY.py  # from source
     run-cosipy        # from package
 
-The example should take 1-2 minutes on a workstation with 4 cores.
+The example should take less than a minute on a workstation with 4 cores.
+
+.. _run_usage:
+
+Running COSIPY
+==============
+
+COSIPY accepts arguments specifying paths to configuration files.
 
 **Usage:**
 
 .. code-block:: bash
 
-    COSIPY [-h] [-c <path>] [-x <path>] [-s <path>]
+    python COSIPY.py [-h] [-c <path>] [-x <path>] [-s <path>]  # from source
+    run-cosipy [-h] [-c <path>] [-x <path>] [-s <path>]  # from package
 
 Optional arguments:
     -c <path>, --config <path>      Relative path to configuration file.
     -x <path>, --constants <path>   Relative path to constants file.
     -s <path>, --slurm <path>       Relative path to Slurm configuration file.
 
+.. _entry_points:
+
+Entry Points
+------------
+
+If installed as an editable or package, COSIPY provides several entry points to speed up common operations.
+These entry points accept python arguments (such as ``--help``).
+
+Available shortcuts:
+    :cosipy-help:           Display help for running COSIPY.
+    :cosipy-shortcuts:      Display available entry points.
+    :cosipy-setup:          Setup missing configuration files.
+    :cosipy-run:            Run COSIPY. Accepts python arguments.
+    :cosipy-aws2cosipy:     Convert AWS data to netCDF.
+    :cosipy-create-static:  Create static file.
+    :cosipy-wrf2cosipy:     Convert WRF data to netCDF.
+    :cosipy-plot-field:     Generate field plots.
+    :cosipy-plot-profile:   Generate profile plots.
+    :cosipy-plot-vtk:       Generate 3D plots.
+    :help-cosipy:           Alias for ``cosipy-help``.
+    :run-cosipy:            Alias for ``cosipy-run``.
+    :setup-cosipy:          Alias for ``cosipy-setup``.
+
 .. _configuration:
 
 Configuration
-~~~~~~~~~~~~~
+=============
 
-.. note:: Configure parameters/constants in ``config.toml``, ``constants.toml``, and ``utilities_config.toml``.
+.. note:: Configure parameters/constants in ``config.toml``, ``constants.toml``, ``slurm_config.toml`` and ``utilities_config.toml``.
 
 All user configuration is done with .toml files.
 If COSIPY is installed as a package, generate sample configuration files using ``setup-cosipy``.
 Configuration is split into four parts: model configuration, constants, utilities, and Slurm configuration.
 You can keep multiple configuration files for different simulations in the same (or indeed any working directory).
 
-You can select which output variables are saved to disk under ``[OUTPUT_VARIABLES]`` in config.toml.
-This can prevent out-of-memory errors when working with very large datasets.
+If you are using a cluster, you can also chain multiple simulations with a single batch script:
 
-You can import configuration parameters or constants into a module.
+.. code-block:: bash
+
+    python $WORK/COSIPY.py -c config_01.toml -x constants_01.toml -s slurm_01.toml
+    python $WORK/COSIPY.py -c config_02.toml -x constants_02.toml -s slurm_02.toml
+
+Select which output variables are saved to disk under ``[OUTPUT_VARIABLES]`` in ``config.toml``.
+This can prevent out-of-memory errors when working with very large datasets.
+This replaces the ``cosipy/output`` and ``cosipy/output.full`` files.
+
+Import configuration parameters or constants into a module.
 These are read-only to avoid namespace collisions.
 
 .. code-block:: python
+
     from cosipy.config import Config
     from cosipy.constants import Constants
 
