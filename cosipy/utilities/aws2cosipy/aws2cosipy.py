@@ -486,7 +486,7 @@ def create_2D_input(
                 aggregates[name] = "mean"
             else:
                 aggregates[name] = "sum"
-        df = df.resample(_cfg.coords["aggregation_step"].agg(aggregates))
+        df = df.resample(_cfg.coords["aggregation_step"]).agg(aggregates)
 
     # Load static data
     print(f"Read static file {static_file}\n")
