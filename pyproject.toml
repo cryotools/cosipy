@@ -43,7 +43,7 @@ dependencies = [
     "distributed; python_version > '3.11'",
     "dask",
     "dask-jobqueue",
-    "numba",
+    "numba>=0.60",
     "metpy",
     "matplotlib",
     "nco",

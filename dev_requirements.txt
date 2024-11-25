@@ -8,7 +8,7 @@ distributed<=2024.2.0; python_version < '3.11'
 distributed; python_version >= '3.11'
 dask
 dask-jobqueue
-numba
+numba>=0.60
 metpy
 matplotlib
 gdal
