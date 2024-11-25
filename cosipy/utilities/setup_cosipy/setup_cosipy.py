@@ -111,13 +111,15 @@ def copy_file_to_target(
 
     target_path = f"{target_dir}/{basename}"
     source_path = f"{source_dir}/{basename}"
-    overwrite = silent_overwrite
+    overwrite = True  # otherwise no file created if missing
 
     if not silent_overwrite and os.path.isfile(target_path):
         prompt = f"{basename} already exists in {target_dir}/\nReplace target? [y/N] "
         overwrite = get_user_confirmation(prompt)
     if overwrite:
         shutil.copyfile(source_path, target_path, follow_symlinks=True)
+    else:
+        print("Skipping...")
 
 def get_user_confirmation(prompt: str) -> bool:
     """Get user confirmation.
