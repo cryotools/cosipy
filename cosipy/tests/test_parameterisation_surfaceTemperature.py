@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 import cosipy.modules.surfaceTemperature as module_surface_temperature
-from cosipy.constants import Constants
+from cosipy.constants import constants_config as cc
 
 
 class TestParamSurfaceTemperature:
@@ -41,7 +41,7 @@ class TestParamSurfaceTemperature:
     def assert_minimisation_ranges(
         self, surface_temperature, lw_in, lw_out, shf, lhf, ghf
     ):
-        assert Constants.zero_temperature >= surface_temperature >= 220.0
+        assert cc.zero_temperature >= surface_temperature >= 220.0
         assert 400 >= lw_in >= 0
         assert 0 >= lw_out >= -400
         assert 250 >= shf >= -250
@@ -56,12 +56,12 @@ class TestParamSurfaceTemperature:
     ):
         conftest_boilerplate.patch_variable(
             monkeypatch,
-            Constants,
+            cc,
             {"sfc_temperature_method": arg_optim},
         )
         conftest_boilerplate.patch_variable(
             monkeypatch,
-            module_surface_temperature.Constants,
+            module_surface_temperature.cc,
             {"sfc_temperature_method": arg_optim},
         )
 
@@ -117,7 +117,7 @@ class TestParamSurfaceTemperature:
     ):
         conftest_boilerplate.patch_variable(
             monkeypatch,
-            module_surface_temperature.Constants,
+            module_surface_temperature.cc,
             {"sfc_temperature_method": arg_optim},
         )
         test_grid = conftest_mock_grid
@@ -202,7 +202,7 @@ class TestParamSurfaceTemperature:
             N=0.5,  # otherwise tries to retrieve LWin from non-existent file
         )
 
-        assert Constants.zero_temperature >= surface_temperature >= 220.0
+        assert cc.zero_temperature >= surface_temperature >= 220.0
         assert 400 >= lw_radiation_in >= 0
         assert 0 >= lw_radiation_out >= -400
         assert 250 >= sensible_heat_flux >= -250

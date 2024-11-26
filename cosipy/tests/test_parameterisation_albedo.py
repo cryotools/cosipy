@@ -1,10 +1,11 @@
+import re
+
 import numpy as np
 import pytest
-import re
 
 import cosipy.modules.albedo as module_albedo
 from COSIPY import start_logging
-from cosipy.constants import Constants
+from cosipy.constants import constants_config as cc
 
 
 class TestParamAlbedoUpdate:
@@ -16,13 +17,13 @@ class TestParamAlbedoUpdate:
         surface_albedo, snow_albedo = module_albedo.updateAlbedo(
             GRID=grid,
             surface_temperature=270.0,
-            albedo_snow=Constants.albedo_fresh_snow,
+            albedo_snow=cc.albedo_fresh_snow,
         )
         assert isinstance(surface_albedo, float)
         assert (
-            Constants.albedo_firn
+            cc.albedo_firn
             <= surface_albedo
-            <= Constants.albedo_fresh_snow
+            <= cc.albedo_fresh_snow
         )
         assert isinstance(snow_albedo, float)
 
@@ -33,22 +34,22 @@ class TestParamAlbedoUpdate:
         albedo, snow_albedo = module_albedo.updateAlbedo(
             GRID=grid_ice,
             surface_temperature=270.0,
-            albedo_snow=Constants.albedo_fresh_snow,
+            albedo_snow=cc.albedo_fresh_snow,
         )
         assert conftest_boilerplate.check_output(
-            albedo, float, Constants.albedo_ice
+            albedo, float, cc.albedo_ice
         )
         assert conftest_boilerplate.check_output(
-            snow_albedo, float, Constants.albedo_fresh_snow
+            snow_albedo, float, cc.albedo_fresh_snow
         )
 
     @pytest.mark.parametrize("arg_height", [0.0, 0.05, 0.1, 0.5])
     @pytest.mark.parametrize(
         "arg_temperature",
-        [Constants.temperature_bottom, Constants.zero_temperature, 280.0],
+        [cc.temperature_bottom, cc.zero_temperature, 280.0],
     )
     @pytest.mark.parametrize(
-        "arg_time", [0, Constants.albedo_mod_snow_aging * 24]
+        "arg_time", [0, cc.albedo_mod_snow_aging * 24]
     )
     def test_get_surface_properties(
         self,
@@ -71,7 +72,7 @@ class TestParamAlbedoUpdate:
 
         grid.add_fresh_snow(
             arg_height,
-            Constants.constant_density,
+            cc.constant_density,
             arg_temperature,
             0.0,
             0,
@@ -105,7 +106,7 @@ class TestParamAlbedoSelection:
         surface_albedo, snow_albedo = module_albedo.updateAlbedo(
             GRID=grid,
             surface_temperature=270.0,
-            albedo_snow=Constants.albedo_fresh_snow,
+            albedo_snow=cc.albedo_fresh_snow,
         )
         assert isinstance(surface_albedo, float)
         assert isinstance(snow_albedo, float)
@@ -133,7 +134,7 @@ class TestParamAlbedoSelection:
             module_albedo.updateAlbedo(
                 GRID=grid,
                 surface_temperature=270.0,
-                albedo_snow=Constants.albedo_fresh_snow,
+                albedo_snow=cc.albedo_fresh_snow,
             )
 
 
@@ -144,9 +145,9 @@ class TestParamAlbedoMethods:
         """Get surface albedo without accounting for snow depth."""
 
         grid = conftest_mock_grid
-        albedo_limit = Constants.albedo_firn + (
-            Constants.albedo_fresh_snow - Constants.albedo_firn
-        ) * np.exp(0 / (Constants.albedo_mod_snow_aging * 24.0))
+        albedo_limit = cc.albedo_firn + (
+            cc.albedo_fresh_snow - cc.albedo_firn
+        ) * np.exp(0 / (cc.albedo_mod_snow_aging * 24.0))
 
         compare_albedo = module_albedo.method_Oerlemans(grid)
 
@@ -158,9 +159,9 @@ class TestParamAlbedoMethods:
     def test_get_simple_albedo(self, arg_hours):
         """Get surface albedo without accounting for snow depth."""
 
-        albedo_limit = Constants.albedo_firn + (
-            Constants.albedo_fresh_snow - Constants.albedo_firn
-        ) * np.exp((0) / (Constants.albedo_mod_snow_aging * 24.0))
+        albedo_limit = cc.albedo_firn + (
+            cc.albedo_fresh_snow - cc.albedo_firn
+        ) * np.exp((0) / (cc.albedo_mod_snow_aging * 24.0))
 
         compare_albedo = module_albedo.get_simple_albedo(
             elapsed_time=arg_hours
@@ -174,18 +175,18 @@ class TestParamAlbedoMethods:
     def test_get_albedo_with_decay(self, arg_depth):
         """Apply surface albedo decay due to the snow depth."""
 
-        albedo_limit = Constants.albedo_firn + (
-            Constants.albedo_fresh_snow - Constants.albedo_firn
-        ) * np.exp((0) / (Constants.albedo_mod_snow_aging * 24.0))
+        albedo_limit = cc.albedo_firn + (
+            cc.albedo_fresh_snow - cc.albedo_firn
+        ) * np.exp((0) / (cc.albedo_mod_snow_aging * 24.0))
 
-        albedo_limit = Constants.albedo_firn + (
-            Constants.albedo_ice - Constants.albedo_firn
+        albedo_limit = cc.albedo_firn + (
+            cc.albedo_ice - cc.albedo_firn
         ) * np.exp(
-            (-1.0 * arg_depth) / (Constants.albedo_mod_snow_depth / 100.0)
+            (-1.0 * arg_depth) / (cc.albedo_mod_snow_depth / 100.0)
         )
 
         compare_albedo = module_albedo.get_albedo_with_decay(
-            snow_albedo=Constants.albedo_firn, snow_height=arg_depth
+            snow_albedo=cc.albedo_firn, snow_height=arg_depth
         )
 
         assert isinstance(compare_albedo, float)

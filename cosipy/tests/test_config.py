@@ -1,13 +1,19 @@
 import argparse
+from pathlib import Path
+
+import pytest
 
 import cosipy.config
-from cosipy.config import Config
+from cosipy.config import Config, CosipyConfigModel, main_config
 
+file_path = Path("config.toml")
+
+@pytest.fixture()
+def test_cfg():
+    return Config(file_path).validate()
 
 class TestConfigParser:
     """Test argument parsing for config hook."""
-
-    file_path = "./config.toml"
 
     def test_set_parser(self):
         compare_parser = cosipy.config.set_parser()
@@ -29,11 +35,9 @@ class TestConfigParser:
 class TestConfig:
     """Test rtoml support."""
 
-    file_path = "config.toml"
-
-    def test_init_config(self):
-        test_cfg = Config()
-        assert isinstance(test_cfg, Config)
+    def test_init_config(self, test_cfg):
+        assert isinstance(test_cfg, CosipyConfigModel)
+        assert test_cfg == main_config
 
     def test_get_raw_toml(self):
         variable_names = [
@@ -49,16 +53,12 @@ class TestConfig:
             "SUBSET",
         ]
 
-        test_cfg = Config()
-        compare_toml = test_cfg.get_raw_toml()
+        compare_toml = Config(file_path).get_raw_toml(file_path)
         assert isinstance(compare_toml, dict)
         for name in variable_names:
-            assert name in compare_toml.keys()
+            assert name in compare_toml
 
-    def test_load_config(self):
-        test_cfg = Config()
-        test_cfg.load()
-
+    def test_load_config(self, test_cfg):
         variable_names = [
             "time_start",
             "time_end",
@@ -90,8 +90,3 @@ class TestConfig:
 
         for name in variable_names:
             assert hasattr(test_cfg, name)
-            compare_attr = getattr(test_cfg, name)
-            assert (
-                isinstance(compare_attr, (int, str, bool))
-                or compare_attr is None
-            )

@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from numba import float64
 
-from cosipy.constants import Constants
+from cosipy.constants import constants_config as cc
 from cosipy.cpkernel.grid import Grid
 
 
@@ -79,10 +79,10 @@ class TestGridGetter:
         if ice_fraction is None:
             a = (
                 density
-                - (1 - (density / Constants.ice_density))
-                * Constants.air_density
+                - (1 - (density / cc.ice_density))
+                * cc.air_density
             )
-            ice_fraction = a / Constants.ice_density
+            ice_fraction = a / cc.ice_density
         else:
             ice_fraction = ice_fraction
         return ice_fraction
@@ -93,10 +93,10 @@ class TestGridGetter:
         if arg_ice_fraction is None:
             a = (
                 test_density
-                - (1 - (test_density / Constants.ice_density))
-                * Constants.air_density
+                - (1 - (test_density / cc.ice_density))
+                * cc.air_density
             )
-            test_ice = a / Constants.ice_density
+            test_ice = a / cc.ice_density
         else:
             test_ice = arg_ice_fraction
         compare_ice = self.get_ice_fraction(arg_ice_fraction, test_density)
@@ -188,7 +188,7 @@ class TestGridGetter:
             [
                 1
                 for idx in range(grid.number_nodes)
-                if grid.get_node_density(idx) < Constants.snow_ice_threshold
+                if grid.get_node_density(idx) < cc.snow_ice_threshold
             ]
         )
 

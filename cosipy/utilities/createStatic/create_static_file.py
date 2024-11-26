@@ -19,20 +19,13 @@ Optional arguments:
 import argparse
 import os
 from itertools import product
+from pathlib import Path
 
 import numpy as np
 import richdem as rd
 import xarray as xr
 
 from cosipy.utilities.config_utils import UtilitiesConfig
-
-
-def check_folder_path(path: str) -> str:
-    """Check the folder path includes a forward slash."""
-    if not path.endswith("/"):
-        path = f"{path}/"
-
-    return path
 
 
 def check_for_nan(ds,var=None):
@@ -92,16 +85,16 @@ def load_config(module_name: str) -> tuple:
 def main():
     _, _cfg = load_config(module_name="create_static")
 
-    static_folder = _cfg.paths["static_folder"]
+    static_folder = Path(_cfg.paths["static_folder"])
     tile = _cfg.coords["tile"]
     aggregate = _cfg.coords["aggregate"]
 
     # input digital elevation model (DEM)
-    dem_path_tif = f"{static_folder}{_cfg.paths['dem_path']}"
+    dem_path_tif = static_folder / _cfg.paths['dem_path']
     # input shape of glacier or study area, e.g. from the Randolph glacier inventory
-    shape_path = f"{static_folder}{_cfg.paths['shape_path']}"
+    shape_path = static_folder / _cfg.paths['shape_path']
     # path where the static.nc file is saved
-    output_path = f"{static_folder}{_cfg.paths['output_file']}"
+    output_path = static_folder / _cfg.paths['output_file']
 
     # to shrink the DEM use the following lat/lon corners
     longitude_upper_left = str(_cfg.coords["longitude_upper_left"])
@@ -113,12 +106,12 @@ def main():
     aggregate_degree = str(_cfg.coords["aggregate_degree"])
 
     # intermediate files, will be removed afterwards
-    dem_path_tif_temp = f"{static_folder}DEM_temp.tif"
-    dem_path_tif_temp2 = f"{static_folder}DEM_temp2.tif"
-    dem_path = f"{static_folder}dem.nc"
-    aspect_path = f"{static_folder}aspect.nc"
-    mask_path = f"{static_folder}mask.nc"
-    slope_path = f"{static_folder}slope.nc"
+    dem_path_tif_temp =  static_folder / "DEM_temp.tif"
+    dem_path_tif_temp2 =  static_folder / "DEM_temp2.tif"
+    dem_path =  static_folder / "dem.nc"
+    aspect_path =  static_folder / "aspect.nc"
+    mask_path =  static_folder / "mask.nc"
+    slope_path =  static_folder / "slope.nc"
 
     if tile:
         os.system(

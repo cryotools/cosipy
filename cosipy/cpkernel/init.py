@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit
 
-from cosipy.constants import Constants
+from cosipy.constants import constants_config as cc
 from cosipy.cpkernel.grid import Grid
 
 
@@ -16,13 +16,13 @@ def init_snowpack(DATA):
     """
 
     # Declare locally for faster lookup
-    initial_snowheight_constant = Constants.initial_snowheight_constant
-    initial_glacier_height = Constants.initial_glacier_height
-    initial_glacier_layer_heights = Constants.initial_glacier_layer_heights
-    temperature_bottom = Constants.temperature_bottom
-    initial_top_density_snowpack = Constants.initial_top_density_snowpack
-    initial_bottom_density_snowpack = Constants.initial_bottom_density_snowpack
-    ice_density = Constants.ice_density
+    initial_snowheight_constant = cc.initial_snowheight_constant
+    initial_glacier_height = cc.initial_glacier_height
+    initial_glacier_layer_heights = cc.initial_glacier_layer_heights
+    temperature_bottom = cc.temperature_bottom
+    initial_top_density_snowpack = cc.initial_top_density_snowpack
+    initial_bottom_density_snowpack = cc.initial_bottom_density_snowpack
+    ice_density = cc.ice_density
 
     # Check for WRF data
     if "SNOWHEIGHT" in DATA:
@@ -31,7 +31,7 @@ def init_snowpack(DATA):
             initial_snowheight = 0.0
     else:
         initial_snowheight = initial_snowheight_constant
-    temperature_top = np.minimum(DATA.T2.values[0], Constants.zero_temperature)
+    temperature_top = np.minimum(DATA.T2.values[0], cc.zero_temperature)
 
     # Do the vertical interpolation
     layer_heights = []

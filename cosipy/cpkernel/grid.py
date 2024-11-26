@@ -5,7 +5,7 @@ import numpy as np
 from numba import float64, intp, optional, typed, types
 from numba.experimental import jitclass
 
-from cosipy.constants import Constants
+from cosipy.constants import constants_config as cc
 from cosipy.cpkernel.node import Node
 
 node_type = Node.class_type.instance_type
@@ -23,18 +23,18 @@ spec["old_snow_timestamp"] = float64
 spec["grid"] = types.ListType(node_type)
 
 # only required for njitted functions
-snow_ice_threshold = Constants.snow_ice_threshold
-first_layer_height = Constants.first_layer_height
-layer_stretching = Constants.layer_stretching
-temperature_threshold_merging = Constants.temperature_threshold_merging
-density_threshold_merging = Constants.density_threshold_merging
-merge_max = Constants.merge_max
-minimum_snowfall = Constants.minimum_snowfall
-minimum_snow_layer_height = Constants.minimum_snow_layer_height
-remesh_method = Constants.remesh_method
-ice_density = Constants.ice_density
-water_density = Constants.water_density
-albedo_method = Constants.albedo_method
+snow_ice_threshold = cc.snow_ice_threshold
+first_layer_height = cc.first_layer_height
+layer_stretching = cc.layer_stretching
+temperature_threshold_merging = cc.temperature_threshold_merging
+density_threshold_merging = cc.density_threshold_merging
+merge_max = cc.merge_max
+minimum_snowfall = cc.minimum_snowfall
+minimum_snow_layer_height = cc.minimum_snow_layer_height
+remesh_method = cc.remesh_method
+ice_density = cc.ice_density
+water_density = cc.water_density
+albedo_method = cc.albedo_method
 
 
 @jitclass(spec)

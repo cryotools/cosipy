@@ -66,17 +66,17 @@ Ensure parameters between your Slurm configuration file are identical to those i
 Developer Issues
 ================
 
-Error when referencing Config.<X> or Constants.<X> inside an njitted function
+Error when referencing main_config.<X> or cc.<X> (constants_config.<X>) inside an njitted function
 -----------------------------------------------------------------------------
 
 Variables must be declared at the module level if you wish to use them in an njitted function:
 
 .. code-block:: python
 
-    from cosipy.config import Config
-    from cosipy.constants import Constants
+    from cosipy.config import main_config
+    from cosipy.constants import constants_config as cc
 
-    foo = Config.foo  # declare at module level if used in an njitted function
+    foo = main_config.foo  # declare at module level if used in an njitted function
 
     @njit
     def get_foo_njit(...):
@@ -85,7 +85,7 @@ Variables must be declared at the module level if you wish to use them in an nji
 
     def get_foo_nopython(...):
         """Non-compiled functions can reference the parameters directly."""
-        return Config.foo
+        return main_config.foo
 
 Dask workers run out of memory when saving the output
 -----------------------------------------------------
@@ -93,7 +93,7 @@ Dask workers run out of memory when saving the output
 This is a known issue.
 Consider selecting fewer output variables under ``[OUTPUT_VARIABLES]`` in ``config.toml``.
 
-Cannot set values of imported ``Config`` or ``Constants`` attributes
+Cannot set values of imported ``main_config`` or ``cc`` (``constants_config``) attributes
 --------------------------------------------------------------------
 
 Parameters parsed from configuration files are read-only.

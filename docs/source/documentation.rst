@@ -133,7 +133,7 @@ Checkout a new branch with a clean version of COSIPY and merge your modification
 
 You can also merge the new version of COSIPY into an existing branch, but this creates even more merge conflicts.
 Most conflicts involve importing configuration parameters or constants.
-In most cases you simply need to prepend ``Config.`` or ``Constants.`` to a variable.
+In most cases you simply need to prepend ``main_config.`` or ``constants_config.`` (or ``cc.``) to a variable.
 Please read the documentation for the :ref:`new configuration system <configuration>`.
 
 After updating to the latest version of COSIPY, run ``python COSIPY.py --help`` to see how to specify paths to configuration files.
@@ -329,10 +329,10 @@ These are read-only to avoid namespace collisions.
 
 .. code-block:: python
 
-    from cosipy.config import Config
-    from cosipy.constants import Constants
+    from cosipy.config import main_config
+    from cosipy.constants import constants_config as cc
 
-    foo = Config.foo  # declare at module level if used in an njitted function
+    foo = main_config.foo  # declare at module level if used in an njitted function
 
     @njit
     def get_foo_njit(...):
@@ -341,4 +341,4 @@ These are read-only to avoid namespace collisions.
 
     def get_foo_nopython(...):
         """Non-compiled functions can reference the parameters directly."""
-        return Config.foo
+        return main_config.foo

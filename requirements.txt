@@ -15,6 +15,7 @@ nco
 cdo
 cartopy
 vtk
+pydantic
 richdem; python_version < '3.11'
 coveralls
 codecov

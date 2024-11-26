@@ -2,24 +2,24 @@ import numpy as np
 from numba import njit
 from scipy.optimize import minimize, newton
 
-from cosipy.config import Config
-from cosipy.constants import Constants
+from cosipy.config import main_config
+from cosipy.constants import constants_config as cc
 from cosipy.modules.secant import secant
 
-zlt1 = Constants.zlt1
-zlt2 = Constants.zlt2
-saturation_water_vapour_method = Constants.saturation_water_vapour_method
-zero_temperature = Constants.zero_temperature
-lat_heat_vaporize = Constants.lat_heat_vaporize
-lat_heat_sublimation = Constants.lat_heat_sublimation
-sigma = Constants.sigma
-stability_correction = Constants.stability_correction
-spec_heat_air = Constants.spec_heat_air
-spec_heat_water = Constants.spec_heat_water
-sfc_temperature_method = Constants.sfc_temperature_method
-surface_emission_coeff = Constants.surface_emission_coeff
-water_density = Constants.water_density
-WRF_X_CSPY = Config.WRF_X_CSPY
+zlt1 = cc.zlt1
+zlt2 = cc.zlt2
+saturation_water_vapour_method = cc.saturation_water_vapour_method
+zero_temperature = cc.zero_temperature
+lat_heat_vaporize = cc.lat_heat_vaporize
+lat_heat_sublimation = cc.lat_heat_sublimation
+sigma = cc.sigma
+stability_correction = cc.stability_correction
+spec_heat_air = cc.spec_heat_air
+spec_heat_water = cc.spec_heat_water
+sfc_temperature_method = cc.sfc_temperature_method
+surface_emission_coeff = cc.surface_emission_coeff
+water_density = cc.water_density
+WRF_X_CSPY = main_config.WRF_X_CSPY
 
 
 def update_surface_temperature(GRID, dt, z, z0, T2, rH2, p, SWnet, u2, RAIN, SLOPE, LWin=None, N=None):
