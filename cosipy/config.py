@@ -10,7 +10,6 @@ from typing import Annotated, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from pydantic.types import StringConstraints
-from rich import print  # noqa: A004
 from typing_extensions import Self
 
 if sys.version_info >= (3, 11):
