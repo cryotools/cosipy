@@ -1,10 +1,11 @@
-"""
- Read the input data (model forcing) and write the output to netCDF file.
-"""
+"""Read the input data (model forcing) and write the output to netCDF file."""
+
+from __future__ import annotations
 
 import os
 import warnings
 from datetime import datetime
+from pathlib import Path
 
 import numpy as np
 import xarray as xr
@@ -14,8 +15,7 @@ from cosipy.constants import Constants
 
 
 class IOClass:
-
-    def __init__(self, DATA=None):
+    def __init__(self, data: xr.Dataset | None = None):
         """Initialise the IO Class.
 
         Attributes:
@@ -134,11 +134,15 @@ class IOClass:
             start_timestamp = self.get_datetime(time_start)
             end_timestamp = self.get_datetime(time_end)
             timestamp = start_timestamp.strftime("%Y-%m-%dT%H-%M")
-            restart_path = os.path.join(
-                Config.data_path, "restart", f"restart_{timestamp}.nc"
-            )
+            restart_path = Path(Config.data_path) / "restart" / f"restart_{timestamp}.nc"
+            if not restart_path.is_file():
+                msg = f"No restart file available at {restart_path}"
+                raise FileNotFoundError(msg)
+            if start_timestamp == end_timestamp:
+                msg = f"Start date {time_start} equals end date {time_end}"
+                raise IndexError(msg)
             try:
-                if not os.path.isfile(restart_path):
+                if not restart_path.is_file():
                     raise FileNotFoundError
                 elif start_timestamp == end_timestamp:
                     raise IndexError
@@ -269,9 +273,8 @@ class IOClass:
             :U2: Wind speed (magnitude) [|m s^-1|].
             :HGT: Elevation [m].
         """
-
+        input_path = Path(Config.data_path) / "input" / Config.input_netcdf
         try:
-            input_path = os.path.join(Config.data_path, "input", Config.input_netcdf)
             self.DATA = xr.open_dataset(input_path)
         except FileNotFoundError:
             raise SystemExit(f"Input file not found at: {input_path}")

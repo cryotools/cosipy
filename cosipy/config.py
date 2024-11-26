@@ -5,11 +5,19 @@ Hook configuration files for COSIPY.
 import argparse
 import sys
 from importlib.metadata import entry_points
+from pathlib import Path
 
 if sys.version_info >= (3, 11):
     import tomllib
 else:
     import tomli as tomllib  # backwards compatibility
+
+# FIXME: Will this work for all occasions or do we need to use frame?
+cwd = Path.cwd()
+default_path = cwd / "config.toml"
+default_slurm_path = cwd / "slurm_config.toml"
+default_constants_path = cwd / "constants.toml"
+default_utilities_path = cwd / "utilities_config.toml"
 
 
 def set_parser() -> argparse.ArgumentParser:
@@ -23,9 +31,9 @@ def set_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-c",
         "--config",
-        default="./config.toml",
+        default=default_path,
         dest="config_path",
-        type=str,
+        type=Path,
         metavar="<path>",
         required=False,
         help="relative path to configuration file",
@@ -34,9 +42,9 @@ def set_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-x",
         "--constants",
-        default="./constants.toml",
+        default=default_constants_path,
         dest="constants_path",
-        type=str,
+        type=Path,
         metavar="<path>",
         required=False,
         help="relative path to constants file",
@@ -45,9 +53,9 @@ def set_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-s",
         "--slurm",
-        default="./slurm_config.toml",
+        default=default_slurm_path,
         dest="slurm_path",
-        type=str,
+        type=Path,
         metavar="<path>",
         required=False,
         help="relative path to Slurm configuration file",

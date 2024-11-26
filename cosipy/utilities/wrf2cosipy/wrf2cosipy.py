@@ -27,6 +27,7 @@ Optional arguments:
 """
 
 import argparse
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -40,7 +41,7 @@ _args = None
 _cfg = None
 
 
-def create_input(wrf_file, cosipy_file, start_date, end_date):
+def create_input(wrf_file: Path, cosipy_file: Path, start_date, end_date):
     """Create an input dataset from WRF data."""
 
     print('-------------------------------------------')
@@ -190,7 +191,7 @@ def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
         "-i",
         "--input",
         dest="wrf_file",
-        type=str,
+        type=Path,
         metavar="<path>",
         required=True,
         help="Path to WRF file",
@@ -199,7 +200,7 @@ def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
         "-o",
         "--output",
         dest="cosipy_file",
-        type=str,
+        type=Path,
         metavar="<path>",
         required=True,
         help="Path to the resulting COSIPY file",

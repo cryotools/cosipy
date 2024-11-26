@@ -24,6 +24,7 @@ import argparse
 import inspect
 import os
 import shutil
+from pathlib import Path
 
 
 def get_user_arguments() -> argparse.Namespace:
@@ -63,7 +64,7 @@ def get_user_arguments() -> argparse.Namespace:
         "--output",
         default=None,
         dest="output_path",
-        type=str,
+        type=Path,
         metavar="<path>",
         required=False,
         help="relative path to target configuration directory",
@@ -74,29 +75,29 @@ def get_user_arguments() -> argparse.Namespace:
     return arguments
 
 
-def check_file_exists(file_path):
-    if not os.path.isfile(file_path):
-        raise FileNotFoundError(f"{file_path} not found.")
-
-
-def get_sample_directory() -> str:
+def get_sample_directory() -> Path:
     """Get the path to the sample directory.
 
     Returns:
         Path to sample configuration directory.
     """
     # Package is not installed in working directory
-    filename = inspect.getfile(inspect.currentframe())
-    filename = filename.rsplit("/", 1)
-    src_dir = f"{filename[0]}"
-
-    return src_dir
+    frame = inspect.currentframe()
+    if frame is None:
+        msg = "Current frame is None."
+        raise ValueError(msg)
+    try:
+        filename = Path(inspect.getfile(frame)).resolve()
+    finally:
+        del frame
+    return filename.parent
 
 
 def copy_file_to_target(
     basename: str,
-    source_dir: str,
-    target_dir: str,
+    source_dir: Path,
+    target_dir: Path,
+    *,
     silent_overwrite: bool = False,
 ):
     """Copy a file to a target directory.
@@ -108,12 +109,11 @@ def copy_file_to_target(
         silent_overwrite: Silently overwrite existing files in target
             directory. Default False.
     """
-
-    target_path = f"{target_dir}/{basename}"
-    source_path = f"{source_dir}/{basename}"
+    target_path = target_dir / basename
+    source_path = source_dir / basename
     overwrite = True  # otherwise no file created if missing
 
-    if not silent_overwrite and os.path.isfile(target_path):
+    if not silent_overwrite and target_path.exists(follow_symlinks=True):
         prompt = f"{basename} already exists in {target_dir}/\nReplace target? [y/N] "
         overwrite = get_user_confirmation(prompt)
     if overwrite:
@@ -141,10 +141,10 @@ def main():
 
     sample_path = get_sample_directory()
     if not args.output_path:
-        target_path = os.getcwd()
+        target_path = Path().cwd()
     else:
         target_path = args.output_path
-        os.makedirs(target_path, exist_ok=True)
+        target_path.mkdir(parents=True, exist_ok=True)
     if target_path == sample_path:
         raise ValueError("The target and source paths cannot be identical.")
 
@@ -155,7 +155,10 @@ def main():
         "utilities_config.toml",
     ]
     for file in config_files:
-        check_file_exists(file_path=f"{sample_path}/{file}")
+        filepath = Path(sample_path) / file
+        if not filepath.exists():
+            msg = f"{filepath} does not exist."
+            raise FileNotFoundError(msg)
         copy_file_to_target(
             basename=file,
             source_dir=sample_path,
