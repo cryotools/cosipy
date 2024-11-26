@@ -4,17 +4,24 @@ Hook configuration files for COSIPY.
 
 import argparse
 import os
-import pathlib
 import sys
 from importlib.metadata import entry_points
+from pathlib import Path
 
 if sys.version_info >= (3, 11):
     import tomllib
 else:
     import tomli as tomllib  # backwards compatibility
 
+# FIXME: Will this work for all occasions or do we need to use frame?
+cwd = Path.cwd()
+default_path = cwd / "config.toml"
+default_slurm_path = cwd / "slurm_config.toml"
+default_constants_path = cwd / "constants.toml"
+default_utilities_path = cwd / "utilities_config.toml"
 
-def get_cosipy_path_from_env(name: str = "COSIPY_DIR") -> pathlib.Path:
+
+def get_cosipy_path_from_env(name: str = "COSIPY_DIR") -> Path:
     """Get path to COSIPY directory.
 
     When using WRFxCSPY, the coupler will default to searching for
@@ -32,7 +39,7 @@ def get_cosipy_path_from_env(name: str = "COSIPY_DIR") -> pathlib.Path:
     Raises:
         NotADirectoryError: Invalid path.
     """
-    cosipy_path = pathlib.Path(os.environ.get(name, os.getcwd()))
+    cosipy_path = Path(os.environ.get(name, os.getcwd()))
     if not cosipy_path.is_dir():
         raise NotADirectoryError(f"Invalid path at: {cosipy_path}")
 
@@ -51,7 +58,7 @@ def set_parser() -> argparse.ArgumentParser:
         "--config",
         default=cosipy_path / "config.toml",
         dest="config_path",
-        type=pathlib.Path,
+        type=Path,
         metavar="<path>",
         required=False,
         help="relative path to configuration file",
@@ -62,7 +69,7 @@ def set_parser() -> argparse.ArgumentParser:
         "--constants",
         default=cosipy_path / "constants.toml",
         dest="constants_path",
-        type=pathlib.Path,
+        type=Path,
         metavar="<path>",
         required=False,
         help="relative path to constants file",
@@ -73,7 +80,7 @@ def set_parser() -> argparse.ArgumentParser:
         "--slurm",
         default=cosipy_path / "slurm_config.toml",
         dest="slurm_path",
-        type=pathlib.Path,
+        type=Path,
         metavar="<path>",
         required=False,
         help="relative path to Slurm configuration file",
