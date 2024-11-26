@@ -1,4 +1,4 @@
-from cosipy.config import Config
+from cosipy.config import main_config
 
 
 def evaluate(stake_names, stake_data, df):
@@ -17,7 +17,7 @@ def evaluate(stake_names, stake_data, df):
         float or None: Statistical evaluation.
     """
 
-    if Config.eval_method == "rmse":
+    if main_config.eval_method == "rmse":
         stat = rmse(stake_names, stake_data, df)
     else:
         stat = None
@@ -36,12 +36,12 @@ def rmse(stake_names: list, stake_data, df) -> float:
     Returns:
         RMSE of simulated measurements.
     """
-    if Config.obs_type not in ["mb", "snowheight"]:
-        msg = f'RMSE not implemented for obs_type="{Config.obs_type}" in config.toml.'
+    if main_config.obs_type not in ["mb", "snowheight"]:
+        msg = f'RMSE not implemented for obs_type="{main_config.obs_type}" in config.toml.'
         raise NotImplementedError(msg)
     else:
         rmse = (
-            (stake_data[stake_names].subtract(df[Config.obs_type], axis=0))
+            (stake_data[stake_names].subtract(df[main_config.obs_type], axis=0))
             ** 2
         ).mean() ** 0.5
 

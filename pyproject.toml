@@ -50,6 +50,7 @@ dependencies = [
     "cdo",
     "cartopy",
     "vtk",
+    "pydantic",
     "richdem; python_version < '3.11'",
     "tomli; python_version < '3.11'",
 ]

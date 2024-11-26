@@ -1,6 +1,6 @@
 import pytest
 
-from cosipy.constants import Constants
+from cosipy.constants import constants_config as cc
 from cosipy.cpkernel.node import Node
 
 
@@ -107,9 +107,9 @@ class TestNodeGetter:
         if arg_ice_fraction is None:
             test_ice_fraction = (
                 self.snow_density
-                - (1 - (self.snow_density / Constants.ice_density))
-                * Constants.air_density
-            ) / Constants.ice_density
+                - (1 - (self.snow_density / cc.ice_density))
+                * cc.air_density
+            ) / cc.ice_density
         else:
             test_ice_fraction = arg_ice_fraction
         compare_ice_fraction = node.get_layer_ice_fraction()
@@ -128,9 +128,9 @@ class TestNodeGetter:
 
     def test_node_get_layer_density(self, node, conftest_boilerplate):
         test_density = (
-            self.ice_fraction * Constants.ice_density
-            + self.lwc * Constants.water_density
-            + node.get_layer_air_porosity() * Constants.air_density
+            self.ice_fraction * cc.ice_density
+            + self.lwc * cc.water_density
+            + node.get_layer_air_porosity() * cc.air_density
         )
         assert conftest_boilerplate.check_output(
             node.get_layer_density(), float, test_density
@@ -144,9 +144,9 @@ class TestNodeGetter:
 
     def test_node_get_layer_specific_heat(self, node, conftest_boilerplate):
         test_specific_heat = (
-            (1 - self.lwc - self.ice_fraction) * Constants.spec_heat_air
-            + self.ice_fraction * Constants.spec_heat_ice
-            + self.lwc * Constants.spec_heat_water
+            (1 - self.lwc - self.ice_fraction) * cc.spec_heat_air
+            + self.ice_fraction * cc.spec_heat_ice
+            + self.lwc * cc.spec_heat_water
         )
         conftest_boilerplate.check_output(
             node.get_layer_specific_heat(), float, test_specific_heat
@@ -157,7 +157,7 @@ class TestNodeGetter:
             -node.get_layer_specific_heat()
             * node.get_layer_density()
             * self.height
-            * (self.temperature - Constants.zero_temperature)
+            * (self.temperature - cc.zero_temperature)
         )
         conftest_boilerplate.check_output(
             node.get_layer_cold_content(), float, test_cold_content
@@ -167,9 +167,9 @@ class TestNodeGetter:
         self, node, conftest_boilerplate
     ):
         test_thermal_conductivity = (
-            self.ice_fraction * Constants.k_i
-            + node.get_layer_porosity() * Constants.k_a
-            + self.lwc * Constants.k_w
+            self.ice_fraction * cc.k_i
+            + node.get_layer_porosity() * cc.k_a
+            + self.lwc * cc.k_w
         )
         conftest_boilerplate.check_output(
             node.get_layer_thermal_conductivity(),

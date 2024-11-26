@@ -4,20 +4,20 @@ import numpy as np
 from numba import float64
 from numba.experimental import jitclass
 
-from cosipy.constants import Constants
+from cosipy.constants import constants_config
 
 # only required for jitclass/njit
-ice_density = Constants.ice_density
-water_density = Constants.water_density
-air_density = Constants.air_density
-spec_heat_ice = Constants.spec_heat_ice
-spec_heat_air = Constants.spec_heat_air
-spec_heat_water = Constants.spec_heat_water
-k_i = Constants.k_i
-k_a = Constants.k_a
-k_w = Constants.k_w
-thermal_conductivity_method = Constants.thermal_conductivity_method
-zero_temperature = Constants.zero_temperature
+ice_density = constants_config.ice_density
+water_density = constants_config.water_density
+air_density = constants_config.air_density
+spec_heat_ice = constants_config.spec_heat_ice
+spec_heat_air = constants_config.spec_heat_air
+spec_heat_water = constants_config.spec_heat_water
+k_i = constants_config.k_i
+k_a = constants_config.k_a
+k_w = constants_config.k_w
+thermal_conductivity_method = constants_config.thermal_conductivity_method
+zero_temperature = constants_config.zero_temperature
 
 spec = OrderedDict()
 spec["height"] = float64

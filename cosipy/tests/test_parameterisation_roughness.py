@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
-from COSIPY import start_logging
-from cosipy.constants import Constants
 import cosipy.modules.roughness as module_roughness
+from COSIPY import start_logging
+from cosipy.constants import constants_config as cc
 from cosipy.modules.roughness import updateRoughness
 
 
@@ -19,12 +19,12 @@ class TestParamRoughness:
 
         conftest_boilerplate.patch_variable(
             monkeypatch,
-            module_roughness.Constants,
+            module_roughness.cc,
             {"roughness_method": arg_method},
         )
-        assert module_roughness.Constants.roughness_method == arg_method
+        assert module_roughness.cc.roughness_method == arg_method
         error_message = (
-            f'Roughness method = "{module_roughness.Constants.roughness_method}"',
+            f'Roughness method = "{module_roughness.cc.roughness_method}"',
             f"is not allowed, must be one of",
             f'{", ".join(valid_methods)}',
         )
@@ -37,11 +37,11 @@ class TestParamRoughness:
         compare_roughness = module_roughness.method_Moelg(test_grid)
 
         assert (
-            Constants.roughness_fresh_snow / 1000
+            cc.roughness_fresh_snow / 1000
             <= compare_roughness
-            <= Constants.roughness_firn / 1000
+            <= cc.roughness_firn / 1000
         )
 
         test_grid_ice = conftest_mock_grid_ice
         ice_roughness = module_roughness.method_Moelg(test_grid_ice)
-        assert np.isclose(ice_roughness, Constants.roughness_ice / 1000)
+        assert np.isclose(ice_roughness, cc.roughness_ice / 1000)

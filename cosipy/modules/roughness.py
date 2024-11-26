@@ -1,4 +1,4 @@
-from cosipy.constants import Constants
+from cosipy.constants import constants_config as cc
 
 
 def updateRoughness(GRID) -> float:
@@ -17,11 +17,11 @@ def updateRoughness(GRID) -> float:
     """
 
     roughness_allowed = ["Moelg12"]
-    if Constants.roughness_method == "Moelg12":
+    if cc.roughness_method == "Moelg12":
         sigma = method_Moelg(GRID)
     else:
         error_message = (
-            f'Roughness method = "{Constants.roughness_method}" is not allowed,',
+            f'Roughness method = "{cc.roughness_method}" is not allowed,',
             f'must be one of {", ".join(roughness_allowed)}',
         )
         raise ValueError(" ".join(error_message))
@@ -51,13 +51,13 @@ def method_Moelg(GRID) -> float:
     hours_since_snowfall = fresh_snow_timestamp / 3600.0
 
     # Check whether snow or ice
-    if GRID.get_node_density(0) <= Constants.snow_ice_threshold:
+    if GRID.get_node_density(0) <= cc.snow_ice_threshold:
         sigma = min(
-            Constants.roughness_fresh_snow
-            + Constants.aging_factor_roughness * hours_since_snowfall,
-            Constants.roughness_firn,
+            cc.roughness_fresh_snow
+            + cc.aging_factor_roughness * hours_since_snowfall,
+            cc.roughness_firn,
         )
     else:
-        sigma = Constants.roughness_ice  # Roughness length, set to ice
+        sigma = cc.roughness_ice  # Roughness length, set to ice
 
     return sigma / 1000

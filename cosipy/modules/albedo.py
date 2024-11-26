@@ -1,21 +1,21 @@
 import numpy as np
 
-from cosipy.constants import Constants
+from cosipy.constants import constants_config as cc
 
 # only required for njitted functions
-albedo_method = Constants.albedo_method
-albedo_mod_snow_aging = Constants.albedo_mod_snow_aging
-snow_ice_threshold = Constants.snow_ice_threshold
-albedo_firn = Constants.albedo_firn
-albedo_fresh_snow = Constants.albedo_fresh_snow
-albedo_ice = Constants.albedo_ice
-albedo_mod_snow_depth = Constants.albedo_mod_snow_depth
-dt = Constants.dt
-zero_temperature = Constants.zero_temperature
-t_star_cutoff = Constants.t_star_cutoff
-t_star_dry = Constants.t_star_dry
-t_star_wet = Constants.t_star_wet
-t_star_K = Constants.t_star_K
+albedo_method = cc.albedo_method
+albedo_mod_snow_aging = cc.albedo_mod_snow_aging
+snow_ice_threshold = cc.snow_ice_threshold
+albedo_firn = cc.albedo_firn
+albedo_fresh_snow = cc.albedo_fresh_snow
+albedo_ice = cc.albedo_ice
+albedo_mod_snow_depth = cc.albedo_mod_snow_depth
+dt = cc.dt
+zero_temperature = cc.zero_temperature
+t_star_cutoff = cc.t_star_cutoff
+t_star_dry = cc.t_star_dry
+t_star_wet = cc.t_star_wet
+t_star_K = cc.t_star_K
 
 
 def updateAlbedo(

@@ -5,6 +5,9 @@ Hook configuration files for COSIPY utilities.
 import argparse
 import sys
 from collections import namedtuple
+from pathlib import Path
+
+from cosipy.config import default_utilities_path
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -16,7 +19,7 @@ class TomlLoader(object):
     """Load and parse configuration files."""
 
     @staticmethod
-    def get_raw_toml(file_path: str = "./utilities_config.toml") -> dict:
+    def get_raw_toml(file_path: Path = default_utilities_path) -> dict:
         """Open and load .toml configuration file.
 
         Args:
@@ -25,7 +28,7 @@ class TomlLoader(object):
         Returns:
             Loaded .toml data.
         """
-        with open(file_path, "rb") as f:
+        with file_path.open("rb") as f:
             raw_config = tomllib.load(f)
 
         return raw_config
@@ -43,11 +46,11 @@ class UtilitiesConfig(TomlLoader):
         wrf2cosipy: Configuration parameters for `wrf2cosipy.py`.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.parser = self.set_arg_parser()
 
     @classmethod
-    def load(cls, path: str = "./utilities_config.toml"):
+    def load(cls, path: Path = default_utilities_path) -> None:
         raw_toml = cls.get_raw_toml(path)
         cls.set_config_values(raw_toml)
 
@@ -75,7 +78,7 @@ class UtilitiesConfig(TomlLoader):
             "--utilities",
             default="./utilities_config.toml",
             dest="utilities_path",
-            type=str,
+            type=Path,
             metavar="<path>",
             required=False,
             help="relative path to utilities' configuration file",

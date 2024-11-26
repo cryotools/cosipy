@@ -34,7 +34,7 @@ import pandas as pd
 import xarray as xr
 import xrspatial as xrs
 
-from cosipy.constants import Constants
+from cosipy.constants import constants_config as cc
 from cosipy.utilities.config_utils import UtilitiesConfig
 
 _args = None
@@ -99,16 +99,16 @@ def create_input(wrf_file: Path, cosipy_file: Path, start_date, end_date):
     dso = add_variable_along_timelatlon(dso, rrr, 'RRR', 'mm', 'Total precipitation')
  
     # Calc fresh snow density
-    if (Constants.densification_method!='constant'):
+    if (cc.densification_method!='constant'):
         density_fresh_snow = np.maximum(109.0+6.0*(ds.T2.values-273.16)+26.0*np.sqrt(U2), 50.0)
     else:
-        density_fresh_snow = Constants.constant_density
+        density_fresh_snow = cc.constant_density
 
     # Derive snowfall from accumulated values
     snowf = np.full_like(ds.T2, 0.)
     for t in np.arange(1,len(dso.time)):
         snowf[t,:,:] = ds.SNOWNC[t,:,:]-ds.SNOWNC[t-1,:,:]
-    snowf = (snowf/1000.0)*(Constants.water_density/density_fresh_snow)
+    snowf = (snowf/1000.0)*(cc.water_density/density_fresh_snow)
     dso = add_variable_along_timelatlon(dso, snowf, 'SNOWFALL', 'm', 'Snowfall')
 
     # Compute slope & aspect from HGT

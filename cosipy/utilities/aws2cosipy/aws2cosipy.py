@@ -1,7 +1,6 @@
-"""
-Reads the input data (model forcing) and writes the output to a netCDF
-file. It supports point models with ``create_1D_input`` and distributed
-simulations with ``create_2D_input``.
+"""Reads the input data (model forcing) and writes the output to a netCDF file.
+It supports point models with ``create_1D_input`` and distributed simulations
+with ``create_2D_input``.
 
 The 1D input function works without a static file, in which the static
 variables are created.
@@ -67,8 +66,10 @@ def read_input_file(input_path: Path) -> pd.DataFrame:
     print(f"{'-' * 43}")
     print(f"Create input\nRead input file {input_path}")
 
-    date_parser = lambda x: dateutil.parser.parse(x, ignoretz=True)
-    dataframe = pd.read_csv(
+    def date_parser(x):
+        return dateutil.parser.parse(x, ignoretz=True)
+
+    return pd.read_csv(
         input_path,
         delimiter=_cfg.coords["delimiter"],
         index_col=["TIMESTAMP"],
@@ -77,13 +78,10 @@ def read_input_file(input_path: Path) -> pd.DataFrame:
         date_parser=date_parser,
     )
 
-    return dataframe
-
 
 def convert_to_numeric(series: pd.Series) -> pd.Series:
     """Convert series to numeric type."""
-    series = series.apply(pd.to_numeric, errors="coerce")
-    return series
+    return series.apply(pd.to_numeric, errors="coerce")
 
 
 def set_order_and_type(
@@ -115,10 +113,9 @@ def set_order_and_type(
     if (_cfg.names["LWin_var"] not in dataframe) and (
         _cfg.names["N_var"] not in dataframe
     ):
-        raise ValueError(
-            "No data for either incoming longwave radiation or cloud cover."
-        )
-    elif _cfg.names["LWin_var"] in dataframe:
+        msg = "No data for either incoming longwave radiation or cloud cover."
+        raise ValueError(msg)
+    if _cfg.names["LWin_var"] in dataframe:
         dataframe[_cfg.names["LWin_var"]] = convert_to_numeric(
             dataframe[_cfg.names["LWin_var"]]
         )
@@ -135,13 +132,13 @@ def set_order_and_type(
     return dataframe
 
 
-def check_data(dataset: xr.Dataset, dataframe: pd.DataFrame):
+def check_data(dataset: xr.Dataset, dataframe: pd.DataFrame) -> None:
     """Check data is within physically reasonable bounds."""
     check(dataset.T2, 316.16, 223.16)
     check(dataset.RH2, 100.0, 0.0)
     check(dataset.U2, 50.0, 0.0)
     check(dataset.G, 1600.0, 0.0)
-    check(dataset.PRES, 1080.0, 200.0)
+    check(dataset.PRESS, 1080.0, 200.0)
 
     if _cfg.names["RRR_var"] in dataframe:
         check(dataset.RRR, 20.0, 0.0)
@@ -153,7 +150,7 @@ def check_data(dataset: xr.Dataset, dataframe: pd.DataFrame):
         check(dataset.N, 1.0, 0.0)
 
 
-def get_time_slice(dataframe, start_date, end_date):
+def get_time_slice(dataframe: pd.DataFrame, start_date: str | None, end_date: str | None):
     if (start_date is not None) & (end_date is not None):
         dataframe = dataframe.loc[start_date:end_date]
     return dataframe
@@ -173,7 +170,6 @@ def set_bias(
         altitude: The height difference between a location and sensor.
         limit: If True, set negative values to zero. Default True.
     """
-
     biased_data = data + altitude * _cfg.lapse[lapse_type]
     if limit:
         biased_data = np.maximum(biased_data, 0.0)
@@ -183,7 +179,7 @@ def set_bias(
 
 def set_variable_metadata() -> dict:
     """Initialise variable names and units."""
-    metadata = {
+    return {
         "HGT": ("m", "Elevation"),
         "ASPECT": ("degrees", "Aspect of slope"),
         "SLOPE": ("degrees", "Terrain slope"),
@@ -192,14 +188,13 @@ def set_variable_metadata() -> dict:
         "RH2": ("%", "Relative humidity at 2 m"),
         "U2": ("m s\u207b\xb9", "Wind velocity at 2 m"),
         "G": ("W m\u207b\xb2", "Incoming shortwave radiation"),
-        "PRES": ("hPa", "Atmospheric Pressure"),
+        "PRESS": ("hPa", "Atmospheric Pressure"),
         "RRR": ("mm", "Total precipitation (liquid+solid)"),
         "SNOWFALL": ("m", "Snowfall"),
         "LWin": ("W m\u207b\xb2", "Incoming longwave radiation"),
         "N": ("%", "Cloud cover fraction"),
     }
 
-    return metadata
 
 
 def get_variable_metadata(name: str) -> dict:
@@ -215,7 +210,6 @@ def get_variable_metadata(name: str) -> dict:
 
 
 def set_dataset_coordinates(dataset, latitude, longitude):
-
     x, y = np.meshgrid(longitude, latitude)
     dataset.coords["lat"] = (("south_north", "west_east"), x)
     dataset.coords["lon"] = (("south_north", "west_east"), y)
@@ -223,9 +217,7 @@ def set_dataset_coordinates(dataset, latitude, longitude):
     return dataset
 
 
-def set_zero_field(
-    time_index: int, lat_index: int, lon_index: int
-) -> np.ndarray:
+def set_zero_field(time_index: int, lat_index: int, lon_index: int) -> np.ndarray:
     """Initialise array and fill with zeros."""
     field = np.zeros([time_index, lat_index, lon_index])
 
@@ -233,9 +225,7 @@ def set_zero_field(
 
 
 def get_pressure_bias(data, height):
-    slp = data / np.power(
-        (1 - (0.0065 * _cfg.station["stationAlt"]) / (288.15)), 5.255
-    )
+    slp = data / np.power((1 - (0.0065 * _cfg.station["stationAlt"]) / (288.15)), 5.255)
     pressure = slp * np.power((1 - (0.0065 * height) / (288.15)), 5.22)
 
     return pressure
@@ -264,7 +254,6 @@ def create_1D_input(
     Tobias Sauter 07.07.2019
     Anselm 04.07.2020
     """
-
     df = read_input_file(input_path=cs_file)
 
     print(df[pd.isnull(df).any(axis=1)])
@@ -376,7 +365,7 @@ def create_1D_input(
     U2 = df[_cfg.names["U2_var"]].values  # Wind velocity
     G = df[_cfg.names["G_var"]].values  # Incoming shortwave radiation
 
-    PRES = get_pressure_bias(
+    PRESS = get_pressure_bias(
         data=df[_cfg.names["PRES_var"]].values, height=_cfg.points["hgt"]
     )  # Pressure
 
@@ -421,7 +410,9 @@ def create_1D_input(
     RH2 = set_relative_humidity_bounds(RH2)
 
     # Add variables to file
-    add_variable_along_point(ds=ds, var=_cfg.points["hgt"], **get_variable_metadata("HGT"))
+    add_variable_along_point(
+        ds=ds, var=_cfg.points["hgt"], **get_variable_metadata("HGT")
+    )
     add_variable_along_point(ds=ds, var=aspect, **get_variable_metadata("ASPECT"))
     add_variable_along_point(ds=ds, var=slope, **get_variable_metadata("SLOPE"))
     add_variable_along_point(ds=ds, var=mask, **get_variable_metadata("MASK"))
@@ -429,14 +420,22 @@ def create_1D_input(
     add_variable_along_timelatlon_point(ds=ds, var=RH2, **get_variable_metadata("RH2"))
     add_variable_along_timelatlon_point(ds=ds, var=U2, **get_variable_metadata("U2"))
     add_variable_along_timelatlon_point(ds=ds, var=G, **get_variable_metadata("G"))
-    add_variable_along_timelatlon_point(ds=ds, var=PRES, **get_variable_metadata("PRES"))
+    add_variable_along_timelatlon_point(
+        ds=ds, var=PRESS, **get_variable_metadata("PRESS")
+    )
 
     if _cfg.names["RRR_var"] in df:
-        add_variable_along_timelatlon_point(ds=ds, var=RRR, **get_variable_metadata("RRR"))
+        add_variable_along_timelatlon_point(
+            ds=ds, var=RRR, **get_variable_metadata("RRR")
+        )
     if _cfg.names["SNOWFALL_var"] in df:
-        add_variable_along_timelatlon_point(ds, var=SNOWFALL, **get_variable_metadata("SNOWFALL"))
+        add_variable_along_timelatlon_point(
+            ds, var=SNOWFALL, **get_variable_metadata("SNOWFALL")
+        )
     if _cfg.names["LWin_var"] in df:
-        add_variable_along_timelatlon_point(ds=ds, var=LW, **get_variable_metadata("LWin"))
+        add_variable_along_timelatlon_point(
+            ds=ds, var=LW, **get_variable_metadata("LWin")
+        )
     if _cfg.names["N_var"] in df:
         add_variable_along_timelatlon_point(ds=ds, var=N, **get_variable_metadata("N"))
 
@@ -522,7 +521,7 @@ def create_2D_input(
     RH2 = df[_cfg.names["RH2_var"]]  # Relative humidity
     U2 = df[_cfg.names["U2_var"]]  # Wind velocity
     G = df[_cfg.names["G_var"]]  # Incoming shortwave radiation
-    PRES = df[_cfg.names["PRES_var"]]  # Pressure
+    PRESS = df[_cfg.names["PRES_var"]]  # Pressure
 
     if _cfg.names["in_K"]:
         T2 = df[_cfg.names["T2_var"]].values  # Temperature
@@ -569,13 +568,12 @@ def create_2D_input(
             data=RH2[t], lapse_type="lapse_RH", altitude=altitude, limit=False
         )
         U_interp[t, :, :] = U2[t]
+        """Interpolate pressure using the barometric equation.
 
-        """
-        Interpolate pressure using the barometric equation.
         Do not replace with get_pressure_bias() as the arrays won't
         interpolate correctly.
         """
-        slp = PRES[t] / np.power(
+        slp = PRESS[t] / np.power(
             (1 - (0.0065 * _cfg.station["stationAlt"]) / (288.15)), 5.255
         )
         P_interp[t, :, :] = slp * np.power(
@@ -694,9 +692,7 @@ def create_2D_input(
             print("Look-up-table for topographic shading done")
 
             # Save look-up tables
-            Nt = int(
-                366 * (3600 / _cfg.radiation["dtstep"]) * 24
-            )  # number of time steps
+            Nt = int(366 * (3600 / _cfg.radiation["dtstep"]) * 24)  # number of time steps
             Ny = len(lats)  # number of latitudes
             Nx = len(lons)  # number of longitudes
 
@@ -761,21 +757,31 @@ def create_2D_input(
 
     # Add variables to file
     add_variable_along_latlon(ds=dso, var=ds.HGT.values, **get_variable_metadata("HGT"))
-    add_variable_along_latlon(ds=dso, var=ds.ASPECT.values, **get_variable_metadata("ASPECT"))
-    add_variable_along_latlon(ds=dso, var=ds.SLOPE.values, **get_variable_metadata("SLOPE"))
+    add_variable_along_latlon(
+        ds=dso, var=ds.ASPECT.values, **get_variable_metadata("ASPECT")
+    )
+    add_variable_along_latlon(
+        ds=dso, var=ds.SLOPE.values, **get_variable_metadata("SLOPE")
+    )
     add_variable_along_latlon(ds=dso, var=ds.MASK.values, **get_variable_metadata("MASK"))
     add_variable_along_timelatlon(ds=dso, var=T_interp, **get_variable_metadata("T2"))
     add_variable_along_timelatlon(ds=dso, var=RH_interp, **get_variable_metadata("RH2"))
     add_variable_along_timelatlon(ds=dso, var=U_interp, **get_variable_metadata("U2"))
     add_variable_along_timelatlon(ds=dso, var=G_interp, **get_variable_metadata("G"))
-    add_variable_along_timelatlon(ds=dso, var=P_interp, **get_variable_metadata("PRES"))
+    add_variable_along_timelatlon(ds=dso, var=P_interp, **get_variable_metadata("PRESS"))
 
     if _cfg.names["RRR_var"] in df:
-        add_variable_along_timelatlon(ds=dso, var=RRR_interp, **get_variable_metadata("RRR"))
+        add_variable_along_timelatlon(
+            ds=dso, var=RRR_interp, **get_variable_metadata("RRR")
+        )
     if _cfg.names["SNOWFALL_var"] in df:
-        add_variable_along_timelatlon(ds=dso, var=SNOWFALL_interp, **get_variable_metadata("SNOWFALL"))
+        add_variable_along_timelatlon(
+            ds=dso, var=SNOWFALL_interp, **get_variable_metadata("SNOWFALL")
+        )
     if _cfg.names["LWin_var"] in df:
-        add_variable_along_timelatlon(ds=dso, var=LW_interp, **get_variable_metadata("LWin"))
+        add_variable_along_timelatlon(
+            ds=dso, var=LW_interp, **get_variable_metadata("LWin")
+        )
     if _cfg.names["N_var"] in df:
         add_variable_along_timelatlon(ds=dso, var=N_interp, **get_variable_metadata("N"))
 
@@ -839,7 +845,6 @@ def add_variable_along_point(ds, var, name, units, long_name):
 
 def check(field, max_bound, min_bound):
     """Check the validity of the input data."""
-
     if np.nanmax(field) > max_bound or np.nanmin(field) < min_bound:
         msg = f"{str.capitalize(field.name)} MAX: {np.nanmax(field):.2f} MIN: {np.nanmin(field):.2f}"
         print(
@@ -849,14 +854,10 @@ def check(field, max_bound, min_bound):
 
 def check_for_nan(ds):
     if _cfg.coords["WRF"] is True:
-        for y, x in product(
-            range(ds.dims["south_north"]), range(ds.dims["west_east"])
-        ):
+        for y, x in product(range(ds.dims["south_north"]), range(ds.dims["west_east"])):
             mask = ds.MASK.sel(south_north=y, west_east=x)
             if mask == 1:
-                if np.isnan(
-                    ds.sel(south_north=y, west_east=x).to_array()
-                ).any():
+                if np.isnan(ds.sel(south_north=y, west_east=x).to_array()).any():
                     raise_nan_error()
     else:
         for y, x in product(range(ds.dims["lat"]), range(ds.dims["lon"])):
@@ -880,15 +881,11 @@ def check_temperature_bounds(temperature: np.ndarray):
     min_temperature = np.nanmin(temperature)
     check_msg = "Please check the input temperature"
     if max_temperature > 373.16:
-        error_message = (
-            f"Maximum temperature is: {max_temperature} K. {check_msg}"
-        )
-        raise ValueError(error_message)
-    elif min_temperature < 173.16:
-        error_message = (
-            f"Minimum temperature is: {min_temperature} K. {check_msg}"
-        )
-        raise ValueError(error_message)
+        msg = f"Maximum temperature is: {max_temperature} K. {check_msg}"
+        raise ValueError(msg)
+    if min_temperature < 173.16:
+        msg = f"Minimum temperature is: {min_temperature} K. {check_msg}"
+        raise ValueError(msg)
 
 
 def set_relative_humidity_bounds(humidity):
@@ -916,8 +913,7 @@ def nansumwrapper(a, **kw_args):
     """Sum dataframe columns which contain NaNs."""
     if np.isnan(a).all():
         return np.nan
-    else:
-        return np.nansum(a, **kw_args)
+    return np.nansum(a, **kw_args)
 
 
 def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
