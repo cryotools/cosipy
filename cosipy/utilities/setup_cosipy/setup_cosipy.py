@@ -1,5 +1,4 @@
-"""
-Generate sample configuration files for COSIPY.
+"""Generate sample configuration files for COSIPY.
 
 Usage:
 
@@ -111,30 +110,33 @@ def copy_file_to_target(
     """
 
     target_path = f"{target_dir}/{basename}"
-    decision = True
+    source_path = f"{source_dir}/{basename}"
+    overwrite = True  # otherwise no file created if missing
 
     if not silent_overwrite and os.path.isfile(target_path):
-        decision = input(
-            f"{basename} already exists in {target_dir}/\nOverwrite?\n"
-        )
-        decision = strtobool(decision)
-    if decision:
-        shutil.copyfile(
-            f"{source_dir}/{basename}", target_path, follow_symlinks=True
-        )
+        prompt = f"{basename} already exists in {target_dir}/\nReplace target? [y/N] "
+        overwrite = get_user_confirmation(prompt)
+    if overwrite:
+        shutil.copyfile(source_path, target_path, follow_symlinks=True)
+    else:
+        print("Skipping...")
 
+def get_user_confirmation(prompt: str) -> bool:
+    """Get user confirmation.
 
-def strtobool(val: str) -> bool:
-    """Convert user input to bool."""
-    val = val.lower()
-    if val in ("y", "yes"):
-        return True
-    elif val in ("n", "no"):
-        return False
+    Args:
+        prompt: Prompt to display to user.
 
+    Returns:
+        True if user confirms, False otherwise.
+    """
+    user_input: str = input(prompt).lower().strip()
+    if user_input not in ("y", "yes", "n", "no", ""):
+        print("Please enter 'yes' or 'no'.\n")
+        return get_user_confirmation(prompt)
+    return user_input in ("y", "yes")
 
 def main():
-
     args = get_user_arguments()
 
     sample_path = get_sample_directory()

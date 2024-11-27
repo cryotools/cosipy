@@ -104,7 +104,7 @@ def get_entry_points(package_name: str = "cosipy"):
     if sys.version_info >= (3, 10):
         entries = entry_points(group="console_scripts")
     else:
-        entries = entries["console_scripts"]
+        entries = entry_points()["console_scripts"]
     entrypoints = (
         ep
         for ep in entries

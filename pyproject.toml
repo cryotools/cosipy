@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cosipymodel"
-version = "2.0.0"
+version = "2.0.1"
 authors = [
     { name = "COSIPY Contributors", email = "" },
 ]
@@ -33,7 +33,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Information Analysis",
 ]
 dependencies = [
-    "numpy>=1.17.3",
+    "numpy>=2.0",
     "pandas>2.0",
     "scipy>=1.1.0",
     "xarray>=0.18.0",
