@@ -25,6 +25,10 @@ class IOClass:
         """
 
         self.atm = self.get_output_variables(Config.output_atm)
+        # filter out input data, otherwise they get replaced by empty arrays
+        for input_name in ["T2", "RH2", "U2", "RRR", "N", "G", "PRES"]:
+            self.atm = [value for value in self.atm if value!=input_name]
+
         self.internal = self.get_output_variables(Config.output_internal)
         self.full = self.get_output_variables(Config.output_full)
 
