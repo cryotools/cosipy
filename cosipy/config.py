@@ -4,6 +4,7 @@ Hook configuration files for COSIPY.
 
 import argparse
 import sys
+import os
 from importlib.metadata import entry_points
 
 if sys.version_info >= (3, 11):
@@ -18,12 +19,12 @@ def set_parser() -> argparse.ArgumentParser:
         "Coupled snowpack and ice surface energy and mass balance model in Python."
     )
     parser = argparse.ArgumentParser(prog="COSIPY", description=tagline)
-
+    current_directory = os.getcwd()
     # Optional arguments
     parser.add_argument(
         "-c",
         "--config",
-        default="./config.toml",
+        default=f"{current_directory}/config.toml",
         dest="config_path",
         type=str,
         metavar="<path>",
@@ -34,7 +35,7 @@ def set_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-x",
         "--constants",
-        default="./constants.toml",
+        default=f"{current_directory}/constants.toml",
         dest="constants_path",
         type=str,
         metavar="<path>",
@@ -45,7 +46,7 @@ def set_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-s",
         "--slurm",
-        default="./slurm_config.toml",
+        default=f"{current_directory}/slurm_config.toml",
         dest="slurm_path",
         type=str,
         metavar="<path>",
