@@ -19,12 +19,12 @@ def set_parser() -> argparse.ArgumentParser:
         "Coupled snowpack and ice surface energy and mass balance model in Python."
     )
     parser = argparse.ArgumentParser(prog="COSIPY", description=tagline)
-    current_directory = os.getcwd()
+    directory_path = os.environ.get("COSIPY_DIR", ".")
     # Optional arguments
     parser.add_argument(
         "-c",
         "--config",
-        default=f"{current_directory}/config.toml",
+        default=f"{directory_path}/config.toml",
         dest="config_path",
         type=str,
         metavar="<path>",
@@ -35,7 +35,7 @@ def set_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-x",
         "--constants",
-        default=f"{current_directory}/constants.toml",
+        default=f"{directory_path}/constants.toml",
         dest="constants_path",
         type=str,
         metavar="<path>",
@@ -46,7 +46,7 @@ def set_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-s",
         "--slurm",
-        default=f"{current_directory}/slurm_config.toml",
+        default=f"{directory_path}/slurm_config.toml",
         dest="slurm_path",
         type=str,
         metavar="<path>",
