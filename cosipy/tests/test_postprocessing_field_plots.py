@@ -5,6 +5,7 @@ matplotlib object.
 """
 
 import argparse
+from pathlib import Path
 from unittest.mock import patch
 
 import cartopy
@@ -361,7 +362,7 @@ class TestPostprocessPlotFieldsPlotting:
         assert isinstance(args, argparse.Namespace)
 
         # Required
-        assert args.file == "./path/file"
+        assert args.file == Path("./path/file")
         assert args.pdate == "'2009-01-01'"
         # Defaults
         assert args.variable is None
