@@ -107,6 +107,7 @@ exclude = [
     "data/static/Shapefiles/*.*",
     "data/static/DEM/*.*",
     "logs",
+    "Makefile",
     "*.png",
     "*.vtu",
     "*.csv",
