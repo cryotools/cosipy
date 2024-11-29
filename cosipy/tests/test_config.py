@@ -1,4 +1,9 @@
 import argparse
+import os
+import pathlib
+from unittest.mock import patch
+
+import pytest
 
 import cosipy.config
 from cosipy.config import Config
@@ -24,6 +29,56 @@ class TestConfigParser:
 
         for name in ["help", "config", "constants", "slurm"]:
             assert name in actions
+
+    @pytest.mark.dependency(name="TestConfigParser::test_set_parser")
+    @pytest.mark.parametrize("arg_type", (str, pathlib.Path))
+    def test_user_arguments(self, arg_type):
+        test_parser = cosipy.config.set_parser()
+        test_path = "./some/path/config.toml"
+        assert isinstance(test_path, str)
+
+        test_args = [
+            "--config",
+            test_path,
+            "--constants",
+            test_path,
+            "--slurm",
+            test_path,
+        ]
+        arguments, unknown = test_parser.parse_known_args(test_args)
+        assert isinstance(arguments, argparse.Namespace)
+
+        for user_path in [
+            arguments.config_path,
+            arguments.constants_path,
+            arguments.slurm_path,
+        ]:
+            assert isinstance(user_path, pathlib.Path)
+            assert user_path == pathlib.Path(test_path)
+
+    @patch.dict(os.environ, {"COSIPY_DIR": "./path/to/wrong/cosipy/"})
+    def test_check_directory_exists(self):
+        """Raise error if directory not found."""
+        wrong_path = "./path/to/wrong/cosipy/"
+        error_message = f"Invalid path at: {pathlib.Path(wrong_path)}"
+        with pytest.raises(NotADirectoryError, match=error_message):
+            cosipy.config.get_cosipy_path_from_env(name="COSIPY_DIR")
+
+    @pytest.mark.parametrize(
+        "arg_env", ((True, "COSIPY_DIR"), (True, "XFAIL"), (False, ""))
+    )
+    @patch.dict(os.environ, {"COSIPY_DIR": "./path/to/cosipy/"})
+    def test_get_cosipy_path(
+        self, arg_env, conftest_mock_check_directory_exists
+    ):
+        _ = conftest_mock_check_directory_exists
+        test_name = arg_env[1]
+        compare_path = cosipy.config.get_cosipy_path_from_env(name=test_name)
+
+        if arg_env[1] == "COSIPY_DIR":
+            assert compare_path == pathlib.Path("./path/to/cosipy/")
+        else:
+            assert compare_path == pathlib.Path.cwd()
 
 
 class TestConfig:
