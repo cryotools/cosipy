@@ -15,7 +15,7 @@ from cosipy.constants import Constants
 
 
 class IOClass:
-    def __init__(self, data: xr.Dataset | None = None):
+    def __init__(self, DATA: xr.Dataset | None = None):
         """Initialise the IO Class.
 
         Attributes:
