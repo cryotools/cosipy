@@ -554,8 +554,7 @@ def create_2D_input(
     # Interpolate point data to grid
     print("Interpolate CR file to grid")
 
-    # Interpolate data (T, RH, RRR, U) to grid using lapse rates
-    rad_tlapse = -0.0065 #new to have default lapse rate for rad. scheme K per m 
+    # Interpolate data (T, RH, RRR, U) to grid using lapse rates 
     altitude = ds.HGT.values - _cfg.station["stationAlt"]
     for t in range(time_index):
         T_interp[t, :, :] = set_bias(
