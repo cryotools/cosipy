@@ -23,9 +23,14 @@ from itertools import product
 import numpy as np
 import richdem as rd
 import xarray as xr
+import fiona
+from horayzon.domain import curved_grid
 
 from cosipy.utilities.config_utils import UtilitiesConfig
+from cosipy.utilities.aws2cosipy.crop_file_to_glacier import crop_file_to_glacier
 
+_args = None
+_cfg = None
 
 def check_folder_path(path: str) -> str:
     """Check the folder path includes a forward slash."""
@@ -88,6 +93,25 @@ def load_config(module_name: str) -> tuple:
 
     return arguments, params
 
+#domain creation assumes WGS84 is valid
+def domain_creation(shp_path, dist_search, ellps="WGS84"):
+    print("Using automatic domain creation.")
+    #Get bound of glacier shapefile
+    shp = fiona.open(shp_path)
+    domain = {"lon_min": shp.bounds[0], "lon_max": shp.bounds[2],
+              "lat_min": shp.bounds[1], "lat_max": shp.bounds[3]}
+
+    #Additionally there is the option of a planar grid which requires importing the function
+    domain_outer = curved_grid(domain, dist_search=dist_search, ellps=ellps)
+    ### Get lat/lon corners ###
+    #Note setup is created based on Northern Hemisphere glaciers
+    longitude_upper_left = str(domain_outer['lon_min'])
+    latitude_upper_left = str(domain_outer['lat_max'])
+    longitude_lower_right = str(domain_outer['lon_max'])
+    latitude_lower_right = str(domain_outer['lat_min'])
+
+    return (longitude_upper_left, latitude_upper_left, longitude_lower_right, latitude_lower_right)
+
 
 def main():
     _, _cfg = load_config(module_name="create_static")
@@ -102,12 +126,25 @@ def main():
     shape_path = f"{static_folder}{_cfg.paths['shape_path']}"
     # path where the static.nc file is saved
     output_path = f"{static_folder}{_cfg.paths['output_file']}"
+    output_path_crop = f"{static_folder}{_cfg.paths['output_file_crop']}"
 
-    # to shrink the DEM use the following lat/lon corners
-    longitude_upper_left = str(_cfg.coords["longitude_upper_left"])
-    latitude_upper_left = str(_cfg.coords["latitude_upper_left"])
-    longitude_lower_right = str(_cfg.coords["longitude_lower_right"])
-    latitude_lower_right = str(_cfg.coords["latitude_lower_right"])
+    automatic_domain = _cfg.coords["automatic_domain"]
+    dist_search = _cfg.coords["dist_search"]
+    if automatic_domain:
+        longitude_upper_left, latitude_upper_left,\
+            longitude_lower_right, latitude_lower_right = domain_creation(shape_path,
+                                                                          dist_search=dist_search,
+                                                                          ellps="WGS84")
+
+    else:
+        ### to shrink the DEM use the following lat/lon corners
+        print("Please be aware that you switched off the automatic domain creation which requires by-hand adjustment of the borders.")
+        
+        # to shrink the DEM use the following lat/lon corners
+        longitude_upper_left = str(_cfg.coords["longitude_upper_left"])
+        latitude_upper_left = str(_cfg.coords["latitude_upper_left"])
+        longitude_lower_right = str(_cfg.coords["longitude_lower_right"])
+        latitude_lower_right = str(_cfg.coords["latitude_lower_right"])
 
     # to aggregate the DEM to a coarser spatial resolution
     aggregate_degree = str(_cfg.coords["aggregate_degree"])
@@ -142,7 +179,11 @@ def main():
     os.system(f"gdaldem slope -of NETCDF {dem_path} {slope_path} -s 111120")
 
     # calculate aspect from DEM
-    aspect = np.flipud(rd.TerrainAttribute(rd.LoadGDAL(dem_path_tif), attrib = 'aspect'))
+    #rd might throw an error when the no_data value is not directly specified
+    try:
+        aspect = np.flipud(rd.TerrainAttribute(rd.LoadGDAL(dem_path_tif), attrib = 'aspect'))
+    except:
+        aspect = np.flipud(rd.TerrainAttribute(rd.LoadGDAL(dem_path_tif, no_data=-9999), attrib = 'aspect'))
 
     # calculate mask as NetCDF with DEM and shapefile
     os.system(
@@ -187,9 +228,27 @@ def main():
     """Save combined static file, delete intermediate files, print
     number of glacier grid points."""
     check_for_nan(ds)
-    ds.to_netcdf(output_path)
+    
+    # crop file to glacier if desired - but do not set to NaN using xr.where
+    crop_file = _cfg.coords['crop_file']
+    if crop_file:
+        ds_crop = crop_file_to_glacier(ds, WRF=False, check_vars=False)
+        if aggregate: #save cropped file only
+            ds_crop.to_netcdf(output_path)
+        else:
+            #uncropped file is needed for e.g., HORAYZON calculation (surrounding terrain)
+            #cropped file is needed as static data for simulation
+            ds.to_netcdf(output_path)
+            ds_crop.to_netcdf(output_path_crop)
+        ds.close()
+        ds_crop.close()
+    else:
+        ds.to_netcdf(output_path)
+        ds.close()    
+    
     print("Study area consists of ", np.nansum(mask[mask==1]), " glacier points")
     print("Done")
 
 if __name__ == "__main__":
     main()
+##old version has NaNs, new version only 0 and 1s
