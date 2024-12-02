@@ -6,6 +6,7 @@ simulations with ``create_2D_input``.
 The 1D input function works without a static file, in which the static
 variables are created.
 
+
 Edit the configuration by supplying a valid .toml file - this includes
 lapse rates for both cases. See the sample ``utilities_config.toml`` for
 more information.
@@ -34,6 +35,8 @@ Optional arguments:
     --xr <float>            Right longitude value of the subset.
     --yl <float>            Lower latitude value of the subset.
     --yu <float>            Upper latitude value of the subset.
+    --sw <path>             Path to the HORAYZON LUT.
+
 """
 
 import argparse
@@ -449,6 +452,7 @@ def create_2D_input(
     x1=None,
     y0=None,
     y1=None,
+    corr_file=None
 ):
     """Create a 2D input dataset from a .csv file.
 
@@ -551,6 +555,7 @@ def create_2D_input(
     print("Interpolate CR file to grid")
 
     # Interpolate data (T, RH, RRR, U) to grid using lapse rates
+    rad_tlapse = -0.0065 #new to have default lapse rate for rad. scheme K per m 
     altitude = ds.HGT.values - _cfg.station["stationAlt"]
     for t in range(time_index):
         T_interp[t, :, :] = set_bias(
@@ -643,6 +648,41 @@ def create_2D_input(
                             )
                         else:
                             G_interp[t, i, j] = sw[t]
+                       
+    elif _cfg.radiation["radiationModule"] == "Horayzon2022":
+        print("Run the radiation moduel HORAYZON")
+        
+        #get correction factor which must be computed beforehand
+        try:
+            correction_factor = xr.open_dataset(corr_file)
+        except:
+            print("There is no HORAYZON LUT loaded. Please ensure you parsed the correct path.")
+            raise_nan_error()
+            
+        #impose limits on correction factor to ensure reasonable range
+        corr_vals = correction_factor['sw_dir_cor'].values
+        corr_vals_clip = np.where(corr_vals > 25, 25, corr_vals)
+        correction_factor['sw_dir_cor'] = (('time', 'lat', 'lon'), corr_vals_clip)
+        correction_factor['doy'] = correction_factor.time.dt.dayofyear
+        correction_factor['hour'] = correction_factor.time.dt.hour
+        #Create unique identifier for doy and hour and set as index
+        correction_factor['time_id'] = correction_factor['doy'] + correction_factor['hour']/100
+        correction_factor = correction_factor.set_index(time="time_id")
+        
+        #Start loop over each timestep
+        for t in range(time_index):
+            #get doy and timestep from df and check with doy and hour from static file
+            year = df.index[t].year
+            doy = df.index[t].dayofyear
+            hour = df.index[t].hour
+            #we rely on the fact that HORAYZON LUT was created for a leap year and factors dont change with time
+            if (year % 4 != 0 and doy > 59): #59th DOY = February 28th, leap year continues with 29th
+                doy = doy + 1
+            
+            time_identifier = doy + hour/100
+            sw_cor_val = correction_factor.sel(time=time_identifier)['sw_dir_cor']
+            #multiply correction factors with forcing
+            G_interp[t,:,:] = sw_cor_val * sw[t]
 
     elif _cfg.radiation["radiationModule"] == "Moelg2009":
         print("Run the radiation module Moelg2009")
@@ -818,7 +858,6 @@ def add_variable_along_timelatlon_point(ds, var, name, units, long_name):
     ds[name].attrs["units"] = units
     ds[name].attrs["long_name"] = long_name
     return ds
-
 
 def add_variable_along_point(ds, var, name, units, long_name):
     """Add point data to a dataset."""
@@ -999,6 +1038,14 @@ def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
         const=None,
         help="Upper latitude value of the subset",
     )
+    parser.add_argument(
+        "--sw",
+        dest="corr_file",
+        type=str,
+        metavar="<path>",
+        const=None,
+        help="Path to the HORAYZON LUT table",
+    )
     arguments = parser.parse_args()
 
     return arguments
@@ -1045,6 +1092,7 @@ def main():
             _args.xr,
             _args.yl,
             _args.yu,
+            _args.corr_file
         )
 
 
