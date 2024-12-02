@@ -42,6 +42,8 @@ Install GDAL:
 
 If you are installing dependencies with conda/mamba, use ``-c conda-forge`` if it does not already have the highest channel priority.
 
+When you are installing from source, :ref:`the provided makefile<makefile>` will install the ``gdal`` package automatically.
+
 .. note:: If you are installing with **pip** and Python 3.11+, you will need to `compile and install richdem`_.
     This is not necessary when using conda/mamba.
 
@@ -71,29 +73,51 @@ This is the recommended installation method if you do not plan to modify the sou
 Installation from Source
 ------------------------
 
-Activate your preferred python environment, then run:
+Activate your preferred python environment, then install dependencies:
 
 .. code-block:: bash
 
     git clone https://github.com/cryotools/cosipy.git
+    cd cosipy
+
+    make install-conda-envs                      # install using conda/mamba
+    conda install --file conda_requirements.txt  # install with conda
+
     pip install -r requirements.txt              # install default environment
     pip install -r dev_requirements.txt          # install dev environment
-    conda install --file conda_requirements.txt  # install using conda/mamba
+
     python3 COSIPY.py -h
+    make commands      # if you prefer less typing
+    make setup-cosipy  # generate configuration files
 
 Installation as an Editable
 ---------------------------
 
 Installing COSIPY as an editable allows it to run from any directory.
 
+The :ref:`provided makefile<makefile>` can simplify your workflow.
+View all possible commands using ``make help``.
+
 .. code-block:: bash
 
     git clone https://github.com/cryotools/cosipy.git
     cd cosipy
-    pip install -e .
-    pip install -e .[tests] # install with dependencies for tests
-    pip install -e .[docs]  # install with dependencies for documentation
-    pip install -e .[dev]   # install with dependencies for development
+
+    make install            # with conda/mamba
+    make install-pip        # with pip
+
+    cosipy-setup            # generate sample configuration files
+    cosipy-help             # view help
+
+That's it!
+Other installation options with pip:
+
+.. code-block:: bash
+
+    pip install -e .        # identical to make install-pip
+    make install-pip-tests  # install with test dependencies using pip
+    make install-pip-dev    # install with development dependencies using pip
+
     cosipy-setup            # generate sample configuration files
     cosipy-help             # view help
 
@@ -146,8 +170,8 @@ Tutorial
 ========
 
 For this tutorial, download or copy the sample ``data`` folder and place it in your COSIPY working directory.
-If you have installed COSIPY as a package, you can use the entry point ``setup-cosipy`` to generate the sample configuration files.
-Otherwise, run ``python -m cosipy.utilities.setup_cosipy.setup_cosipy``.
+If you have installed COSIPY as a package, use the entry point ``setup-cosipy`` to generate the sample configuration files.
+Otherwise, run ``make setup-cosipy``.
 
 Pre-Processing
 --------------
@@ -183,6 +207,7 @@ The static file is created using either:
 
 .. code-block:: bash
 
+    make create-static  # from source
     python -m cosipy.utilities.createStatic.create_static_file  # from source
     cosipy-create-static  # from entry point
 
@@ -257,7 +282,7 @@ To run COSIPY, run the following command in the root directory:
     python COSIPY.py  # from source
     run-cosipy        # from package
 
-The example should take less than a minute on a workstation with 4 cores.
+The example should take about a minute on a workstation with 4 cores.
 
 .. _run_usage:
 
@@ -300,6 +325,38 @@ Available shortcuts:
     :help-cosipy:           Alias for ``cosipy-help``.
     :run-cosipy:            Alias for ``cosipy-run``.
     :setup-cosipy:          Alias for ``cosipy-setup``.
+
+.. _makefile:
+
+Makefile
+--------
+
+The provided makefile can simplify your workflow.
+View all possible commands using ``make help``.
+
+Available shortcuts:
+    :black:                 Format all python files with black.
+    :build:                 Build COSIPY package.
+    :commands:              Display help for COSIPY.
+    :commit:                Test, then commit.
+    :coverage:              Run pytest with coverage.
+    :docs:                  Build documentation.
+    :flake8:                Lint with flake8.
+    :format:                Format all python files.
+    :help:                  Display this help screen.
+    :install-conda-env:     Install conda/mamba dependencies.
+    :install:               Install editable package using conda/mamba.
+    :install-pip-all:       Install editable package with tests & documentation using pip.
+    :install-pip-dev:       Install editable package in development mode using pip.
+    :install-pip-docs:      Install editable package with local documentation using pip.
+    :install-pip:           Install editable package using pip.
+    :install-pip-tests:     Install editable package with tests using pip.
+    :isort:                 Optimise python imports.
+    :pkg:                   Run tests, build documentation, build package.
+    :pylint:                Lint with Pylint.
+    :run:                   Alias for ``make commands``.
+    :setup-cosipy:          Generate COSIPY configuration files.
+    :tests:                 Run tests.
 
 .. _configuration:
 

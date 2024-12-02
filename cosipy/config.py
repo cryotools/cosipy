@@ -3,6 +3,8 @@ Hook configuration files for COSIPY.
 """
 
 import argparse
+import os
+import pathlib
 import sys
 from importlib.metadata import entry_points
 
@@ -12,20 +14,44 @@ else:
     import tomli as tomllib  # backwards compatibility
 
 
+def get_cosipy_path_from_env(name: str = "COSIPY_DIR") -> pathlib.Path:
+    """Get path to COSIPY directory.
+
+    When using WRFxCSPY, the coupler will default to searching for
+    config files in the current working directory, which may contain the
+    COSIPY source code. This function instead loads an environment
+    variable.
+
+    Args:
+        name: Name of environment variable pointing to the COSIPY
+            directory.
+
+    Returns:
+        Path to the COSIPY directory.
+
+    Raises:
+        NotADirectoryError: Invalid path.
+    """
+    cosipy_path = pathlib.Path(os.environ.get(name, os.getcwd()))
+    if not cosipy_path.is_dir():
+        raise NotADirectoryError(f"Invalid path at: {cosipy_path}")
+
+    return cosipy_path
+
+
 def set_parser() -> argparse.ArgumentParser:
     """Set argument parser for COSIPY."""
-    tagline = (
-        "Coupled snowpack and ice surface energy and mass balance model in Python."
-    )
+    tagline = "Coupled snowpack and ice surface energy and mass balance model in Python."
     parser = argparse.ArgumentParser(prog="COSIPY", description=tagline)
+    cosipy_path = get_cosipy_path_from_env()
 
     # Optional arguments
     parser.add_argument(
         "-c",
         "--config",
-        default="./config.toml",
+        default=cosipy_path / "config.toml",
         dest="config_path",
-        type=str,
+        type=pathlib.Path,
         metavar="<path>",
         required=False,
         help="relative path to configuration file",
@@ -34,9 +60,9 @@ def set_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-x",
         "--constants",
-        default="./constants.toml",
+        default=cosipy_path / "constants.toml",
         dest="constants_path",
-        type=str,
+        type=pathlib.Path,
         metavar="<path>",
         required=False,
         help="relative path to constants file",
@@ -45,9 +71,9 @@ def set_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-s",
         "--slurm",
-        default="./slurm_config.toml",
+        default=cosipy_path / "slurm_config.toml",
         dest="slurm_path",
-        type=str,
+        type=pathlib.Path,
         metavar="<path>",
         required=False,
         help="relative path to Slurm configuration file",

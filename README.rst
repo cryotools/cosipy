@@ -39,6 +39,7 @@ Install GDAL:
 
     sudo apt-get install gdal-bin libgdal-dev
     pip install --upgrade gdal==`gdal-config --version` pybind11  # with pip
+    conda install gdal  # with conda
 
 Install COSIPY with pip (for general use):
 
@@ -48,15 +49,31 @@ Install COSIPY with pip (for general use):
     cosipy-setup  # generate template configuration files
     cosipy-help   # view help
 
+Install COSIPY as an editable (recommended for development):
+
+.. code-block:: console
+
+    git clone https://github.com/cryotools/cosipy.git
+    cd cosipy    
+    make install          # using conda/mamba
+    make install-pip-dev  # using pip
+
+    cosipy-help           # view help
+
 Install COSIPY from source (for development):
 
 .. code-block:: console
 
     git clone https://github.com/cryotools/cosipy.git
+    cd cosipy
+    make install-conda-envs                      # install using conda/mamba
+    conda install --file conda_requirements.txt  # install with conda
+
     pip install -r requirements.txt              # install default environment
     pip install -r dev_requirements.txt          # install dev environment
-    conda install --file conda_requirements.txt  # install using conda/mamba
+
     python3 COSIPY.py -h
+    make commands
 
 Communication and Support
 -------------------------

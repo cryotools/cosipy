@@ -38,6 +38,15 @@ def conftest_mock_check_file_exists():
 
 
 @pytest.fixture(scope="function", autouse=False)
+def conftest_mock_check_directory_exists():
+    """Override checks when mocking directories."""
+
+    patcher = patch("pathlib.Path.is_dir")
+    mock_exists = patcher.start()
+    mock_exists.return_value = True
+
+
+@pytest.fixture(scope="function", autouse=False)
 def conftest_disable_jit():
     # numba.config.DISABLE_JIT = True
     raise NotImplementedError(
