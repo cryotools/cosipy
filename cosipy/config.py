@@ -1,6 +1,4 @@
-"""
-Hook configuration files for COSIPY.
-"""
+"""Hook configuration files for COSIPY."""
 
 import argparse
 import os
@@ -12,13 +10,6 @@ if sys.version_info >= (3, 11):
     import tomllib
 else:
     import tomli as tomllib  # backwards compatibility
-
-# FIXME: Will this work for all occasions or do we need to use frame?
-cwd = Path.cwd()
-default_path = cwd / "config.toml"
-default_slurm_path = cwd / "slurm_config.toml"
-default_constants_path = cwd / "constants.toml"
-default_utilities_path = cwd / "utilities_config.toml"
 
 
 def get_cosipy_path_from_env(name: str = "COSIPY_DIR") -> Path:
@@ -39,24 +30,30 @@ def get_cosipy_path_from_env(name: str = "COSIPY_DIR") -> Path:
     Raises:
         NotADirectoryError: Invalid path.
     """
-    cosipy_path = Path(os.environ.get(name, os.getcwd()))
+    cosipy_path = Path(os.environ.get(name, Path.cwd()))
     if not cosipy_path.is_dir():
         raise NotADirectoryError(f"Invalid path at: {cosipy_path}")
 
     return cosipy_path
 
 
+cosipy_path = get_cosipy_path_from_env()
+default_config_path = cosipy_path / "config.toml"
+default_slurm_path = cosipy_path / "slurm_config.toml"
+default_constants_path = cosipy_path / "constants.toml"
+default_utilities_path = cosipy_path / "utilities_config.toml"
+
+
 def set_parser() -> argparse.ArgumentParser:
     """Set argument parser for COSIPY."""
     tagline = "Coupled snowpack and ice surface energy and mass balance model in Python."
     parser = argparse.ArgumentParser(prog="COSIPY", description=tagline)
-    cosipy_path = get_cosipy_path_from_env()
 
     # Optional arguments
     parser.add_argument(
         "-c",
         "--config",
-        default=cosipy_path / "config.toml",
+        default=default_config_path,
         dest="config_path",
         type=Path,
         metavar="<path>",
@@ -67,7 +64,7 @@ def set_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-x",
         "--constants",
-        default=cosipy_path / "constants.toml",
+        default=default_constants_path,
         dest="constants_path",
         type=Path,
         metavar="<path>",
@@ -78,7 +75,7 @@ def set_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-s",
         "--slurm",
-        default=cosipy_path / "slurm_config.toml",
+        default=default_slurm_path,
         dest="slurm_path",
         type=Path,
         metavar="<path>",
@@ -160,7 +157,7 @@ class TomlLoader(object):
     """Load and parse configuration files."""
 
     @staticmethod
-    def get_raw_toml(file_path: str = "./config.toml") -> dict:
+    def get_raw_toml(file_path: Path = default_config_path) -> dict:
         """Open and load .toml configuration file.
 
         Args:
@@ -169,7 +166,7 @@ class TomlLoader(object):
         Returns:
             Loaded .toml data.
         """
-        with open(file_path, "rb") as f:
+        with file_path.open("rb") as f:
             raw_config = tomllib.load(f)
 
         return raw_config
@@ -198,7 +195,7 @@ class Config(TomlLoader):
         self.load(self.args.config_path)
 
     @classmethod
-    def load(cls, path: str = "./config.toml"):
+    def load(cls, path: Path = default_config_path):
         raw_toml = cls.get_raw_toml(path)
         parsed_toml = cls.set_correct_config(raw_toml)
         cls.set_config_values(parsed_toml)
@@ -252,7 +249,7 @@ class SlurmConfig(TomlLoader):
         self.load(self.args.slurm_path)
 
     @classmethod
-    def load(cls, path: str = "./slurm_config.toml"):
+    def load(cls, path: Path = default_slurm_path):
         raw_toml = cls.get_raw_toml(path)
         parsed_toml = cls.set_correct_config(raw_toml)
         cls.set_config_values(parsed_toml)
