@@ -39,7 +39,7 @@ sys.path.insert(0, os.path.abspath("../.."))
 project = "COSIPY"
 copyright = f"2019-{date.today().year}, COSIPY Contributors"
 author = "COSIPY Contributors"
-release = "2.0"
+release = "2.0.2"
 
 # -- General configuration ---------------------------------------------------
 

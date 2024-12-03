@@ -74,11 +74,11 @@ def conftest_hide_plot():
 
 
 @pytest.fixture(name="conftest_rng_seed", scope="function", autouse=False)
-def fixture_conftest_rng_seed() -> np.random.Generator:
+def fixture_conftest_rng_seed():
     """Set seed for random number generator to 444.
 
     Returns:
-        Random number generator with seed=444.
+        np.random.Generator: Random number generator with seed=444.
     """
 
     random_generator = np.random.default_rng(seed=444)
