@@ -121,9 +121,8 @@ build:	--install-build-deps	## Build COSIPY package
 		$(PYTHON) -m build
 		@twine check dist/*
 
-# .PHONY
-# bump-version:
-# 		@grep -Po '\bversion\s*=\s*"\K.*?(?=")' pyproject.toml
+bump-version:
+		@bash bump_version.sh
 
 .PHONY:
 upload-pypi:	# Private: upload COSIPY package
