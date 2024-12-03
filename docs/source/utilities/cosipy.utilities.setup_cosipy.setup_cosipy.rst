@@ -1,4 +1,4 @@
-setup\_cosipy
+﻿setup\_cosipy
 =============
 
 .. currentmodule:: cosipy.utilities.setup_cosipy
@@ -21,8 +21,8 @@ setup\_cosipy
       copy_file_to_target
       get_sample_directory
       get_user_arguments
+      get_user_confirmation
       main
-      strtobool
    
    
 
