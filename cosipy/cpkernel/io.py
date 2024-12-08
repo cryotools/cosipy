@@ -3,6 +3,7 @@
 """
 
 import os
+from typing import Union
 import warnings
 from datetime import datetime
 
@@ -97,7 +98,7 @@ class IOClass:
             getattr(self, f"LAYER_{name}")[:, y, x, :] = value
 
     def get_datetime(
-        self, timestamp: str, use_np: bool = True, fmt: str = "%Y-%m-%dT%H:%M"
+        self, timestamp: Union[str, datetime, np.datetime64], use_np: bool = True, fmt: str = "%Y-%m-%dT%H:%M"
     ):
         """Get datetime object from a string.
 
@@ -115,8 +116,11 @@ class IOClass:
                 return np.datetime64(timestamp)
             else:
                 return datetime.strptime(timestamp, fmt)
-        else:
-            return timestamp
+        if isinstance(timestamp, datetime) and use_np:
+            return np.datetime64(timestamp)
+        if isinstance(timestamp, np.datetime64) and not use_np:
+            return timestamp.astype(datetime)
+        return timestamp
 
     def create_data_file(self) -> xr.Dataset:
         """Create the input data and read the restart file if necessary.
@@ -131,8 +135,8 @@ class IOClass:
             # Load the restart file
             time_start = Config.time_start
             time_end = Config.time_end
-            start_timestamp = self.get_datetime(time_start)
-            end_timestamp = self.get_datetime(time_end)
+            start_timestamp = self.get_datetime(time_start, use_np=False)
+            end_timestamp = self.get_datetime(time_end, use_np=False)
             timestamp = start_timestamp.strftime("%Y-%m-%dT%H-%M")
             restart_path = os.path.join(
                 Config.data_path, "restart", f"restart_{timestamp}.nc"
