@@ -1,3 +1,4 @@
+from typing import Union
 import numpy as np
 from numba import njit
 
@@ -154,9 +155,9 @@ def create_grid_jitted(
     layer_T: np.ndarray,
     layer_LWC: np.ndarray,
     layer_IF: np.ndarray,
-    new_snow_height: float | np.float64,
-    new_snow_timestamp: float | np.float64,
-    old_snow_timestamp: float | np.float64,
+    new_snow_height: Union[float, np.float64],
+    new_snow_timestamp: Union[float, np.float64],
+    old_snow_timestamp: Union[float, np.float64],
 ):
     """Create Grid with JIT.
     
