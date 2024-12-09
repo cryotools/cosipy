@@ -1,3 +1,4 @@
+from typing import Union
 import numpy as np
 from numba import njit
 
@@ -129,9 +130,9 @@ def load_snowpack(GRID_RESTART):
     layer_LWC = GRID_RESTART.LAYER_LWC.values[0:num_layers]
     layer_IF = GRID_RESTART.LAYER_IF.values[0:num_layers]
 
-    new_snow_height = np.float64(GRID_RESTART.new_snow_height.values)
-    new_snow_timestamp = np.float64(GRID_RESTART.new_snow_timestamp.values)
-    old_snow_timestamp = np.float64(GRID_RESTART.old_snow_timestamp.values)
+    new_snow_height = np.float64(GRID_RESTART.NEW_SNOW_HEIGHT.to_numpy())
+    new_snow_timestamp = np.float64(GRID_RESTART.NEW_SNOW_TIMESTAMP.to_numpy())
+    old_snow_timestamp = np.float64(GRID_RESTART.OLD_SNOW_TIMESTAMP.to_numpy())
 
     GRID = create_grid_jitted(
         layer_heights,
@@ -154,9 +155,9 @@ def create_grid_jitted(
     layer_T: np.ndarray,
     layer_LWC: np.ndarray,
     layer_IF: np.ndarray,
-    new_snow_height: float,
-    new_snow_timestamp: float,
-    old_snow_timestamp: float,
+    new_snow_height: Union[float, np.float64],
+    new_snow_timestamp: Union[float, np.float64],
+    old_snow_timestamp: Union[float, np.float64],
 ):
     """Create Grid with JIT.
     
