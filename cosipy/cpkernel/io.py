@@ -1,11 +1,9 @@
-"""
- Read the input data (model forcing) and write the output to netCDF file.
-"""
+"""Read the input data (model forcing) and write the output to netCDF file."""
 
 import os
-from typing import Union
 import warnings
 from datetime import datetime
+from typing import Union
 
 import numpy as np
 import xarray as xr
@@ -15,7 +13,6 @@ from cosipy.constants import Constants
 
 
 class IOClass:
-
     def __init__(self, DATA=None):
         """Initialise the IO Class.
 
@@ -98,7 +95,10 @@ class IOClass:
             getattr(self, f"LAYER_{name}")[:, y, x, :] = value
 
     def get_datetime(
-        self, timestamp: Union[str, datetime, np.datetime64], use_np: bool = True, fmt: str = "%Y-%m-%dT%H:%M"
+        self,
+        timestamp: Union[str, datetime, np.datetime64],
+        use_np: bool = True,
+        fmt: str = "%Y-%m-%dT%H:%M",
     ):
         """Get datetime object from a string.
 
@@ -122,6 +122,40 @@ class IOClass:
             return timestamp.astype(datetime)
         return timestamp
 
+    def load_restart_file(self) -> None:
+        print(f"{'-'*62}\n\tRESTART FROM PREVIOUS STATE\n{'-'*62}\n")
+
+        # Load the restart file
+        time_start = Config.time_start
+        time_end = Config.time_end
+        start_timestamp = self.get_datetime(time_start, use_np=False)
+        end_timestamp = self.get_datetime(time_end, use_np=False)
+        timestamp = start_timestamp.strftime("%Y-%m-%dT%H-%M")
+        restart_path = os.path.join(
+            Config.data_path, "restart", f"restart_{timestamp}.nc"
+        )
+        if not os.path.isfile(restart_path):
+            raise FileNotFoundError
+        elif start_timestamp == end_timestamp:
+            raise IndexError
+        try:
+            self.GRID_RESTART = xr.open_dataset(restart_path)
+            """Get time of the last calculation and add one time step.
+
+            GRID_RESTART.time is an array of np.datetime64 objects.
+            """
+            self.restart_date = self.GRID_RESTART.time.values + np.timedelta64(
+                Constants.dt, "s"
+            )
+            # Read data from the last date to the end of the data file
+            self.init_data_dataset()
+        except FileNotFoundError:
+            raise SystemExit(
+                f"No restart file available for the given date: {timestamp}"
+            )
+        except IndexError:
+            raise SystemExit(f"Start date {time_start} equals end date {time_end}\n")
+
     def create_data_file(self) -> xr.Dataset:
         """Create the input data and read the restart file if necessary.
 
@@ -130,37 +164,7 @@ class IOClass:
         """
 
         if Config.restart:
-            print(f"{'-'*62}\n\tRESTART FROM PREVIOUS STATE\n{'-'*62}\n")
-
-            # Load the restart file
-            time_start = Config.time_start
-            time_end = Config.time_end
-            start_timestamp = self.get_datetime(time_start, use_np=False)
-            end_timestamp = self.get_datetime(time_end, use_np=False)
-            timestamp = start_timestamp.strftime("%Y-%m-%dT%H-%M")
-            restart_path = os.path.join(
-                Config.data_path, "restart", f"restart_{timestamp}.nc"
-            )
-            try:
-                if not os.path.isfile(restart_path):
-                    raise FileNotFoundError
-                elif start_timestamp == end_timestamp:
-                    raise IndexError
-                else:
-                    self.GRID_RESTART = xr.open_dataset(restart_path)
-                    """Get time of the last calculation and add one time
-                    step. GRID_RESTART.time is an array of np.datetime64
-                    objects.
-                    """
-                    self.restart_date = self.GRID_RESTART.time.values + np.timedelta64(
-                        Constants.dt, "s"
-                    )
-                    # Read data from the last date to the end of the data file
-                    self.init_data_dataset()
-            except FileNotFoundError:
-                raise SystemExit(f"No restart file available for the given date: {timestamp}")
-            except IndexError:
-                raise SystemExit(f"Start date {time_start} equals end date {time_end}\n")
+            self.load_restart_file()
         else:
             # If no restart, read data according to the dates defined in config file
             self.restart_date = None
@@ -238,7 +242,7 @@ class IOClass:
     def check_input_data(self) -> bool:
         """Check the input data is within valid bounds."""
         print(f"{'-'*62}\nChecking input data ....\n")
-        
+
         data_bounds = {
             "T2": (313.16, 243.16),
             "RH2": (100.0, 0.0),
@@ -246,7 +250,7 @@ class IOClass:
             "U2": (50.0, 0.0),
             "RRR": (20.0, 0.0),
             "N": (1.0, 0.0),
-            "PRES": (1080.0, 400.0),
+            "PRESS": (1080.0, 400.0),
             "LWin": (400.0, 200.0),
             "SNOWFALL": (0.1, 0.0),
             "SLOPE": (0.0, 90.0),
@@ -263,7 +267,7 @@ class IOClass:
         """Read and store the input netCDF data.
 
         The input data should contain the following variables:
-            :PRES: Air pressure [hPa].
+            :PRESS: Air pressure [hPa].
             :N: Cloud cover fraction [-].
             :RH2: 2m relative humidity [%].
             :RRR: Precipitation per time step [mm].
@@ -279,7 +283,6 @@ class IOClass:
             self.DATA = xr.open_dataset(input_path)
         except FileNotFoundError:
             raise SystemExit(f"Input file not found at: {input_path}")
-
 
         self.DATA["time"] = np.sort(self.DATA["time"].values)
         minimum_time = str(self.DATA.time.values[0])[0:16]
@@ -301,11 +304,11 @@ class IOClass:
             raise IndexError("Selected period not available in input data.\n")
         if start_time < start_interval:
             warnings.warn(
-                "\nWARNING! Selected startpoint before first timestep of input data\n",    
+                "\nWARNING! Selected startpoint before first timestep of input data\n",
             )
         if end_time > end_interval:
             warnings.warn(
-                "\nWARNING! Selected endpoint after last timestep of input data\n",    
+                "\nWARNING! Selected endpoint after last timestep of input data\n",
             )
 
         if self.restart_date is None:  # Check if restart option is set
@@ -345,7 +348,7 @@ class IOClass:
             "T2": ("K", "Air temperature at 2 m"),
             "RH2": ("%", "Relative humidity at 2 m"),
             "U2": ("m s\u207b\xb9", "Wind velocity at 2 m"),
-            "PRES": ("hPa", "Atmospheric pressure"),
+            "PRESS": ("hPa", "Atmospheric pressure"),
             "G": ("W m\u207b\xb2", "Incoming shortwave radiation"),
             "RRR": ("mm", "Total precipitation"),
             "SNOWFALL": ("m", "Snowfall"),
@@ -378,7 +381,6 @@ class IOClass:
         return metadata
 
     def get_restart_metadata(self) -> dict:
-
         field_metadata = self.get_full_field_metadata()
         restart_metadata = {
             "new_snow_height": ("m .w.e", "New snow height"),
@@ -475,31 +477,55 @@ class IOClass:
         self.RESULT.attrs["Densification_method"] = Constants.densification_method
         self.RESULT.attrs["Penetrating_method"] = Constants.penetrating_method
         self.RESULT.attrs["Roughness_method"] = Constants.roughness_method
-        self.RESULT.attrs["Saturation_water_vapour_method"] = Constants.saturation_water_vapour_method
+        self.RESULT.attrs["Saturation_water_vapour_method"] = (
+            Constants.saturation_water_vapour_method
+        )
 
         self.RESULT.attrs["Initial_snowheight"] = Constants.initial_snowheight_constant
-        self.RESULT.attrs["Initial_snow_layer_heights"] = Constants.initial_snow_layer_heights
+        self.RESULT.attrs["Initial_snow_layer_heights"] = (
+            Constants.initial_snow_layer_heights
+        )
         self.RESULT.attrs["Initial_glacier_height"] = Constants.initial_glacier_height
-        self.RESULT.attrs["Initial_glacier_layer_heights"] = Constants.initial_glacier_layer_heights
-        self.RESULT.attrs["Initial_top_density_snowpack"] = Constants.initial_top_density_snowpack
-        self.RESULT.attrs["Initial_bottom_density_snowpack"] = Constants.initial_bottom_density_snowpack
+        self.RESULT.attrs["Initial_glacier_layer_heights"] = (
+            Constants.initial_glacier_layer_heights
+        )
+        self.RESULT.attrs["Initial_top_density_snowpack"] = (
+            Constants.initial_top_density_snowpack
+        )
+        self.RESULT.attrs["Initial_bottom_density_snowpack"] = (
+            Constants.initial_bottom_density_snowpack
+        )
         self.RESULT.attrs["Temperature_bottom"] = Constants.temperature_bottom
         self.RESULT.attrs["Const_init_temp"] = Constants.const_init_temp
 
-        self.RESULT.attrs["Center_snow_transfer_function"] = Constants.center_snow_transfer_function
-        self.RESULT.attrs["Spread_snow_transfer_function"] = Constants.spread_snow_transfer_function
-        self.RESULT.attrs["Multiplication_factor_for_RRR_or_SNOWFALL"] = Constants.mult_factor_RRR
-        self.RESULT.attrs["Minimum_snow_layer_height"] = Constants.minimum_snow_layer_height
+        self.RESULT.attrs["Center_snow_transfer_function"] = (
+            Constants.center_snow_transfer_function
+        )
+        self.RESULT.attrs["Spread_snow_transfer_function"] = (
+            Constants.spread_snow_transfer_function
+        )
+        self.RESULT.attrs["Multiplication_factor_for_RRR_or_SNOWFALL"] = (
+            Constants.mult_factor_RRR
+        )
+        self.RESULT.attrs["Minimum_snow_layer_height"] = (
+            Constants.minimum_snow_layer_height
+        )
         self.RESULT.attrs["Minimum_snowfall"] = Constants.minimum_snowfall
 
         self.RESULT.attrs["Remesh_method"] = Constants.remesh_method
-        self.RESULT.attrs["First_layer_height_log_profile"] = Constants.first_layer_height
+        self.RESULT.attrs["First_layer_height_log_profile"] = (
+            Constants.first_layer_height
+        )
         self.RESULT.attrs["Layer_stretching_log_profile"] = Constants.layer_stretching
 
         self.RESULT.attrs["Merge_max"] = Constants.merge_max
         self.RESULT.attrs["Layer_stretching_log_profile"] = Constants.layer_stretching
-        self.RESULT.attrs["Density_threshold_merging"] = Constants.density_threshold_merging
-        self.RESULT.attrs["Temperature_threshold_merging"] = Constants.temperature_threshold_merging
+        self.RESULT.attrs["Density_threshold_merging"] = (
+            Constants.density_threshold_merging
+        )
+        self.RESULT.attrs["Temperature_threshold_merging"] = (
+            Constants.temperature_threshold_merging
+        )
 
         self.RESULT.attrs["Density_fresh_snow"] = Constants.constant_density
         self.RESULT.attrs["Albedo_fresh_snow"] = Constants.albedo_fresh_snow
@@ -560,7 +586,7 @@ class IOClass:
                 spatiotemporal["N"][0],
             )
 
-        print(f"\nOutput dataset ... ok")
+        print("\nOutput dataset ... ok")
 
         return self.RESULT
 
@@ -697,15 +723,15 @@ class IOClass:
                 )
 
         if Config.full_field and self.full:
-                for full_field_var in self.full:
-                    layer_name = f"LAYER_{full_field_var}"
-                    self.add_variable_along_latlonlayertime(
-                        self.RESULT,
-                        getattr(self, layer_name),
-                        layer_name,
-                        metadata[layer_name][0],
-                        metadata[layer_name][1],
-                    )
+            for full_field_var in self.full:
+                layer_name = f"LAYER_{full_field_var}"
+                self.add_variable_along_latlonlayertime(
+                    self.RESULT,
+                    getattr(self, layer_name),
+                    layer_name,
+                    metadata[layer_name][0],
+                    metadata[layer_name][1],
+                )
 
     def create_empty_restart(self) -> xr.Dataset:
         """Create an empty dataset for the RESTART attribute.
@@ -847,27 +873,35 @@ class IOClass:
     @property
     def RAIN(self):
         return self.__RAIN
+
     @property
     def SNOWFALL(self):
         return self.__SNOWFALL
+
     @property
     def LWin(self):
         return self.__LWin
+
     @property
     def LWout(self):
         return self.__LWout
+
     @property
     def H(self):
         return self.__H
+
     @property
     def LE(self):
         return self.__LE
+
     @property
     def B(self):
         return self.__B
+
     @property
     def QRR(self):
         return self.__QRR
+
     @property
     def MB(self):
         return self.__MB
@@ -875,27 +909,35 @@ class IOClass:
     @RAIN.setter
     def RAIN(self, x):
         self.__RAIN = x
+
     @SNOWFALL.setter
     def SNOWFALL(self, x):
         self.__SNOWFALL = x
+
     @LWin.setter
     def LWin(self, x):
         self.__LWin = x
+
     @LWout.setter
     def LWout(self, x):
         self.__LWout = x
+
     @H.setter
     def H(self, x):
         self.__H = x
+
     @LE.setter
     def LE(self, x):
         self.__LE = x
+
     @B.setter
     def B(self, x):
         self.__B = x
+
     @QRR.setter
     def QRR(self, x):
         self.__QRR = x
+
     @MB.setter
     def MB(self, x):
         self.__MB = x
