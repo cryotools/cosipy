@@ -26,7 +26,11 @@ def init_snowpack(DATA):
 
     # Check for WRF data
     if "SNOWHEIGHT" in DATA:
-        initial_snowheight = DATA.SNOWHEIGHT.values
+        if DATA.SNOWHEIGHT.values.size > 1:
+            initial_snowheight = DATA.SNOWHEIGHT.values[0]
+        else:
+            initial_snowheight = DATA.SNOWHEIGHT.values
+
         if np.isnan(initial_snowheight):
             initial_snowheight = 0.0
     else:
