@@ -107,8 +107,11 @@ class TestParamAlbedoSelection:
             surface_temperature=270.0,
             albedo_snow=Constants.albedo_fresh_snow,
         )
-        assert isinstance(surface_albedo, float)
-        assert isinstance(snow_albedo, float)
+        for albedo in [surface_albedo, snow_albedo]:
+            assert isinstance(albedo, float)
+            assert 0.0 <= albedo <= 1.0
+        
+        
 
     @pytest.mark.parametrize("arg_method", ["Wrong Method", "", None])
     def test_updateAlbedo_method_error(

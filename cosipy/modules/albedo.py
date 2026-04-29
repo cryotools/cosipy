@@ -242,9 +242,8 @@ def method_Bougamont(GRID, surface_temperature: float, albedo_snow: float):
         temperature-dependant decay timescales."""
 
         # slightly faster than one-liner
-        t_star_days = float(t_star) * float(dt_days)
         delta_albedo = albedo_snow - albedo_firn
-        albedo_snow -= delta_albedo / t_star_days
+        albedo_snow -= delta_albedo * float(dt_days) / float(t_star)
 
         # Reset if snowfall in current timestep
         if hours_since_snowfall == 0:

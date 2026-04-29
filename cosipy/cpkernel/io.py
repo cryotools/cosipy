@@ -249,7 +249,7 @@ class IOClass:
             "PRES": (1080.0, 400.0),
             "LWin": (400.0, 200.0),
             "SNOWFALL": (0.1, 0.0),
-            "SLOPE": (0.0, 90.0),
+            "SLOPE": (90.0, 0.0),
         }
 
         for key, bounds in data_bounds.items():
