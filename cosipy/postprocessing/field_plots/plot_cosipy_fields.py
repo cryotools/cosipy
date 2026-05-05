@@ -3,6 +3,7 @@ Usage: ``src/plot_cosipy_fields.py [-h] [-f <nc_file>] [-d] [...] [-v]``
 """
 
 import argparse
+from pathlib import Path
 import re
 
 import cartopy.crs as ccrs
@@ -409,7 +410,7 @@ def parse_arguments() -> argparse.Namespace:
         dest="file",
         required=True,
         default=None,
-        type=str,
+        type=Path,
         metavar="<path>",
         help="Path to .nc file",
     )

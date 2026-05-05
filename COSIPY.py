@@ -22,11 +22,14 @@ The model is written in Python 3.9 and is tested on Anaconda3-4.4.7 64-bit.
 
 Correspondence: tobias.sauter@fau.de
 """
-import cProfile
+
+from __future__ import annotations
+
 import logging
-import os
 from datetime import datetime
 from itertools import product
+from pathlib import Path
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -116,8 +119,8 @@ def main():
         #encoding[var] = dict(zlib=True, complevel=compression_level, dtype=dtype, scale_factor=scale_factor, add_offset=add_offset, _FillValue=FillValue)
         encoding[var] = dict(zlib=True, complevel=Config.compression_level)
     output_netcdf = set_output_netcdf_path()
-    output_path = create_data_directory(path='output')
-    IO.get_result().to_netcdf(os.path.join(output_path,output_netcdf), encoding=encoding, mode='w')
+    output_path = create_data_directory(name="output")
+    IO.get_result().to_netcdf(output_path / output_netcdf, encoding=encoding, mode="w")
 
     encoding = dict()
     for var in IO.get_restart().data_vars:
@@ -129,8 +132,8 @@ def main():
         #encoding[var] = dict(zlib=True, complevel=compression_level, dtype=dtype, scale_factor=scale_factor, add_offset=add_offset, _FillValue=FillValue)
         encoding[var] = dict(zlib=True, complevel=Config.compression_level)
 
-    restart_path = create_data_directory(path='restart')
-    IO.get_restart().to_netcdf(os.path.join(restart_path,f'restart_{timestamp}.nc'), encoding=encoding)
+    restart_path = create_data_directory(name='restart')
+    IO.get_restart().to_netcdf(restart_path / f'restart_{timestamp}.nc', encoding=encoding)
 
     #-----------------------------------------------
     # Stop time measurement
@@ -326,19 +329,29 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
 
         if Config.stake_evaluation:
             # Save the statistics and the mass balance simulations at the stakes to files
-            output_path = create_data_directory(path='output')
-            df_stat.to_csv(os.path.join(output_path,'stake_statistics.csv'),sep='\t', float_format='%.2f')
-            df_val.to_csv(os.path.join(output_path,'stake_simulations.csv'),sep='\t', float_format='%.2f')
+            output_path = create_data_directory(name="output")
+            df_stat.to_csv(
+                output_path / "stake_statistics.csv",
+                sep="\t",
+                float_format="%.2f",
+            )
+            df_val.to_csv(
+                output_path / "stake_simulations.csv",
+                sep="\t",
+                float_format="%.2f",
+            )
 
 
-def create_data_directory(path: str) -> str:
+def create_data_directory(name: Union[Path, str]) -> Path:
     """Create a directory in the configured data folder.
 
     Returns:
         Path to the created directory.
     """
-    dir_path = os.path.join(Config.data_path, path)
-    os.makedirs(dir_path, exist_ok=True)
+    if isinstance(name, Path):
+        name = name.name
+    dir_path = Path(Config.data_path) / str(name)
+    dir_path.mkdir(parents=True, exist_ok=True)
 
     return dir_path
 
@@ -355,7 +368,7 @@ def get_timestamp_label(timestamp: str) -> str:
     return (timestamp[0:10]).replace("-", "")
 
 
-def set_output_netcdf_path() -> str:
+def set_output_netcdf_path() -> Path:
     """Set the file path for the output netCDF file.
 
     Returns:
@@ -363,17 +376,15 @@ def set_output_netcdf_path() -> str:
     """
     time_start = get_timestamp_label(timestamp=Config.time_start)
     time_end = get_timestamp_label(timestamp=Config.time_end)
-    output_path = f"{Config.output_prefix}_{time_start}-{time_end}.nc"
-
-    return output_path
+    return Path(f"{Config.output_prefix}_{time_start}-{time_end}.nc")
 
 
 def start_logging():
-    """Start the python logging"""
-
-    if os.path.exists('./cosipy.yaml'):
-        with open('./cosipy.yaml', 'rt') as f:
-            config = yaml.load(f.read(),Loader=yaml.SafeLoader)
+    """Start the python logging."""
+    log_config_path = Path("./cosipy.yaml")
+    if log_config_path.exists():
+        with log_config_path.open() as f:
+            config = yaml.load(f.read(), Loader=yaml.SafeLoader)
         logging.config.dictConfig(config)
     else:
         logging.basicConfig(level=logging.INFO)

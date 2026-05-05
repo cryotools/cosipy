@@ -1,3 +1,7 @@
+import argparse
+import os
+from pathlib import Path
+
 import matplotlib
 # matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
@@ -242,14 +246,14 @@ def naive_fast(latvar,lonvar,lat0,lon0):
 if __name__ == "__main__":
    
     parser = argparse.ArgumentParser(description='Quick plot of the results file.')
-    parser.add_argument('-f', '--file', dest='file', help='Path to the result file')
+    parser.add_argument('-f', '--file', dest='file', type=Path, help='Path to the result file')
     parser.add_argument('-d', '--date', dest='pdate', help='Date of the profile plot')
     parser.add_argument('-v', '--var', dest='var', default='RHO', help='Which variable to plot (e.g. T, RHO, etc.)')
     parser.add_argument('-n', '--lat', dest='lat', default=None, help='Latitude value in case of 2D simulation', type=float)
     parser.add_argument('-m', '--lon', dest='lon', default=None, help='Longitude value in case of 2D simulation', type=float)
     parser.add_argument('-s', '--start', dest='start', default=None, help='Start date for the time plot')
     parser.add_argument('-e', '--end', dest='end', default=None, help='End date for the time plot')
-    parser.add_argument('--stake-file', dest='stake_file', default=None, help='Path to the stake data file')
+    parser.add_argument('--stake-file', dest='stake_file', default=None, type=Path, help='Path to the stake data file')
     parser.add_argument('--pit', dest='pit_name', default=None, help='Name of the pit in the stake data file')
     parser.add_argument('--depth', dest='d', nargs='+', default=None, help='An array with depth values for which the corresponding values are to be displayed', type=float)
 

@@ -19,6 +19,7 @@ You MUST manually add the values for `create_static` in the generated
 import configparser
 import inspect
 import sys
+from pathlib import Path
 
 import config
 import constants
@@ -284,12 +285,12 @@ def get_utilities_params() -> dict:
     return params
 
 
-def write_toml(parameters: dict, filename: str):
+def write_toml(parameters: dict, filename: Path | str):
     """Write parameters to .toml file."""
-    
-    with open(f"{filename}.toml", "w") as f:
+    if isinstance(filename, str):
+        filename = Path(filename)
+    with filename.with_suffix(".toml").open("w") as f:
         toml.dump(parameters, f)
-    
 
     print(f"Generated {filename}.toml")
 
@@ -308,15 +309,22 @@ def main():
 
     print_warning()
 
-    script_path = inspect.getfile(inspect.currentframe())
-    toml_suffix = script_path.split("/")[-2]  # avoid overwrite
+    frame = inspect.currentframe()
+    if frame is None:
+        msg = "Could not find the current frame. This is likely due to a bug in the code."
+        raise RuntimeError(msg)
+    try:
+        script_path = Path(inspect.getfile(frame)).resolve()
+    finally:
+        del frame
+    _ = script_path.parent.name  # HACK: avoid overwrite (Why is this here?)
 
     config_params = get_config_params()
-    write_toml(parameters=config_params, filename=f"config")
+    write_toml(parameters=config_params, filename="config")
     constants_params = get_constants_params()
-    write_toml(parameters=constants_params, filename=f"constants")
+    write_toml(parameters=constants_params, filename="constants")
     utilities_params = get_utilities_params()
-    write_toml(parameters=utilities_params, filename=f"utilities_config")
+    write_toml(parameters=utilities_params, filename="utilities_config")
 
 
 if __name__ == "__main__":

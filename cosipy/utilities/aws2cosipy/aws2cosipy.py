@@ -36,8 +36,11 @@ Optional arguments:
     --yu <float>            Upper latitude value of the subset.
 """
 
+from __future__ import annotations
+
 import argparse
 from itertools import product
+from pathlib import Path
 
 import dateutil
 import netCDF4 as nc
@@ -52,7 +55,7 @@ _args = None
 _cfg = None
 
 
-def read_input_file(input_path: str) -> tuple:
+def read_input_file(input_path: Path) -> pd.DataFrame:
     """Read input data, parse dates, and convert to a dataframe.
 
     Args:
@@ -238,12 +241,18 @@ def get_pressure_bias(data, height):
     return pressure
 
 
-def write_netcdf(dataset, output_path):
+def write_netcdf(dataset: xr.Dataset, output_path: Path | str) -> None:
     dataset.to_netcdf(output_path)
     print(f"{'-' * 43}\nInput file created: {output_path}\n{'-' * 43}")
 
 
-def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
+def create_1D_input(
+    cs_file: Path,
+    cosipy_file: Path,
+    static_file: Path | None,
+    start_date: str,
+    end_date: str,
+) -> None:
     """Create an input dataset from a csv file with input point data.
 
     Here you need to define how to interpolate the data.
@@ -440,15 +449,15 @@ def create_1D_input(cs_file, cosipy_file, static_file, start_date, end_date):
 
 
 def create_2D_input(
-    cs_file,
-    cosipy_file,
-    static_file,
-    start_date,
-    end_date,
-    x0=None,
-    x1=None,
-    y0=None,
-    y1=None,
+    cs_file: Path,
+    cosipy_file: Path,
+    static_file: Path,
+    start_date: str,
+    end_date: str,
+    x0: int | None=None,
+    x1: int | None=None,
+    y0: int | None=None,
+    y1: int | None=None,
 ):
     """Create a 2D input dataset from a .csv file.
 
@@ -928,7 +937,7 @@ def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
         "-i",
         "--input",
         dest="csv_file",
-        type=str,
+        type=Path,
         metavar="<path>",
         required=True,
         help="Path to .csv file with meteorological data",
@@ -937,7 +946,7 @@ def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
         "-o",
         "--output",
         dest="cosipy_file",
-        type=str,
+        type=Path,
         metavar="<path>",
         required=True,
         help="Path to the resulting COSIPY netCDF file",
@@ -945,7 +954,7 @@ def get_user_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
     parser.add_argument(
         "-s",
         "--static_file",
-        type=str,
+        type=Path,
         dest="static_file",
         help="Path to static file with DEM, slope etc.",
     )
