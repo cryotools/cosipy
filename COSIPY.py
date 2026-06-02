@@ -34,7 +34,7 @@ import scipy
 import yaml
 # from dask import compute, delayed
 # from dask.diagnostics import ProgressBar
-from dask.distributed import as_completed, progress
+from dask.distributed import as_completed, progress,wait
 from dask_jobqueue import SLURMCluster
 from distributed import Client, LocalCluster
 # import dask
@@ -51,17 +51,34 @@ def main():
     Constants()
 
     start_logging()
+    zarr_path = None
 
     #------------------------------------------
     # Create input and output dataset
     #------------------------------------------
-    IO = IOClass()
-    DATA = IO.create_data_file()
+    if Config.zarr:
+        
+        output_netcdf = set_output_netcdf_path()
+        output_path = create_data_directory(path='output')
+        zarr_path = os.path.join(output_path,output_netcdf)
+        IO = IOClass()
+        DATA = IO.create_data_file()
 
     # Create global result and restart datasets
-    RESULT = IO.create_result_file()
-    RESTART = IO.create_restart_file()
+        RESULT = IO.init_zarr_result_dataset()
+        RESULT = IO.write_zarr_results_to_file()
+        RESULT = IO.get_result()
+        RESULT = RESULT.chunk( {"lat": 1,'lon':1, 'time':-1})
+        RESULT.to_zarr(zarr_path, mode = 'w',compute=False,
+                   safe_chunks=True, write_empty_chunks=True)
 
+        RESTART = IO.create_restart_file()
+    
+    else:
+        IO = IOClass()
+        DATA = IO.create_data_file()
+        RESULT = IO.create_result_file()
+        RESTART = IO.create_restart_file()
     #----------------------------------------------
     # Calculation - Multithreading using all cores
     #----------------------------------------------
@@ -90,12 +107,12 @@ def main():
             print(cluster.job_script())
             print("You are using SLURM!\n")
             print(cluster)
-            run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures)
+            run_cosipy(zarr_path,cluster, IO, DATA, RESULT, RESTART, futures)
 
     else:
         with LocalCluster(scheduler_port=Config.local_port, n_workers=Config.workers, local_directory='logs/dask-worker-space', threads_per_worker=1, silence_logs=True) as cluster:
             print(cluster)
-            run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures)
+            run_cosipy(zarr_path,cluster, IO, DATA, RESULT, RESTART, futures)
 
     print("\n")
     print_notice(msg="Write results ...")
@@ -115,9 +132,9 @@ def main():
         # scale_factor, add_offset = compute_scale_and_offset(dataMin, dataMax, 16)
         #encoding[var] = dict(zlib=True, complevel=compression_level, dtype=dtype, scale_factor=scale_factor, add_offset=add_offset, _FillValue=FillValue)
         encoding[var] = dict(zlib=True, complevel=Config.compression_level)
-    output_netcdf = set_output_netcdf_path()
-    output_path = create_data_directory(path='output')
-    IO.get_result().to_netcdf(os.path.join(output_path,output_netcdf), encoding=encoding, mode='w')
+    #output_netcdf = set_output_netcdf_path()
+    #output_path = create_data_directory(path='output')
+    #IO.get_result().to_netcdf(os.path.join(output_path,output_netcdf), encoding=encoding, mode='w')
 
     encoding = dict()
     for var in IO.get_restart().data_vars:
@@ -149,7 +166,7 @@ def main():
     print_notice(msg="\tSIMULATION WAS SUCCESSFUL")
 
 
-def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
+def run_cosipy(zarr_path,cluster, IO, DATA, RESULT, RESTART, futures):
     Config()
     Constants()
 
@@ -241,7 +258,8 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                                 west_east=x,
                             ),
                             stake_names=stake_names,
-                            stake_data=df_stakes_data
+                            stake_data=df_stakes_data,
+                            zarr_path=zarr_path,
                         )
                     )
             else:
@@ -249,7 +267,12 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                 # Provide restart grid if necessary
                 if (mask == 1) and (not Config.restart):
                     check_for_nan(data=DATA.isel(lat=y,lon=x))
-                    futures.append(client.submit(cosipy_core, DATA.isel(lat=y, lon=x), y, x, stake_names=stake_names, stake_data=df_stakes_data))
+                    futures.append(client.submit(cosipy_core, 
+                                                 DATA.isel(lat=y, lon=x), y, x, 
+                                                 stake_names=stake_names, 
+                                                 stake_data=df_stakes_data,
+                                   lat_val = float(DATA.lat.values[y]),
+                                   lon_val = float(DATA.lon.values[x]),zarr_path=zarr_path))
                 elif (mask == 1) and (Config.restart):
                     check_for_nan(data=DATA.isel(lat=y,lon=x))
                     futures.append(
@@ -262,52 +285,55 @@ def run_cosipy(cluster, IO, DATA, RESULT, RESTART, futures):
                                 lat=y, lon=x
                             ),
                             stake_names=stake_names,
-                            stake_data=df_stakes_data
+                            stake_data=df_stakes_data,
+                            lat_val = float(DATA.lat.values[y]),
+                            lon_val = float(DATA.lon.values[x]),zarr_path=zarr_path),
                         )
-                    )
         # Finally, do the calculations and print the progress
         progress(futures)
+        wait(futures)
 
         #---------------------------------------
         # Guarantee that restart file is closed
         #---------------------------------------
         if Config.restart:
             IO.get_grid_restart().close()
-
-        # Create numpy arrays which aggregates all local results
-        IO.create_global_result_arrays()
-
-        # Create numpy arrays which aggregates all local results
-        IO.create_global_restart_arrays()
-
-        #---------------------------------------
-        # Assign local results to global
-        #---------------------------------------
-        for future in as_completed(futures):
-
-            # Get the results from the workers
-            indY, indX, local_restart, RAIN, SNOWFALL, LWin, LWout, H, LE, B, \
-                QRR, MB, surfMB, Q, SNOWHEIGHT, TOTALHEIGHT, TS, ALBEDO, \
-                NLAYERS, ME, intMB, EVAPORATION, SUBLIMATION, CONDENSATION, \
-                DEPOSITION, REFREEZE, subM, Z0, surfM, new_snow_height, new_snow_timestamp, old_snow_timestamp, MOL, LAYER_HEIGHT, \
-                LAYER_RHO, LAYER_T, LAYER_LWC, LAYER_CC, LAYER_POROSITY, \
-                LAYER_ICE_FRACTION, LAYER_IRREDUCIBLE_WATER, LAYER_REFREEZE, \
-                stake_names, stat, df_eval = future.result()
-
-            IO.copy_local_to_global(
-                indY, indX, RAIN, SNOWFALL, LWin, LWout, H, LE, B, QRR, MB, surfMB, Q,
-                SNOWHEIGHT, TOTALHEIGHT, TS, ALBEDO, NLAYERS, ME, intMB, EVAPORATION,
-                SUBLIMATION, CONDENSATION, DEPOSITION, REFREEZE, subM, Z0, surfM, MOL,
-                LAYER_HEIGHT, LAYER_RHO, LAYER_T, LAYER_LWC, LAYER_CC, LAYER_POROSITY,
-                LAYER_ICE_FRACTION, LAYER_IRREDUCIBLE_WATER, LAYER_REFREEZE)
-
-            IO.copy_local_restart_to_global(indY,indX,local_restart)
-
-            # Write results to file
-            IO.write_results_to_file()
-
-            # Write restart data to file
-            IO.write_restart_to_file()
+        
+        if not Config.zarr:                
+            # Create numpy arrays which aggregates all local results
+            IO.create_global_result_arrays()
+    
+            # Create numpy arrays which aggregates all local results
+            IO.create_global_restart_arrays()
+    
+            #---------------------------------------
+            # Assign local results to global
+            #---------------------------------------
+            for future in as_completed(futures):
+    
+                # Get the results from the workers
+                indY, indX, local_restart, RAIN, SNOWFALL, LWin, LWout, H, LE, B, \
+                    QRR, MB, surfMB, Q, SNOWHEIGHT, TOTALHEIGHT, TS, ALBEDO, \
+                    NLAYERS, ME, intMB, EVAPORATION, SUBLIMATION, CONDENSATION, \
+                    DEPOSITION, REFREEZE, subM, Z0, surfM, new_snow_height, new_snow_timestamp, old_snow_timestamp, MOL, LAYER_HEIGHT, \
+                    LAYER_RHO, LAYER_T, LAYER_LWC, LAYER_CC, LAYER_POROSITY, \
+                    LAYER_ICE_FRACTION, LAYER_IRREDUCIBLE_WATER, LAYER_REFREEZE, \
+                    stake_names, stat, df_eval = future.result()
+    
+                IO.copy_local_to_global(
+                    indY, indX, RAIN, SNOWFALL, LWin, LWout, H, LE, B, QRR, MB, surfMB, Q,
+                    SNOWHEIGHT, TOTALHEIGHT, TS, ALBEDO, NLAYERS, ME, intMB, EVAPORATION,
+                    SUBLIMATION, CONDENSATION, DEPOSITION, REFREEZE, subM, Z0, surfM, MOL,
+                    LAYER_HEIGHT, LAYER_RHO, LAYER_T, LAYER_LWC, LAYER_CC, LAYER_POROSITY,
+                    LAYER_ICE_FRACTION, LAYER_IRREDUCIBLE_WATER, LAYER_REFREEZE)
+    
+                IO.copy_local_restart_to_global(indY,indX,local_restart)
+    
+                # Write results to file
+                IO.write_results_to_file()
+    
+                # Write restart data to file
+                IO.write_restart_to_file()
 
             if Config.stake_evaluation:
                 # Store evaluation of stake measurements to dataframe
