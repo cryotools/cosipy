@@ -13,6 +13,11 @@ output_prefix = "Zhadang_ERA5"
 [RESTART]
 restart = false # set to true if you want to start from restart file
 
+
+[ZARR]
+zarr = false # set to true if you want to distribute writing 
+
+
 [STAKE_DATA]
 stake_evaluation = false
 stakes_loc_file = "./data/input/HEF/loc_stakes.csv" # path to stake location file
